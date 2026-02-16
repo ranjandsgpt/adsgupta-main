@@ -24,7 +24,7 @@ export const MobileNav = () => {
             href={item.href}
             target={item.href.startsWith('http') ? '_blank' : undefined}
             rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            data-testid={`mobile-nav-${item.label.toLowerCase()}`}
+            data-testid={`mobile-nav-${item.label.toLowerCase().replace(' ', '-')}`}
             className="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition-colors duration-300"
             whileTap={{ scale: 0.95 }}
           >
