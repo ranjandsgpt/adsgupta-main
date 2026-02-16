@@ -13,7 +13,7 @@ export const StatsTicker = () => {
 
   return (
     <motion.section
-      id="network"
+      id="stats"
       data-testid="stats-ticker"
       className="stats-ticker py-5 overflow-hidden"
       initial={{ opacity: 0 }}
