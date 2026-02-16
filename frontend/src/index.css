@@ -158,7 +158,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Mobile Bottom Nav */
 @media (max-width: 768px) {
-  .desktop-nav {
+  .desktop-nav .hidden-mobile {
     display: none;
   }
   
