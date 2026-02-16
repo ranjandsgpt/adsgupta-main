@@ -6,6 +6,8 @@ import { MobileNav } from "./components/MobileNav";
 import { HeroSection } from "./components/HeroSection";
 import { StatsTicker } from "./components/StatsTicker";
 import { HubSection } from "./components/HubSection";
+import { CommerceIntelSection } from "./components/CommerceIntelSection";
+import { MultiStakeholderGrid } from "./components/MultiStakeholderGrid";
 import { StakeholderSection } from "./components/StakeholderSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { BlogPreview } from "./components/BlogPreview";
@@ -38,6 +40,8 @@ const HomePage = () => {
         <HeroSection />
         <StatsTicker />
         <HubSection />
+        <CommerceIntelSection />
+        <MultiStakeholderGrid />
         <StakeholderSection />
         <FeaturesSection />
         <BlogPreview />
