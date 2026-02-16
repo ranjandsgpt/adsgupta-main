@@ -1,0 +1,182 @@
+{
+  "project_name": "Ads Gupta - AI Advertising Platform",
+  "design_philosophy": {
+    "theme": "Dark Mode Luxury Tech",
+    "tone": "Futuristic, Intellectual, High-Velocity, Premium",
+    "core_aesthetic": "Glassmorphism, Grainy Gradients, Thin Grid Lines, Kinetic Typography",
+    "key_principle": "Advertising at the Speed of Thought"
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "primary": "#121212",
+        "secondary": "#0A0A0A",
+        "glass": "rgba(18, 18, 18, 0.7)"
+      },
+      "text": {
+        "primary": "#FFFFFF",
+        "secondary": "#A1A1AA",
+        "muted": "#52525B"
+      },
+      "accent": {
+        "cyan": "#00F0FF",
+        "cyan_dim": "rgba(0, 240, 255, 0.1)",
+        "electric_blue": "#2563EB",
+        "glow": "0 0 20px rgba(0, 240, 255, 0.5)"
+      },
+      "border": {
+        "subtle": "rgba(255, 255, 255, 0.08)",
+        "highlight": "rgba(0, 240, 255, 0.3)"
+      }
+    },
+    "gradients": {
+      "hero_text": "linear-gradient(90deg, #FFFFFF 0%, #A1A1AA 100%)",
+      "glass_surface": "linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.0) 100%)",
+      "glow_orb": "radial-gradient(circle, rgba(0,240,255,0.15) 0%, rgba(0,0,0,0) 70%)"
+    }
+  },
+  "typography": {
+    "font_family": {
+      "headings": "\"Space Grotesk\", sans-serif",
+      "body": "\"Exo 2\", sans-serif",
+      "mono": "\"JetBrains Mono\", monospace"
+    },
+    "scaling": {
+      "hero_title": "text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9]",
+      "section_title": "text-4xl md:text-5xl font-bold tracking-tight",
+      "card_title": "text-2xl font-semibold tracking-tight",
+      "body_text": "text-base md:text-lg leading-relaxed text-zinc-400"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&display=swap');"
+    ]
+  },
+  "layout_strategy": {
+    "container": "max-w-7xl mx-auto px-6 md:px-12",
+    "spacing": "space-y-24 md:space-y-32",
+    "grid_system": "grid grid-cols-1 md:grid-cols-12 gap-8",
+    "mobile_nav": "Fixed bottom navigation, thumb-friendly, glassmorphism backdrop"
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-white text-black px-8 py-4 rounded-full font-bold hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] transition-all duration-300 transform hover:-translate-y-1",
+      "secondary": "border border-white/20 text-white px-8 py-4 rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-md",
+      "glow": "relative overflow-hidden group bg-transparent border border-cyan-500/50 text-cyan-400 hover:text-white hover:bg-cyan-500/10 hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] transition-all"
+    },
+    "cards": {
+      "glass": "bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-500 group relative overflow-hidden",
+      "neumorphic_dark": "bg-[#18181B] rounded-2xl p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_4px_20px_rgba(0,0,0,0.5)] border border-white/5",
+      "interactive": "cursor-none"
+    },
+    "visual_enhancers": {
+      "grain_overlay": "pointer-events-none fixed inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]",
+      "grid_lines": "absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]",
+      "custom_cursor": "fixed w-4 h-4 bg-white rounded-full mix-blend-difference pointer-events-none z-50 transition-transform duration-200 ease-out data-[hover=true]:scale-[4]"
+    }
+  },
+  "sections": {
+    "hero": {
+      "headline": "ADVERTISING AT THE SPEED OF THOUGHT.",
+      "subheadline": "The first AI-native platform that predicts consumer desire before it happens.",
+      "layout": "Split screen: Kinetic Typography (Left) vs 3D Abstract Animation (Right)",
+      "animation": "Staggered reveal for text, continuous float/rotate for 3D element"
+    },
+    "hub": {
+      "title": "THE HUB",
+      "cards": [
+        {
+          "title": "The AI Sandbox",
+          "description": "Test drive our neural engines in real-time.",
+          "link": "demoai.adsgupta.com",
+          "color": "from-cyan-500/20 to-blue-600/20",
+          "icon": "Box"
+        },
+        {
+          "title": "The Ad-Insight Blog",
+          "description": "Deep dives into the psychology of modern marketing.",
+          "link": "blog.adsgupta.com",
+          "color": "from-purple-500/20 to-pink-600/20",
+          "icon": "FileText"
+        }
+      ]
+    },
+    "features": {
+      "style": "Neumorphic Dark Cards",
+      "list": [
+        { "title": "Real-time Optimization", "desc": "Milliseconds matter. We adjust bids instantly.", "icon": "Zap" },
+        { "title": "Neural Targeting", "desc": "Find customers who don't know they need you yet.", "icon": "Brain" },
+        { "title": "Predictive Creative", "desc": "Generate high-converting visuals on the fly.", "icon": "Palette" }
+      ]
+    },
+    "blog_preview": {
+      "title": "THE AD-ARCHIVES",
+      "posts": [
+        {
+          "title": "The Psychology of Choice in Modern Advertising",
+          "category": "Strategy",
+          "image": "https://images.unsplash.com/photo-1764336312138-14a5368a6cd3?crop=entropy&cs=srgb&fm=jpg&q=85"
+        },
+        {
+          "title": "Neural-Pathing: How AI Predicts Consumer Desire",
+          "category": "Tech",
+          "image": "https://images.unsplash.com/photo-1620555791739-438a95e7ff65?crop=entropy&cs=srgb&fm=jpg&q=85"
+        },
+        {
+          "title": "If I Was Born As An Ad: A Creative Manifesto",
+          "category": "Editorial",
+          "image": "https://images.unsplash.com/photo-1646798824849-4ead86ddda70?crop=entropy&cs=srgb&fm=jpg&q=85"
+        }
+      ]
+    },
+    "footer": {
+      "newsletter": "Minimalist input field with 'Subscribe' arrow button.",
+      "social_ticker": "Infinite horizontal scroll of network partner logos/stats."
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_3d_placeholder": "https://images.unsplash.com/photo-1767642833959-0cac90824996?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "logos": [
+        "https://images.unsplash.com/photo-1662027008658-b615840c7deb?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "https://images.unsplash.com/photo-1671115544423-e5ecf3d6673d?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "https://images.unsplash.com/photo-1665823989787-f1cf14d56b04?crop=entropy&cs=srgb&fm=jpg&q=85"
+      ]
+    },
+    "icons": {
+      "library": "lucide-react",
+      "instruction": "Use Lucide icons with thin stroke width (1.5px) for elegance."
+    }
+  },
+  "motion": {
+    "library": "framer-motion",
+    "transitions": {
+      "page_load": "initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}",
+      "card_hover": "whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}",
+      "text_reveal": "initial={{ y: 20, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }}"
+    },
+    "3d_implementation": "Use framer-motion 'motion.svg' and 'motion.path' for the Hero animation. Create a complex, rotating geometric wireframe using SVG paths that draw themselves (pathLength animation)."
+  },
+  "instructions_to_main_agent": [
+    "1. Setup: Install 'framer-motion', 'lucide-react', 'clsx', 'tailwind-merge', 'react-fast-marquee'.",
+    "2. Theme: Force dark mode in Tailwind config. Set background to #121212.",
+    "3. Fonts: Add Space Grotesk and Exo 2 to index.css via Google Fonts import.",
+    "4. Cursor: Implement the custom cursor logic in a top-level component. It should blend-difference with the background.",
+    "5. Hero: Build the kinetic typography. Text should feel HUGE. The 3D element on the right should be a custom SVG component using Framer Motion to rotate/draw lines.",
+    "6. Grid: Use the 'Thin Grid Lines' background pattern defined in visual_enhancers globally or on the Hero section.",
+    "7. Mobile Nav: Create a fixed bottom bar for mobile with glassmorphism. Hide the top nav on mobile.",
+    "8. Testing: Add data-testid to all interactive elements (buttons, inputs, cards)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "- Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "- Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "- Create depth through layered design elements with z-index hierarchy",
+    "- Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "- You MUST NOT apply universal transition. Eg: `transition: all`. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "- You MUST NOT center align the app container, ie do not add `.App { text-align: center; }` in the css file. This disrupts the human natural reading flow of text",
+    "- Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "- NEVER: use AI assistant Emoji characters like 🤖🧠 etc.",
+    "- Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations.",
+    "- Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "- Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary."
+  ]
+}
