@@ -1,15 +1,26 @@
 import "@/App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CustomCursor } from "./components/CustomCursor";
 import { Navigation } from "./components/Navigation";
 import { MobileNav } from "./components/MobileNav";
 import { HeroSection } from "./components/HeroSection";
 import { StatsTicker } from "./components/StatsTicker";
 import { HubSection } from "./components/HubSection";
+import { StakeholderSection } from "./components/StakeholderSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { BlogPreview } from "./components/BlogPreview";
 import { Footer } from "./components/Footer";
+import { ChatBot } from "./components/ChatBot";
 
-function App() {
+// Pages
+import BlogPage from "./pages/BlogPage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
+
+// Home Page Component
+const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#121212] relative">
       {/* Grain Overlay */}
@@ -27,13 +38,33 @@ function App() {
         <HeroSection />
         <StatsTicker />
         <HubSection />
+        <StakeholderSection />
         <FeaturesSection />
         <BlogPreview />
       </main>
       
       {/* Footer */}
       <Footer />
+      
+      {/* Chatbot */}
+      <ChatBot />
     </div>
+  );
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <CustomCursor />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/aboutme" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

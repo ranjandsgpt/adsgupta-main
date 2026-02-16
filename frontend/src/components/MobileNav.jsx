@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
-import { Box, FileText, Network, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Box, FileText, Network, Home, Phone } from 'lucide-react';
 
 export const MobileNav = () => {
   const navItems = [
-    { label: 'Home', href: '#hero', icon: Home },
-    { label: 'AI Tool', href: 'https://demoai.adsgupta.com', icon: Box },
-    { label: 'Blog', href: 'https://blog.adsgupta.com', icon: FileText },
-    { label: 'Network', href: '#network', icon: Network },
+    { label: 'Home', href: '/', icon: Home, isLink: true },
+    { label: 'Hub', href: '/#hub', icon: Box, isLink: false },
+    { label: 'Blog', href: '/blog', icon: FileText, isLink: true },
+    { label: 'Contact', href: '/contact', icon: Phone, isLink: true },
   ];
 
   return (
@@ -19,18 +20,27 @@ export const MobileNav = () => {
     >
       <div className="flex items-center justify-around h-full px-4">
         {navItems.map((item) => (
-          <motion.a
-            key={item.label}
-            href={item.href}
-            target={item.href.startsWith('http') ? '_blank' : undefined}
-            rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            data-testid={`mobile-nav-${item.label.toLowerCase().replace(' ', '-')}`}
-            className="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition-colors duration-300"
-            whileTap={{ scale: 0.95 }}
-          >
-            <item.icon size={22} strokeWidth={1.5} />
-            <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
-          </motion.a>
+          item.isLink ? (
+            <Link
+              key={item.label}
+              to={item.href}
+              data-testid={`mobile-nav-${item.label.toLowerCase().replace(' ', '-')}`}
+              className="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition-colors duration-300"
+            >
+              <item.icon size={22} strokeWidth={1.5} />
+              <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
+            </Link>
+          ) : (
+            <a
+              key={item.label}
+              href={item.href}
+              data-testid={`mobile-nav-${item.label.toLowerCase().replace(' ', '-')}`}
+              className="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition-colors duration-300"
+            >
+              <item.icon size={22} strokeWidth={1.5} />
+              <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
+            </a>
+          )
         ))}
       </div>
     </motion.nav>

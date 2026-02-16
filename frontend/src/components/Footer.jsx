@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Linkedin, Twitter } from 'lucide-react';
 
 export const Footer = () => {
@@ -19,15 +20,15 @@ export const Footer = () => {
     {
       title: 'Platform',
       links: [
-        { label: 'AI Sandbox', href: 'https://demoai.adsgupta.com' },
-        { label: 'Features', href: '#features' },
+        { label: 'AI Sandbox', href: 'https://demoai.adsgupta.com', external: true },
+        { label: 'Features', href: '/#features' },
         { label: 'Pricing', href: '#' },
       ],
     },
     {
       title: 'Resources',
       links: [
-        { label: 'Blog', href: 'https://blog.adsgupta.com' },
+        { label: 'Blog', href: '/blog' },
         { label: 'Documentation', href: '#' },
         { label: 'API', href: '#' },
       ],
@@ -35,9 +36,16 @@ export const Footer = () => {
     {
       title: 'Company',
       links: [
-        { label: 'About', href: '#' },
+        { label: 'About', href: '/aboutme' },
+        { label: 'Contact', href: '/contact' },
         { label: 'Careers', href: '#' },
-        { label: 'Contact', href: '#' },
+      ],
+    },
+    {
+      title: 'Legal',
+      links: [
+        { label: 'Privacy Policy', href: '/privacy' },
+        { label: 'Terms of Service', href: '/terms' },
       ],
     },
   ];
@@ -102,7 +110,7 @@ export const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="grid grid-cols-3 gap-8"
+            className="grid grid-cols-2 md:grid-cols-4 gap-8"
           >
             {footerLinks.map((group, index) => (
               <div key={index}>
@@ -112,15 +120,33 @@ export const Footer = () => {
                 <ul className="space-y-3">
                   {group.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
-                      <a
-                        href={link.href}
-                        target={link.href.startsWith('http') ? '_blank' : undefined}
-                        rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                        data-hoverable="true"
-                        className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
-                      >
-                        {link.label}
-                      </a>
+                      {link.external ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          data-hoverable="true"
+                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
+                        >
+                          {link.label}
+                        </a>
+                      ) : link.href.startsWith('/#') ? (
+                        <a
+                          href={link.href}
+                          data-hoverable="true"
+                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
+                        >
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link
+                          to={link.href}
+                          data-hoverable="true"
+                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -132,9 +158,9 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-6">
-            <span className="text-2xl font-bold text-white font-['Space_Grotesk']">
+            <Link to="/" className="text-2xl font-bold text-white font-['Space_Grotesk']">
               ADS<span className="text-cyan-400">GUPTA</span>
-            </span>
+            </Link>
             <span className="text-zinc-600 text-sm">
               © 2025 Ads Gupta. All rights reserved.
             </span>
