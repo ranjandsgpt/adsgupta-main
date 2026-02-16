@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
-import { Box, FileText, ShoppingCart, BarChart3, Building2, GraduationCap, ArrowUpRight, Lock } from 'lucide-react';
+import { Box, FileText, ShoppingCart, Server, Monitor, Wrench, ArrowUpRight, Lock, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const HubSection = () => {
   const hubCards = [
     {
-      title: 'AI Sandbox',
+      title: 'The AI Sandbox',
       description: 'Test drive our neural engines in real-time. Build, experiment, and deploy ad campaigns powered by cutting-edge AI.',
       link: 'https://demoai.adsgupta.com',
       external: true,
@@ -13,6 +13,7 @@ export const HubSection = () => {
       gradient: 'from-cyan-500/20 via-cyan-600/10 to-blue-600/20',
       iconColor: 'text-cyan-400',
       status: 'active',
+      badge: 'LIVE',
     },
     {
       title: 'The Insight Engine',
@@ -23,46 +24,51 @@ export const HubSection = () => {
       gradient: 'from-violet-500/20 via-purple-600/10 to-pink-600/20',
       iconColor: 'text-violet-400',
       status: 'active',
+      badge: 'ARCHIVES',
     },
     {
-      title: 'Commerce Intel',
-      description: 'Advanced analytics and optimization for Amazon, Walmart, and Target sellers. Dominate the marketplace.',
-      link: '#',
+      title: 'Marketplace Intel',
+      description: 'Dominance for Amazon, Walmart, Target, Blinkit, Swiggy, and Zomato. From AI-SEO to automated Seller Central bidding.',
+      link: '/marketplacesolutions',
       external: false,
       icon: ShoppingCart,
       gradient: 'from-emerald-500/20 via-green-600/10 to-teal-600/20',
       iconColor: 'text-emerald-400',
-      status: 'coming-soon',
+      status: 'active',
+      badge: 'COMMERCE',
     },
     {
-      title: 'Yield Master',
-      description: 'Monetization intelligence for Publishers & SSPs. Maximize your ad revenue with neural optimization.',
-      link: '#',
+      title: 'Neural Supply Protocol',
+      description: 'Next-gen monetization for Web, App, CTV, OTT, and LLM-crawlers. Audience-first yield architecture.',
+      link: '/supply',
       external: false,
-      icon: BarChart3,
+      icon: Server,
       gradient: 'from-orange-500/20 via-amber-600/10 to-yellow-600/20',
       iconColor: 'text-orange-400',
-      status: 'coming-soon',
+      status: 'active',
+      badge: 'PUBLISHERS',
     },
     {
-      title: 'Agency Desk',
-      description: 'Enterprise tools for DSPs, Trading Desks, and Resellers. Scale your operations with AI-powered insights.',
-      link: '#',
+      title: 'Universal Demand Engine',
+      description: 'The AI-native alternative to Google Marketing Platform. Custom bidders, Reseller DSP access, and Agentic AI targeting.',
+      link: '/demand',
       external: false,
-      icon: Building2,
+      icon: Monitor,
       gradient: 'from-rose-500/20 via-pink-600/10 to-red-600/20',
       iconColor: 'text-rose-400',
-      status: 'coming-soon',
+      status: 'active',
+      badge: 'ADVERTISERS',
     },
     {
-      title: 'Ad-Academy',
-      description: 'Comprehensive resources for Interns and Career Changers. Launch your ad-tech career with expert guidance.',
-      link: '#',
+      title: 'The Lab (Web Tools)',
+      description: 'Unified toolkit for SEO, UA, Affiliates, AI Content Gen, and Ad-Tech Career/Interview AI.',
+      link: '/tools',
       external: false,
-      icon: GraduationCap,
+      icon: Wrench,
       gradient: 'from-sky-500/20 via-blue-600/10 to-indigo-600/20',
       iconColor: 'text-sky-400',
-      status: 'coming-soon',
+      status: 'active',
+      badge: 'UTILITIES',
     },
   ];
 
@@ -90,18 +96,15 @@ export const HubSection = () => {
   };
 
   const CardWrapper = ({ card, children }) => {
-    if (card.status === 'coming-soon') {
-      return <div className="cursor-not-allowed">{children}</div>;
-    }
     if (card.external) {
       return (
-        <a href={card.link} target="_blank" rel="noopener noreferrer" data-hoverable="true">
+        <a href={card.link} target="_blank" rel="noopener noreferrer" data-hoverable="true" className="block h-full">
           {children}
         </a>
       );
     }
     return (
-      <Link to={card.link} data-hoverable="true">
+      <Link to={card.link} data-hoverable="true" className="block h-full">
         {children}
       </Link>
     );
@@ -123,11 +126,13 @@ export const HubSection = () => {
           className="text-center mb-16"
         >
           <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-            Ecosystem
+            Command Center
           </span>
-          <h2 className="section-title text-white mb-4">THE HUB</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
+            THE HUB
+          </h2>
           <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-            Your gateway to the complete ad-tech ecosystem. Powerful tools for every player in the industry.
+            Your gateway to the complete ad-tech operating system. Six protocols. Infinite possibilities.
           </p>
         </motion.div>
 
@@ -147,24 +152,21 @@ export const HubSection = () => {
             >
               <CardWrapper card={card}>
                 <div
-                  className={`glass-card group relative rounded-2xl p-6 md:p-8 overflow-hidden h-full
-                    ${card.status === 'coming-soon' ? 'opacity-70' : 'hover:-translate-y-1'}
-                    transition-transform duration-300`}
+                  className="glass-card group relative rounded-2xl p-6 md:p-8 overflow-hidden h-full
+                    hover:-translate-y-1 transition-transform duration-300"
                 >
                   {/* Gradient overlay */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                   
                   {/* Status Badge */}
-                  {card.status === 'coming-soon' && (
-                    <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
-                      <Lock size={12} className="text-zinc-400" />
-                      <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Coming Soon</span>
-                    </div>
-                  )}
+                  <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/10">
+                    <Zap size={10} className={card.iconColor} />
+                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">{card.badge}</span>
+                  </div>
                   
                   {/* Content */}
                   <div className="relative z-10">
-                    <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-5 ${card.iconColor}`}>
+                    <div className={`w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-5 ${card.iconColor} group-hover:border-current/30 transition-colors`}>
                       <card.icon size={24} strokeWidth={1.5} />
                     </div>
 
@@ -176,15 +178,13 @@ export const HubSection = () => {
                       {card.description}
                     </p>
 
-                    {card.status === 'active' && (
-                      <div className="flex items-center gap-2 text-white font-medium text-sm">
-                        <span>Explore</span>
-                        <ArrowUpRight 
-                          size={16} 
-                          className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" 
-                        />
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2 text-white font-medium text-sm">
+                      <span>Enter Protocol</span>
+                      <ArrowUpRight 
+                        size={16} 
+                        className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" 
+                      />
+                    </div>
                   </div>
 
                   {/* Corner decoration */}

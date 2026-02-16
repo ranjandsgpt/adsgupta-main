@@ -20,6 +20,10 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import MarketplaceSolutionsPage from "./pages/MarketplaceSolutionsPage";
+import SupplyPage from "./pages/SupplyPage";
+import DemandPage from "./pages/DemandPage";
+import ToolsPage from "./pages/ToolsPage";
 
 // Home Page Component
 const HomePage = () => {
@@ -67,6 +71,10 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
+        <Route path="/supply" element={<SupplyPage />} />
+        <Route path="/demand" element={<DemandPage />} />
+        <Route path="/tools" element={<ToolsPage />} />
       </Routes>
     </BrowserRouter>
   );
