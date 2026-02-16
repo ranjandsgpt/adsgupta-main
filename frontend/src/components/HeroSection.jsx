@@ -47,7 +47,7 @@ export const HeroSection = () => {
       <div className="glow-orb top-20 -left-40 opacity-30" />
       <div className="glow-orb bottom-20 right-0 opacity-20" />
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 w-full">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           {/* Left: Kinetic Typography */}
           <div className="order-2 lg:order-1">

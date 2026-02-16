@@ -53,7 +53,7 @@ export const BlogPreview = () => {
       data-testid="blog-section"
       className="relative py-24 md:py-32"
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

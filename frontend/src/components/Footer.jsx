@@ -55,7 +55,7 @@ export const Footer = () => {
       data-testid="footer-section"
       className="relative py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5"
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16">
           {/* Left: Newsletter */}
           <motion.div
