@@ -64,7 +64,7 @@ export const FeaturesSection = () => {
       data-testid="features-section"
       className="relative py-24 md:py-32 bg-[#0A0A0A]"
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -74,11 +74,13 @@ export const FeaturesSection = () => {
           className="text-center mb-16"
         >
           <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-            Capabilities
+            The Core
           </span>
-          <h2 className="section-title text-white mb-4">THE NEURAL ENGINE</h2>
-          <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-            Every feature built for speed, precision, and scale.
+          <h2 className="text-3xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
+            THE NEURAL ENGINE
+          </h2>
+          <p className="text-zinc-400 text-base md:text-lg max-w-2xl mx-auto">
+            The foundational AI layer powering every Ads Gupta protocol.
           </p>
         </motion.div>
 
@@ -105,7 +107,7 @@ export const FeaturesSection = () => {
                 {feature.title}
               </h3>
 
-              <p className="text-zinc-400 text-base leading-relaxed">
+              <p className="text-zinc-400 text-sm leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Box, FileText, ShoppingCart, Server, Monitor, Wrench, ArrowUpRight, Lock, Zap } from 'lucide-react';
+import { Box, FileText, ShoppingCart, Server, Monitor, Wrench, ArrowUpRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const HubSection = () => {
@@ -12,7 +12,6 @@ export const HubSection = () => {
       icon: Box,
       gradient: 'from-cyan-500/20 via-cyan-600/10 to-blue-600/20',
       iconColor: 'text-cyan-400',
-      status: 'active',
       badge: 'LIVE',
     },
     {
@@ -23,7 +22,6 @@ export const HubSection = () => {
       icon: FileText,
       gradient: 'from-violet-500/20 via-purple-600/10 to-pink-600/20',
       iconColor: 'text-violet-400',
-      status: 'active',
       badge: 'ARCHIVES',
     },
     {
@@ -34,7 +32,6 @@ export const HubSection = () => {
       icon: ShoppingCart,
       gradient: 'from-emerald-500/20 via-green-600/10 to-teal-600/20',
       iconColor: 'text-emerald-400',
-      status: 'active',
       badge: 'COMMERCE',
     },
     {
@@ -45,7 +42,6 @@ export const HubSection = () => {
       icon: Server,
       gradient: 'from-orange-500/20 via-amber-600/10 to-yellow-600/20',
       iconColor: 'text-orange-400',
-      status: 'active',
       badge: 'PUBLISHERS',
     },
     {
@@ -56,7 +52,6 @@ export const HubSection = () => {
       icon: Monitor,
       gradient: 'from-rose-500/20 via-pink-600/10 to-red-600/20',
       iconColor: 'text-rose-400',
-      status: 'active',
       badge: 'ADVERTISERS',
     },
     {
@@ -67,7 +62,6 @@ export const HubSection = () => {
       icon: Wrench,
       gradient: 'from-sky-500/20 via-blue-600/10 to-indigo-600/20',
       iconColor: 'text-sky-400',
-      status: 'active',
       badge: 'UTILITIES',
     },
   ];
@@ -116,7 +110,7 @@ export const HubSection = () => {
       data-testid="hub-section"
       className="relative py-24 md:py-32"
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -126,12 +120,12 @@ export const HubSection = () => {
           className="text-center mb-16"
         >
           <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-            Command Center
+            The Protocols
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
             THE HUB
           </h2>
-          <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+          <p className="text-zinc-400 text-base md:text-lg max-w-2xl mx-auto">
             Your gateway to the complete ad-tech operating system. Six protocols. Infinite possibilities.
           </p>
         </motion.div>
@@ -170,11 +164,11 @@ export const HubSection = () => {
                       <card.icon size={24} strokeWidth={1.5} />
                     </div>
 
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-3 font-['Space_Grotesk'] tracking-tight">
+                    <h3 className="text-lg md:text-xl font-bold text-white mb-3 font-['Space_Grotesk'] tracking-tight">
                       {card.title}
                     </h3>
 
-                    <p className="text-zinc-400 text-sm md:text-base leading-relaxed mb-5">
+                    <p className="text-zinc-400 text-sm leading-relaxed mb-5">
                       {card.description}
                     </p>
 

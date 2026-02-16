@@ -5,11 +5,10 @@ import { Navigation } from "./components/Navigation";
 import { MobileNav } from "./components/MobileNav";
 import { HeroSection } from "./components/HeroSection";
 import { StatsTicker } from "./components/StatsTicker";
-import { HubSection } from "./components/HubSection";
-import { CommerceIntelSection } from "./components/CommerceIntelSection";
-import { MultiStakeholderGrid } from "./components/MultiStakeholderGrid";
-import { StakeholderSection } from "./components/StakeholderSection";
 import { FeaturesSection } from "./components/FeaturesSection";
+import { HubSection } from "./components/HubSection";
+import { MarketplaceSection } from "./components/MarketplaceSection";
+import { NetworkSection } from "./components/NetworkSection";
 import { BlogPreview } from "./components/BlogPreview";
 import { Footer } from "./components/Footer";
 import { ChatBot } from "./components/ChatBot";
@@ -25,7 +24,7 @@ import SupplyPage from "./pages/SupplyPage";
 import DemandPage from "./pages/DemandPage";
 import ToolsPage from "./pages/ToolsPage";
 
-// Home Page Component
+// Home Page Component - Reordered for Narrative Flow
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#121212] relative">
@@ -39,16 +38,28 @@ const HomePage = () => {
       <Navigation />
       <MobileNav />
       
-      {/* Main Content */}
+      {/* Main Content - Narrative Order */}
       <main>
+        {/* 1. Hero Section */}
         <HeroSection />
+        
+        {/* Stats Ticker */}
         <StatsTicker />
-        <HubSection />
-        <CommerceIntelSection />
-        <MultiStakeholderGrid />
-        <StakeholderSection />
+        
+        {/* 2. The Neural Engine (The Core) - Moved Up */}
         <FeaturesSection />
+        
+        {/* 3. The Hub (The Protocols) */}
+        <HubSection />
+        
+        {/* 4. Marketplace Solutions (Feature Deep-Dive) */}
+        <MarketplaceSection />
+        
+        {/* 5. Blog Preview */}
         <BlogPreview />
+        
+        {/* 6. Network Solutions (The Ecosystem) - Moved to Bottom */}
+        <NetworkSection />
       </main>
       
       {/* Footer */}

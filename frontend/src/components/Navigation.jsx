@@ -17,31 +17,36 @@ export const Navigation = () => {
   return (
     <motion.nav
       data-testid="desktop-navigation"
-      className="desktop-nav fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-4 bg-[#121212]/90 backdrop-blur-xl border-b border-white/5"
+      className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-4 bg-[#121212]/90 backdrop-blur-xl border-b border-white/5"
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <motion.div whileHover={{ scale: 1.02 }}>
-          <Link
-            to="/"
-            data-testid="logo-link"
-            data-hoverable="true"
-            className="flex items-center gap-2"
-          >
-            <span className="text-2xl font-bold tracking-tight text-white font-['Space_Grotesk']">
-              ADS<span className="text-cyan-400">GUPTA</span>
-            </span>
-            <span className="hidden md:inline-flex px-2 py-0.5 text-[9px] rounded bg-cyan-500/20 text-cyan-400 font-bold tracking-wider border border-cyan-500/30">
-              AD-OS
-            </span>
-          </Link>
-        </motion.div>
+      <div className="max-w-[1200px] mx-auto flex items-center justify-between">
+        {/* Logo + Badge Group */}
+        <div className="flex items-center">
+          <motion.div whileHover={{ scale: 1.02 }}>
+            <Link
+              to="/"
+              data-testid="logo-link"
+              data-hoverable="true"
+              className="flex items-center gap-2"
+            >
+              <span className="text-xl md:text-2xl font-bold tracking-tight text-white font-['Space_Grotesk']">
+                ADS<span className="text-cyan-400">GUPTA</span>
+              </span>
+              <span className="hidden md:inline-flex px-2 py-0.5 text-[9px] rounded bg-cyan-500/20 text-cyan-400 font-bold tracking-wider border border-cyan-500/30">
+                AD-OS
+              </span>
+            </Link>
+          </motion.div>
+          
+          {/* 20px spacer */}
+          <div className="w-5 md:w-8" />
+        </div>
 
-        {/* Desktop Nav Links */}
-        <div className="hidden lg:flex items-center gap-5">
+        {/* Desktop Nav Links - Centered */}
+        <div className="hidden lg:flex items-center gap-6 xl:gap-8">
           {navItems.map((item) => (
             item.href.startsWith('/#') ? (
               <motion.a
@@ -49,10 +54,9 @@ export const Navigation = () => {
                 href={item.href}
                 data-testid={`nav-link-${item.label.toLowerCase().replace(' ', '-')}`}
                 data-hoverable="true"
-                className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide"
-                whileHover={{ y: -2 }}
+                className="text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
+                whileHover={{ y: -1 }}
               >
-                <item.icon size={15} strokeWidth={1.5} />
                 {item.label}
               </motion.a>
             ) : (
@@ -61,24 +65,29 @@ export const Navigation = () => {
                 to={item.href}
                 data-testid={`nav-link-${item.label.toLowerCase().replace(' ', '-')}`}
                 data-hoverable="true"
-                className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide"
+                className="text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
               >
-                <item.icon size={15} strokeWidth={1.5} />
                 {item.label}
               </Link>
             )
           ))}
+        </div>
 
+        {/* Right Side: Login + Try Demo with Divider */}
+        <div className="hidden lg:flex items-center">
+          {/* Vertical Divider */}
+          <div className="h-6 w-px bg-white/10 mr-5" />
+          
           {/* Login Button */}
           <motion.button
             data-testid="nav-login-button"
             data-hoverable="true"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-cyan-500/50 text-cyan-400 text-sm font-medium
-              hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-white transition-all duration-300"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-cyan-500/40 text-cyan-400 text-[13px] font-medium
+              hover:bg-cyan-500/10 hover:border-cyan-400 hover:text-white transition-all duration-300 mr-3"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <LogIn size={16} strokeWidth={1.5} />
+            <LogIn size={14} strokeWidth={1.5} />
             Login
           </motion.button>
 
@@ -89,8 +98,8 @@ export const Navigation = () => {
             rel="noopener noreferrer"
             data-testid="nav-cta-button"
             data-hoverable="true"
-            className="glow-button px-5 py-2.5 rounded-xl bg-cyan-500 text-black text-sm font-bold
-              hover:bg-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+            className="glow-button px-4 py-2 rounded-lg bg-cyan-500 text-black text-[13px] font-bold
+              hover:bg-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.25)]"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -101,7 +110,7 @@ export const Navigation = () => {
         {/* Mobile Menu Button */}
         <button
           data-testid="mobile-menu-button"
-          className="lg:hidden text-white"
+          className="lg:hidden text-white p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -122,7 +131,7 @@ export const Navigation = () => {
                   key={item.label}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-zinc-300 hover:text-white py-2"
+                  className="flex items-center gap-3 text-zinc-300 hover:text-white py-2 text-sm"
                 >
                   <item.icon size={18} strokeWidth={1.5} />
                   {item.label}
@@ -132,17 +141,27 @@ export const Navigation = () => {
                   key={item.label}
                   to={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-zinc-300 hover:text-white py-2"
+                  className="flex items-center gap-3 text-zinc-300 hover:text-white py-2 text-sm"
                 >
                   <item.icon size={18} strokeWidth={1.5} />
                   {item.label}
                 </Link>
               )
             ))}
-            <button className="flex items-center gap-3 text-cyan-400 py-2 mt-2 border-t border-white/10 pt-4">
-              <LogIn size={18} strokeWidth={1.5} />
-              Login
-            </button>
+            <div className="flex gap-3 mt-4 pt-4 border-t border-white/10">
+              <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-cyan-500/40 text-cyan-400 text-sm font-medium">
+                <LogIn size={16} />
+                Login
+              </button>
+              <a
+                href="https://demoai.adsgupta.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center px-4 py-2.5 rounded-lg bg-cyan-500 text-black text-sm font-bold"
+              >
+                Try Demo
+              </a>
+            </div>
           </div>
         </motion.div>
       )}
