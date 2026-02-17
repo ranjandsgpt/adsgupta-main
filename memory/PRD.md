@@ -13,36 +13,83 @@ Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-gra
 | `demoai.adsgupta.com` | Demo Hub - Protocol Showcase Hub | `REACT_APP_SHOW_DEMO=true` |
 | `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (currently integrated) |
 
-## Monetization Demo Page (Phase 12 - COMPLETE) ✅
+## Monetization AI - Native Ad Engine (Phase 13 - COMPLETE) ✅
 
 ### Overview
-Exact replica of adsgupta-health.preview.emergentagent.com with LLM Native Ads functionality.
+Unified Ad-Hook System with SLM Intelligence. Completely refactored MonetizationPage.jsx into modular components.
+
+### Brand Update (February 2025)
+- Renamed "AdsGupta AI" → "Monetization AI" in sidebar and headers
+- Removed "Made with Emergent" watermark from all pages
+- Updated index.html title to "AdsGupta | AI Advertising Platform"
+
+### Refactored Component Architecture
+```
+/app/frontend/src/modules/demo-universe/components/monetization/
+├── index.js                 # Barrel exports
+├── GlobalSidebar.jsx        # Unified navigation sidebar
+├── DynamicPopup.jsx         # Unified popup (hyperlinks + chatbot + sticky ad)
+├── StickyAd.jsx             # 320x50 sticky footer ad
+├── DynamicHyperlink.jsx     # Content-aware ad hooks
+├── AdContainer.jsx          # VideoAd, BannerAd, NativeAd components
+└── AdProvider.jsx           # Enterprise Ad-Stack (GAM + TAM + OpenWrap)
+```
+
+### Key Features Implemented
+
+#### 1. Dynamic Hyperlinking
+- Analyzes page content on load and converts key terms ("Coconut oil", "MCTs", "weight gain") into clickable cyan ad-hooks
+- Re-initializes when content changes (content-fluidity)
+- Keywords highlighted with cyan (#00FFFF) styling
+
+#### 2. Unified Ad-Hook System
+Three triggers → One Dynamic Popup:
+| Trigger | Action |
+|---------|--------|
+| Hyperlinked Text | Opens popup with that keyword context |
+| Chatbot Panel (Neural Oracle Floater) | Opens popup in chat mode |
+| Sticky Footer Ad | Opens popup in products mode |
+
+#### 3. Sticky 320x50 Footer Ad
+- Fixed position at viewport bottom
+- Close button to dismiss
+- Impression/click logging (console)
+- Mobile & desktop compatible
+
+#### 4. SLM Integration (Chrome Prompt API)
+- Checks for `window.ai.languageModel` availability
+- When available: Uses Gemini Nano for content summarization, ad suggestions, prompt generation
+- Graceful fallback: Shows "SLM Unavailable" badge and uses preset responses
+- Functions: `summarize()`, `generateAdSuggestions()`, `generatePromptSuggestions()`, `chat()`
+
+#### 5. Enterprise Ad-Stack Architecture
+AdProvider.jsx contains ready-to-use configuration objects:
+- **GAM Config**: Network code, ad unit paths, targeting keys
+- **TAM Config**: Amazon publisher ID, slots, bid timeout
+- **Prebid Config**: OpenWrap/Prebid.js setup with bidder configs (PubMatic, AppNexus, OpenX, Rubicon)
 
 ### Layout
-- **Header:** Hamburger menu | "AdsGupta AI" (cyan) | User icon
-- **Two-column layout:** Article (left) + Sticky sidebar (right)
-- **Sidebar Ads:** Banner ad + Video ad with skip countdown
-- **Neural Oracle Floater:** Floating button with rotating text, AI badge, Online indicator
-
-### Neural Oracle Panel (Bottom Slide-up)
-When triggered by clicking AI prompt chips:
-- "Myth vs Reality: A quick breakdown" header
-- 5 Curated content cards with emojis (🤔, ✨, 🔥, 💚, 🥥🫒)
-- Recommended Products carousel (9 products + video ad thumbnail)
-- Neural Oracle chat input (paperclip/mic/send buttons)
-- "Upgrade to AI Pro" button
-
-### Ad Formats
-| Format | Location | Features |
-|--------|----------|----------|
-| Banner Ad | Sidebar | "Discover Premium Coconut Products" |
-| Video Ad | Sidebar & Inline | Skip countdown, mute, controls |
-| Product Carousel | Panel | 9 sponsored products with prices |
-| Native Inline | Article | Cyan hyperlinks on "Coconut oil" |
-| Loading Placeholder | Article | Spinner animation |
+- **Header:** Hamburger menu | "Monetization AI" (cyan) | Share button
+- **Global Sidebar:** Retractable navigation (Command Center, Amazon Optimizer, Native Monetization, TalentOS, Neural Oracle)
+- **Article Content:** Dynamic hyperlinks on key terms
+- **Video Ad:** Inline with skip countdown
+- **Products Carousel:** 6 sponsored products with Buy Now CTA
+- **Neural Oracle Floater:** AI badge + rotating text + online indicator
+- **Sticky Footer:** 320x50 ad slot
 
 ### Test Results
-**Phase 12:** 100% pass rate (12/12 features + 8 additional features verified)
+**Phase 13:** 100% pass rate (14/14 features verified)
+- Made with Emergent badge removed ✓
+- Monetization AI branding ✓
+- Dynamic hyperlinks working ✓
+- Sticky footer ad visible ✓
+- Unified popup system working ✓
+- Mobile responsive ✓
+
+### What's MOCKED
+- **Chrome SLM (Gemini Nano):** Falls back to preset responses when Chrome Prompt API unavailable
+- **AdProvider:** Uses placeholder network IDs (GAM_NETWORK_CODE, etc.)
+- **Chat responses:** Simulated 1.5s delay with contextual fallback text
 
 ## DemoAI Showcase Hub (Phase 11 - COMPLETE) ✅
 
