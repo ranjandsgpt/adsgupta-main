@@ -175,12 +175,15 @@ const DemoUniversePage = () => {
       <Navigation />
       <MobileNav />
 
-      {/* AI Agent Sidebar */}
-      <AIAgentSidebar 
-        isOpen={showAgentSidebar} 
-        onClose={() => setShowAgentSidebar(false)}
-        isDemo={true}
-      />
+      {/* AI Agent Sidebar - conditionally rendered */}
+      <AnimatePresence>
+        {showAgentSidebar && (
+          <AIAgentSidebar 
+            onClose={() => setShowAgentSidebar(false)}
+            isDemo={true}
+          />
+        )}
+      </AnimatePresence>
 
       <main className="relative pt-28 pb-24">
         <div className="max-w-[1600px] mx-auto px-6">
