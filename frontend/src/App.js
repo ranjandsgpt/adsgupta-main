@@ -93,52 +93,91 @@ const HomePage = () => {
 };
 
 function App() {
+  // Determine SEO meta based on domain
+  const seoMeta = useMemo(() => {
+    if (isDemoDomain) {
+      return {
+        title: "AdsGupta Demo Universe - AI-Powered Amazon Analytics Demo",
+        description: "Explore the full AI Command Center with 1,400+ simulated data points. See how AdsGupta can transform your Amazon advertising strategy.",
+        ogTitle: "AdsGupta Demo Universe - Experience AI Analytics",
+        ogDesc: "Interactive demo with 20 AI optimization agents and real-time simulations."
+      };
+    }
+    return {
+      title: "AdsGupta Tools: Instant Amazon Audit & API Growth Command Center",
+      description: "Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities.",
+      ogTitle: "AdsGupta Tools - AI-Powered Amazon Analytics",
+      ogDesc: "Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds."
+    };
+  }, []);
+
   return (
     <HelmetProvider>
       <BrowserRouter>
-        {/* SEO Meta Tags for tools.adsgupta.com */}
+        {/* Dynamic SEO Meta Tags */}
         <Helmet>
-          <title>AdsGupta Tools: Instant Amazon Audit & API Growth Command Center</title>
-          <meta name="description" content="Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities." />
+          <title>{seoMeta.title}</title>
+          <meta name="description" content={seoMeta.description} />
           <meta name="keywords" content="Amazon seller tools, PPC optimization, ACOS analyzer, Amazon audit, ecommerce analytics" />
-          <meta property="og:title" content="AdsGupta Tools - AI-Powered Amazon Analytics" />
-          <meta property="og:description" content="Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds." />
+          <meta property="og:title" content={seoMeta.ogTitle} />
+          <meta property="og:description" content={seoMeta.ogDesc} />
           <meta property="og:type" content="website" />
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="AdsGupta Tools - AI Amazon Audit" />
+          <meta name="twitter:title" content={seoMeta.ogTitle} />
         </Helmet>
         
         <CustomCursor />
         <Routes>
-          {/* Main Homepage - Marketing Landing */}
-          <Route path="/" element={<HomePage />} />
-          
-          {/* Tools Routes */}
-          <Route path="/audit" element={<InstantAuditPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />
-          <Route path="/multi-vault" element={<MultiVaultPage />} />
-          <Route path="/neural-map" element={<NeuralMapPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          
-          {/* Demo Universe - Hidden internal route */}
-          {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
-          <Route path="/demo" element={<DemoPage />} />
-          
-          {/* Marketing/Landing Pages */}
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/aboutme" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
-          <Route path="/supply" element={<SupplyPage />} />
-          <Route path="/demand" element={<DemandPage />} />
-          <Route path="/tools" element={<ToolsPage />} />
-          <Route path="/lab" element={<ToolsPage />} />
+          {/* Demo Domain Routes (demoai.adsgupta.com) */}
+          {isDemoDomain ? (
+            <>
+              {/* Demo domain defaults to Demo Universe */}
+              <Route path="/" element={<Navigate to="/amazon-audit" replace />} />
+              <Route path="/amazon-audit" element={<DemoUniversePage />} />
+              <Route path="/internal-demo" element={<DemoUniversePage />} />
+              {/* Allow access to tools for comparison */}
+              <Route path="/audit" element={<InstantAuditPage />} />
+              <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/multi-vault" element={<MultiVaultPage />} />
+              <Route path="/neural-map" element={<NeuralMapPage />} />
+            </>
+          ) : (
+            <>
+              {/* Tools Domain Routes (tools.adsgupta.com) */}
+              {/* Main Homepage - Marketing Landing */}
+              <Route path="/" element={<HomePage />} />
+              
+              {/* Tools Routes - Multi-File Instant Audit is default */}
+              <Route path="/audit" element={<InstantAuditPage />} />
+              <Route path="/analysis" element={<AnalysisPage />} />
+              <Route path="/multi-vault" element={<MultiVaultPage />} />
+              <Route path="/neural-map" element={<NeuralMapPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              
+              {/* Demo Universe - Hidden internal route (enabled via SHOW_DEMO) */}
+              {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
+              <Route path="/demo" element={<DemoPage />} />
+              
+              {/* Marketing/Landing Pages */}
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/aboutme" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
+              <Route path="/supply" element={<SupplyPage />} />
+              <Route path="/demand" element={<DemandPage />} />
+              <Route path="/tools" element={<ToolsPage />} />
+              <Route path="/lab" element={<ToolsPage />} />
+            </>
+          )}
         </Routes>
       </BrowserRouter>
     </HelmetProvider>
   );
 }
+
+// Export domain config for use in components
+export { DEMO_DOMAIN, TOOLS_DOMAIN, isDemoDomain };
 
 export default App;
