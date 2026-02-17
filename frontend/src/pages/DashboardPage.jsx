@@ -157,6 +157,10 @@ const DashboardPage = () => {
   const [insightsLoading, setInsightsLoading] = useState(false);
   const [fetchingReports, setFetchingReports] = useState(false);
   
+  // Sidebar state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeModule, setActiveModule] = useState('amazon');
+  
   // Check auth on mount
   useEffect(() => {
     checkAuth();
