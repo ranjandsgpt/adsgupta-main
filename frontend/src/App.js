@@ -1,6 +1,5 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useMemo } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { CustomCursor } from "./components/CustomCursor";
 import { Navigation } from "./components/Navigation";
