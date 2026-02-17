@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Wrench, Search, TrendingUp, Users, FileText, Bot, ArrowUpRight, Sparkles, BarChart3, Briefcase } from 'lucide-react';
+import { Wrench, Search, TrendingUp, Users, FileText, Bot, ArrowUpRight, Sparkles, BarChart3, Briefcase, ExternalLink } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
@@ -15,7 +15,8 @@ const ToolsPage = () => {
       status: 'Live',
       color: 'text-cyan-400',
       bg: 'bg-cyan-500/10',
-      link: '#',
+      link: '#seo',
+      internal: true,
     },
     {
       icon: TrendingUp,
@@ -24,7 +25,9 @@ const ToolsPage = () => {
       status: 'Live',
       color: 'text-emerald-400',
       bg: 'bg-emerald-500/10',
-      link: '#',
+      link: '/audit',
+      internal: true,
+      highlight: true,
     },
     {
       icon: Users,
@@ -33,7 +36,8 @@ const ToolsPage = () => {
       status: 'Live',
       color: 'text-violet-400',
       bg: 'bg-violet-500/10',
-      link: '#',
+      link: '#affiliate',
+      internal: true,
     },
     {
       icon: FileText,
@@ -42,25 +46,28 @@ const ToolsPage = () => {
       status: 'Live',
       color: 'text-orange-400',
       bg: 'bg-orange-500/10',
-      link: '#',
+      link: '#content',
+      internal: true,
     },
+  ];
+
+  // TalentOS - Career tools moved to separate subdomain
+  const talentOSTools = [
     {
       icon: Bot,
-      title: 'Ad-Tech Interview AI',
-      description: 'Prepare for your next ad-tech role with AI-powered mock interviews. Get feedback from industry-trained models.',
-      status: 'Beta',
+      title: 'Interview AI Coach',
+      description: 'AI-powered mock interviews with real-time feedback. Recursive questioning from senior hiring managers.',
+      status: 'TalentOS',
       color: 'text-rose-400',
       bg: 'bg-rose-500/10',
-      link: '#',
     },
     {
       icon: Briefcase,
       title: 'Career Path Navigator',
-      description: 'Explore ad-tech career paths with personalized recommendations based on your skills and interests.',
-      status: 'Beta',
+      description: 'Personalized career recommendations based on your skills, experience, and interests in ad-tech.',
+      status: 'TalentOS',
       color: 'text-sky-400',
       bg: 'bg-sky-500/10',
-      link: '#',
     },
   ];
 
