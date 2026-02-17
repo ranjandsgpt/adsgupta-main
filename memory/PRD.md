@@ -1,59 +1,89 @@
 # Ads Gupta - AI Advertising Platform & Enterprise Command Center
 
 ## Original Problem Statement
-Build the ultimate conversion tool for tools.adsgupta.com that looks like a $50M/year SaaS, featuring instant AI audits, multi-file cross-pollination, demo universe with 1,400+ data points, and 20 AI optimization agents.
+Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-grade platform featuring instant AI audits, multi-marketplace support, demo universe, TalentOS career tools, and 20 AI optimization agents.
 
-## Deployment Architecture (Phase 9 - Production Ready)
+## Deployment Architecture (Production Ready)
 
-### Primary Site: tools.adsgupta.com
-- **Mode 1 (Default)**: Multi-File Instant Audit - File upload dropzone
-- **Mode 2 (Future)**: API Connection - Live Data Syncing when SP-API connected
-- **Environment**: `REACT_APP_SHOW_DEMO=false`
+### Primary Sites
 
-### Demo Site: demoai.adsgupta.com/amazon-audit
-- Full AI Command Center with pre-loaded mock data
-- 1,400+ simulated data points using 15-Year Optimizer Logic
-- **Environment**: `REACT_APP_SHOW_DEMO=true`
+| Domain | Purpose | Mode |
+|--------|---------|------|
+| `tools.adsgupta.com` | Production - Multi-Marketplace Audit | `REACT_APP_SHOW_DEMO=false` |
+| `demoai.adsgupta.com` | Demo Hub - Interactive Showcases | `REACT_APP_SHOW_DEMO=true` |
+| `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (planned) |
 
 ### Cross-Domain Navigation
-- **tools → demo**: "See the Full AI Demo Universe" link on audit page
-- **demo → tools**: "Analyze Your Own Data" button in demo banner
+- **tools → demo**: "See the Full AI Demo Universe" on /audit
+- **tools → demo**: "Explore Demo Universe" on /marketplacesolutions
+- **demo → tools**: "Analyze Your Own Data" button
+- **tools → talentos**: "Launch TalentOS" on /tools
 
-### Environment Configuration
-```
-# Tools Domain (tools.adsgupta.com)
-REACT_APP_SHOW_DEMO=false
-REACT_APP_SITE_MODE=tools
-REACT_APP_DEMO_DOMAIN=https://demoai.adsgupta.com
-REACT_APP_TOOLS_DOMAIN=https://tools.adsgupta.com
+## Multi-Marketplace Audit Engine (`/audit`)
 
-# Demo Domain (demoai.adsgupta.com)
-REACT_APP_SHOW_DEMO=true
-REACT_APP_SITE_MODE=demo
-REACT_APP_DEMO_DOMAIN=https://demoai.adsgupta.com
-REACT_APP_TOOLS_DOMAIN=https://tools.adsgupta.com
-```
+### Marketplace Context Switcher
+A responsive top-bar allowing users to switch between:
 
-## Routes
+| Marketplace | Status | Behavior |
+|-------------|--------|----------|
+| **Amazon** | Active | Full audit engine with file upload |
+| **Walmart** | Staging | "Protocol Development" state with Notify modal |
+| **Blinkit** | Coming | Quick commerce protocol - Notify modal |
+| **Swiggy Instamart** | Coming | Quick commerce protocol - Notify modal |
+| **Zomato** | Coming | Quick commerce protocol - Notify modal |
 
-### Tools Domain (tools.adsgupta.com)
+### Lead Capture for Waitlists
+- Each non-active marketplace shows a "Notify Me at Launch" modal
+- Captures email with marketplace source tracking
+- Stores in MongoDB leads collection
+
+## Universal Dashboard (`/dashboard`)
+
+### Architecture
+- **Persistent Sidebar Navigation** (only visible when logged in)
+- **Dynamic Content Area** that updates based on selected module
+
+### Sidebar Sections
+1. **Marketplaces**
+   - Amazon Seller Hub (Active)
+   - Walmart Hub (Coming Soon)
+
+2. **Growth Tools**
+   - SEO Intelligence
+   - Growth Audit Engine → links to `/audit`
+   - Affiliate Manager
+   - AI Content Studio
+
+## TalentOS Integration (`/tools`)
+
+### Moved to Standalone Platform
+- Interview AI Coach - RAG-based mock interviews
+- Career Path Navigator - Personalized career recommendations
+
+### Navigation
+- "Launch TalentOS" button links to `talentos.adsgupta.com`
+- Separate from main Growth Tools section
+
+## Routes Summary
+
+### Tools Domain (`tools.adsgupta.com`)
 ```
 / - Marketing Homepage
-/audit - Multi-File Instant Audit (file upload)
-/analysis - Deep Analysis Report (20 AI agents)
-/multi-vault - Multi-File Staging Area
-/neural-map - Marketplace Neural Map with Recursive Optimizer
-/dashboard - Amazon Seller Dashboard (requires login)
-/internal-demo - Demo Universe (hidden, only if SHOW_DEMO=true)
-/blog, /aboutme, /contact, /privacy, /terms
+/audit - Multi-Marketplace Audit with Context Switcher
+/analysis - Deep Analysis Report
+/multi-vault - Multi-File Staging
+/neural-map - Marketplace Neural Map
+/dashboard - Universal Dashboard (with sidebar when logged in)
+/tools - Growth Tools + TalentOS section
+/demo - Redirects to demoai.adsgupta.com/amazon-audit
+/blog, /aboutme, /contact, /privacy, /terms, /marketplacesolutions
 ```
 
-### Demo Domain (demoai.adsgupta.com)
+### Demo Domain (`demoai.adsgupta.com`)
 ```
 / - Redirects to /amazon-audit
-/amazon-audit - Demo Universe with pre-loaded mock data
-/internal-demo - Demo Universe (alias)
-/audit - Instant Audit (allows comparison)
+/amazon-audit - Demo Universe with 1,400+ data points
+/monetization - (Planned) Native Widget & LLM Monetization demos
 ```
 
 ## Features Implemented
@@ -68,93 +98,63 @@ REACT_APP_TOOLS_DOMAIN=https://tools.adsgupta.com
 - [x] Cross-Pollination Insights engine
 - [x] Lead Capture to MongoDB
 - [x] Demo Universe modularization
+- [x] Dual-domain deployment architecture
 
-### Phase 9 - Production Deployment Ready (Feb 2026) - COMPLETE
-- [x] Dual-domain routing architecture
-- [x] Cross-domain navigation links with external icons
-- [x] Environment-based build configuration
-- [x] Build scripts for tools and demo domains
-- [x] React 19 compatible Helmet SEO implementation
-- [x] Responsive Neural Map buttons (mobile truncation)
-- [x] AI Agent Sidebar conditional rendering fix
-- [x] CORS configuration for both domains
-- [x] Lead Capture active on both domains
+### Phase 9 - Ecosystem Re-Architecture (Feb 2026) - COMPLETE
+- [x] Marketplace Context Switcher component
+- [x] Amazon/Walmart/Others tabs with proper status indicators
+- [x] "Protocol Development in Progress" state for staging marketplaces
+- [x] Notify Me modal with lead capture for marketplace waitlists
+- [x] Lead capture API updated with marketplace source tracking
+- [x] Dashboard Sidebar component
+- [x] Sidebar navigation with Marketplaces and Growth Tools sections
+- [x] ToolsPage reorganized with TalentOS separate section
+- [x] "Launch TalentOS" external link
+- [x] MarketplaceSolutions CTA updated to demoai domain
+- [x] /demo route redirects to demoai.adsgupta.com/amazon-audit
+- [x] Visual theme solidified (#121212 background, #00FFFF accents)
 
-## Build Scripts
+## Design System
 
-### For tools.adsgupta.com
-```bash
-/app/frontend/scripts/build-tools.sh
-```
+### Colors
+- **Background**: `#121212` (primary), `#0A1628` (cards/sidebar)
+- **Accents**: `#00FFFF` (cyan) for borders, active states, buttons
+- **Status**: Green for active, Blue for staging, Cyan for coming
 
-### For demoai.adsgupta.com
-```bash
-/app/frontend/scripts/build-demo.sh
-```
-
-## File Structure
-```
-/app/frontend/src/
-├── modules/
-│   └── demo-universe/
-│       ├── DemoUniversePage.jsx (with cross-domain link)
-│       ├── data/
-│       │   └── mockDataGenerators.js (1,400+ data points)
-│       └── store/
-│           └── demoStore.js (isolated state)
-├── components/
-│   ├── AIAgentSidebar.jsx (conditionally rendered)
-│   ├── SyncStatusBar.jsx
-│   └── ...
-├── pages/
-│   ├── InstantAuditPage.jsx (with demo universe link)
-│   ├── NeuralMapPage.jsx (responsive buttons)
-│   ├── MultiVaultPage.jsx
-│   ├── AnalysisPage.jsx
-│   └── ...
-├── store/
-│   ├── dataStore.js (real data)
-│   └── multiFileStore.js (multi-file data)
-├── scripts/
-│   ├── build-tools.sh
-│   └── build-demo.sh
-├── .env.tools (production config)
-└── .env.demo (demo config)
-```
+### Typography
+- **Headings**: Space Grotesk
+- **Body/Data**: Inter (system default)
 
 ## API Endpoints
 
-### Lead Capture
-- POST /api/leads/capture - Save email with source tracking
-- GET /api/leads/count - Get total lead count
+### Lead Capture (Updated)
+- `POST /api/leads/capture` - Accepts email + optional marketplace field
+  - Source tracking: `marketplace_waitlist_{marketplace_id}`
+- `GET /api/leads/count` - Returns total lead count
 
-### Authentication  
-- POST /api/auth/register, /api/auth/login
-- GET /api/auth/google/login
-
-### Amazon SP-API (Prepared)
-- GET /api/amazon/connect
-- GET /api/amazon/callback
-- GET /api/amazon/status
-- POST /api/amazon/disconnect
+### Authentication
+- `POST /api/auth/register`, `/api/auth/login`
+- `GET /api/auth/google/login`
 
 ## Test Results (Phase 9)
-- Backend: 100% pass rate (11/11 tests)
+- Backend: 100% pass rate (12/12 tests)
 - Frontend: 100% pass rate
-- Cross-domain links: Verified
-- Responsive design: Verified at 375px mobile
-- Lead capture: End-to-end verified
+- Marketplace switcher: Verified
+- Notify modals: All working
+- Lead capture: Source tracking verified
 
 ## What's MOCKED
 - Demo Universe 1,400+ data points (intentional)
-- Amazon SP-API integration (planned for future)
-- "Run 1,000 Simulations" results (placeholder)
-- Email delivery for "Email My Audit" (stores in DB only)
+- TalentOS (talentos.adsgupta.com) - external link exists, platform not yet deployed
+- Amazon SP-API integration (planned)
+- Walmart actual integration (placeholder only)
+- Quick commerce integrations (Blinkit, Swiggy, Zomato - placeholders)
 
 ## What's REAL
 - All file parsing and analysis
 - Cross-pollination calculations
-- Lead capture to MongoDB
+- Lead capture with marketplace source tracking
+- Multi-marketplace context switching
 - State isolation between demo and real data
 - Cross-domain navigation
 
@@ -164,15 +164,26 @@ REACT_APP_TOOLS_DOMAIN=https://tools.adsgupta.com
 - Deploy tools domain to tools.adsgupta.com
 - Deploy demo domain to demoai.adsgupta.com
 
-### P1 - Feature Enhancements
-1. Implement "Live Data Syncing" UI for SP-API connected users
-2. Build "Recursive Optimizer" logic (1,000 simulations)
-3. Enhance Neural Map with Force-Directed Graph
-4. Add "Smart Suggest" AI button for charts
+### P1 - TalentOS Standalone App
+1. Initialize Next.js 14+ project for talentos.adsgupta.com
+2. Build RAG-based AI Interview Coach
+3. Resume/JD upload widget with comparison engine
+4. Mock Interview Room with Web Speech API
+5. STAR method grading feedback engine
 
-### P2 - Infrastructure
+### P1 - Demo Hub Expansion (demoai domain)
+1. Create root `/` as Multi-Product Showcase gallery
+2. Move existing Native Widget logic to `/monetization`
+3. Create "Active Protocols" cards for each demo
+
+### P2 - Feature Enhancements
+1. Implement Walmart Seller Center integration (when API available)
+2. Add Quick Commerce APIs (Blinkit, Swiggy, Zomato)
+3. Build "Recursive Optimizer" logic (1,000 simulations)
+4. Enhance Neural Map with Force-Directed Graph
+
+### P3 - Infrastructure
 1. Full Amazon SP-API backend integration
 2. PostgreSQL migration
 3. Stripe payment integration
 4. Email service for "Email My Audit"
-5. Activate Neural Oracle Chatbot
