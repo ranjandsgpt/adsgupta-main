@@ -104,8 +104,10 @@ function App() {
         
         <CustomCursor />
         <Routes>
-          {/* Primary Routes - tools.adsgupta.com */}
-          <Route path="/" element={SITE_MODE === 'tools' ? <InstantAuditPage /> : <HomePage />} />
+          {/* Main Homepage - Marketing Landing */}
+          <Route path="/" element={<HomePage />} />
+          
+          {/* Tools Routes */}
           <Route path="/audit" element={<InstantAuditPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/multi-vault" element={<MultiVaultPage />} />
@@ -117,7 +119,6 @@ function App() {
           <Route path="/demo" element={<DemoPage />} />
           
           {/* Marketing/Landing Pages */}
-          <Route path="/home" element={<HomePage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/aboutme" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
