@@ -86,7 +86,7 @@ async def capture_lead(request: LeadCaptureRequest):
 async def get_lead_count():
     """Get total lead count (admin use)"""
     try:
-        if not db:
+        if db is None:
             return {"count": 0}
         count = await db.leads.count_documents({})
         return {"count": count}
