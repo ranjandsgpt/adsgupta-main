@@ -13,6 +13,36 @@ Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-gra
 | `demoai.adsgupta.com` | Demo Hub - Protocol Showcase Hub | `REACT_APP_SHOW_DEMO=true` |
 | `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (currently integrated) |
 
+## Monetization Demo Page (Phase 12 - COMPLETE) ✅
+
+### Overview
+Complete rebuild of the /monetization page to replicate the LLM Native Ads demo from demoai.adsgupta.com. Showcases all ad formats and AI-powered content monetization.
+
+### Features Implemented
+- [x] Article content about "Myth: Coconut Oil Causes Weight Gain"
+- [x] Video ad with skip countdown (5s), mute/unmute, close button
+- [x] Product carousel with 6 sponsored coconut oil products
+- [x] AI Chat floater (Neural Oracle) with:
+  - Rotating text prompts (4 messages cycling)
+  - Expandable chat interface
+  - Quick prompt buttons
+  - Simulated AI responses
+- [x] Native inline advertisement
+- [x] AI prompt chips with emojis (🤔, ✨, 🔥, 💚, 🥥)
+- [x] Live Metrics panel (Impressions, eCPM, CTR, Revenue)
+- [x] Tags section
+- [x] Save/Share functionality
+- [x] Sponsored footer banner
+
+### Ad Formats Demonstrated
+| Format | Location | Features |
+|--------|----------|----------|
+| Video Ad | After 1st paragraph | Skip countdown, mute, close |
+| Product Carousel | After 2nd paragraph | 6 products, prices, ratings |
+| Inline Native | After 3rd paragraph | Gradient background, CTA |
+| Loading Placeholder | After 4th paragraph | Animation |
+| Footer Banner | Bottom | AdsGupta AI branding |
+
 ## DemoAI Showcase Hub (Phase 11 - COMPLETE) ✅
 
 ### Overview
