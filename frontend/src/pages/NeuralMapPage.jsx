@@ -689,7 +689,7 @@ const NeuralMapPage = () => {
                   </div>
                 )}
 
-                <div className="h-[400px]">
+                <div className="h-[300px] sm:h-[400px]">
                   {scatterData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
