@@ -359,15 +359,21 @@ const InstantAuditPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#050B18] relative">
+    <div className="min-h-screen bg-[#121212] relative">
       {/* Grid Background */}
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-      <div className="fixed inset-0 bg-gradient-to-b from-transparent via-[#050B18]/50 to-[#050B18]" />
+      <div className="fixed inset-0 bg-gradient-to-b from-transparent via-[#121212]/50 to-[#121212]" />
       
       <Navigation />
       <MobileNav />
+      
+      {/* Marketplace Context Switcher */}
+      <MarketplaceContextSwitcher 
+        activeMarketplace={activeMarketplace}
+        onMarketplaceChange={setActiveMarketplace}
+      />
 
-      <main className="relative pt-28 pb-24">
+      <main className="relative pt-8 pb-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <AnimatePresence mode="wait">
             {isProcessing ? (
