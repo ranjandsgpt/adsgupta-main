@@ -1,50 +1,107 @@
 /**
  * DemoAI Showcase Hub
  * Multi-Product Protocol Gallery with Terminal Transition
+ * Industrial Luxury Tech Aesthetic
  * Route: / (on demoai.adsgupta.com)
  */
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Cpu, ShoppingCart, Bot, MessageSquare, Video, Zap, Network, 
   Sparkles, ArrowRight, ExternalLink, ChevronRight, Terminal,
-  Activity, Play, Pause, LayoutGrid
+  Activity, Play, Pause, LayoutGrid, Clock, Mail
 } from 'lucide-react';
 
-// Terminal Transition Overlay
-const TerminalOverlay = ({ isVisible, protocolName, onComplete }) => {
-  const [lines, setLines] = useState([]);
+// Scanline Effect Component
+const ScanlineEffect = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <div 
+      className="absolute inset-0 opacity-[0.03]"
+      style={{
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 255, 0.1) 2px, rgba(0, 255, 255, 0.1) 4px)',
+        animation: 'scanlines 0.1s linear infinite'
+      }}
+    />
+    <style>{`
+      @keyframes scanlines {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(4px); }
+      }
+    `}</style>
+  </div>
+);
+
+// Enhanced Terminal Transition Overlay with Scanline + Typewriter Effect
+const TerminalOverlay = ({ isVisible, protocolName, protocolType, onComplete }) => {
+  const [displayedLines, setDisplayedLines] = useState([]);
+  const [currentLineText, setCurrentLineText] = useState('');
+  const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
   const terminalRef = useRef(null);
   
-  const terminalLines = [
-    '> INITIALIZING AD-OS KERNEL...',
-    '> LOADING NEURAL WEIGHTS (Gemini 3 Flash)...',
-    '> SYNCING MARKETPLACE CONTEXT...',
-    '> VALIDATING PROTOCOL INTEGRITY...',
-    '> ESTABLISHING SECURE CONNECTION...',
-    `> ACCESS GRANTED. REDIRECTING TO ${protocolName.toUpperCase()}...`
-  ];
+  const getTerminalLines = useCallback(() => {
+    const baseLines = [
+      '> INITIALIZING AD-OS KERNEL v3.2.1...',
+      '> LOADING NEURAL WEIGHTS (Gemini 3 Flash)...',
+      '> AUTHENTICATING PROTOCOL ACCESS...',
+      '> SYNCING MARKETPLACE CONTEXT...'
+    ];
+    
+    if (protocolType === 'placeholder') {
+      return [
+        ...baseLines,
+        '> PROTOCOL STATUS: STAGING...',
+        `> REDIRECTING TO ${protocolName.toUpperCase()} PREVIEW...`
+      ];
+    }
+    
+    return [
+      ...baseLines,
+      '> SECURE HANDSHAKE ESTABLISHED...',
+      `> ACCESS GRANTED. LAUNCHING ${protocolName.toUpperCase()}...`
+    ];
+  }, [protocolName, protocolType]);
+  
+  const terminalLines = getTerminalLines();
   
   useEffect(() => {
     if (!isVisible) {
-      setLines([]);
+      setDisplayedLines([]);
+      setCurrentLineText('');
+      setCurrentLineIndex(0);
+      setCharIndex(0);
       return;
     }
     
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < terminalLines.length) {
-        setLines(prev => [...prev, terminalLines[index]]);
-        index++;
+    // Typewriter effect - type each character
+    if (currentLineIndex < terminalLines.length) {
+      const currentFullLine = terminalLines[currentLineIndex];
+      
+      if (charIndex < currentFullLine.length) {
+        const typeTimer = setTimeout(() => {
+          setCurrentLineText(prev => prev + currentFullLine[charIndex]);
+          setCharIndex(prev => prev + 1);
+        }, 15 + Math.random() * 25); // Variable typing speed for realism
+        
+        return () => clearTimeout(typeTimer);
       } else {
-        clearInterval(interval);
-        setTimeout(onComplete, 500);
+        // Line complete, move to next
+        const nextLineTimer = setTimeout(() => {
+          setDisplayedLines(prev => [...prev, currentFullLine]);
+          setCurrentLineText('');
+          setCharIndex(0);
+          setCurrentLineIndex(prev => prev + 1);
+        }, 100);
+        
+        return () => clearTimeout(nextLineTimer);
       }
-    }, 300);
-    
-    return () => clearInterval(interval);
-  }, [isVisible, onComplete, protocolName]);
+    } else {
+      // All lines complete, trigger navigation
+      const completeTimer = setTimeout(onComplete, 400);
+      return () => clearTimeout(completeTimer);
+    }
+  }, [isVisible, currentLineIndex, charIndex, terminalLines, onComplete]);
   
   if (!isVisible) return null;
   
@@ -53,45 +110,87 @@ const TerminalOverlay = ({ isVisible, protocolName, onComplete }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="fixed inset-0 bg-black z-[100] flex items-center justify-center"
     >
-      <div className="max-w-2xl w-full mx-6">
+      {/* Scanline overlay */}
+      <ScanlineEffect />
+      
+      {/* CRT flicker effect */}
+      <motion.div
+        className="absolute inset-0 bg-cyan-500/5"
+        animate={{ opacity: [0.02, 0.05, 0.02] }}
+        transition={{ duration: 0.1, repeat: Infinity }}
+      />
+      
+      <div className="max-w-2xl w-full mx-6 relative">
         {/* Terminal Window */}
-        <div className="rounded-xl border border-cyan-500/30 bg-[#0a0a0a] overflow-hidden shadow-[0_0_50px_rgba(0,255,255,0.1)]">
+        <motion.div 
+          initial={{ scale: 0.95, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="rounded-xl border border-cyan-500/40 bg-[#030303] overflow-hidden shadow-[0_0_80px_rgba(0,255,255,0.15)]"
+        >
           {/* Terminal Header */}
-          <div className="px-4 py-2 border-b border-white/10 flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-            <span className="ml-4 text-zinc-500 text-xs font-mono">AD-OS TERMINAL v2.0.26</span>
+          <div className="px-4 py-2.5 border-b border-cyan-500/20 flex items-center gap-2 bg-[#050505]">
+            <div className="w-3 h-3 rounded-full bg-red-500/80" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+            <div className="w-3 h-3 rounded-full bg-green-500/80" />
+            <span className="ml-4 text-cyan-500/70 text-xs font-mono tracking-wider">AD-OS TERMINAL v3.2.1</span>
+            <div className="ml-auto flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-cyan-400/60 text-xs font-mono">SECURE</span>
+            </div>
           </div>
           
           {/* Terminal Content */}
-          <div ref={terminalRef} className="p-6 font-mono text-sm h-64 overflow-hidden">
-            {lines.map((line, index) => (
+          <div ref={terminalRef} className="p-6 font-mono text-sm h-72 overflow-hidden bg-gradient-to-b from-[#030303] to-[#000000]">
+            {displayedLines.map((line, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`mb-2 ${
-                  line.includes('ACCESS GRANTED') 
-                    ? 'text-emerald-400' 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className={`mb-1.5 ${
+                  line.includes('ACCESS GRANTED') || line.includes('LAUNCHING')
+                    ? 'text-emerald-400 font-bold' 
                     : line.includes('ERROR') 
                       ? 'text-red-400' 
-                      : 'text-cyan-400'
+                      : line.includes('STAGING') || line.includes('PREVIEW')
+                        ? 'text-amber-400'
+                        : 'text-cyan-400/90'
                 }`}
               >
                 {line}
               </motion.div>
             ))}
             
-            {/* Blinking cursor */}
-            {lines.length < terminalLines.length && (
-              <span className="inline-block w-2 h-4 bg-cyan-400 animate-pulse" />
+            {/* Currently typing line */}
+            {currentLineIndex < terminalLines.length && (
+              <div className={`mb-1.5 ${
+                currentLineText.includes('ACCESS GRANTED') 
+                  ? 'text-emerald-400' 
+                  : 'text-cyan-400/90'
+              }`}>
+                {currentLineText}
+                <motion.span 
+                  className="inline-block w-2.5 h-4 bg-cyan-400 ml-0.5"
+                  animate={{ opacity: [1, 0] }}
+                  transition={{ duration: 0.5, repeat: Infinity }}
+                />
+              </div>
             )}
           </div>
-        </div>
+          
+          {/* Progress bar */}
+          <div className="h-1 bg-[#050505]">
+            <motion.div
+              className="h-full bg-gradient-to-r from-cyan-500 to-emerald-500"
+              initial={{ width: '0%' }}
+              animate={{ width: `${((currentLineIndex + 1) / terminalLines.length) * 100}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );
