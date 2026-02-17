@@ -92,29 +92,16 @@ const HomePage = () => {
 };
 
 function App() {
-  // Determine SEO meta based on domain
-  const isDemo = isDemoDomain;
-  
-  const seoTitle = isDemo 
-    ? "AdsGupta Demo Universe - AI-Powered Amazon Analytics Demo"
-    : "AdsGupta Tools: Instant Amazon Audit & API Growth Command Center";
-  
-  const seoDescription = isDemo
-    ? "Explore the full AI Command Center with 1,400+ simulated data points. See how AdsGupta can transform your Amazon advertising strategy."
-    : "Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities.";
-  
-  const ogTitle = isDemo
-    ? "AdsGupta Demo Universe - Experience AI Analytics"
-    : "AdsGupta Tools - AI-Powered Amazon Analytics";
-  
-  const ogDesc = isDemo
-    ? "Interactive demo with 20 AI optimization agents and real-time simulations."
-    : "Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds.";
+  // Static SEO values for tools domain (demo domain will have its own build)
+  const seoTitle = "AdsGupta Tools: Instant Amazon Audit & API Growth Command Center";
+  const seoDescription = "Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities.";
+  const ogTitle = "AdsGupta Tools - AI-Powered Amazon Analytics";
+  const ogDesc = "Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds.";
 
   return (
     <HelmetProvider>
       <BrowserRouter>
-        {/* Dynamic SEO Meta Tags */}
+        {/* SEO Meta Tags */}
         <Helmet>
           <title>{seoTitle}</title>
           <meta name="description" content={seoDescription} />
@@ -128,7 +115,7 @@ function App() {
         
         <CustomCursor />
         <Routes>
-          {/* Demo Domain Routes (demoai.adsgupta.com) */}
+          {/* Demo Domain Routes (demoai.adsgupta.com) - when SHOW_DEMO is true */}
           {isDemoDomain ? (
             <>
               {/* Demo domain defaults to Demo Universe */}
