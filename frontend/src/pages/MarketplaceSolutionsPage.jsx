@@ -166,17 +166,21 @@ const MarketplaceSolutionsPage = () => {
               <Link
                 to="/audit"
                 data-hoverable="true"
-                className="glow-button inline-flex items-center justify-center gap-2 bg-blue-500 text-white px-8 py-4 rounded-xl font-bold shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                className="glow-button inline-flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-8 py-4 rounded-xl font-bold shadow-[0_0_20px_rgba(0,240,255,0.3)]"
               >
                 Instant AI Audit
               </Link>
-              <Link
-                to="/demo"
+              <a
+                href="https://demoai.adsgupta.com/amazon-audit"
+                target="_blank"
+                rel="noopener noreferrer"
                 data-hoverable="true"
-                className="inline-flex items-center justify-center gap-2 border border-white/20 text-white px-8 py-4 rounded-xl font-medium hover:bg-white/5"
+                data-testid="explore-demo-universe-btn"
+                className="inline-flex items-center justify-center gap-2 border border-cyan-500/30 text-cyan-400 px-8 py-4 rounded-xl font-medium hover:bg-cyan-500/10"
               >
                 Explore Demo Universe
-              </Link>
+                <ArrowUpRight size={16} />
+              </a>
             </div>
           </motion.div>
 
