@@ -117,7 +117,9 @@ async def amazon_oauth_callback(
     Handle Amazon OAuth callback
     Exchange authorization code for refresh token
     """
-    frontend_url = os.environ.get("FRONTEND_URL", "https://talentos-demo-build.preview.emergentagent.com")
+    frontend_url = os.environ.get("FRONTEND_URL")
+    if not frontend_url:
+        raise HTTPException(status_code=500, detail="FRONTEND_URL environment variable is required")
     
     if error:
         logger.error(f"Amazon OAuth error: {error} - {error_description}")
