@@ -92,6 +92,7 @@ api_router.include_router(amazon.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(insights.router)
 api_router.include_router(leads.router)
+api_router.include_router(talentos.router)
 
 
 # Health check endpoint
