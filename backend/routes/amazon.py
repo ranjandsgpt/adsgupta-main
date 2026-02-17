@@ -55,7 +55,9 @@ def get_lwa_credentials():
 
 def get_redirect_uri():
     """Get the OAuth redirect URI"""
-    backend_url = os.environ.get("BACKEND_URL", "https://talentos-demo-build.preview.emergentagent.com")
+    backend_url = os.environ.get("BACKEND_URL")
+    if not backend_url:
+        raise ValueError("BACKEND_URL environment variable is required")
     return f"{backend_url}/api/amazon/callback"
 
 
