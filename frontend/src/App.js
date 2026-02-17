@@ -32,6 +32,8 @@ import NeuralMapPage from "./pages/NeuralMapPage";
 
 // Demo Universe Module (Isolated)
 import DemoUniversePage from "./modules/demo-universe/DemoUniversePage";
+import DemoShowcaseHub from "./modules/demo-universe/DemoShowcaseHub";
+import MonetizationPage from "./modules/demo-universe/MonetizationPage";
 
 // TalentOS Module
 import TalentOSLanding from "./modules/talentos/pages/TalentOSLanding";
