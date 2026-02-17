@@ -148,6 +148,13 @@ function App() {
               <Route path="/neural-map" element={<NeuralMapPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               
+              {/* TalentOS Routes */}
+              <Route path="/talentos" element={<TalentOSLanding />} />
+              <Route path="/talentos/workspace" element={<TalentOSWorkspace />} />
+              <Route path="/talentos/analysis" element={<TalentOSAnalysis />} />
+              <Route path="/talentos/interview" element={<TalentOSInterview />} />
+              <Route path="/talentos/login" element={<TalentOSLanding />} />
+              
               {/* Demo Universe - Redirect to demoai domain */}
               <Route path="/demo" element={<DemoRedirect />} />
               {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
