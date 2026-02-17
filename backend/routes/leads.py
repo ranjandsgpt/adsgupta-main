@@ -62,12 +62,14 @@ async def capture_lead(request: LeadCaptureRequest):
             "email": request.email,
             "source": request.source,
             "insightCount": request.insightCount,
+            "marketplace": request.marketplace,
             "created_at": datetime.now(timezone.utc),
             "last_seen": datetime.now(timezone.utc),
             "visit_count": 1,
             "interactions": [{
                 "source": request.source,
                 "insightCount": request.insightCount,
+                "marketplace": request.marketplace,
                 "timestamp": datetime.now(timezone.utc)
             }],
             "status": "new"
