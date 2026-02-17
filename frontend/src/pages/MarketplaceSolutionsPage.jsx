@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Search, Zap, BarChart3, Package, TrendingUp, ArrowUpRight, CheckCircle, Store, Truck } from 'lucide-react';
+import { ShoppingCart, Search, Zap, BarChart3, Package, TrendingUp, ArrowUpRight, CheckCircle, Store, Truck, LayoutDashboard, LineChart, Sparkles } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
