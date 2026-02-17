@@ -10,8 +10,49 @@ Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-gra
 | Domain | Purpose | Mode |
 |--------|---------|------|
 | `tools.adsgupta.com` | Production - Multi-Marketplace Audit | `REACT_APP_SHOW_DEMO=false` |
-| `demoai.adsgupta.com` | Demo Hub - Interactive Showcases | `REACT_APP_SHOW_DEMO=true` |
+| `demoai.adsgupta.com` | Demo Hub - Protocol Showcase Hub | `REACT_APP_SHOW_DEMO=true` |
 | `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (currently integrated) |
+
+## DemoAI Showcase Hub (Phase 11 - COMPLETE) ✅
+
+### Overview
+The Protocol Showcase Hub is the entry point for the demoai.adsgupta.com domain. It features an "Industrial Luxury Tech" aesthetic with a bento grid layout showcasing all AdsGupta protocols.
+
+### Routes
+```
+/                     - Protocol Showcase Hub (demoai domain)
+/showcase             - Protocol Showcase Hub (accessible from tools domain)
+/amazon-audit         - Marketplace Optimizer Demo (1,400+ data points)
+/monetization         - Native Widget & LLM Monetization Demo
+```
+
+### Features Implemented
+- [x] Industrial Luxury Tech aesthetic with deep black (#000000) canvas
+- [x] Non-uniform 3x3 Bento Grid with Glassmorphism cards
+- [x] Magnetic hover effect with cyan (#00FFFF) outer glow
+- [x] Terminal overlay with scanline + typewriter effect
+- [x] Protocol status badges (ACTIVE, PREVIEW, STAGING, COMING SOON)
+- [x] Waitlist modal for staging protocols
+- [x] Retractable global sidebar with navigation
+- [x] System Status: ONLINE indicator
+- [x] Staggered entrance animations (Framer Motion)
+
+### Protocol Cards
+| Protocol | Status | Destination | Type |
+|----------|--------|-------------|------|
+| Marketplace Optimizer | ACTIVE | /amazon-audit | Working |
+| Native Widget / Monetization | ACTIVE | /monetization | Working |
+| TalentOS | PREVIEW | https://talentos.adsgupta.com | External |
+| Neural Oracle (Chat) | STAGING | Waitlist modal | Placeholder |
+| Influencer AI Video | STAGING | Waitlist modal | Placeholder |
+| Walmart / Quick Commerce | COMING SOON | Waitlist modal | Placeholder |
+
+### Design Specifications
+- **Canvas**: Deep Black (#000000)
+- **Cards**: Glassmorphism (rgba(255,255,255,0.03), backdrop-blur 12px)
+- **Accent**: Cyan (#00FFFF) glow on hover
+- **Terminal**: Scanline effect, typewriter animation, progress bar
+- **Fonts**: Space Grotesk (headings), System (body)
 
 ## TalentOS Module (Phase 10 - COMPLETE)
 
