@@ -5,11 +5,12 @@ import {
   LayoutDashboard, Settings, TrendingUp, DollarSign, ShoppingCart, 
   BarChart3, RefreshCw, AlertCircle, CheckCircle2, Loader2, 
   LogOut, User, Sparkles, ArrowUpRight, ArrowDownRight,
-  Eye, MousePointer, Package, Target, Zap, ChevronDown
+  Eye, MousePointer, Package, Target, Zap, ChevronDown, Menu
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
+import DashboardSidebar from '../components/DashboardSidebar';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
