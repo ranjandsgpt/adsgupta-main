@@ -196,7 +196,111 @@ const TerminalOverlay = ({ isVisible, protocolName, protocolType, onComplete }) 
   );
 };
 
-// Protocol Card Component with Glassmorphism
+// Waitlist Modal for Staging Protocols
+const WaitlistModal = ({ isOpen, onClose, protocolName }) => {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    try {
+      const API_URL = process.env.REACT_APP_BACKEND_URL;
+      await fetch(`${API_URL}/api/leads/capture`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          source: protocolName.toLowerCase().replace(/\s+/g, '_')
+        })
+      });
+      setSubmitted(true);
+      setTimeout(() => {
+        onClose();
+        setSubmitted(false);
+        setEmail('');
+      }, 2000);
+    } catch (err) {
+      console.error('Lead capture error:', err);
+    }
+  };
+  
+  if (!isOpen) return null;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] flex items-center justify-center p-6"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-2xl border border-cyan-500/20 bg-[#050505] p-6 shadow-[0_0_60px_rgba(0,255,255,0.1)]"
+      >
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center">
+            <Clock size={28} className="text-cyan-400" />
+          </div>
+          <h3 className="text-xl font-bold text-white font-['Space_Grotesk'] mb-2">
+            {protocolName}
+          </h3>
+          <p className="text-zinc-400 text-sm">
+            This protocol is currently in staging. Join the waitlist for early access.
+          </p>
+        </div>
+        
+        {submitted ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-4"
+          >
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <Sparkles size={24} className="text-emerald-400" />
+            </div>
+            <p className="text-emerald-400 font-medium">You're on the list!</p>
+          </motion.div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50 transition-colors"
+                data-testid="waitlist-email-input"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:from-cyan-400 hover:to-blue-500 transition-all"
+              data-testid="waitlist-submit-btn"
+            >
+              Join Waitlist
+            </button>
+          </form>
+        )}
+        
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-2 text-zinc-500 hover:text-white text-sm transition-colors"
+        >
+          Close
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// Protocol Card Component with Magnetic Hover + Glassmorphism
 const ProtocolCard = ({ 
   icon: Icon, 
   title, 
@@ -205,109 +309,170 @@ const ProtocolCard = ({
   gradient, 
   link, 
   isExternal,
-  isComingSoon,
+  placeholderType,
   hasDemo,
   onNavigate,
-  size = 'normal'
+  size = 'normal',
+  index = 0
 }) => {
+  const cardRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   
+  // Mouse position for magnetic effect
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  // Spring physics for smooth magnetic tilt
+  const springConfig = { damping: 25, stiffness: 300 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), springConfig);
+  
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const normalizedX = (e.clientX - centerX) / rect.width;
+    const normalizedY = (e.clientY - centerY) / rect.height;
+    mouseX.set(normalizedX);
+    mouseY.set(normalizedY);
+  };
+  
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+  
   const handleClick = () => {
-    if (isComingSoon) return;
     if (onNavigate) {
-      onNavigate(title, link, isExternal);
+      onNavigate(title, link, isExternal, placeholderType);
     }
   };
   
   const statusConfig = {
-    active: { color: 'bg-emerald-400', label: 'ACTIVE', textColor: 'text-emerald-400' },
-    preview: { color: 'bg-cyan-400', label: 'PREVIEW', textColor: 'text-cyan-400' },
-    coming: { color: 'bg-amber-400', label: 'COMING', textColor: 'text-amber-400' },
-    staging: { color: 'bg-purple-400', label: 'STAGING', textColor: 'text-purple-400' }
+    active: { color: 'bg-emerald-400', label: 'ACTIVE', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/30' },
+    preview: { color: 'bg-cyan-400', label: 'PREVIEW', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/30' },
+    coming: { color: 'bg-amber-400', label: 'COMING SOON', textColor: 'text-amber-400', borderColor: 'border-amber-500/30' },
+    staging: { color: 'bg-purple-400', label: 'STAGING', textColor: 'text-purple-400', borderColor: 'border-purple-500/30' }
   };
   
   const currentStatus = statusConfig[status] || statusConfig.coming;
+  const isPlaceholder = !!placeholderType;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      ref={cardRef}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
+      transition={{ delay: index * 0.1, duration: 0.5, ease: 'easeOut' }}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
+      style={{ 
+        rotateX: isHovered ? rotateX : 0, 
+        rotateY: isHovered ? rotateY : 0,
+        transformStyle: 'preserve-3d',
+        perspective: 1000
+      }}
       className={`relative group cursor-pointer ${
         size === 'large' ? 'md:col-span-2 md:row-span-2' : ''
       } ${size === 'wide' ? 'md:col-span-2' : ''}`}
+      data-testid={`protocol-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
+      {/* Cyan outer glow on hover */}
+      <motion.div 
+        className="absolute -inset-1 rounded-3xl opacity-0 transition-opacity duration-500"
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        style={{
+          background: 'linear-gradient(135deg, rgba(0,255,255,0.4), rgba(0,150,255,0.2))',
+          filter: 'blur(24px)'
+        }}
+      />
+      
       {/* Glassmorphism Card */}
-      <div className={`relative h-full rounded-2xl overflow-hidden transition-all duration-500 ${
-        isHovered ? 'scale-[1.02]' : ''
-      }`}>
-        {/* Border glow effect */}
-        <div className={`absolute inset-0 rounded-2xl transition-opacity duration-500 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`} style={{
-          background: 'linear-gradient(135deg, rgba(0,255,255,0.3), rgba(0,100,255,0.3))',
-          filter: 'blur(20px)'
-        }} />
-        
-        {/* Card background */}
-        <div className="relative h-full rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl p-6 hover:border-cyan-500/50 transition-all">
-          {/* Gradient overlay */}
-          <div className={`absolute top-0 right-0 w-40 h-40 ${gradient} rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity`} />
+      <motion.div 
+        className="relative h-full"
+        animate={{ scale: isHovered ? 1.02 : 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        {/* Card background - Industrial Luxury Tech */}
+        <div 
+          className={`relative h-full rounded-2xl overflow-hidden transition-all duration-500 ${
+            isHovered ? 'border-cyan-500/50' : 'border-white/[0.08]'
+          } border`}
+          style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)'
+          }}
+        >
+          {/* Gradient accent overlay */}
+          <div className={`absolute top-0 right-0 w-48 h-48 ${gradient} rounded-full blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity duration-500`} />
           
-          <div className="relative z-10 h-full flex flex-col">
+          {/* Inner content */}
+          <div className="relative z-10 h-full flex flex-col p-6">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
-              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+              <motion.div 
+                className={`w-14 h-14 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg`}
+                whileHover={{ rotate: [0, -5, 5, 0] }}
+                transition={{ duration: 0.5 }}
+              >
                 <Icon size={28} className="text-white" />
-              </div>
+              </motion.div>
               
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${currentStatus.color} animate-pulse`} />
-                <span className={`text-xs font-mono ${currentStatus.textColor}`}>
+              <div className={`flex items-center gap-2 px-2.5 py-1 rounded-lg ${currentStatus.borderColor} border bg-black/40`}>
+                <motion.div 
+                  className={`w-1.5 h-1.5 rounded-full ${currentStatus.color}`}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <span className={`text-[10px] font-mono font-medium ${currentStatus.textColor} tracking-wider`}>
                   {currentStatus.label}
                 </span>
               </div>
             </div>
             
             {/* Content */}
-            <h3 className="text-xl font-bold text-white font-['Space_Grotesk'] mb-2">
+            <h3 className="text-xl font-bold text-white font-['Space_Grotesk'] mb-2 tracking-tight">
               {title}
             </h3>
             <p className="text-zinc-400 text-sm leading-relaxed flex-1">
               {description}
             </p>
             
-            {/* Action */}
-            <div className="mt-4 pt-4 border-t border-white/5">
-              {isComingSoon ? (
-                <div className="flex items-center gap-2 text-zinc-500 text-sm">
-                  <Activity size={16} />
-                  <span>Protocol in Development</span>
-                </div>
-              ) : (
-                <div className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                  isHovered ? 'text-cyan-400' : 'text-zinc-400'
-                }`}>
-                  {hasDemo ? (
-                    <>
-                      <Play size={16} />
-                      <span>Launch Demo</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Initialize Protocol</span>
-                      {isExternal ? <ExternalLink size={14} /> : <ArrowRight size={16} />}
-                    </>
-                  )}
-                </div>
-              )}
+            {/* Action Footer */}
+            <div className="mt-4 pt-4 border-t border-white/[0.05]">
+              <motion.div 
+                className={`flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${
+                  isHovered ? 'text-cyan-400' : 'text-zinc-500'
+                }`}
+                animate={{ x: isHovered ? 4 : 0 }}
+              >
+                {isPlaceholder ? (
+                  <>
+                    <Clock size={16} />
+                    <span>{placeholderType === 'waitlist' ? 'Join Waitlist' : placeholderType === 'video' ? 'Preview Demo' : 'Coming Soon'}</span>
+                  </>
+                ) : hasDemo ? (
+                  <>
+                    <Play size={16} />
+                    <span>Launch Demo</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Initialize Protocol</span>
+                    {isExternal ? <ExternalLink size={14} /> : <ArrowRight size={16} />}
+                  </>
+                )}
+              </motion.div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
