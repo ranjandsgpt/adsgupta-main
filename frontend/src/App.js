@@ -127,9 +127,10 @@ function App() {
           {/* Demo Domain Routes (demoai.adsgupta.com) - when SHOW_DEMO is true */}
           {isDemoDomain ? (
             <>
-              {/* Demo domain defaults to Demo Universe */}
-              <Route path="/" element={<Navigate to="/amazon-audit" replace />} />
+              {/* Demo domain root is the Showcase Hub */}
+              <Route path="/" element={<DemoShowcaseHub />} />
               <Route path="/amazon-audit" element={<DemoUniversePage />} />
+              <Route path="/monetization" element={<MonetizationPage />} />
               <Route path="/internal-demo" element={<DemoUniversePage />} />
               {/* Allow access to tools for comparison */}
               <Route path="/audit" element={<InstantAuditPage />} />
