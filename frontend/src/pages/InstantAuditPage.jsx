@@ -287,7 +287,47 @@ const InstantAuditPage = () => {
       <main className="relative pt-28 pb-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <AnimatePresence mode="wait">
-            {!showResults ? (
+            {isProcessing ? (
+              <motion.div
+                key="processing"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center min-h-[60vh] space-y-8"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="w-20 h-20 rounded-full border-4 border-blue-500/30 border-t-blue-500"
+                />
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-bold text-white font-['Manrope']">
+                    Analyzing Your Data
+                  </h2>
+                  <motion.p 
+                    key={processingStage}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-blue-400"
+                  >
+                    {processingStage}
+                  </motion.p>
+                </div>
+                <div className="flex flex-wrap justify-center gap-3 max-w-md">
+                  {['Negative Ninja', 'ACOS Optimizer', 'Buy Box Analyzer', 'Dayparting Pro', 'Conversion Analyzer'].map((agent, i) => (
+                    <motion.span
+                      key={agent}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs"
+                    >
+                      {agent}
+                    </motion.span>
+                  ))}
+                </div>
+              </motion.div>
+            ) : (
               <motion.div
                 key="upload"
                 initial={{ opacity: 0 }}
@@ -329,8 +369,25 @@ const InstantAuditPage = () => {
 
                 {/* Dropzone */}
                 <div className="max-w-2xl mx-auto">
-                  <AuditDropzone onFileProcessed={analyzeData} />
+                  <AuditDropzone onFileProcessed={handleFileProcessed} />
                 </div>
+
+                {/* Supported Reports */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="max-w-2xl mx-auto"
+                >
+                  <p className="text-zinc-500 text-sm text-center mb-3">Supported Amazon Report Types:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {['Search Term Report', 'Business Report', 'Advertising Report', 'Sales & Traffic', 'Inventory Report'].map(report => (
+                      <span key={report} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-zinc-400 text-xs">
+                        {report}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
 
                 {/* Trust Indicators */}
                 <motion.div
@@ -349,103 +406,23 @@ const InstantAuditPage = () => {
                     <CheckCircle2 size={16} className="text-emerald-500" /> Instant results
                   </span>
                 </motion.div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="results"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-8"
-              >
-                {/* Results Header */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex items-center gap-3 mb-2"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                        <CheckCircle2 size={20} className="text-emerald-400" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-white font-['Manrope']">
-                          Audit Complete
-                        </h2>
-                        <p className="text-zinc-500 text-sm">
-                          Analyzed {auditData?.rowCount?.toLocaleString()} rows from {auditData?.fileName}
-                        </p>
-                      </div>
-                    </motion.div>
-                  </div>
-                  <button
-                    onClick={resetAudit}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-                  >
-                    <RefreshCw size={16} />
-                    New Audit
-                  </button>
-                </div>
 
-                {/* Quick Stats */}
-                {quickStats && <QuickStatsGrid data={quickStats} />}
-
-                {/* Leak Alerts */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-white font-['Manrope'] flex items-center gap-2">
-                      <AlertTriangle size={18} className="text-red-400" />
-                      Leak Alerts
-                    </h3>
-                    <span className="text-xs text-zinc-500">
-                      3 of {leakAlerts.length} visible
-                    </span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {leakAlerts.slice(0, 3).map((alert, index) => (
-                      <LeakAlertCard key={index} alert={alert} index={index} isBlurred={false} />
-                    ))}
-                    
-                    {leakAlerts.slice(3).map((alert, index) => (
-                      <LeakAlertCard key={index + 3} alert={alert} index={index + 3} isBlurred={true} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* CTA */}
+                {/* CTA to Demo */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="relative overflow-hidden rounded-2xl"
+                  className="text-center"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-blue-500/10" />
-                  <div className="relative p-8 text-center space-y-4 border border-blue-500/20 rounded-2xl">
-                    <h3 className="text-2xl font-bold text-white font-['Manrope']">
-                      Unlock the Full 2026 Strategy
-                    </h3>
-                    <p className="text-zinc-400 max-w-xl mx-auto">
-                      Connect your Amazon API to unlock all {leakAlerts.length} alerts, 20 AI optimization agents, 
-                      real-time monitoring, and predictive analytics.
-                    </p>
-                    <div className="flex items-center justify-center gap-4">
-                      <button
-                        onClick={() => navigate('/dashboard')}
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-400 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-                        data-testid="connect-api-cta"
-                      >
-                        Connect Amazon API
-                        <ArrowRight size={18} />
-                      </button>
-                      <button
-                        onClick={() => navigate('/demo')}
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-all"
-                      >
-                        Explore Demo
-                      </button>
-                    </div>
-                  </div>
+                  <p className="text-zinc-500 mb-4">Don't have a report handy?</p>
+                  <button
+                    onClick={() => navigate('/demo')}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-all"
+                  >
+                    <Eye size={16} />
+                    Explore Demo with Sample Data
+                    <ArrowRight size={16} />
+                  </button>
                 </motion.div>
               </motion.div>
             )}
