@@ -190,23 +190,27 @@ const DemoUniversePage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 p-4 rounded-xl bg-gradient-to-r from-violet-500/10 via-purple-500/10 to-blue-500/10 border border-violet-500/20"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center flex-shrink-0">
                   <Sparkles size={18} className="text-violet-400" />
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">Demo Universe</h3>
-                  <p className="text-zinc-400 text-sm">Exploring with 1,400+ simulated data points</p>
+                  <p className="text-zinc-400 text-sm">Exploring with 1,400+ simulated data points • 15-Year Optimizer Logic</p>
                 </div>
               </div>
-              <button
-                onClick={() => navigate('/audit')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-400 transition-all"
+              <a
+                href={`${TOOLS_DOMAIN}/audit`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-400 transition-all group whitespace-nowrap"
+                data-testid="analyze-your-data-link"
               >
-                <Zap size={14} />
+                <Upload size={14} />
                 Analyze Your Own Data
-              </button>
+                <ExternalLink size={12} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+              </a>
             </div>
           </motion.div>
 
