@@ -193,6 +193,10 @@ async def create_indexes():
         # AI Insights
         await db.ai_insights.create_index([("user_id", 1), ("created_at", -1)])
         
+        # Leads
+        await db.leads.create_index("email", unique=True)
+        await db.leads.create_index("created_at")
+        
         logger.info("Database indexes created successfully")
     except Exception as e:
         logger.error(f"Error creating indexes: {e}")
