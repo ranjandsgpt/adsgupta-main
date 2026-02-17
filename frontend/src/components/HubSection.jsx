@@ -55,14 +55,14 @@ export const HubSection = () => {
       badge: 'ADVERTISERS',
     },
     {
-      title: 'The Lab (Web Tools)',
-      description: 'Unified toolkit for SEO, UA, Affiliates, AI Content Gen, and Ad-Tech Career/Interview AI.',
+      title: 'Seller Dashboard',
+      description: 'AI-powered Amazon analytics with real-time KPIs, SP-API integration, and Gemini-driven insights.',
       link: '/tools',
       external: false,
       icon: Wrench,
       gradient: 'from-sky-500/20 via-blue-600/10 to-indigo-600/20',
       iconColor: 'text-sky-400',
-      badge: 'UTILITIES',
+      badge: 'DASHBOARD',
     },
   ];
 
