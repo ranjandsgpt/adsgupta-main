@@ -212,7 +212,7 @@ Zomato    - Coming (quick commerce)
 ```
 /app/frontend/src/
 ├── modules/
-│   ├── talentos/                    # NEW - TalentOS Module
+│   ├── talentos/                    # TalentOS Module
 │   │   ├── pages/
 │   │   │   ├── TalentOSLanding.jsx
 │   │   │   ├── TalentOSWorkspace.jsx
@@ -223,17 +223,24 @@ Zomato    - Coming (quick commerce)
 │   │   ├── services/
 │   │   └── store/
 │   └── demo-universe/
+│       ├── DemoShowcaseHub.jsx      # NEW - Protocol Showcase Hub
+│       ├── MonetizationPage.jsx     # NEW - LLM Monetization Demo
+│       ├── DemoUniversePage.jsx     # Amazon Audit Demo
+│       ├── data/
+│       │   └── mockDataGenerators.js
+│       └── store/
+│           └── demoStore.js
 ├── components/
-│   ├── MarketplaceContextSwitcher.jsx  # NEW
-│   ├── DashboardSidebar.jsx            # NEW
+│   ├── MarketplaceContextSwitcher.jsx
+│   ├── DashboardSidebar.jsx
 │   └── ...
 ├── pages/
 └── ...
 
 /app/backend/
 ├── routes/
-│   ├── talentos.py                  # NEW - TalentOS API
-│   ├── leads.py
+│   ├── talentos.py                  # TalentOS API
+│   ├── leads.py                     # Lead capture
 │   └── ...
 └── ...
 ```
