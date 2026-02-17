@@ -1,205 +1,165 @@
 # Ads Gupta - AI Advertising Platform & Enterprise Command Center
 
 ## Original Problem Statement
-Build the ultimate conversion tool for adsgupta.com that looks like a $50M/year SaaS, featuring instant AI audits, demo universe with 1,400+ data points, 20 AI optimization agents, and a hyper-advanced Multi-File Cross-Pollination Engine.
+Build the ultimate conversion tool for tools.adsgupta.com that looks like a $50M/year SaaS, featuring instant AI audits, multi-file cross-pollination, demo universe with 1,400+ data points, and 20 AI optimization agents.
 
-## Architecture
+## Deployment Architecture
 
-### Frontend
-- **Framework**: React with React Router
-- **Styling**: Tailwind CSS with premium dark theme (#050B18)
-- **Charts**: Recharts for interactive data visualization
-- **File Parsing**: PapaParser (CSV), SheetJS (XLSX)
-- **State Management**: Zustand with sessionStorage persistence
-- **Animations**: Framer Motion
-- **PDF Export**: jsPDF + html2canvas
+### Primary Site: tools.adsgupta.com
+- **Mode 1 (Default)**: Instant Analysis - File upload landing page
+- **Mode 2 (Upgrade)**: API Connection - Live Data Syncing status bar
 
-### Backend
-- **Framework**: FastAPI
-- **Database**: MongoDB
-- **Authentication**: JWT + Google OAuth (Emergent Auth)
-- **AI Integration**: Gemini 3 Flash via emergentintegrations
-- **Background Worker**: Async task for Amazon Reports API polling
+### Demo Universe: /internal-demo
+- Hidden internal route (not deployed to demoai.adsgupta.com)
+- Fully isolated data store
+- 1,400+ simulated data points
+- Accessible via sidebar link "See the Future of AdsGupta"
+
+### Environment Configuration
+```
+REACT_APP_SHOW_DEMO=true       # Toggle demo visibility
+REACT_APP_SITE_MODE=tools      # tools | marketing
+REACT_APP_BACKEND_URL=...      # API endpoint
+```
 
 ## Routes
 ```
-/ - Homepage
-/audit - Instant AI Audit (single file upload + analysis)
-/analysis - Deep Analysis Report (20 AI agents results)
-/multi-vault - Multi-File Cross-Pollination Upload (up to 10 files)
-/neural-map - Marketplace Neural Map (cross-pollination visualization)
-/demo - Demo Universe (1,400+ mock data points)
-/dashboard - Amazon Seller Analytics Dashboard (auth-gated)
-/marketplacesolutions - Marketplace Intel page
-/supply - Neural Supply Protocol
-/demand - Universal Demand Engine
-/tools - The Lab (Web Tools)
+/ - Instant AI Audit (default for tools.adsgupta.com)
+/audit - Instant AI Audit (alias)
+/analysis - Deep Analysis Report (20 AI agents)
+/multi-vault - Multi-File Cross-Pollination Upload
+/neural-map - Marketplace Neural Map
+/dashboard - Amazon Seller Dashboard (requires login)
+/internal-demo - Demo Universe (hidden, REACT_APP_SHOW_DEMO=true)
+/demo - Legacy demo page
+/home - Marketing homepage
 /blog, /aboutme, /contact, /privacy, /terms
 ```
 
+## Database Schema (MongoDB → PostgreSQL-ready)
+
+### Data Source Differentiation
+1. **file_uploads** (temporary, browser-side)
+   - session_id, file_name, report_type, headers
+   - expires_at: 24 hours TTL
+   - source: 'browser'
+
+2. **api_sync_data** (permanent, server-side)
+   - user_id, seller_id, marketplace_id
+   - report_type, data, synced_at, next_sync
+   - source: 'sp-api'
+
+3. **amazon_credentials** (encrypted)
+   - user_id, seller_id, refresh_token_encrypted
+   - sync_status, sync_frequency, enabled_reports
+
+4. **seller_kpis** (pre-computed)
+   - user_id, period, kpis (aggregated metrics)
+   - source: 'computed'
+
 ## Features Implemented
 
-### Phase 1-5 (Previous) - Landing Page & Multi-Page Ecosystem
-- [x] Landing page with kinetic typography hero
-- [x] 6-card Hub grid with protocol badges
-- [x] Dedicated solution pages
-- [x] Neural Oracle chatbot
-- [x] Founders' Circle, Blog, Contact pages
-
-### Phase 6 - Amazon Seller Dashboard
+### Phase 1-7 (Previous)
+- [x] Landing page with kinetic typography
+- [x] Multi-page ecosystem
 - [x] JWT + Google OAuth authentication
-- [x] Amazon SP-API OAuth flow (Website Authorization Workflow)
-- [x] Dashboard KPIs (Sales, Sessions, Conversion, Buy Box%, PPC metrics)
-- [x] AI Insights bar (Gemini 3 Flash)
-- [x] Background worker for 4-hour report polling
+- [x] Instant AI Audit (/audit → /analysis)
+- [x] 20 AI Optimization Agents
+- [x] Multi-File Cross-Pollination (/multi-vault → /neural-map)
+- [x] Cross-Pollination Insights
+- [x] Lead Capture to MongoDB
 
-### Phase 7 - Ultimate Conversion Tool ($50M SaaS)
+### Phase 8 - Deployment Refactoring (Feb 2026) - COMPLETE
 
-#### 1. INSTANT AI AUDIT ENGINE (/audit) - COMPLETE
-- [x] Glowing dropzone with drag-and-drop
-- [x] CSV/XLSX file parsing (client-side, no server wait)
-- [x] Processing animation with "Running 20 AI optimization checks"
-- [x] Automatic redirect to /analysis page
-- [x] Trust indicators: "Client-side processing", "Data never leaves browser"
+#### 1. Tools Domain Configuration
+- [x] Homepage redirects to /audit (Instant Analysis)
+- [x] SEO meta tags for tools.adsgupta.com
+- [x] "AdsGupta Tools: Instant Amazon Audit & API Growth Command Center"
 
-#### 2. DEEP ANALYSIS PAGE (/analysis) - COMPLETE
-- [x] Health Score gauge (0-100) based on findings
-- [x] 8 KPI cards: Sales, Units, Spend, ACOS, Sessions, Conversion, ROAS, Unique ASINs
-- [x] 4 Tabs: Overview, Findings, ASINs, Charts
-- [x] Pareto Analysis (80/20 Rule) bar + line chart
-- [x] Spend vs Conversion scatter chart
-- [x] Export CSV and Download PDF functionality
+#### 2. Demo Universe Modularization
+- [x] Created /modules/demo-universe directory
+- [x] Isolated demoStore.js (separate storage key)
+- [x] mockDataGenerators.js with 1,400+ data points
+- [x] DemoUniversePage.jsx as standalone module
+- [x] Hidden route: /internal-demo
+- [x] REACT_APP_SHOW_DEMO environment toggle
 
-#### 3. 20 AI OPTIMIZATION AGENTS - COMPLETE
-All agents calculate findings from actual uploaded data (zero hallucination).
+#### 3. State Isolation
+- [x] useDataStore - Real uploaded data
+- [x] useMultiFileStore - Multi-file data
+- [x] useDemoStore - Demo mock data (ISOLATED)
+- [x] Different sessionStorage keys prevent data mixing
 
-### Phase 8 - Multi-File Cross-Pollination Engine - COMPLETE (Feb 2026)
+#### 4. API Connection Infrastructure
+- [x] SyncStatusBar.jsx component
+- [x] Database schema design for file_upload vs api_sync
+- [x] PostgreSQL migration schema prepared
 
-#### 1. MULTI-VAULT UPLOADER (/multi-vault) - COMPLETE
-- [x] Batch upload up to 10 files simultaneously
-- [x] Universal Mapping Engine auto-detects report types from headers
-- [x] Report type detection: Business, Search Term, Settlement, Returns, Inventory, FBA Fees, Brand Analytics
-- [x] SKU/ASIN join key identification
-- [x] Cross-pollination readiness indicators (green when file combinations available)
-- [x] File cards with report type badges and row counts
-- [x] "Begin Quantum Analysis" CTA button
+#### 5. Lead Capture & Transition
+- [x] "Email My Audit" active on tools domain
+- [x] "See the Future of AdsGupta" link in AI Agent sidebar
+- [x] Links to /internal-demo
 
-#### 2. PROCESSING MATRIX ANIMATION - COMPLETE
-- [x] Full-screen overlay with futuristic design
-- [x] Rotating brain icon with animated rings
-- [x] 8-step progress tracking:
-  - Parsing File Structures
-  - Detecting Report Types
-  - Cleaning & Normalizing Data
-  - Quantum Merging on SKU/ASIN
-  - Computing Correlations
-  - Running 20 AI Agents
-  - Generating Cross-Pollination Insights
-  - Building Neural Map
-- [x] Step-by-step checkmarks with percentage progress
-- [x] Gradient progress bar
-
-#### 3. QUANTUM MERGER ENGINE - COMPLETE
-- [x] Field name normalization across different CSV formats
-- [x] Intelligent field aliasing (sales → ordered_product_sales, 7_day_total_sales, etc.)
-- [x] Currency and percentage value cleaning
-- [x] SKU/ASIN primary key extraction
-- [x] Multi-file merge with aggregation logic
-- [x] Join statistics (total rows, joined records, orphan records)
-
-#### 4. CROSS-POLLINATION INSIGHTS - COMPLETE
-- [x] **True Profit Audit** (Business + Settlement): Calculates actual net margin per SKU
-- [x] **PPC Cannibalization** (PPC + Business): Detects high ad sales ratio with low ACOS
-- [x] **Inventory-Ad Velocity** (PPC + Inventory): Flags SKUs with high spend but low inventory
-- [x] **ROAS Leak / Waste Map** (Search Term + Returns): Finds trap keywords driving returns
-- [x] **Price Elasticity Engine** (Multiple Business Reports): Price vs volume correlation
-
-#### 5. MARKETPLACE NEURAL MAP (/neural-map) - COMPLETE
-- [x] Header with unified record count and cross-referenced count
-- [x] Interactive Scatter Plot with custom X, Y, Size axis dropdowns
-- [x] Color-coded scatter points based on correlation
-- [x] "Smart Suggest" alarming correlations detection
-- [x] Click-to-apply correlation suggestions
-- [x] Discovered Correlations grid (strength, direction, data points)
-- [x] Cross-Pollination Insights expandable cards
-- [x] Analysis Summary (Total Insights, Correlations Found, Alarming Patterns)
-
-#### 6. RECURSIVE OPTIMIZER - COMPLETE
-- [x] "Run 1,000 Simulations" button with amber gradient
-- [x] Loading state with spinner
-- [x] Golden Path modal with:
-  - Projected ROAS Increase (+12-30%)
-  - Monthly Savings estimate
-  - Confidence Level (85-95%)
-  - 5-step action plan with impact descriptions
-
-#### 7. LEAD CAPTURE - COMPLETE
-- [x] "Email My Audit" button opens modal
-- [x] Modal shows insight count found
-- [x] Benefits list (50-page PDF, 15-min strategy call, custom action plan)
-- [x] Email input with validation
-- [x] Submit to `/api/leads/capture` endpoint
-- [x] Success animation with "You're In!" message
-- [x] MongoDB storage with interaction tracking
-- [x] Duplicate email handling with "Welcome back!"
+## File Structure
+```
+/app/frontend/src/
+├── modules/
+│   └── demo-universe/
+│       ├── DemoUniversePage.jsx
+│       ├── data/
+│       │   └── mockDataGenerators.js
+│       └── store/
+│           └── demoStore.js
+├── components/
+│   ├── SyncStatusBar.jsx (NEW)
+│   ├── AIAgentSidebar.jsx (Updated with demo link)
+│   └── ...
+├── store/
+│   ├── dataStore.js (real data)
+│   └── multiFileStore.js (multi-file data)
+└── pages/
+    ├── InstantAuditPage.jsx
+    ├── AnalysisPage.jsx
+    ├── MultiVaultPage.jsx
+    ├── NeuralMapPage.jsx
+    └── ...
+```
 
 ## API Endpoints
 
-### Lead Capture (NEW)
-- POST /api/leads/capture - Capture email from Neural Map
-- GET /api/leads/count - Get total lead count (admin)
+### Lead Capture
+- POST /api/leads/capture
+- GET /api/leads/count
 
-### Authentication
+### Authentication  
 - POST /api/auth/register, /api/auth/login
-- GET /api/auth/google/login, /api/auth/google/callback
+- GET /api/auth/google/login
 
-### Amazon SP-API
-- GET /api/amazon/connect, /api/amazon/callback, /api/amazon/status
+### Amazon SP-API (Prepared)
+- GET /api/amazon/connect
+- GET /api/amazon/callback
+- GET /api/amazon/status
+- POST /api/amazon/disconnect
 
-### Dashboard & AI
-- GET /api/dashboard/kpis
-- POST /api/ai/insights
-
-## Database Schema
-
-### leads (MongoDB Collection)
-```json
-{
-  "email": "user@example.com",
-  "source": "neural_map",
-  "insightCount": 15,
-  "created_at": "2026-02-17T12:00:00Z",
-  "last_seen": "2026-02-17T12:00:00Z",
-  "visit_count": 1,
-  "interactions": [{
-    "source": "neural_map",
-    "insightCount": 15,
-    "timestamp": "2026-02-17T12:00:00Z"
-  }],
-  "status": "new"
-}
-```
-
-## Test Results (Feb 2026)
-- Backend: 100% (8/8 tests) - Lead capture, validation, duplicate handling
-- Frontend Multi-Vault/Neural Map: 100% - All 15 features verified
-- Cross-Pollination Engine: Working correctly with real data calculations
+## Test Results
+- Backend: 100% pass rate
+- Frontend: All features verified
+- Demo Universe: Isolated and functional
 
 ## What's MOCKED
 - Amazon SP-API (requires LWA credentials)
-- Demo Universe 1,400+ data points (generated mock data)
-- Simulation "1,000 permutations" (deterministic calculation based on findings)
+- Demo Universe 1,400+ data points
+- Recursive Optimizer "1,000 simulations"
 
-## What's REAL (Zero Hallucination)
-- All file parsing and merging (client-side)
-- All cross-pollination calculations (True Profit, Cannibalization, etc.)
-- Correlation detection between metrics
+## What's REAL
+- All file parsing and analysis
+- Cross-pollination calculations
 - Lead capture to MongoDB
+- State isolation between demo and real data
 
 ## Next Steps (Backlog)
 1. Full Amazon SP-API backend integration
-2. PostgreSQL migration (when environment supports)
-3. Stripe payment integration for Pro subscriptions
-4. Web Workers for processing large files (10+ CSVs)
-5. Force-Directed Graph for SKU relationship visualization
-6. Historical trend tracking for SKU-Level Profit Decay
+2. PostgreSQL migration
+3. Stripe payment integration
+4. Deploy to tools.adsgupta.com production
+5. Eventually migrate Demo to demoai.adsgupta.com
