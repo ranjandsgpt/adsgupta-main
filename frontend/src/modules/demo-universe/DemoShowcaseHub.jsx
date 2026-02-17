@@ -74,7 +74,7 @@ const TerminalOverlay = ({ isVisible, protocolName, protocolType, onComplete }) 
       return;
     }
     
-    // Typewriter effect - type each character
+    // Typewriter effect - type each character (faster for snappier feel)
     if (currentLineIndex < terminalLines.length) {
       const currentFullLine = terminalLines[currentLineIndex];
       
@@ -82,7 +82,7 @@ const TerminalOverlay = ({ isVisible, protocolName, protocolType, onComplete }) 
         const typeTimer = setTimeout(() => {
           setCurrentLineText(prev => prev + currentFullLine[charIndex]);
           setCharIndex(prev => prev + 1);
-        }, 15 + Math.random() * 25); // Variable typing speed for realism
+        }, 8 + Math.random() * 12); // Fast typing speed (8-20ms per char)
         
         return () => clearTimeout(typeTimer);
       } else {
