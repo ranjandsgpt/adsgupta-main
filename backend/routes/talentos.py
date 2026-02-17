@@ -60,22 +60,24 @@ class EvaluateAnswerResponse(BaseModel):
 
 
 # Helper function to call LLM
-async def call_llm(prompt: str, system_message: str = None) -> str:
-    """Call the Emergent LLM API"""
+async def call_llm(prompt: str, system_message: str = "You are a helpful career coach.") -> str:
+    """Call the Emergent LLM API using GPT-4o"""
     if not HAS_LLM:
         return None
     
     try:
-        messages = []
-        if system_message:
-            messages.append(Message(role="system", content=system_message))
-        messages.append(Message(role="user", content=prompt))
-        
-        response = await chat(
+        # Initialize chat with unique session
+        chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
-            model="gpt-4o",
-            messages=messages
-        )
+            session_id=f"talentos_{datetime.utcnow().timestamp()}",
+            system_message=system_message
+        ).with_model("openai", "gpt-4o")
+        
+        # Create user message
+        user_message = UserMessage(text=prompt)
+        
+        # Send message and get response
+        response = await chat.send_message(user_message)
         return response
     except Exception as e:
         logger.error(f"LLM call failed: {e}")
