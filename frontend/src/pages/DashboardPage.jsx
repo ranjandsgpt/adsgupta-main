@@ -683,16 +683,12 @@ const DashboardPage = () => {
                   title="Total Sales"
                   value={k.total_sales || 0}
                   prefix="$"
-                  change={12}
-                  changeType="positive"
                   icon={DollarSign}
                   color="bg-emerald-500"
                 />
                 <KPICard
                   title="Sessions"
                   value={k.total_sessions || 0}
-                  change={8}
-                  changeType="positive"
                   icon={Eye}
                   color="bg-cyan-500"
                 />
@@ -700,8 +696,6 @@ const DashboardPage = () => {
                   title="Conversion Rate"
                   value={k.avg_conversion_rate || 0}
                   suffix="%"
-                  change={-2}
-                  changeType="negative"
                   icon={Target}
                   color="bg-violet-500"
                 />
@@ -709,8 +703,6 @@ const DashboardPage = () => {
                   title="Buy Box %"
                   value={k.avg_buy_box_percentage || 0}
                   suffix="%"
-                  change={5}
-                  changeType="positive"
                   icon={Package}
                   color="bg-amber-500"
                 />
