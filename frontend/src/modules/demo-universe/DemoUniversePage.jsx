@@ -17,12 +17,12 @@ import {
   Globe, Truck, Clock, Award, AlertTriangle, CheckCircle2, ArrowUpRight,
   ArrowLeft, Lock, Sparkles
 } from 'lucide-react';
-import { Navigation } from '../../../components/Navigation';
-import { MobileNav } from '../../../components/MobileNav';
-import { Footer } from '../../../components/Footer';
-import { AIAgentSidebar } from '../../../components/AIAgentSidebar';
-import useDemoStore from '../store/demoStore';
-import { generateMockData, generateSKUData, generateDemoSummary } from '../data/mockDataGenerators';
+import { Navigation } from '@/components/Navigation';
+import { MobileNav } from '@/components/MobileNav';
+import { Footer } from '@/components/Footer';
+import { AIAgentSidebar } from '@/components/AIAgentSidebar';
+import useDemoStore from './store/demoStore';
+import { generateMockData, generateSKUData, generateDemoSummary } from './data/mockDataGenerators';
 
 // Marketplace Tabs
 const MarketplaceTabs = ({ active, onChange }) => {
