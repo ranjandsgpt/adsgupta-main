@@ -7,7 +7,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://showcase-center.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://talentos-demo-build.preview.emergentagent.com')
 
 # Test user credentials
 TEST_EMAIL = "test@adsgupta.com"
