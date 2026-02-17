@@ -3,7 +3,7 @@
 ## Original Problem Statement
 Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-grade platform featuring instant AI audits, multi-marketplace support, demo universe, TalentOS career tools, and 20 AI optimization agents.
 
-## Deployment Architecture (Production Ready)
+## Deployment Architecture
 
 ### Primary Sites
 
@@ -11,179 +11,190 @@ Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-gra
 |--------|---------|------|
 | `tools.adsgupta.com` | Production - Multi-Marketplace Audit | `REACT_APP_SHOW_DEMO=false` |
 | `demoai.adsgupta.com` | Demo Hub - Interactive Showcases | `REACT_APP_SHOW_DEMO=true` |
-| `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (planned) |
+| `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (currently integrated) |
 
-### Cross-Domain Navigation
-- **tools → demo**: "See the Full AI Demo Universe" on /audit
-- **tools → demo**: "Explore Demo Universe" on /marketplacesolutions
-- **demo → tools**: "Analyze Your Own Data" button
-- **tools → talentos**: "Launch TalentOS" on /tools
+## TalentOS Module (Phase 10 - COMPLETE)
 
-## Multi-Marketplace Audit Engine (`/audit`)
+### Overview
+TalentOS is an AI-powered interview coach platform specializing in ad-tech roles. It provides resume gap analysis, mock interviews with Web Speech API, and STAR method scoring.
+
+### Routes
+```
+/talentos              - Landing page (Apple-style dark mode)
+/talentos/workspace    - Resume upload + JD input
+/talentos/analysis     - Gap analysis results with match score
+/talentos/interview    - Live mock interview with speech recognition
+```
+
+### Features Implemented
+- [x] Apple-style dark mode landing page with hero section
+- [x] Resume upload dropzone (PDF, DOC, DOCX, TXT)
+- [x] JD input (paste text or LinkedIn URL)
+- [x] LinkedIn profile input (optional)
+- [x] AI Gap Analysis with match score (0-100%)
+- [x] Skill gap identification (match/partial/gap status)
+- [x] Custom interview questions based on JD
+- [x] Action items for improvement
+- [x] Readiness score breakdown (technical, behavioral, industry, communication)
+- [x] Interview Room with Web Speech API (Chrome/Edge)
+- [x] Real-time speech-to-text transcription
+- [x] STAR Method scoring (Situation, Task, Action, Result)
+- [x] Interview feedback and follow-up questions
+
+### API Endpoints
+```
+GET  /api/talentos/health       - Health check
+POST /api/talentos/analyze      - Resume vs JD analysis
+POST /api/talentos/evaluate-answer - STAR scoring for answers
+```
+
+### Technical Details
+- Frontend: React with Framer Motion animations
+- Backend: FastAPI with Pydantic models
+- Speech: Web Speech API (browser-native, Chrome/Edge required)
+- Analysis: Keyword matching (LLM integration ready when key configured)
+- Design: Dark mode (#050505), Space Grotesk font, cyan/blue gradients
+
+## Multi-Marketplace Audit Engine
 
 ### Marketplace Context Switcher
-A responsive top-bar allowing users to switch between:
+```
+Amazon    - Active (full audit engine)
+Walmart   - Staging (Notify modal)
+Blinkit   - Coming (quick commerce)
+Swiggy    - Coming (quick commerce)
+Zomato    - Coming (quick commerce)
+```
 
-| Marketplace | Status | Behavior |
-|-------------|--------|----------|
-| **Amazon** | Active | Full audit engine with file upload |
-| **Walmart** | Staging | "Protocol Development" state with Notify modal |
-| **Blinkit** | Coming | Quick commerce protocol - Notify modal |
-| **Swiggy Instamart** | Coming | Quick commerce protocol - Notify modal |
-| **Zomato** | Coming | Quick commerce protocol - Notify modal |
+### Lead Capture
+- Email capture with marketplace source tracking
+- MongoDB storage for waitlist management
 
-### Lead Capture for Waitlists
-- Each non-active marketplace shows a "Notify Me at Launch" modal
-- Captures email with marketplace source tracking
-- Stores in MongoDB leads collection
+## Universal Dashboard
 
-## Universal Dashboard (`/dashboard`)
-
-### Architecture
-- **Persistent Sidebar Navigation** (only visible when logged in)
-- **Dynamic Content Area** that updates based on selected module
-
-### Sidebar Sections
+### Sidebar Navigation
 1. **Marketplaces**
    - Amazon Seller Hub (Active)
    - Walmart Hub (Coming Soon)
 
 2. **Growth Tools**
    - SEO Intelligence
-   - Growth Audit Engine → links to `/audit`
+   - Growth Audit Engine → /audit
    - Affiliate Manager
    - AI Content Studio
 
-## TalentOS Integration (`/tools`)
+## All Routes Summary
 
-### Moved to Standalone Platform
-- Interview AI Coach - RAG-based mock interviews
-- Career Path Navigator - Personalized career recommendations
-
-### Navigation
-- "Launch TalentOS" button links to `talentos.adsgupta.com`
-- Separate from main Growth Tools section
-
-## Routes Summary
-
-### Tools Domain (`tools.adsgupta.com`)
+### Main Site (tools.adsgupta.com)
 ```
-/ - Marketing Homepage
-/audit - Multi-Marketplace Audit with Context Switcher
-/analysis - Deep Analysis Report
-/multi-vault - Multi-File Staging
-/neural-map - Marketplace Neural Map
-/dashboard - Universal Dashboard (with sidebar when logged in)
-/tools - Growth Tools + TalentOS section
-/demo - Redirects to demoai.adsgupta.com/amazon-audit
-/blog, /aboutme, /contact, /privacy, /terms, /marketplacesolutions
+/                     - Marketing Homepage
+/audit               - Multi-Marketplace Audit with Context Switcher
+/analysis            - Deep Analysis Report
+/multi-vault         - Multi-File Staging
+/neural-map          - Marketplace Neural Map
+/dashboard           - Universal Dashboard
+/tools               - Growth Tools + TalentOS link
+/talentos/*          - TalentOS Interview Coach
+/blog, /aboutme, /contact, /privacy, /terms
 ```
 
-### Demo Domain (`demoai.adsgupta.com`)
+### Demo Site (demoai.adsgupta.com)
 ```
-/ - Redirects to /amazon-audit
-/amazon-audit - Demo Universe with 1,400+ data points
-/monetization - (Planned) Native Widget & LLM Monetization demos
+/                     - Redirects to /amazon-audit
+/amazon-audit         - Demo Universe with 1,400+ data points
 ```
 
-## Features Implemented
+## Test Results Summary
 
-### Phase 1-8 (Previous)
-- [x] Landing page with kinetic typography
-- [x] Multi-page ecosystem with marketing pages
-- [x] JWT + Google OAuth authentication
-- [x] Instant AI Audit (single file → /analysis)
-- [x] Multi-File Cross-Pollination (/multi-vault → /neural-map)
-- [x] 20 AI Optimization Agents
-- [x] Cross-Pollination Insights engine
-- [x] Lead Capture to MongoDB
-- [x] Demo Universe modularization
-- [x] Dual-domain deployment architecture
-
-### Phase 9 - Ecosystem Re-Architecture (Feb 2026) - COMPLETE
-- [x] Marketplace Context Switcher component
-- [x] Amazon/Walmart/Others tabs with proper status indicators
-- [x] "Protocol Development in Progress" state for staging marketplaces
-- [x] Notify Me modal with lead capture for marketplace waitlists
-- [x] Lead capture API updated with marketplace source tracking
-- [x] Dashboard Sidebar component
-- [x] Sidebar navigation with Marketplaces and Growth Tools sections
-- [x] ToolsPage reorganized with TalentOS separate section
-- [x] "Launch TalentOS" external link
-- [x] MarketplaceSolutions CTA updated to demoai domain
-- [x] /demo route redirects to demoai.adsgupta.com/amazon-audit
-- [x] Visual theme solidified (#121212 background, #00FFFF accents)
-
-## Design System
-
-### Colors
-- **Background**: `#121212` (primary), `#0A1628` (cards/sidebar)
-- **Accents**: `#00FFFF` (cyan) for borders, active states, buttons
-- **Status**: Green for active, Blue for staging, Cyan for coming
-
-### Typography
-- **Headings**: Space Grotesk
-- **Body/Data**: Inter (system default)
-
-## API Endpoints
-
-### Lead Capture (Updated)
-- `POST /api/leads/capture` - Accepts email + optional marketplace field
-  - Source tracking: `marketplace_waitlist_{marketplace_id}`
-- `GET /api/leads/count` - Returns total lead count
-
-### Authentication
-- `POST /api/auth/register`, `/api/auth/login`
-- `GET /api/auth/google/login`
-
-## Test Results (Phase 9)
-- Backend: 100% pass rate (12/12 tests)
-- Frontend: 100% pass rate
-- Marketplace switcher: Verified
-- Notify modals: All working
-- Lead capture: Source tracking verified
+| Module | Backend | Frontend |
+|--------|---------|----------|
+| Phase 9 (Marketplace) | 12/12 (100%) | All verified |
+| Phase 10 (TalentOS) | 12/12 (100%) | All 4 routes verified |
 
 ## What's MOCKED
+
+### TalentOS
+- Resume/JD analysis uses keyword matching (LLM ready when key configured)
+- STAR scoring uses keyword detection
+- Web Speech API requires Chrome/Edge
+
+### Main Platform
 - Demo Universe 1,400+ data points (intentional)
-- TalentOS (talentos.adsgupta.com) - external link exists, platform not yet deployed
 - Amazon SP-API integration (planned)
-- Walmart actual integration (placeholder only)
-- Quick commerce integrations (Blinkit, Swiggy, Zomato - placeholders)
+- Walmart/Quick Commerce integrations (placeholders)
 
 ## What's REAL
 - All file parsing and analysis
 - Cross-pollination calculations
-- Lead capture with marketplace source tracking
+- Lead capture with source tracking
 - Multi-marketplace context switching
-- State isolation between demo and real data
-- Cross-domain navigation
+- Speech-to-text transcription (browser API)
+- STAR method evaluation logic
 
 ## Next Steps (Backlog)
 
-### P0 - Ready for Deploy
+### P0 - Deploy
 - Deploy tools domain to tools.adsgupta.com
 - Deploy demo domain to demoai.adsgupta.com
 
-### P1 - TalentOS Standalone App
-1. Initialize Next.js 14+ project for talentos.adsgupta.com
-2. Build RAG-based AI Interview Coach
-3. Resume/JD upload widget with comparison engine
-4. Mock Interview Room with Web Speech API
-5. STAR method grading feedback engine
+### P1 - TalentOS Enhancement
+1. Configure Emergent LLM Key for GPT-powered analysis
+2. Add Clerk authentication
+3. Implement Razorpay subscription ($1/month)
+4. Build LinkedIn profile scraper
+5. Add interview question customization
 
-### P1 - Demo Hub Expansion (demoai domain)
-1. Create root `/` as Multi-Product Showcase gallery
-2. Move existing Native Widget logic to `/monetization`
-3. Create "Active Protocols" cards for each demo
+### P2 - Platform Features
+1. Walmart Seller Center integration
+2. Quick Commerce APIs (Blinkit, Swiggy, Zomato)
+3. Recursive Optimizer (1,000 simulations)
+4. Force-Directed Graph for Neural Map
 
-### P2 - Feature Enhancements
-1. Implement Walmart Seller Center integration (when API available)
-2. Add Quick Commerce APIs (Blinkit, Swiggy, Zomato)
-3. Build "Recursive Optimizer" logic (1,000 simulations)
-4. Enhance Neural Map with Force-Directed Graph
+### P3 - Future
+1. AI Video Persona (SadTalker/LivePortrait)
+2. Chrome Extension for Auto-Apply
+3. PostgreSQL migration
+4. Stripe payment integration
 
-### P3 - Infrastructure
-1. Full Amazon SP-API backend integration
-2. PostgreSQL migration
-3. Stripe payment integration
-4. Email service for "Email My Audit"
+## File Structure
+
+```
+/app/frontend/src/
+├── modules/
+│   ├── talentos/                    # NEW - TalentOS Module
+│   │   ├── pages/
+│   │   │   ├── TalentOSLanding.jsx
+│   │   │   ├── TalentOSWorkspace.jsx
+│   │   │   ├── TalentOSAnalysis.jsx
+│   │   │   └── TalentOSInterview.jsx
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   └── store/
+│   └── demo-universe/
+├── components/
+│   ├── MarketplaceContextSwitcher.jsx  # NEW
+│   ├── DashboardSidebar.jsx            # NEW
+│   └── ...
+├── pages/
+└── ...
+
+/app/backend/
+├── routes/
+│   ├── talentos.py                  # NEW - TalentOS API
+│   ├── leads.py
+│   └── ...
+└── ...
+```
+
+## Design System
+
+### Colors
+- **Background**: `#050505` (TalentOS), `#121212` (main)
+- **Cards**: `#0A0A0A`
+- **Accents**: `#00FFFF` (cyan), blue-500 to blue-600 gradients
+- **Status**: Emerald (match), Amber (partial), Red (gap)
+
+### Typography
+- **Headings**: Space Grotesk
+- **Body**: Inter/System
