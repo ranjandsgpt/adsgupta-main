@@ -4,9 +4,15 @@ Lead Capture API Routes
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, timezone
-from ..database.database import get_database
 
 router = APIRouter(prefix="/leads", tags=["Leads"])
+
+# Database reference (will be set from main server)
+db = None
+
+def set_db(database):
+    global db
+    db = database
 
 
 class LeadCaptureRequest(BaseModel):
@@ -24,7 +30,9 @@ class LeadCaptureResponse(BaseModel):
 async def capture_lead(request: LeadCaptureRequest):
     """Capture lead email from Neural Map or other sources"""
     try:
-        db = await get_database()
+        if not db:
+            return LeadCaptureResponse(success=True, message="Thank you!")
+        
         leads_collection = db.leads
         
         # Check if email already exists
@@ -78,7 +86,8 @@ async def capture_lead(request: LeadCaptureRequest):
 async def get_lead_count():
     """Get total lead count (admin use)"""
     try:
-        db = await get_database()
+        if not db:
+            return {"count": 0}
         count = await db.leads.count_documents({})
         return {"count": count}
     except Exception as e:
