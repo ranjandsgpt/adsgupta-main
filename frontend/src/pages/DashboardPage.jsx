@@ -167,7 +167,7 @@ const DashboardPage = () => {
     if (params.get('amazon_connected') === 'true') {
       fetchAmazonStatus();
       // Clean URL
-      navigate('/marketplacesolutions', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [location, navigate]);
   
