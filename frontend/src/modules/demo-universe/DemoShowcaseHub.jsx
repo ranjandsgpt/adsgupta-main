@@ -477,58 +477,97 @@ const ProtocolCard = ({
   );
 };
 
-// System Status Indicator
+// System Status Indicator - Enhanced
 const SystemStatus = () => {
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-      <span className="text-emerald-400 text-xs font-mono">SYSTEM STATUS: ONLINE</span>
-    </div>
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-sm"
+    >
+      <motion.div 
+        className="w-2 h-2 rounded-full bg-emerald-400"
+        animate={{ 
+          scale: [1, 1.3, 1],
+          boxShadow: ['0 0 0 0 rgba(52, 211, 153, 0.4)', '0 0 0 8px rgba(52, 211, 153, 0)', '0 0 0 0 rgba(52, 211, 153, 0.4)']
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+      <span className="text-emerald-400 text-xs font-mono tracking-wider">SYSTEM STATUS: ONLINE</span>
+    </motion.div>
   );
 };
 
-// Global Sidebar
+// Global Sidebar - Retractable
 const GlobalSidebar = ({ isOpen, onToggle }) => {
   return (
-    <motion.aside
-      initial={{ x: -200 }}
-      animate={{ x: isOpen ? 0 : -200 }}
-      className="fixed left-0 top-0 bottom-0 w-56 bg-black/80 backdrop-blur-xl border-r border-white/5 z-50"
-    >
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-              <Cpu size={16} className="text-white" />
+    <>
+      {/* Backdrop on mobile */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onToggle}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+      
+      <motion.aside
+        initial={false}
+        animate={{ x: isOpen ? 0 : -240 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        className="fixed left-0 top-0 bottom-0 w-60 bg-[#030303]/95 backdrop-blur-xl border-r border-white/[0.06] z-50"
+      >
+        <div className="p-5">
+          <div className="flex items-center justify-between mb-8">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <Cpu size={18} className="text-white" />
+              </div>
+              <div>
+                <span className="text-white font-bold font-['Space_Grotesk'] text-lg">DemoAI</span>
+                <span className="text-zinc-600 text-[10px] block font-mono">by AdsGupta</span>
+              </div>
+            </Link>
+          </div>
+          
+          <nav className="space-y-1">
+            <Link to="/" className="flex items-center gap-3 px-4 py-3 rounded-xl text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 transition-all">
+              <LayoutGrid size={18} />
+              <span className="text-sm font-medium">Showcase Hub</span>
+            </Link>
+            <Link to="/amazon-audit" className="flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all">
+              <ShoppingCart size={18} />
+              <span className="text-sm">Amazon Audit</span>
+            </Link>
+            <Link to="/monetization" className="flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all">
+              <Zap size={18} />
+              <span className="text-sm">Monetization</span>
+            </Link>
+          </nav>
+          
+          {/* Version info */}
+          <div className="absolute bottom-6 left-5 right-5">
+            <div className="px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+              <p className="text-zinc-600 text-[10px] font-mono">AD-OS PROTOCOL v3.2.1</p>
+              <p className="text-zinc-700 text-[10px] font-mono mt-1">Build: 2026.01.15</p>
             </div>
-            <span className="text-white font-bold font-['Space_Grotesk']">DemoAI</span>
-          </Link>
+          </div>
         </div>
         
-        <nav className="space-y-2">
-          <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg text-cyan-400 bg-cyan-500/10">
-            <LayoutGrid size={16} />
-            <span className="text-sm">Showcase Hub</span>
-          </Link>
-          <Link to="/amazon-audit" className="flex items-center gap-3 px-3 py-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5">
-            <ShoppingCart size={16} />
-            <span className="text-sm">Amazon Audit</span>
-          </Link>
-          <Link to="/monetization" className="flex items-center gap-3 px-3 py-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5">
-            <Zap size={16} />
-            <span className="text-sm">Monetization</span>
-          </Link>
-        </nav>
-      </div>
-      
-      {/* Toggle button */}
-      <button
-        onClick={onToggle}
-        className="absolute -right-8 top-1/2 -translate-y-1/2 w-6 h-12 bg-white/5 border border-white/10 rounded-r-lg flex items-center justify-center hover:bg-white/10 transition-all"
-      >
-        <ChevronRight size={14} className={`text-zinc-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-    </motion.aside>
+        {/* Toggle button */}
+        <button
+          onClick={onToggle}
+          className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-14 bg-[#050505] border border-white/[0.08] rounded-r-xl flex items-center justify-center hover:bg-white/5 transition-all group"
+          data-testid="sidebar-toggle"
+        >
+          <ChevronRight size={16} className={`text-zinc-500 group-hover:text-cyan-400 transition-all ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+      </motion.aside>
+    </>
   );
 };
 
