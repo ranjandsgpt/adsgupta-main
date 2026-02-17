@@ -416,6 +416,19 @@ const InstantAuditPage = () => {
                   ))}
                 </div>
               </motion.div>
+            ) : !isMarketplaceActive ? (
+              /* Show Protocol Development State for non-Amazon marketplaces */
+              <motion.div
+                key="protocol-development"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <ProtocolDevelopmentState 
+                  marketplace={currentMarketplace}
+                  onNotifyClick={() => setNotifyModalOpen(true)}
+                />
+              </motion.div>
             ) : (
               <motion.div
                 key="upload"
@@ -438,10 +451,10 @@ const InstantAuditPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="text-4xl md:text-5xl font-bold text-white font-['Manrope'] tracking-tight"
+                    className="text-4xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight"
                   >
                     Find Revenue Leaks in{' '}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
                       30 Seconds
                     </span>
                   </motion.h1>
