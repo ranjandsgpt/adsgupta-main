@@ -30,7 +30,7 @@ class LeadCaptureResponse(BaseModel):
 async def capture_lead(request: LeadCaptureRequest):
     """Capture lead email from Neural Map or other sources"""
     try:
-        if not db:
+        if db is None:
             return LeadCaptureResponse(success=True, message="Thank you!")
         
         leads_collection = db.leads
