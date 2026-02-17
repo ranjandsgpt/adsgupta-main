@@ -1,3 +1,7 @@
+"""
+AdsGupta Dashboard Backend
+FastAPI server with Amazon SP-API integration
+"""
 from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -5,70 +9,135 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
-from datetime import datetime, timezone
+from contextlib import asynccontextmanager
+import asyncio
 
-
+# Load environment
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Import routes
+from routes import auth, amazon, dashboard, insights
+from services.amazon_reports import AmazonReportService
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
+# Initialize services
+report_service = AmazonReportService(db)
+
+# Background task for report polling
+async def report_polling_task():
+    """Background task to poll and process Amazon reports every 4 hours"""
+    while True:
+        try:
+            logger.info("Running scheduled report processing...")
+            await report_service.process_pending_reports()
+            logger.info("Report processing completed")
+        except Exception as e:
+            logger.error(f"Report polling error: {e}")
+        
+        # Wait 4 hours before next poll
+        await asyncio.sleep(4 * 60 * 60)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage app lifespan - startup and shutdown"""
+    # Startup
+    logger.info("Starting AdsGupta Dashboard Backend...")
+    
+    # Set database references for all route modules
+    auth.set_db(db)
+    amazon.set_db(db)
+    dashboard.set_db(db)
+    insights.set_db(db)
+    
+    # Create indexes
+    await create_indexes()
+    
+    # Start background report polling task
+    polling_task = asyncio.create_task(report_polling_task())
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down...")
+    polling_task.cancel()
+    try:
+        await polling_task
+    except asyncio.CancelledError:
+        pass
+    client.close()
+
+
+# Create the main app
+app = FastAPI(
+    title="AdsGupta Dashboard API",
+    description="AI-powered Amazon Seller Analytics Dashboard",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Include all route modules
+api_router.include_router(auth.router)
+api_router.include_router(amazon.router)
+api_router.include_router(dashboard.router)
+api_router.include_router(insights.router)
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-# Add your routes to the router instead of directly to app
+# Health check endpoint
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {
+        "message": "AdsGupta Dashboard API",
+        "status": "healthy",
+        "version": "1.0.0"
+    }
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    try:
+        # Check MongoDB connection
+        await db.command("ping")
+        db_status = "connected"
+    except Exception:
+        db_status = "disconnected"
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+    return {
+        "status": "healthy",
+        "database": db_status,
+        "services": {
+            "auth": "active",
+            "amazon_sp_api": "active",
+            "dashboard": "active",
+            "ai_insights": "active"
+        }
+    }
+
+
+# Settings endpoint to get redirect URI
+@api_router.get("/settings/redirect-uri")
+async def get_redirect_uri():
+    """Get the Amazon OAuth redirect URI for configuration"""
+    backend_url = os.environ.get("BACKEND_URL", "https://ads-gupta-preview.preview.emergentagent.com")
+    return {
+        "redirect_uri": f"{backend_url}/api/amazon/callback",
+        "note": "Add this URI to your Amazon Developer Console under 'Allowed Return URLs'"
+    }
+
 
 # Include the router in the main app
 app.include_router(api_router)
 
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -84,6 +153,44 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+
+async def create_indexes():
+    """Create MongoDB indexes for performance"""
+    try:
+        # Users
+        await db.users.create_index("user_id", unique=True)
+        await db.users.create_index("email", unique=True)
+        
+        # Sessions
+        await db.user_sessions.create_index("session_token")
+        await db.user_sessions.create_index("user_id")
+        await db.user_sessions.create_index("expires_at")
+        
+        # Amazon Sellers
+        await db.amazon_sellers.create_index("seller_id", unique=True)
+        await db.amazon_sellers.create_index("user_id")
+        
+        # OAuth States
+        await db.oauth_states.create_index("state", unique=True)
+        await db.oauth_states.create_index("expires_at", expireAfterSeconds=0)
+        
+        # Report Requests
+        await db.report_requests.create_index("request_id", unique=True)
+        await db.report_requests.create_index("seller_id")
+        await db.report_requests.create_index("status")
+        
+        # Metrics
+        await db.sales_traffic_metrics.create_index([("seller_id", 1), ("date", -1)])
+        await db.sales_traffic_metrics.create_index([("seller_id", 1), ("asin", 1)])
+        
+        await db.settlement_metrics.create_index([("seller_id", 1), ("settlement_end_date", -1)])
+        
+        await db.sponsored_products_metrics.create_index([("seller_id", 1), ("date", -1)])
+        await db.sponsored_products_metrics.create_index([("seller_id", 1), ("campaign_id", 1)])
+        
+        # AI Insights
+        await db.ai_insights.create_index([("user_id", 1), ("created_at", -1)])
+        
+        logger.info("Database indexes created successfully")
+    except Exception as e:
+        logger.error(f"Error creating indexes: {e}")
