@@ -19,6 +19,7 @@ class LeadCaptureRequest(BaseModel):
     email: EmailStr
     source: str = "unknown"
     insightCount: int = 0
+    marketplace: str = None  # For marketplace waitlist leads
 
 
 class LeadCaptureResponse(BaseModel):
