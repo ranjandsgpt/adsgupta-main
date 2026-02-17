@@ -26,6 +26,7 @@ import ToolsPage from "./pages/ToolsPage";
 import DashboardPage from "./pages/DashboardPage";
 import InstantAuditPage from "./pages/InstantAuditPage";
 import DemoPage from "./pages/DemoPage";
+import AnalysisPage from "./pages/AnalysisPage";
 
 // Home Page Component - Reordered for Narrative Flow
 const HomePage = () => {
