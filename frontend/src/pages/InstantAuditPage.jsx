@@ -11,6 +11,7 @@ import {
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
+import useDataStore from '../store/dataStore';
 
 // Instant Audit Dropzone Component
 const AuditDropzone = ({ onFileProcessed }) => {
