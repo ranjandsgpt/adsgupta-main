@@ -181,6 +181,87 @@ const MarketplaceSolutionsPage = () => {
               </a>
             </div>
           </motion.div>
+
+          {/* Seller Dashboard Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-20"
+          >
+            <div className="text-center mb-10">
+              <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-3 block">
+                Analytics & Intelligence
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white font-['Space_Grotesk']">
+                Seller Dashboard
+              </h2>
+            </div>
+
+            <Link 
+              to="/dashboard"
+              data-testid="seller-dashboard-card"
+              className="block"
+            >
+              <motion.div
+                whileHover={{ scale: 1.01, y: -4 }}
+                transition={{ duration: 0.2 }}
+                className="glass-card rounded-2xl p-8 md:p-10 border border-cyan-500/20 hover:border-cyan-500/40 transition-all cursor-pointer group"
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                  <div>
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center">
+                        <LayoutDashboard size={28} className="text-cyan-400" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-medium">
+                          LIVE
+                        </span>
+                        <span className="px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-xs font-medium flex items-center gap-1">
+                          <Sparkles size={12} /> AI-POWERED
+                        </span>
+                      </div>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white font-['Space_Grotesk'] mb-4">
+                      Amazon Seller Analytics Dashboard
+                    </h3>
+                    <p className="text-zinc-400 text-lg leading-relaxed mb-6">
+                      Connect your Amazon Seller Central account to unlock real-time KPIs, 
+                      AI-powered insights from Gemini, and actionable recommendations to grow your business.
+                    </p>
+                    <div className="inline-flex items-center gap-2 text-cyan-400 font-medium group-hover:gap-3 transition-all">
+                      Open Dashboard
+                      <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-5 rounded-xl bg-white/5 border border-white/5">
+                      <LineChart size={24} className="text-emerald-400 mb-3" />
+                      <p className="text-white font-semibold mb-1">Real-time KPIs</p>
+                      <p className="text-zinc-500 text-sm">Sales, Sessions, Conversion, Buy Box %</p>
+                    </div>
+                    <div className="p-5 rounded-xl bg-white/5 border border-white/5">
+                      <BarChart3 size={24} className="text-violet-400 mb-3" />
+                      <p className="text-white font-semibold mb-1">PPC Analytics</p>
+                      <p className="text-zinc-500 text-sm">ACOS, TACOS, ROAS tracking</p>
+                    </div>
+                    <div className="p-5 rounded-xl bg-white/5 border border-white/5">
+                      <Sparkles size={24} className="text-cyan-400 mb-3" />
+                      <p className="text-white font-semibold mb-1">AI Insights</p>
+                      <p className="text-zinc-500 text-sm">Gemini-powered recommendations</p>
+                    </div>
+                    <div className="p-5 rounded-xl bg-white/5 border border-white/5">
+                      <ShoppingCart size={24} className="text-amber-400 mb-3" />
+                      <p className="text-white font-semibold mb-1">SP-API Integration</p>
+                      <p className="text-zinc-500 text-sm">Direct Amazon connection</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </Link>
+          </motion.div>
         </div>
       </main>
 
