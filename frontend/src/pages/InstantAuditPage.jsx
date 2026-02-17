@@ -483,22 +483,28 @@ const InstantAuditPage = () => {
                   </span>
                 </motion.div>
 
-                {/* CTA to Demo */}
+                {/* CTA to Demo - Cross-Domain Link */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-center"
+                  className="text-center space-y-4"
                 >
-                  <p className="text-zinc-500 mb-4">Don't have a report handy?</p>
-                  <button
-                    onClick={() => navigate('/demo')}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-all"
+                  <p className="text-zinc-500">Not ready to upload your data?</p>
+                  <a
+                    href={`${DEMO_DOMAIN}/amazon-audit`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 text-violet-400 font-medium hover:from-violet-500/30 hover:to-purple-500/30 transition-all group"
+                    data-testid="demo-universe-link"
                   >
-                    <Eye size={16} />
-                    Explore Demo with Sample Data
-                    <ArrowRight size={16} />
-                  </button>
+                    <Sparkles size={16} />
+                    See the Full AI Demo Universe
+                    <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                  <p className="text-zinc-600 text-xs">
+                    Explore with 1,400+ simulated data points • No upload required
+                  </p>
                 </motion.div>
               </motion.div>
             )}
