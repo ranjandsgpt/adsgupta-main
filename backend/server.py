@@ -131,7 +131,9 @@ async def health_check():
 @api_router.get("/settings/redirect-uri")
 async def get_redirect_uri():
     """Get the Amazon OAuth redirect URI for configuration"""
-    backend_url = os.environ.get("BACKEND_URL", "https://talentos-demo-build.preview.emergentagent.com")
+    backend_url = os.environ.get("BACKEND_URL")
+    if not backend_url:
+        raise HTTPException(status_code=500, detail="BACKEND_URL environment variable is required")
     return {
         "redirect_uri": f"{backend_url}/api/amazon/callback",
         "note": "Add this URI to your Amazon Developer Console under 'Allowed Return URLs'"
