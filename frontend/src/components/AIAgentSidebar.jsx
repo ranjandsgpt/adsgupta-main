@@ -553,12 +553,25 @@ export const AIAgentSidebar = ({ onClose, data, skuData }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-6 border-t border-white/10">
+      <div className="p-6 border-t border-white/10 space-y-3">
         <button className="w-full py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-400 
           transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] flex items-center justify-center gap-2">
           <Zap size={18} />
           Run All Agents
         </button>
+        
+        {/* Demo Universe Link */}
+        {process.env.REACT_APP_SHOW_DEMO === 'true' && (
+          <a 
+            href="/internal-demo"
+            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-500/20 to-purple-500/20 
+              border border-violet-500/30 text-violet-400 text-sm font-medium hover:from-violet-500/30 
+              hover:to-purple-500/30 transition-all flex items-center justify-center gap-2"
+          >
+            <Sparkles size={14} />
+            See the Future of AdsGupta
+          </a>
+        )}
       </div>
     </motion.div>
   );
