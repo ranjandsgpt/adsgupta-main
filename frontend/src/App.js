@@ -1,5 +1,7 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 import { CustomCursor } from "./components/CustomCursor";
 import { Navigation } from "./components/Navigation";
 import { MobileNav } from "./components/MobileNav";
@@ -29,6 +31,13 @@ import DemoPage from "./pages/DemoPage";
 import AnalysisPage from "./pages/AnalysisPage";
 import MultiVaultPage from "./pages/MultiVaultPage";
 import NeuralMapPage from "./pages/NeuralMapPage";
+
+// Demo Universe Module (Isolated)
+import DemoUniversePage from "./modules/demo-universe/DemoUniversePage";
+
+// Environment config
+const SHOW_DEMO = process.env.REACT_APP_SHOW_DEMO === 'true';
+const SITE_MODE = process.env.REACT_APP_SITE_MODE || 'tools';
 
 // Home Page Component - Reordered for Narrative Flow
 const HomePage = () => {
