@@ -188,6 +188,12 @@ Zomato    - Coming (quick commerce)
 
 ## What's MOCKED
 
+### Monetization Demo Page
+- AI Chat responses are simulated (1.5s delay, preset responses)
+- Video ad uses Big Buck Bunny sample video
+- Product prices/ratings are static mock data
+- Live Metrics are static display values
+
 ### DemoAI Showcase Hub
 - Neural Oracle, Influencer AI Video, Walmart protocols → Waitlist modal only
 - TalentOS external link points to planned domain (talentos.adsgupta.com)
