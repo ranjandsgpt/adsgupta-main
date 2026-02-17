@@ -50,6 +50,7 @@ async def capture_lead(request: LeadCaptureRequest):
                         "interactions": {
                             "source": request.source,
                             "insightCount": request.insightCount,
+                            "marketplace": request.marketplace,
                             "timestamp": datetime.now(timezone.utc)
                         }
                     }
