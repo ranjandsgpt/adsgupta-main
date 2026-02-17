@@ -6,13 +6,16 @@ import * as XLSX from 'xlsx';
 import {
   Upload, FileSpreadsheet, AlertTriangle, TrendingUp, TrendingDown,
   DollarSign, Target, ShoppingCart, BarChart3, Zap, Lock, ArrowRight,
-  Sparkles, Eye, Percent, Package, RefreshCw, X, CheckCircle2
+  Sparkles, Eye, Percent, Package, RefreshCw, X, CheckCircle2, ExternalLink
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
 import useDataStore from '../store/dataStore';
 import useMultiFileStore from '../store/multiFileStore';
+
+// Domain config
+const DEMO_DOMAIN = process.env.REACT_APP_DEMO_DOMAIN || 'https://demoai.adsgupta.com';
 
 // Instant Audit Dropzone Component - Supports Single or Multiple Files
 const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
