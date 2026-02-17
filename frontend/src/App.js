@@ -1,6 +1,6 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useMemo } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { CustomCursor } from "./components/CustomCursor";
 import { Navigation } from "./components/Navigation";
@@ -38,6 +38,12 @@ import DemoUniversePage from "./modules/demo-universe/DemoUniversePage";
 // Environment config
 const SHOW_DEMO = process.env.REACT_APP_SHOW_DEMO === 'true';
 const SITE_MODE = process.env.REACT_APP_SITE_MODE || 'tools';
+const DEMO_DOMAIN = process.env.REACT_APP_DEMO_DOMAIN || 'https://demoai.adsgupta.com';
+const TOOLS_DOMAIN = process.env.REACT_APP_TOOLS_DOMAIN || 'https://tools.adsgupta.com';
+
+// Detect if we're on demo domain
+const isDemoDomain = typeof window !== 'undefined' && 
+  (window.location.hostname.includes('demoai') || SHOW_DEMO);
 
 // Home Page Component - Reordered for Narrative Flow
 const HomePage = () => {
