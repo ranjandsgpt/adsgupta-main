@@ -17,8 +17,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # Import routes
-from routes import auth, amazon, dashboard, insights
-from src.routes.leads import router as leads_router
+from routes import auth, amazon, dashboard, insights, leads
 from services.amazon_reports import AmazonReportService
 
 # MongoDB connection
