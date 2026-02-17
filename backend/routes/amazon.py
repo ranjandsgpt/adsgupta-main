@@ -119,7 +119,7 @@ async def amazon_oauth_callback(
     
     if error:
         logger.error(f"Amazon OAuth error: {error} - {error_description}")
-        return {"redirect": f"{frontend_url}/marketplacesolutions?error={error}&message={error_description}"}
+        return {"redirect": f"{frontend_url}/dashboard?error={error}&message={error_description}"}
     
     if not spapi_oauth_code or not state:
         raise HTTPException(status_code=400, detail="Missing required parameters")
