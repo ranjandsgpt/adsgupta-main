@@ -86,7 +86,8 @@ function App() {
         <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
         <Route path="/supply" element={<SupplyPage />} />
         <Route path="/demand" element={<DemandPage />} />
-        <Route path="/tools" element={<ToolsPage />} />
+        <Route path="/tools" element={<DashboardPage />} />
+        <Route path="/lab" element={<ToolsPage />} />
       </Routes>
     </BrowserRouter>
   );
