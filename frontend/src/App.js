@@ -160,6 +160,9 @@ function App() {
               
               {/* Demo Universe - Redirect to demoai domain */}
               <Route path="/demo" element={<DemoRedirect />} />
+              <Route path="/showcase" element={<DemoShowcaseHub />} />
+              <Route path="/monetization" element={<MonetizationPage />} />
+              <Route path="/amazon-audit" element={<DemoUniversePage />} />
               {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
               
               {/* Marketing/Landing Pages */}
