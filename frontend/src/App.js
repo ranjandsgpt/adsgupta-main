@@ -83,10 +83,10 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
-        <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
+        <Route path="/marketplacesolutions" element={<DashboardPage />} />
         <Route path="/supply" element={<SupplyPage />} />
         <Route path="/demand" element={<DemandPage />} />
-        <Route path="/tools" element={<DashboardPage />} />
+        <Route path="/tools" element={<ToolsPage />} />
         <Route path="/lab" element={<ToolsPage />} />
       </Routes>
     </BrowserRouter>
