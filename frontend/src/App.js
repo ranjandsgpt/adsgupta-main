@@ -101,17 +101,19 @@ function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
-        {/* SEO Meta Tags */}
-        <Helmet>
-          <title>{seoTitle}</title>
-          <meta name="description" content={seoDescription} />
-          <meta name="keywords" content="Amazon seller tools, PPC optimization, ACOS analyzer, Amazon audit, ecommerce analytics" />
-          <meta property="og:title" content={ogTitle} />
-          <meta property="og:description" content={ogDesc} />
-          <meta property="og:type" content="website" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={ogTitle} />
-        </Helmet>
+        {/* SEO Meta Tags - using title prop for React 19 compatibility */}
+        <Helmet
+          title={seoTitle}
+          meta={[
+            { name: "description", content: seoDescription },
+            { name: "keywords", content: "Amazon seller tools, PPC optimization, ACOS analyzer, Amazon audit, ecommerce analytics" },
+            { property: "og:title", content: ogTitle },
+            { property: "og:description", content: ogDesc },
+            { property: "og:type", content: "website" },
+            { name: "twitter:card", content: "summary_large_image" },
+            { name: "twitter:title", content: ogTitle }
+          ]}
+        />
         
         <CustomCursor />
         <Routes>
