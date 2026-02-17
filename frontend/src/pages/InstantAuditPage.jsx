@@ -149,6 +149,9 @@ const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
                   Drop your Amazon <span className="text-blue-400">Sales & Traffic</span> (CSV) or{' '}
                   <span className="text-cyan-400">Search Term</span> (XLSX) report
                 </p>
+                <p className="text-zinc-500 text-sm mt-2">
+                  Select <span className="text-violet-400">multiple files</span> for Cross-Pollination Analysis
+                </p>
               </div>
               <div className="flex items-center justify-center gap-4 text-xs text-zinc-500">
                 <span className="flex items-center gap-1">
