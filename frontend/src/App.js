@@ -27,6 +27,8 @@ import DashboardPage from "./pages/DashboardPage";
 import InstantAuditPage from "./pages/InstantAuditPage";
 import DemoPage from "./pages/DemoPage";
 import AnalysisPage from "./pages/AnalysisPage";
+import MultiVaultPage from "./pages/MultiVaultPage";
+import NeuralMapPage from "./pages/NeuralMapPage";
 
 // Home Page Component - Reordered for Narrative Flow
 const HomePage = () => {
