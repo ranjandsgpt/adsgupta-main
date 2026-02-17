@@ -13,15 +13,17 @@ import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
 import useDataStore from '../store/dataStore';
 
-// Instant Audit Dropzone Component
-const AuditDropzone = ({ onFileProcessed }) => {
+// Instant Audit Dropzone Component - Supports Single or Multiple Files
+const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [fileCount, setFileCount] = useState(0);
 
   const processFile = useCallback((file) => {
     setIsProcessing(true);
     setFileName(file.name);
+    setFileCount(1);
 
     const extension = file.name.split('.').pop().toLowerCase();
 
@@ -56,13 +58,25 @@ const AuditDropzone = ({ onFileProcessed }) => {
   const handleDrop = useCallback((e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
-  }, [processFile]);
+    const files = Array.from(e.dataTransfer.files);
+    
+    if (files.length > 1) {
+      // Multiple files - redirect to Multi-Vault
+      onMultipleFiles(files);
+    } else if (files.length === 1) {
+      processFile(files[0]);
+    }
+  }, [processFile, onMultipleFiles]);
 
   const handleFileInput = (e) => {
-    const file = e.target.files[0];
-    if (file) processFile(file);
+    const files = Array.from(e.target.files);
+    
+    if (files.length > 1) {
+      // Multiple files - redirect to Multi-Vault
+      onMultipleFiles(files);
+    } else if (files.length === 1) {
+      processFile(files[0]);
+    }
   };
 
   return (
@@ -89,6 +103,7 @@ const AuditDropzone = ({ onFileProcessed }) => {
         <input
           type="file"
           accept=".csv,.xlsx,.xls"
+          multiple
           onChange={handleFileInput}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           disabled={isProcessing}
