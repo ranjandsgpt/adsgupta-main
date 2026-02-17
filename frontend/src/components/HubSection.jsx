@@ -26,13 +26,13 @@ export const HubSection = () => {
     },
     {
       title: 'Marketplace Intel',
-      description: 'AI-powered Amazon Seller Dashboard with real-time KPIs, SP-API integration, and Gemini-driven insights for marketplace dominance.',
+      description: 'Dominance for Amazon, Walmart, Target, Blinkit, Swiggy, and Zomato. From AI-SEO to automated Seller Central bidding.',
       link: '/marketplacesolutions',
       external: false,
       icon: ShoppingCart,
       gradient: 'from-emerald-500/20 via-green-600/10 to-teal-600/20',
       iconColor: 'text-emerald-400',
-      badge: 'DASHBOARD',
+      badge: 'COMMERCE',
     },
     {
       title: 'Neural Supply Protocol',
