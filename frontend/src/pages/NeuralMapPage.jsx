@@ -590,11 +590,11 @@ const NeuralMapPage = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={runSimulations}
                 disabled={isSimulating}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-400 font-medium hover:from-amber-500/30 hover:to-orange-500/30 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-400 font-medium hover:from-amber-500/30 hover:to-orange-500/30 transition-all disabled:opacity-50 text-sm sm:text-base"
                 data-testid="run-simulations-btn"
               >
                 {isSimulating ? (
@@ -602,15 +602,17 @@ const NeuralMapPage = () => {
                 ) : (
                   <Play size={16} />
                 )}
-                Run 1,000 Simulations
+                <span className="hidden sm:inline">Run 1,000 Simulations</span>
+                <span className="sm:hidden">Simulate</span>
               </button>
               <button
                 onClick={() => setShowLeadModal(true)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-400 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-400 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] text-sm sm:text-base"
                 data-testid="email-audit-btn"
               >
                 <Mail size={16} />
-                Email My Audit
+                <span className="hidden sm:inline">Email My Audit</span>
+                <span className="sm:hidden">Email</span>
               </button>
             </div>
           </div>
