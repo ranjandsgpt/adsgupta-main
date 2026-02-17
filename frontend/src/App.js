@@ -33,6 +33,12 @@ import NeuralMapPage from "./pages/NeuralMapPage";
 // Demo Universe Module (Isolated)
 import DemoUniversePage from "./modules/demo-universe/DemoUniversePage";
 
+// TalentOS Module
+import TalentOSLanding from "./modules/talentos/pages/TalentOSLanding";
+import TalentOSWorkspace from "./modules/talentos/pages/TalentOSWorkspace";
+import TalentOSAnalysis from "./modules/talentos/pages/TalentOSAnalysis";
+import TalentOSInterview from "./modules/talentos/pages/TalentOSInterview";
+
 // Environment config
 const SHOW_DEMO = process.env.REACT_APP_SHOW_DEMO === 'true';
 const SITE_MODE = process.env.REACT_APP_SITE_MODE || 'tools';
