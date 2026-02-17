@@ -23,6 +23,7 @@ import MarketplaceSolutionsPage from "./pages/MarketplaceSolutionsPage";
 import SupplyPage from "./pages/SupplyPage";
 import DemandPage from "./pages/DemandPage";
 import ToolsPage from "./pages/ToolsPage";
+import DashboardPage from "./pages/DashboardPage";
 
 // Home Page Component - Reordered for Narrative Flow
 const HomePage = () => {
