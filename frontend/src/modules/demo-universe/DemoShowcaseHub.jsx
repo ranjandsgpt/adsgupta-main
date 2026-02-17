@@ -576,14 +576,15 @@ const DemoShowcaseHub = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [terminalVisible, setTerminalVisible] = useState(false);
-  const [targetProtocol, setTargetProtocol] = useState({ name: '', link: '', isExternal: false });
+  const [targetProtocol, setTargetProtocol] = useState({ name: '', link: '', isExternal: false, type: 'working' });
+  const [waitlistModal, setWaitlistModal] = useState({ isOpen: false, protocolName: '' });
   
-  // Protocol definitions
+  // Protocol definitions - Per user's specifications
   const protocols = [
     {
       icon: ShoppingCart,
       title: 'Marketplace Optimizer',
-      description: 'AI-powered Amazon audit engine with 20 optimization agents. Instant analysis of Search Term Reports, Business Reports, and more.',
+      description: 'AI-powered Amazon audit engine with 20 optimization agents. Instant analysis of Search Term Reports, Business Reports, and campaign performance.',
       status: 'active',
       gradient: 'from-orange-500 to-amber-600',
       link: '/amazon-audit',
@@ -593,8 +594,8 @@ const DemoShowcaseHub = () => {
     },
     {
       icon: Zap,
-      title: 'Native Widget & LLM Monetization',
-      description: 'Real-time ad insertion visualization and AI-powered content monetization protocols.',
+      title: 'Native Widget / Monetization',
+      description: 'Real-time ad insertion visualization and AI-powered LLM content monetization protocols.',
       status: 'active',
       gradient: 'from-violet-500 to-purple-600',
       link: '/monetization',
@@ -603,64 +604,83 @@ const DemoShowcaseHub = () => {
     },
     {
       icon: Bot,
-      title: 'TalentOS Preview',
-      description: 'AI Interview Coach with Web Speech API. Resume gap analysis, STAR method scoring, and mock interviews.',
+      title: 'TalentOS',
+      description: 'AI Interview Coach with Web Speech API. Resume gap analysis, STAR method scoring, and recursive mock interviews.',
       status: 'preview',
       gradient: 'from-cyan-500 to-blue-600',
       link: 'https://talentos.adsgupta.com',
       isExternal: true,
-      hasDemo: true
+      hasDemo: true,
+      size: 'large'
     },
     {
       icon: MessageSquare,
-      title: 'Neural Oracle',
-      description: 'Enterprise conversational AI with node-based flow visualization. Haptik-style automation.',
+      title: 'Neural Oracle (Chat)',
+      description: 'Enterprise conversational AI with node-based flow visualization. Haptik-style automation for support and sales.',
       status: 'staging',
       gradient: 'from-emerald-500 to-teal-600',
       link: '#',
       isExternal: false,
-      isComingSoon: true
+      placeholderType: 'waitlist'
     },
     {
       icon: Video,
       title: 'Influencer AI Video',
-      description: 'Generate AI-powered video personas from a single headshot. Elevator pitch in 30 seconds.',
+      description: 'Generate AI-powered video personas from a single headshot. Elevator pitch in 30 seconds with SadTalker/LivePortrait.',
       status: 'staging',
       gradient: 'from-pink-500 to-rose-600',
       link: '#',
       isExternal: false,
-      isComingSoon: true
-    },
-    {
-      icon: Sparkles,
-      title: 'Prompt Exchange',
-      description: 'Marketplace for AI prompts optimized for ad-tech workflows. Buy, sell, and share.',
-      status: 'coming',
-      gradient: 'from-yellow-500 to-orange-600',
-      link: '#',
-      isExternal: false,
-      isComingSoon: true
+      placeholderType: 'video'
     },
     {
       icon: Network,
-      title: 'Quick Commerce Logic',
-      description: 'Blinkit, Swiggy, Zomato optimization protocols. Dark store visibility and hyperlocal targeting.',
+      title: 'Walmart / Quick Commerce',
+      description: 'Walmart Seller Center optimization + Blinkit, Swiggy, Zomato hyperlocal targeting protocols. Dark store visibility.',
       status: 'coming',
-      gradient: 'from-red-500 to-pink-600',
+      gradient: 'from-blue-500 to-indigo-600',
       link: '#',
       isExternal: false,
-      isComingSoon: true,
+      placeholderType: 'coming',
       size: 'wide'
     }
   ];
   
-  const handleNavigate = (name, link, isExternal) => {
-    setTargetProtocol({ name, link, isExternal });
+  const handleNavigate = (name, link, isExternal, placeholderType) => {
+    // Handle placeholder protocols
+    if (placeholderType === 'waitlist') {
+      setTargetProtocol({ name, link, isExternal, type: 'placeholder' });
+      setTerminalVisible(true);
+      return;
+    }
+    
+    if (placeholderType === 'video') {
+      setTargetProtocol({ name, link, isExternal, type: 'placeholder' });
+      setTerminalVisible(true);
+      return;
+    }
+    
+    if (placeholderType === 'coming') {
+      setTargetProtocol({ name, link, isExternal, type: 'placeholder' });
+      setTerminalVisible(true);
+      return;
+    }
+    
+    // Working protocols go through terminal
+    setTargetProtocol({ name, link, isExternal, type: 'working' });
     setTerminalVisible(true);
   };
   
   const handleTransitionComplete = () => {
     setTerminalVisible(false);
+    
+    // Handle placeholder protocols after terminal
+    if (targetProtocol.type === 'placeholder') {
+      setWaitlistModal({ isOpen: true, protocolName: targetProtocol.name });
+      return;
+    }
+    
+    // Navigate to working protocols
     if (targetProtocol.isExternal) {
       window.open(targetProtocol.link, '_blank');
     } else {
@@ -669,16 +689,16 @@ const DemoShowcaseHub = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-radial from-cyan-500/5 to-transparent rounded-full" />
+    <div className="min-h-screen bg-black text-white" data-testid="demo-showcase-hub">
+      {/* Deepest Black Canvas with subtle effects */}
+      <div className="fixed inset-0 bg-black pointer-events-none">
+        {/* Radial gradient ambient light */}
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-cyan-500/[0.02] rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/[0.02] rounded-full blur-[150px]" />
       </div>
       
-      {/* Grid Pattern */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+      {/* Subtle Grid Pattern */}
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808003_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
       
       {/* Sidebar */}
       <GlobalSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
@@ -689,31 +709,42 @@ const DemoShowcaseHub = () => {
           <TerminalOverlay 
             isVisible={terminalVisible}
             protocolName={targetProtocol.name}
+            protocolType={targetProtocol.type}
             onComplete={handleTransitionComplete}
           />
         )}
       </AnimatePresence>
       
+      {/* Waitlist Modal */}
+      <AnimatePresence>
+        <WaitlistModal
+          isOpen={waitlistModal.isOpen}
+          onClose={() => setWaitlistModal({ isOpen: false, protocolName: '' })}
+          protocolName={waitlistModal.protocolName}
+        />
+      </AnimatePresence>
+      
       {/* Main Content */}
-      <main className={`relative transition-all ${sidebarOpen ? 'ml-56' : ''}`}>
+      <main className={`relative transition-all duration-300 ${sidebarOpen ? 'ml-60' : ''}`}>
         {/* Header */}
-        <header className="sticky top-0 z-40 border-b border-white/5 backdrop-blur-xl bg-black/50">
+        <header className="sticky top-0 z-40 border-b border-white/[0.04] backdrop-blur-xl bg-black/70">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white transition-all"
+                className="p-2.5 rounded-xl hover:bg-white/5 text-zinc-400 hover:text-cyan-400 transition-all"
+                data-testid="menu-toggle"
               >
                 <LayoutGrid size={20} />
               </button>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
                   <Cpu size={20} className="text-white" />
                 </div>
                 <div>
-                  <span className="text-xl font-bold font-['Space_Grotesk'] text-white">DemoAI</span>
-                  <span className="text-xs text-zinc-500 block">by AdsGupta</span>
+                  <span className="text-xl font-bold font-['Space_Grotesk'] text-white tracking-tight">DemoAI</span>
+                  <span className="text-[10px] text-zinc-600 block font-mono">by AdsGupta</span>
                 </div>
               </div>
             </div>
@@ -723,22 +754,22 @@ const DemoShowcaseHub = () => {
         </header>
         
         {/* Hero Section */}
-        <section className="relative pt-16 pb-12 px-6">
+        <section className="relative pt-20 pb-16 px-6">
           <div className="max-w-7xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6"
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8"
             >
               <Terminal size={14} className="text-cyan-400" />
-              <span className="text-zinc-400 text-sm font-mono">AD-OS PROTOCOL GATEWAY v2.0</span>
+              <span className="text-zinc-400 text-sm font-mono tracking-wide">AD-OS PROTOCOL GATEWAY v3.2</span>
             </motion.div>
             
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-4xl md:text-6xl font-bold font-['Space_Grotesk'] tracking-tight mb-4"
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold font-['Space_Grotesk'] tracking-tight mb-6"
             >
               <span className="text-white">Protocol </span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400">
@@ -750,21 +781,22 @@ const DemoShowcaseHub = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-zinc-400 text-lg max-w-2xl mx-auto"
+              className="text-zinc-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"
             >
               Interactive demonstrations of AdsGupta's AI-powered marketing protocols. 
-              Select a module to initialize.
+              Select a module to initialize secure access.
             </motion.p>
           </div>
         </section>
         
-        {/* Bento Grid */}
+        {/* Bento Grid - Non-uniform 3x3 */}
         <section className="relative px-6 pb-24">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-fr">
               {protocols.map((protocol, index) => (
                 <ProtocolCard
                   key={index}
+                  index={index}
                   {...protocol}
                   onNavigate={handleNavigate}
                 />
@@ -774,20 +806,20 @@ const DemoShowcaseHub = () => {
         </section>
         
         {/* Footer */}
-        <footer className="relative border-t border-white/5 py-8 px-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <footer className="relative border-t border-white/[0.04] py-8 px-6 bg-black/50">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
                 <Cpu size={14} className="text-white" />
               </div>
-              <span className="text-zinc-500 text-sm">DemoAI by AdsGupta © 2026</span>
+              <span className="text-zinc-600 text-sm font-mono">DemoAI by AdsGupta © 2026</span>
             </div>
             
             <a 
               href="https://adsgupta.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-zinc-500 hover:text-white text-sm flex items-center gap-1 transition-colors"
+              className="text-zinc-500 hover:text-cyan-400 text-sm flex items-center gap-1.5 transition-colors"
             >
               Visit AdsGupta <ExternalLink size={12} />
             </a>
