@@ -1084,6 +1084,114 @@ export const agentBrandShareOfVoice = (data) => {
   };
 };
 
+// Agent 17: Rufus-SEO Check
+export const agentRufusSeo = (data) => {
+  const { asins, rows } = data;
+  const findings = [];
+
+  if (asins.length === 0) {
+    return {
+      agentId: 'rufus-seo',
+      name: 'Rufus-SEO Check',
+      status: 'requires_data',
+      findings: [{
+        type: 'info',
+        title: 'No ASIN data found',
+        description: 'Upload a report with ASIN data for SEO analysis',
+        requiresData: true
+      }]
+    };
+  }
+
+  // Check for listings that might need AI optimization
+  const lowPerformers = asins.filter(a => 
+    a.totalSessions > 100 && a.avgConversion !== 'N/A' && a.avgConversion < 5
+  );
+
+  if (lowPerformers.length > 0) {
+    findings.push({
+      type: 'alert',
+      severity: 'medium',
+      title: `${lowPerformers.length} ASINs may need listing optimization`,
+      description: 'High traffic but low conversion suggests listing content issues. Optimize for AI-powered search (Rufus).',
+      value: `${lowPerformers.length} ASINs`,
+      metric: 'Need Attention',
+      data: lowPerformers.slice(0, 5).map(a => ({
+        asin: a.asin,
+        sessions: a.totalSessions,
+        conversion: formatPercent(a.avgConversion)
+      }))
+    });
+  }
+
+  findings.push({
+    type: 'info',
+    title: `${asins.length} ASINs analyzed for SEO health`,
+    description: 'For detailed keyword and listing optimization, connect Amazon SP-API'
+  });
+
+  return { agentId: 'rufus-seo', name: 'Rufus-SEO Check', status: 'partial', findings };
+};
+
+// Agent 18: Sentiment Miner
+export const agentSentimentMiner = (data) => {
+  return {
+    agentId: 'sentiment-miner',
+    name: 'Sentiment Miner',
+    status: 'requires_api',
+    findings: [{
+      type: 'info',
+      title: 'Requires Review Data',
+      description: 'Connect SP-API or upload Voice of Customer report for sentiment analysis',
+      requiresApi: true
+    }]
+  };
+};
+
+// Agent 19: DSP Funnel Builder
+export const agentDspFunnel = (data) => {
+  const { summary } = data;
+  const findings = [];
+
+  if (summary.totalSessions > 0) {
+    const estimatedAudience = Math.round(summary.totalSessions * 0.7);
+    findings.push({
+      type: 'opportunity',
+      title: `Potential re-marketing audience: ${estimatedAudience.toLocaleString()} users`,
+      description: 'Users who viewed but didn\'t purchase. Connect DSP for automated audience building.',
+      value: `${estimatedAudience.toLocaleString()}`,
+      metric: 'Potential Audience'
+    });
+  }
+
+  return {
+    agentId: 'dsp-funnel',
+    name: 'DSP Funnel Builder',
+    status: 'partial',
+    findings: findings.length > 0 ? findings : [{
+      type: 'info',
+      title: 'Requires Amazon DSP Access',
+      description: 'Connect DSP to auto-generate re-marketing audiences',
+      requiresApi: true
+    }]
+  };
+};
+
+// Agent 20: A+ Content Scorer
+export const agentAplusScorer = (data) => {
+  return {
+    agentId: 'aplus-scorer',
+    name: 'A+ Content Scorer',
+    status: 'requires_api',
+    findings: [{
+      type: 'info',
+      title: 'Requires Listing Images',
+      description: 'Connect SP-API for Vision AI analysis of your listing images and A+ content',
+      requiresApi: true
+    }]
+  };
+};
+
 // ============================================
 // RUN ALL AGENTS
 // ============================================
@@ -1106,6 +1214,10 @@ export const runAllAgents = (parsedData) => {
     agentLtvCalculator,
     agentBsrPredictor,
     agentBrandShareOfVoice,
+    agentRufusSeo,
+    agentSentimentMiner,
+    agentDspFunnel,
+    agentAplusScorer,
   ];
 
   const results = agents.map(agentFn => agentFn(parsedData));
