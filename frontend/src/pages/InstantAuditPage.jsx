@@ -11,6 +11,7 @@ import {
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
+import MarketplaceContextSwitcher, { MARKETPLACES, ProtocolDevelopmentState } from '../components/MarketplaceContextSwitcher';
 import useDataStore from '../store/dataStore';
 import useMultiFileStore from '../store/multiFileStore';
 
