@@ -12,6 +12,7 @@ import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
 import useDataStore from '../store/dataStore';
+import useMultiFileStore from '../store/multiFileStore';
 
 // Instant Audit Dropzone Component - Supports Single or Multiple Files
 const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
