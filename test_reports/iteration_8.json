@@ -1,0 +1,82 @@
+{
+  "summary": "Completed testing of dual-domain deployment features for AdsGupta. All requested features tested and working correctly. Backend API (11/11 tests) and Frontend UI (all flows verified).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "console_warnings": [
+      {
+        "page": "NeuralMapPage",
+        "issue": "React hydration warning - <span> cannot be child of <option> or <select>. This is a minor HTML validation issue from the Emergent visual editor wrappers that doesn't affect functionality.",
+        "priority": "LOW"
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_dual_domain.py",
+    "/app/test_reports/pytest/dual_domain_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_dual_domain.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11 tests)",
+    "frontend": "100%"
+  },
+  "test_credentials": "No credentials needed - public pages tested",
+  "seed_data_creation": "Created test CSV files for file upload testing. Created test leads during testing.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All dual-domain features verified. Tools domain (SHOW_DEMO=false) mode tested.",
+  "passed_tests": [
+    "Backend Tests (11/11 passed):",
+    "  - Health endpoint returns healthy status",
+    "  - Lead capture API works with valid email",
+    "  - Lead capture handles duplicate emails (Welcome back!)",
+    "  - Lead capture rejects invalid email format (422)",
+    "  - Lead capture rejects missing email (422)",
+    "  - Lead capture works for different sources (neural_map, audit_page, demo_universe)",
+    "  - Lead count endpoint returns numeric count",
+    "  - Homepage (/) accessible",
+    "  - Audit page (/audit) accessible",
+    "  - Neural map page (/neural-map) accessible",
+    "  - Multi-vault page (/multi-vault) accessible",
+    "",
+    "Frontend Tests (all passed):",
+    "  - Tools domain homepage renders correctly with marketing landing page",
+    "  - Homepage shows 'ADVERTISING AT THE SPEED OF THOUGHT' hero",
+    "  - Navigation visible with AdsGupta branding",
+    "  - Audit page (/audit) shows Multi-File Instant Audit dropzone",
+    "  - 'AI-Powered Analysis' badge visible on audit page",
+    "  - 'Find Revenue Leaks in 30 Seconds' heading visible",
+    "  - 'See the Full AI Demo Universe' link visible with data-testid='demo-universe-link'",
+    "  - Demo link correctly points to https://demoai.adsgupta.com/amazon-audit",
+    "  - Upload instructions show Sales & Traffic (CSV) and Search Term (XLSX) support",
+    "  - Supported report types: Search Term, Business, Advertising, Sales & Traffic, Inventory",
+    "  - Trust indicators visible: Client-side processing, Data never leaves browser, Instant results",
+    "  - Cross-domain link button responsive on mobile (375px width)",
+    "  - Demo link within mobile viewport (x=28, width=318, fully visible)",
+    "  - Multi-Vault page loads correctly on mobile",
+    "  - Neural Map page loads with responsive buttons",
+    "  - 'Run 1,000 Simulations' button visible on desktop",
+    "  - 'Email My Audit' button visible on desktop",
+    "  - Buttons show truncated text on mobile: 'Simulate' and 'Email'",
+    "  - Lead capture modal opens when 'Email My Audit' clicked",
+    "  - Lead capture modal shows email input (data-testid='lead-capture-email')",
+    "  - Lead capture modal shows submit button (data-testid='lead-capture-submit')",
+    "  - Lead capture saves email to backend and shows 'You're In!' success message"
+  ],
+  "mocked_apis": {
+    "note": "Demo Universe uses mock data generators for 1,400+ data points as specified in requirements",
+    "has_mocked_apis": true,
+    "mocked_apis_list": [
+      "Demo Universe mock data generators at /modules/demo-universe/data/mockDataGenerators.js"
+    ]
+  }
+}
