@@ -93,6 +93,8 @@ function App() {
         <Route path="/audit" element={<InstantAuditPage />} />
         <Route path="/analysis" element={<AnalysisPage />} />
         <Route path="/demo" element={<DemoPage />} />
+        <Route path="/multi-vault" element={<MultiVaultPage />} />
+        <Route path="/neural-map" element={<NeuralMapPage />} />
         <Route path="/supply" element={<SupplyPage />} />
         <Route path="/demand" element={<DemandPage />} />
         <Route path="/tools" element={<ToolsPage />} />
