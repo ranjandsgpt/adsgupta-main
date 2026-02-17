@@ -143,9 +143,9 @@ function App() {
               <Route path="/neural-map" element={<NeuralMapPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               
-              {/* Demo Universe - Hidden internal route (enabled via SHOW_DEMO) */}
+              {/* Demo Universe - Redirect to demoai domain */}
+              <Route path="/demo" element={<DemoRedirect />} />
               {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
-              <Route path="/demo" element={<DemoPage />} />
               
               {/* Marketing/Landing Pages */}
               <Route path="/blog" element={<BlogPage />} />
@@ -165,6 +165,12 @@ function App() {
     </HelmetProvider>
   );
 }
+
+// Redirect component for /demo route
+const DemoRedirect = () => {
+  window.location.href = `${DEMO_DOMAIN}/amazon-audit`;
+  return null;
+};
 
 // Export domain config for use in components
 export { DEMO_DOMAIN, TOOLS_DOMAIN, isDemoDomain };
