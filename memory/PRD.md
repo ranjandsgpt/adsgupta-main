@@ -141,8 +141,10 @@ Zomato    - Coming (quick commerce)
 
 ### Demo Site (demoai.adsgupta.com)
 ```
-/                     - Redirects to /amazon-audit
+/                     - Protocol Showcase Hub (Bento Grid)
+/showcase             - Protocol Showcase Hub (alias)
 /amazon-audit         - Demo Universe with 1,400+ data points
+/monetization         - Native Widget & LLM Monetization Demo
 ```
 
 ## Test Results Summary
@@ -151,6 +153,7 @@ Zomato    - Coming (quick commerce)
 |--------|---------|----------|
 | Phase 9 (Marketplace) | 12/12 (100%) | All verified |
 | Phase 10 (TalentOS) | 12/12 (100%) | All 4 routes verified |
+| Phase 11 (DemoAI Hub) | N/A | 11/11 (100%) |
 
 ## What's MOCKED
 
