@@ -157,6 +157,10 @@ Zomato    - Coming (quick commerce)
 
 ## What's MOCKED
 
+### DemoAI Showcase Hub
+- Neural Oracle, Influencer AI Video, Walmart protocols → Waitlist modal only
+- TalentOS external link points to planned domain (talentos.adsgupta.com)
+
 ### TalentOS
 - Resume/JD analysis uses keyword matching (LLM ready when key configured)
 - STAR scoring uses keyword detection
