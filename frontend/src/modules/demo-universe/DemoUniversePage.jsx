@@ -1,6 +1,6 @@
 /**
  * Demo Universe Page - Internal Demo for AdsGupta
- * Route: /internal-demo
+ * Route: /internal-demo (tools domain) or /amazon-audit (demo domain)
  * This page showcases the full capabilities with mock data
  * Isolated from production data via separate store
  */
@@ -15,7 +15,7 @@ import {
   TrendingUp, TrendingDown, DollarSign, ShoppingCart, Eye, Target, Package,
   BarChart3, Percent, RefreshCw, Filter, Calendar, ChevronDown, Zap,
   Globe, Truck, Clock, Award, AlertTriangle, CheckCircle2, ArrowUpRight,
-  ArrowLeft, Lock, Sparkles
+  ArrowLeft, Lock, Sparkles, Upload, ExternalLink
 } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { MobileNav } from '@/components/MobileNav';
@@ -23,6 +23,9 @@ import { Footer } from '@/components/Footer';
 import { AIAgentSidebar } from '@/components/AIAgentSidebar';
 import useDemoStore from './store/demoStore';
 import { generateMockData, generateSKUData, generateDemoSummary } from './data/mockDataGenerators';
+
+// Domain config
+const TOOLS_DOMAIN = process.env.REACT_APP_TOOLS_DOMAIN || 'https://tools.adsgupta.com';
 
 // Marketplace Tabs
 const MarketplaceTabs = ({ active, onChange }) => {
