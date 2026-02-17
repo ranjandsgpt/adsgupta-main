@@ -271,10 +271,16 @@ const InstantAuditPage = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStage, setProcessingStage] = useState('');
+  const [activeMarketplace, setActiveMarketplace] = useState('amazon');
+  const [notifyModalOpen, setNotifyModalOpen] = useState(false);
   
   // Zustand stores
   const { setUploadedData, clearData } = useDataStore();
   const { addFile, clearAllFiles, detectReportType } = useMultiFileStore();
+
+  // Get current marketplace config
+  const currentMarketplace = MARKETPLACES.find(m => m.id === activeMarketplace) || MARKETPLACES[0];
+  const isMarketplaceActive = currentMarketplace.status === 'active';
 
   const handleFileProcessed = useCallback((data, fileType, fileName) => {
     // Store data in Zustand
