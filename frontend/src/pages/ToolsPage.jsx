@@ -93,13 +93,12 @@ const ToolsPage = () => {
               THE LAB
             </h1>
             <p className="text-zinc-400 text-lg md:text-xl max-w-3xl mx-auto">
-              A unified toolkit for modern marketers. From SEO intelligence to AI-powered content generation 
-              and ad-tech career development.
+              A unified toolkit for modern marketers. From SEO intelligence to AI-powered content generation.
             </p>
           </motion.div>
 
           {/* Tools Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {tools.map((tool, index) => (
               <motion.div
                 key={index}
@@ -108,15 +107,16 @@ const ToolsPage = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
                 data-testid={`tool-card-${index}`}
-                className="glass-card group rounded-2xl p-6 hover:-translate-y-1 transition-transform duration-300"
+                className={`glass-card group rounded-2xl p-6 hover:-translate-y-1 transition-transform duration-300 ${
+                  tool.highlight ? 'ring-1 ring-emerald-500/30' : ''
+                }`}
               >
                 {/* Status Badge */}
                 <div className="flex items-center justify-between mb-4">
                   <div className={`w-12 h-12 rounded-xl ${tool.bg} flex items-center justify-center ${tool.color}`}>
                     <tool.icon size={24} strokeWidth={1.5} />
                   </div>
-                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
-                    ${tool.status === 'Live' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400">
                     {tool.status}
                   </span>
                 </div>
@@ -128,19 +128,90 @@ const ToolsPage = () => {
                   {tool.description}
                 </p>
 
-                <motion.button
-                  data-hoverable="true"
-                  className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium
-                    hover:bg-white/10 hover:border-${tool.color.split('-')[1]}-500/30 transition-all`}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                >
-                  {tool.status === 'Live' ? 'Launch Tool' : 'Join Waitlist'}
-                  <ArrowUpRight size={16} />
-                </motion.button>
+                {tool.internal ? (
+                  <Link
+                    to={tool.link}
+                    data-hoverable="true"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 hover:border-cyan-500/30 transition-all"
+                  >
+                    Launch Tool
+                    <ArrowUpRight size={16} />
+                  </Link>
+                ) : (
+                  <button
+                    data-hoverable="true"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-all"
+                  >
+                    Launch Tool
+                    <ArrowUpRight size={16} />
+                  </button>
+                )}
               </motion.div>
             ))}
           </div>
+
+          {/* TalentOS Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-20"
+          >
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/30 mb-4">
+                <Sparkles size={16} className="text-rose-400" />
+                <span className="text-rose-400 text-sm font-medium">Career & Interview Tools</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white font-['Space_Grotesk'] mb-2">
+                TalentOS
+              </h2>
+              <p className="text-zinc-400 max-w-xl mx-auto">
+                AI-powered career tools for ad-tech professionals. Now available as a standalone platform.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {talentOSTools.map((tool, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="glass-card group rounded-2xl p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`w-12 h-12 rounded-xl ${tool.bg} flex items-center justify-center ${tool.color}`}>
+                      <tool.icon size={24} strokeWidth={1.5} />
+                    </div>
+                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400">
+                      {tool.status}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white font-['Space_Grotesk'] mb-3">
+                    {tool.title}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-5">
+                    {tool.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* TalentOS CTA */}
+            <div className="text-center mt-8">
+              <a
+                href="https://talentos.adsgupta.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="talentos-link"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold hover:shadow-[0_0_30px_rgba(244,63,94,0.3)] transition-all"
+              >
+                Launch TalentOS
+                <ExternalLink size={18} />
+              </a>
+            </div>
+          </motion.div>
 
           {/* Coming Soon Section */}
           <motion.div
