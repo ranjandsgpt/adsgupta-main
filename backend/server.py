@@ -54,6 +54,7 @@ async def lifespan(app: FastAPI):
     amazon.set_db(db)
     dashboard.set_db(db)
     insights.set_db(db)
+    leads.set_db(db)
     
     # Create indexes
     await create_indexes()
