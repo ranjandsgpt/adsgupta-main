@@ -94,36 +94,37 @@ const HomePage = () => {
 
 function App() {
   // Determine SEO meta based on domain
-  const seoMeta = useMemo(() => {
-    if (isDemoDomain) {
-      return {
-        title: "AdsGupta Demo Universe - AI-Powered Amazon Analytics Demo",
-        description: "Explore the full AI Command Center with 1,400+ simulated data points. See how AdsGupta can transform your Amazon advertising strategy.",
-        ogTitle: "AdsGupta Demo Universe - Experience AI Analytics",
-        ogDesc: "Interactive demo with 20 AI optimization agents and real-time simulations."
-      };
-    }
-    return {
-      title: "AdsGupta Tools: Instant Amazon Audit & API Growth Command Center",
-      description: "Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities.",
-      ogTitle: "AdsGupta Tools - AI-Powered Amazon Analytics",
-      ogDesc: "Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds."
-    };
-  }, []);
+  const isDemo = isDemoDomain;
+  
+  const seoTitle = isDemo 
+    ? "AdsGupta Demo Universe - AI-Powered Amazon Analytics Demo"
+    : "AdsGupta Tools: Instant Amazon Audit & API Growth Command Center";
+  
+  const seoDescription = isDemo
+    ? "Explore the full AI Command Center with 1,400+ simulated data points. See how AdsGupta can transform your Amazon advertising strategy."
+    : "Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities.";
+  
+  const ogTitle = isDemo
+    ? "AdsGupta Demo Universe - Experience AI Analytics"
+    : "AdsGupta Tools - AI-Powered Amazon Analytics";
+  
+  const ogDesc = isDemo
+    ? "Interactive demo with 20 AI optimization agents and real-time simulations."
+    : "Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds.";
 
   return (
     <HelmetProvider>
       <BrowserRouter>
         {/* Dynamic SEO Meta Tags */}
         <Helmet>
-          <title>{seoMeta.title}</title>
-          <meta name="description" content={seoMeta.description} />
+          <title>{seoTitle}</title>
+          <meta name="description" content={seoDescription} />
           <meta name="keywords" content="Amazon seller tools, PPC optimization, ACOS analyzer, Amazon audit, ecommerce analytics" />
-          <meta property="og:title" content={seoMeta.ogTitle} />
-          <meta property="og:description" content={seoMeta.ogDesc} />
+          <meta property="og:title" content={ogTitle} />
+          <meta property="og:description" content={ogDesc} />
           <meta property="og:type" content="website" />
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={seoMeta.ogTitle} />
+          <meta name="twitter:title" content={ogTitle} />
         </Helmet>
         
         <CustomCursor />
