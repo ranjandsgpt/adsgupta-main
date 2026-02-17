@@ -88,28 +88,49 @@ const HomePage = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <CustomCursor />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/aboutme" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/audit" element={<InstantAuditPage />} />
-        <Route path="/analysis" element={<AnalysisPage />} />
-        <Route path="/demo" element={<DemoPage />} />
-        <Route path="/multi-vault" element={<MultiVaultPage />} />
-        <Route path="/neural-map" element={<NeuralMapPage />} />
-        <Route path="/supply" element={<SupplyPage />} />
-        <Route path="/demand" element={<DemandPage />} />
-        <Route path="/tools" element={<ToolsPage />} />
-        <Route path="/lab" element={<ToolsPage />} />
-      </Routes>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        {/* SEO Meta Tags for tools.adsgupta.com */}
+        <Helmet>
+          <title>AdsGupta Tools: Instant Amazon Audit & API Growth Command Center</title>
+          <meta name="description" content="Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities." />
+          <meta name="keywords" content="Amazon seller tools, PPC optimization, ACOS analyzer, Amazon audit, ecommerce analytics" />
+          <meta property="og:title" content="AdsGupta Tools - AI-Powered Amazon Analytics" />
+          <meta property="og:description" content="Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds." />
+          <meta property="og:type" content="website" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="AdsGupta Tools - AI Amazon Audit" />
+        </Helmet>
+        
+        <CustomCursor />
+        <Routes>
+          {/* Primary Routes - tools.adsgupta.com */}
+          <Route path="/" element={SITE_MODE === 'tools' ? <InstantAuditPage /> : <HomePage />} />
+          <Route path="/audit" element={<InstantAuditPage />} />
+          <Route path="/analysis" element={<AnalysisPage />} />
+          <Route path="/multi-vault" element={<MultiVaultPage />} />
+          <Route path="/neural-map" element={<NeuralMapPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          
+          {/* Demo Universe - Hidden internal route */}
+          {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
+          <Route path="/demo" element={<DemoPage />} />
+          
+          {/* Marketing/Landing Pages */}
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/aboutme" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
+          <Route path="/supply" element={<SupplyPage />} />
+          <Route path="/demand" element={<DemandPage />} />
+          <Route path="/tools" element={<ToolsPage />} />
+          <Route path="/lab" element={<ToolsPage />} />
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }
 
