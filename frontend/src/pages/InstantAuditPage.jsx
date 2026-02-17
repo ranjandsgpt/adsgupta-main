@@ -246,102 +246,33 @@ const QuickStatsGrid = ({ data }) => {
 // Main Dashboard Page
 const InstantAuditPage = () => {
   const navigate = useNavigate();
-  const [auditData, setAuditData] = useState(null);
-  const [leakAlerts, setLeakAlerts] = useState([]);
-  const [quickStats, setQuickStats] = useState(null);
-  const [showResults, setShowResults] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStage, setProcessingStage] = useState('');
+  
+  // Zustand store
+  const { setUploadedData, clearData } = useDataStore();
 
-  const analyzeData = (data, fileType, fileName) => {
-    // Generate intelligent analysis from the uploaded data
-    let totalSales = 0, sessions = 0, units = 0, adSpend = 0;
+  const handleFileProcessed = useCallback((data, fileType, fileName) => {
+    // Store data in Zustand
+    setUploadedData(data, fileName, fileType);
     
-    data.forEach(row => {
-      // Try to extract common Amazon report fields
-      totalSales += parseFloat(row['Ordered Product Sales'] || row['ordered_product_sales'] || row['Sales'] || 0);
-      sessions += parseInt(row['Sessions'] || row['sessions'] || 0);
-      units += parseInt(row['Units Ordered'] || row['units_ordered'] || row['Units'] || 0);
-      adSpend += parseFloat(row['Spend'] || row['spend'] || row['Ad Spend'] || 0);
-    });
-
-    const conversion = sessions > 0 ? ((units / sessions) * 100).toFixed(2) : 0;
-    const acos = totalSales > 0 ? ((adSpend / totalSales) * 100).toFixed(1) : 0;
-
-    // Generate "Leak Alerts" based on data
-    const alerts = [
-      {
-        type: 'waste',
-        severity: 'critical',
-        title: 'Wasted Ad Spend Detected',
-        description: `${Math.floor(Math.random() * 15 + 5)} search terms with 0% conversion consuming budget`,
-        value: `$${Math.floor(adSpend * 0.12 + 150)}`,
-        metric: 'This Week'
-      },
-      {
-        type: 'conversion',
-        severity: 'critical',
-        title: 'Low Conversion Keywords',
-        description: `${Math.floor(data.length * 0.08)} keywords below 2% conversion threshold`,
-        value: `-${(Math.random() * 2 + 1).toFixed(1)}%`,
-        metric: 'vs. Category'
-      },
-      {
-        type: 'traffic',
-        severity: 'warning',
-        title: 'Organic Traffic Decline',
-        description: 'Session drop detected on top 5 ASINs',
-        value: `${Math.floor(sessions * 0.15)}`,
-        metric: 'Lost Sessions'
-      },
-      // Blurred alerts
-      {
-        type: 'inventory',
-        severity: 'warning',
-        title: 'Inventory-Ad Mismatch',
-        description: 'Running ads on low-stock SKUs',
-        value: '12 SKUs',
-        metric: 'At Risk'
-      },
-      {
-        type: 'price',
-        severity: 'critical',
-        title: 'Buy Box Loss Pattern',
-        description: 'Price elasticity opportunity detected',
-        value: '$2,400',
-        metric: 'Monthly Loss'
-      },
-      {
-        type: 'competition',
-        severity: 'warning',
-        title: 'Competitor Price Undercut',
-        description: 'New competitor pricing detected',
-        value: '8 ASINs',
-        metric: 'Affected'
-      },
-    ];
-
-    setQuickStats({
-      totalSales: Math.round(totalSales) || Math.floor(Math.random() * 50000 + 10000),
-      sessions: sessions || Math.floor(Math.random() * 15000 + 5000),
-      conversion: conversion || (Math.random() * 8 + 4).toFixed(2),
-      adSpend: Math.round(adSpend) || Math.floor(Math.random() * 5000 + 1000),
-      acos: acos || (Math.random() * 20 + 15).toFixed(1),
-      units: units || Math.floor(Math.random() * 2000 + 500)
-    });
-
-    setLeakAlerts(alerts);
-    setAuditData({ data, fileType, fileName, rowCount: data.length });
+    // Show processing animation then redirect
+    setIsProcessing(true);
+    setProcessingStage('Parsing file structure...');
     
-    // Trigger the "explosion" animation
-    setTimeout(() => setShowResults(true), 100);
-  };
+    setTimeout(() => setProcessingStage('Detecting data columns...'), 400);
+    setTimeout(() => setProcessingStage('Running 20 AI agents...'), 800);
+    setTimeout(() => setProcessingStage('Generating insights...'), 1200);
+    setTimeout(() => {
+      setIsProcessing(false);
+      navigate('/analysis');
+    }, 1800);
+  }, [setUploadedData, navigate]);
 
   const resetAudit = () => {
-    setShowResults(false);
-    setTimeout(() => {
-      setAuditData(null);
-      setLeakAlerts([]);
-      setQuickStats(null);
-    }, 300);
+    clearData();
+    setIsProcessing(false);
+    setProcessingStage('');
   };
 
   return (
