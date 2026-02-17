@@ -87,6 +87,8 @@ function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/marketplacesolutions" element={<MarketplaceSolutionsPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/audit" element={<InstantAuditPage />} />
+        <Route path="/demo" element={<DemoPage />} />
         <Route path="/supply" element={<SupplyPage />} />
         <Route path="/demand" element={<DemandPage />} />
         <Route path="/tools" element={<ToolsPage />} />
