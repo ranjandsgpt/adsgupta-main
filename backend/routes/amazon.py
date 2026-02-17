@@ -226,7 +226,7 @@ async def amazon_oauth_callback(
     logger.info(f"Amazon account connected for user {user_id}, seller {seller_id}")
     
     # Redirect back to frontend
-    return {"redirect": f"{frontend_url}/marketplacesolutions?amazon_connected=true"}
+    return {"redirect": f"{frontend_url}/dashboard?amazon_connected=true"}
 
 
 @router.get("/status")
