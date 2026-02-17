@@ -26,13 +26,13 @@ export const HubSection = () => {
     },
     {
       title: 'Marketplace Intel',
-      description: 'Dominance for Amazon, Walmart, Target, Blinkit, Swiggy, and Zomato. From AI-SEO to automated Seller Central bidding.',
+      description: 'AI-powered Amazon Seller Dashboard with real-time KPIs, SP-API integration, and Gemini-driven insights for marketplace dominance.',
       link: '/marketplacesolutions',
       external: false,
       icon: ShoppingCart,
       gradient: 'from-emerald-500/20 via-green-600/10 to-teal-600/20',
       iconColor: 'text-emerald-400',
-      badge: 'COMMERCE',
+      badge: 'DASHBOARD',
     },
     {
       title: 'Neural Supply Protocol',
@@ -55,14 +55,14 @@ export const HubSection = () => {
       badge: 'ADVERTISERS',
     },
     {
-      title: 'Seller Dashboard',
-      description: 'AI-powered Amazon analytics with real-time KPIs, SP-API integration, and Gemini-driven insights.',
+      title: 'The Lab (Web Tools)',
+      description: 'Unified toolkit for SEO, UA, Affiliates, AI Content Gen, and Ad-Tech Career/Interview AI.',
       link: '/tools',
       external: false,
       icon: Wrench,
       gradient: 'from-sky-500/20 via-blue-600/10 to-indigo-600/20',
       iconColor: 'text-sky-400',
-      badge: 'DASHBOARD',
+      badge: 'UTILITIES',
     },
   ];
 
