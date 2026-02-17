@@ -55,7 +55,7 @@ def get_lwa_credentials():
 
 def get_redirect_uri():
     """Get the OAuth redirect URI"""
-    backend_url = os.environ.get("BACKEND_URL", "https://instant-audit-demo.preview.emergentagent.com")
+    backend_url = os.environ.get("BACKEND_URL", "https://showcase-center.preview.emergentagent.com")
     return f"{backend_url}/api/amazon/callback"
 
 
@@ -115,7 +115,7 @@ async def amazon_oauth_callback(
     Handle Amazon OAuth callback
     Exchange authorization code for refresh token
     """
-    frontend_url = os.environ.get("FRONTEND_URL", "https://instant-audit-demo.preview.emergentagent.com")
+    frontend_url = os.environ.get("FRONTEND_URL", "https://showcase-center.preview.emergentagent.com")
     
     if error:
         logger.error(f"Amazon OAuth error: {error} - {error_description}")
