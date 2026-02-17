@@ -8,6 +8,11 @@ from typing import Optional, List, Dict
 from datetime import datetime
 import os
 import logging
+import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize router
 router = APIRouter(prefix="/talentos", tags=["TalentOS"])
@@ -15,12 +20,13 @@ logger = logging.getLogger(__name__)
 
 # Try to import emergent integrations for LLM
 try:
-    from emergentintegrations.llm.chat import chat, Message
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
     EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
     HAS_LLM = bool(EMERGENT_LLM_KEY)
-except ImportError:
+    logger.info(f"Emergent LLM available: {HAS_LLM}")
+except ImportError as e:
     HAS_LLM = False
-    logger.warning("Emergent integrations not available, using mock responses")
+    logger.warning(f"Emergent integrations not available: {e}")
 
 
 # Pydantic Models
