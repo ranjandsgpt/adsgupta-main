@@ -20,17 +20,17 @@ Build a production-ready AI Dashboard for tools.adsgupta.com with Amazon SP-API 
 
 ### Routes Structure
 ```
-/app/backend/
-├── server.py          # Main FastAPI app with lifespan
-├── routes/
-│   ├── auth.py        # JWT + Google OAuth authentication
-│   ├── amazon.py      # Amazon SP-API OAuth flow
-│   ├── dashboard.py   # KPI aggregation endpoints
-│   └── insights.py    # Gemini 3 Flash AI insights
-├── services/
-│   └── amazon_reports.py  # Report fetching & parsing
-└── models/
-    └── database.py    # Pydantic models & schema
+/ - Homepage
+/blog - Blog page
+/aboutme - About page with Founders' Circle
+/contact - Contact form
+/privacy - Privacy policy
+/terms - Terms of service
+/marketplacesolutions - Marketplace Intel page (with Seller Dashboard card at bottom)
+/dashboard - Amazon Seller Analytics Dashboard (auth-gated)
+/supply - Neural Supply Protocol
+/demand - Universal Demand Engine
+/tools - The Lab (Web Tools)
 ```
 
 ## Core Features Implemented
