@@ -559,7 +559,17 @@ const DashboardPage = () => {
       <Navigation />
       <MobileNav />
       
-      <main className="pt-28 pb-24">
+      {/* Sidebar - Only show when logged in */}
+      {user && (
+        <DashboardSidebar
+          isCollapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          activeModule={activeModule}
+          onModuleChange={setActiveModule}
+        />
+      )}
+      
+      <main className={`pt-28 pb-24 transition-all ${user ? (sidebarCollapsed ? 'ml-16' : 'ml-64') : ''}`}>
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           {/* Header */}
           <motion.div
@@ -569,10 +579,10 @@ const DashboardPage = () => {
           >
             <div>
               <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-2 block">
-                Amazon Analytics
+                {activeModule === 'walmart' ? 'Walmart Analytics' : 'Amazon Analytics'}
               </span>
               <h1 className="text-3xl md:text-4xl font-bold text-white font-['Space_Grotesk'] tracking-tight">
-                Seller Dashboard
+                {activeModule === 'walmart' ? 'Walmart Seller Hub' : 'Amazon Seller Hub'}
               </h1>
               {user && (
                 <p className="text-zinc-400 mt-1">Welcome back, {user.name}</p>
