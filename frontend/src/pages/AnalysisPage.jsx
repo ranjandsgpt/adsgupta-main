@@ -852,25 +852,174 @@ const AnalysisPage = () => {
     return { pareto, scatter };
   }, [parsedData]);
 
-  // PDF Export
+  // PDF Export - Multi-page with all sections
   const exportToPDF = async () => {
     if (!reportRef.current) return;
     setIsExporting(true);
 
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
-        backgroundColor: '#050B18',
-        logging: false
-      });
-
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 10;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`AdsGupta_Audit_${fileName || 'Report'}_${new Date().toISOString().split('T')[0]}.pdf`);
+      // Helper function to add page with title
+      const addPage = (title, isFirst = false) => {
+        if (!isFirst) pdf.addPage();
+        pdf.setFillColor(5, 11, 24);
+        pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+        pdf.setFontSize(24);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(title, margin, 25);
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Generated: ${new Date().toLocaleString()} | File: ${fileName || 'Report'}`, margin, 35);
+        pdf.setDrawColor(50, 130, 246);
+        pdf.line(margin, 40, pageWidth - margin, 40);
+        return 50; // Return starting Y position for content
+      };
+      
+      // Page 1: Overview
+      let yPos = addPage('Deep Analysis Report - Overview', true);
+      pdf.setFontSize(12);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(`Health Score: ${healthScore}/100`, margin, yPos);
+      pdf.text(`Total Rows Analyzed: ${totalRows?.toLocaleString() || 0}`, margin, yPos + 10);
+      pdf.text(`Detected Metrics: ${availableMetrics?.length || 0}`, margin, yPos + 20);
+      yPos += 40;
+      
+      pdf.setFontSize(14);
+      pdf.text('Key Metrics', margin, yPos);
+      yPos += 10;
+      pdf.setFontSize(11);
+      pdf.setTextColor(200, 200, 200);
+      pdf.text(`Total Sales: €${summary?.totalSales?.toFixed(2) || 'N/A'}`, margin, yPos);
+      pdf.text(`Total Spend: €${summary?.totalSpend?.toFixed(2) || 'N/A'}`, margin + 70, yPos);
+      yPos += 8;
+      pdf.text(`ACOS: ${summary?.avgAcos?.toFixed(2) || 'N/A'}%`, margin, yPos);
+      pdf.text(`ROAS: ${summary?.avgRoas?.toFixed(2) || 'N/A'}x`, margin + 70, yPos);
+      yPos += 8;
+      pdf.text(`Total Units: ${summary?.totalUnits?.toLocaleString() || 'N/A'}`, margin, yPos);
+      pdf.text(`Total Orders: ${summary?.totalOrders?.toLocaleString() || 'N/A'}`, margin + 70, yPos);
+      
+      // Page 2: Findings
+      yPos = addPage('AI Agent Findings');
+      pdf.setFontSize(12);
+      pdf.setTextColor(255, 100, 100);
+      pdf.text(`Critical Issues: ${criticalCount}`, margin, yPos);
+      pdf.setTextColor(255, 200, 100);
+      pdf.text(`Warnings: ${warningCount}`, margin + 60, yPos);
+      pdf.setTextColor(100, 200, 100);
+      pdf.text(`Opportunities: ${opportunityCount}`, margin + 110, yPos);
+      yPos += 15;
+      
+      // Add top findings
+      if (agentResults?.results) {
+        const allFindings = agentResults.results.flatMap(agent => 
+          (agent.findings || []).map(f => ({ ...f, agent: agent.name }))
+        ).filter(f => f.type === 'alert' || f.type === 'warning' || f.type === 'opportunity').slice(0, 15);
+        
+        pdf.setFontSize(10);
+        allFindings.forEach((finding, idx) => {
+          if (yPos > pageHeight - 30) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          pdf.setTextColor(finding.type === 'alert' ? 255 : finding.type === 'warning' ? 255 : 100, 
+                          finding.type === 'alert' ? 100 : finding.type === 'warning' ? 200 : 200, 
+                          100);
+          pdf.text(`• ${finding.title}`, margin, yPos);
+          pdf.setTextColor(150, 150, 150);
+          const desc = finding.description?.substring(0, 80) + (finding.description?.length > 80 ? '...' : '');
+          pdf.text(`  ${desc}`, margin, yPos + 5);
+          yPos += 15;
+        });
+      }
+      
+      // Page 3: ASINs Performance
+      yPos = addPage('ASINs Performance');
+      if (parsedData?.asins && parsedData.asins.length > 0) {
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text('ASIN', margin, yPos);
+        pdf.text('Sales', margin + 40, yPos);
+        pdf.text('Spend', margin + 70, yPos);
+        pdf.text('ACOS', margin + 100, yPos);
+        pdf.text('ROAS', margin + 130, yPos);
+        yPos += 8;
+        pdf.setDrawColor(50, 50, 50);
+        pdf.line(margin, yPos - 3, pageWidth - margin, yPos - 3);
+        
+        pdf.setTextColor(200, 200, 200);
+        parsedData.asins.slice(0, 30).forEach((asin, idx) => {
+          if (yPos > pageHeight - 20) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          pdf.text(String(asin.asin || 'N/A').substring(0, 15), margin, yPos);
+          pdf.text(`€${(asin.totalSales || 0).toFixed(0)}`, margin + 40, yPos);
+          pdf.text(`€${(asin.totalSpend || 0).toFixed(0)}`, margin + 70, yPos);
+          pdf.text(`${(asin.avgAcos || 0).toFixed(1)}%`, margin + 100, yPos);
+          pdf.text(`${(asin.avgRoas || 0).toFixed(2)}x`, margin + 130, yPos);
+          yPos += 7;
+        });
+      } else {
+        pdf.setTextColor(150, 150, 150);
+        pdf.text('No ASIN data available in this report', margin, yPos);
+      }
+      
+      // Page 4: Charts Summary
+      yPos = addPage('Performance Charts Summary');
+      pdf.setFontSize(11);
+      pdf.setTextColor(200, 200, 200);
+      pdf.text('Pareto Analysis: Top 20% ASINs drive majority of sales', margin, yPos);
+      yPos += 10;
+      if (chartData.pareto.length > 0) {
+        chartData.pareto.slice(0, 10).forEach((item, idx) => {
+          pdf.text(`${idx + 1}. ${item.asin}: €${item.sales.toFixed(0)} (${item.cumulativePct}% cumulative)`, margin + 5, yPos);
+          yPos += 7;
+        });
+      }
+      
+      // Page 5: Master Analysis
+      yPos = addPage('Master Analysis - Strategic Insights');
+      pdf.setFontSize(11);
+      pdf.setTextColor(200, 200, 200);
+      
+      // Add key strategic insights
+      if (summary?.avgAcos && summary.avgAcos !== 'N/A') {
+        const acosStatus = summary.avgAcos > 50 ? 'CRITICAL' : summary.avgAcos > 30 ? 'WARNING' : 'HEALTHY';
+        pdf.setTextColor(acosStatus === 'CRITICAL' ? 255 : acosStatus === 'WARNING' ? 255 : 100, 
+                        acosStatus === 'CRITICAL' ? 100 : acosStatus === 'WARNING' ? 200 : 200, 100);
+        pdf.text(`ACOS Status: ${acosStatus} (${summary.avgAcos.toFixed(1)}%)`, margin, yPos);
+        yPos += 12;
+      }
+      
+      if (summary?.avgRoas && summary.avgRoas !== 'N/A') {
+        const roasStatus = summary.avgRoas < 1 ? 'LOSING MONEY' : summary.avgRoas < 3 ? 'LOW' : 'HEALTHY';
+        pdf.setTextColor(roasStatus === 'LOSING MONEY' ? 255 : roasStatus === 'LOW' ? 255 : 100, 
+                        roasStatus === 'LOSING MONEY' ? 100 : roasStatus === 'LOW' ? 200 : 200, 100);
+        pdf.text(`ROAS Status: ${roasStatus} (${summary.avgRoas.toFixed(2)}x)`, margin, yPos);
+        yPos += 12;
+      }
+      
+      if (parsedData?.wastedSpend?.total > 0) {
+        pdf.setTextColor(255, 100, 100);
+        pdf.text(`Wasted Spend: €${parsedData.wastedSpend.total.toFixed(2)} on ${parsedData.wastedSpend.count} non-converting keywords`, margin, yPos);
+        yPos += 12;
+      }
+      
+      pdf.setTextColor(150, 150, 150);
+      pdf.text('Recommendations:', margin, yPos);
+      yPos += 8;
+      pdf.setFontSize(10);
+      pdf.text('1. Add negative keywords for zero-converting search terms', margin + 5, yPos);
+      yPos += 6;
+      pdf.text('2. Review campaigns with ACOS > 100%', margin + 5, yPos);
+      yPos += 6;
+      pdf.text('3. Increase bids on keywords with ROAS > 5x', margin + 5, yPos);
+      
+      pdf.save(`AdsGupta_FullAudit_${fileName || 'Report'}_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
       console.error('PDF export failed:', error);
     }
