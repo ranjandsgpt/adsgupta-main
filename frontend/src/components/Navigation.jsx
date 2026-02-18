@@ -1,14 +1,17 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Box, FileText, Briefcase, Users, Phone, Menu, X, LogIn } from 'lucide-react';
+import { Box, FileText, Briefcase, Users, Phone, Menu, X, LogIn, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import MegaMenu from './MegaMenu';
+import { brandNames } from '../config/protocolsConfig';
 
 export const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
 
   const navItems = [
-    { label: 'Ecosystem', href: '/#hub', icon: Box },
-    { label: 'Solutions', href: '/#solutions-grid', icon: Briefcase },
+    { label: 'The Neural Engine', href: '/#features', icon: Box },
+    { label: 'The Protocols', href: null, icon: Briefcase, hasMegaMenu: true },
     { label: 'The Archives', href: '/blog', icon: FileText },
     { label: 'About', href: '/aboutme', icon: Users },
     { label: 'Contact', href: '/contact', icon: Phone },
@@ -47,30 +50,60 @@ export const Navigation = () => {
 
         {/* Desktop Nav Links - Centered */}
         <div className="hidden lg:flex items-center gap-6 xl:gap-8">
-          {navItems.map((item) => (
-            item.href.startsWith('/#') ? (
-              <motion.a
-                key={item.label}
-                href={item.href}
-                data-testid={`nav-link-${item.label.toLowerCase().replace(' ', '-')}`}
-                data-hoverable="true"
-                className="text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
-                whileHover={{ y: -1 }}
-              >
-                {item.label}
-              </motion.a>
-            ) : (
+          {navItems.map((item) => {
+            // Handle mega-menu item
+            if (item.hasMegaMenu) {
+              return (
+                <div
+                  key={item.label}
+                  className="relative"
+                  onMouseEnter={() => setMegaMenuOpen(true)}
+                  onMouseLeave={() => setMegaMenuOpen(false)}
+                >
+                  <motion.button
+                    data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    data-hoverable="true"
+                    className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
+                    whileHover={{ y: -1 }}
+                  >
+                    {item.label}
+                    <ChevronDown size={14} className={`transition-transform ${megaMenuOpen ? 'rotate-180' : ''}`} />
+                  </motion.button>
+                  
+                  <MegaMenu isOpen={megaMenuOpen} onClose={() => setMegaMenuOpen(false)} />
+                </div>
+              );
+            }
+            
+            // Handle anchor links
+            if (item.href?.startsWith('/#')) {
+              return (
+                <motion.a
+                  key={item.label}
+                  href={item.href}
+                  data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  data-hoverable="true"
+                  className="text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
+                  whileHover={{ y: -1 }}
+                >
+                  {item.label}
+                </motion.a>
+              );
+            }
+            
+            // Handle regular links
+            return (
               <Link
                 key={item.label}
                 to={item.href}
-                data-testid={`nav-link-${item.label.toLowerCase().replace(' ', '-')}`}
+                data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                 data-hoverable="true"
                 className="text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
               >
                 {item.label}
               </Link>
-            )
-          ))}
+            );
+          })}
         </div>
 
         {/* Right Side: Login + Try Demo with Divider */}
@@ -125,18 +158,36 @@ export const Navigation = () => {
           className="lg:hidden absolute top-full left-0 right-0 bg-[#121212]/98 backdrop-blur-xl border-b border-white/10 py-6 px-6"
         >
           <div className="flex flex-col gap-4">
-            {navItems.map((item) => (
-              item.href.startsWith('/#') ? (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-zinc-300 hover:text-white py-2 text-sm"
-                >
-                  <item.icon size={18} strokeWidth={1.5} />
-                  {item.label}
-                </a>
-              ) : (
+            {navItems.map((item) => {
+              if (item.hasMegaMenu) {
+                return (
+                  <a
+                    key={item.label}
+                    href="https://demoai.adsgupta.com"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-zinc-300 hover:text-white py-2 text-sm"
+                  >
+                    <item.icon size={18} strokeWidth={1.5} />
+                    {item.label}
+                  </a>
+                );
+              }
+              
+              if (item.href?.startsWith('/#')) {
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-zinc-300 hover:text-white py-2 text-sm"
+                  >
+                    <item.icon size={18} strokeWidth={1.5} />
+                    {item.label}
+                  </a>
+                );
+              }
+              
+              return (
                 <Link
                   key={item.label}
                   to={item.href}
@@ -146,8 +197,8 @@ export const Navigation = () => {
                   <item.icon size={18} strokeWidth={1.5} />
                   {item.label}
                 </Link>
-              )
-            ))}
+              );
+            })}
             <div className="flex gap-3 mt-4 pt-4 border-t border-white/10">
               <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-cyan-500/40 text-cyan-400 text-sm font-medium">
                 <LogIn size={16} />
