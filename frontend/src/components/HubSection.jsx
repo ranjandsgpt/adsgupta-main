@@ -120,10 +120,10 @@ export const HubSection = () => {
           className="text-center mb-16"
         >
           <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-            The Protocols
+            Powered by The Neural Engine
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
-            THE HUB
+            THE PROTOCOLS
           </h2>
           <p className="text-zinc-400 text-base md:text-lg max-w-2xl mx-auto">
             Your gateway to the complete ad-tech operating system. Six protocols. Infinite possibilities.
