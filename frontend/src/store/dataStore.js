@@ -1,6 +1,9 @@
 /**
  * Global Data Store using Zustand
- * Persists uploaded data across routes without server storage
+ * Uses a hybrid approach:
+ * - Large data (uploadedData, parsedData rows) stays in memory only
+ * - Small data (summary, metadata) persists to sessionStorage
+ * This prevents "quota exceeded" errors for large files
  */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
@@ -8,15 +11,19 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 // Free audit limit
 const FREE_AUDIT_LIMIT = 3;
 
+// Maximum rows to persist (to stay under sessionStorage limit)
+const MAX_PERSIST_ROWS = 500;
+
 const useDataStore = create(
   persist(
     (set, get) => ({
-      // Uploaded file data
+      // Uploaded file data (stored in memory, NOT persisted for large files)
       uploadedData: null,
       fileName: null,
       fileType: null,
-      reportType: null, // New: track specific report type
+      reportType: null,
       uploadedAt: null,
+      rowCount: 0,
       
       // Parsed and analyzed data
       parsedData: null,
@@ -31,15 +38,22 @@ const useDataStore = create(
       isPro: false,
       
       // Actions
-      setUploadedData: (data, fileName, fileType, reportType = 'search_term') => set({
-        uploadedData: data,
-        fileName,
-        fileType,
-        reportType,
-        uploadedAt: new Date().toISOString(),
-        analysisComplete: false,
-        agentResults: null
-      }),
+      setUploadedData: (data, fileName, fileType, reportType = 'search_term') => {
+        const rowCount = Array.isArray(data) ? data.length : 0;
+        console.log(`Storing ${rowCount} rows (large file mode: ${rowCount > MAX_PERSIST_ROWS})`);
+        
+        set({
+          uploadedData: data,
+          fileName,
+          fileType,
+          reportType,
+          rowCount,
+          uploadedAt: new Date().toISOString(),
+          analysisComplete: false,
+          agentResults: null,
+          parsedData: null
+        });
+      },
       
       setParsedData: (parsedData) => set({ parsedData }),
       
@@ -70,6 +84,7 @@ const useDataStore = create(
         fileType: null,
         reportType: null,
         uploadedAt: null,
+        rowCount: 0,
         parsedData: null,
         agentResults: null,
         analysisComplete: false
@@ -101,19 +116,43 @@ const useDataStore = create(
     {
       name: 'adsgupta-data-store',
       storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => ({
-        uploadedData: state.uploadedData,
-        fileName: state.fileName,
-        fileType: state.fileType,
-        reportType: state.reportType,
-        uploadedAt: state.uploadedAt,
-        parsedData: state.parsedData,
-        agentResults: state.agentResults,
-        analysisComplete: state.analysisComplete,
-        auditCount: state.auditCount,
-        freeAuditsRemaining: state.freeAuditsRemaining,
-        isPro: state.isPro
-      })
+      // Only persist essential data, not full dataset
+      partialize: (state) => {
+        const isLargeFile = (state.rowCount || 0) > MAX_PERSIST_ROWS;
+        
+        // For large files, only persist metadata and summary
+        // The analysis will need to be re-run if page is refreshed
+        return {
+          // Always persist metadata
+          fileName: state.fileName,
+          fileType: state.fileType,
+          reportType: state.reportType,
+          uploadedAt: state.uploadedAt,
+          rowCount: state.rowCount,
+          auditCount: state.auditCount,
+          freeAuditsRemaining: state.freeAuditsRemaining,
+          isPro: state.isPro,
+          analysisComplete: state.analysisComplete,
+          
+          // For small files, persist everything
+          // For large files, only persist summary data
+          uploadedData: isLargeFile ? null : state.uploadedData,
+          parsedData: isLargeFile ? (state.parsedData ? {
+            summary: state.parsedData.summary,
+            wastedSpend: state.parsedData.wastedSpend,
+            availableMetrics: state.parsedData.availableMetrics,
+            missingMetrics: state.parsedData.missingMetrics,
+            reportType: state.parsedData.reportType,
+            totalRows: state.parsedData.totalRows,
+            columns: state.parsedData.columns,
+            // Keep top items only
+            asins: state.parsedData.asins?.slice(0, 50),
+            searchTerms: state.parsedData.searchTerms?.slice(0, 100),
+            rows: state.parsedData.rows?.slice(0, 100) // Sample rows for display
+          } : null) : state.parsedData,
+          agentResults: state.agentResults
+        };
+      }
     }
   )
 );
