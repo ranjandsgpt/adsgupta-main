@@ -1059,167 +1059,440 @@ const AnalysisPage = () => {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = 210;
       const pageHeight = 297;
-      const margin = 10;
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
       
       // Helper function to add page with title
-      const addPage = (title, isFirst = false) => {
+      const addPage = (title, subtitle = '', isFirst = false) => {
         if (!isFirst) pdf.addPage();
+        // Dark background
         pdf.setFillColor(5, 11, 24);
         pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-        pdf.setFontSize(24);
+        
+        // Title
+        pdf.setFontSize(22);
         pdf.setTextColor(255, 255, 255);
         pdf.text(title, margin, 25);
-        pdf.setFontSize(10);
+        
+        // Subtitle
+        if (subtitle) {
+          pdf.setFontSize(11);
+          pdf.setTextColor(100, 180, 255);
+          pdf.text(subtitle, margin, 33);
+        }
+        
+        // Meta info
+        pdf.setFontSize(9);
         pdf.setTextColor(100, 100, 100);
-        pdf.text(`Generated: ${new Date().toLocaleString()} | File: ${fileName || 'Report'}`, margin, 35);
+        pdf.text(`Generated: ${new Date().toLocaleString()} | File: ${fileName || 'Report'}`, margin, 42);
+        
+        // Divider
         pdf.setDrawColor(50, 130, 246);
-        pdf.line(margin, 40, pageWidth - margin, 40);
-        return 50; // Return starting Y position for content
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, 47, pageWidth - margin, 47);
+        
+        return 55; // Return starting Y position for content
       };
       
-      // Page 1: Overview
-      let yPos = addPage('Deep Analysis Report - Overview', true);
+      // Helper to add a metric box
+      const addMetricBox = (label, value, x, y, width = 40, color = [100, 200, 100]) => {
+        pdf.setFillColor(20, 30, 50);
+        pdf.roundedRect(x, y, width, 18, 2, 2, 'F');
+        pdf.setFontSize(8);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(label, x + 3, y + 6);
+        pdf.setFontSize(12);
+        pdf.setTextColor(color[0], color[1], color[2]);
+        pdf.text(String(value), x + 3, y + 14);
+      };
+      
+      // ========== PAGE 1: OVERVIEW ==========
+      let yPos = addPage('Deep Analysis Report', 'Comprehensive Amazon Audit Results', true);
+      
+      // Health Score Circle (simulated)
+      pdf.setFillColor(20, 30, 50);
+      pdf.circle(margin + 20, yPos + 15, 18, 'F');
+      pdf.setFontSize(24);
+      pdf.setTextColor(healthScore >= 70 ? 100 : healthScore >= 40 ? 255 : 255, 
+                       healthScore >= 70 ? 200 : healthScore >= 40 ? 180 : 100, 
+                       healthScore >= 70 ? 100 : 100);
+      pdf.text(String(healthScore), margin + 12, yPos + 18);
+      pdf.setFontSize(8);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text('Health Score', margin + 8, yPos + 26);
+      
+      // Issue counts
+      pdf.setFontSize(10);
+      pdf.setTextColor(255, 100, 100);
+      pdf.text(`${criticalCount} Critical`, margin + 50, yPos + 10);
+      pdf.setTextColor(255, 200, 100);
+      pdf.text(`${warningCount} Warnings`, margin + 50, yPos + 18);
+      pdf.setTextColor(100, 200, 255);
+      pdf.text(`${opportunityCount} Opportunities`, margin + 50, yPos + 26);
+      
+      yPos += 45;
+      
+      // Key Metrics Grid
       pdf.setFontSize(12);
       pdf.setTextColor(255, 255, 255);
-      pdf.text(`Health Score: ${healthScore}/100`, margin, yPos);
-      pdf.text(`Total Rows Analyzed: ${totalRows?.toLocaleString() || 0}`, margin, yPos + 10);
-      pdf.text(`Detected Metrics: ${availableMetrics?.length || 0}`, margin, yPos + 20);
-      yPos += 40;
+      pdf.text('Key Performance Indicators', margin, yPos);
+      yPos += 8;
       
-      pdf.setFontSize(14);
-      pdf.text('Key Metrics', margin, yPos);
-      yPos += 10;
+      const metricsPerRow = 4;
+      const metricWidth = (contentWidth - 15) / metricsPerRow;
+      
+      const metrics = [
+        { label: 'Total Sales', value: `€${(summary?.totalSales || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}`, color: [100, 220, 150] },
+        { label: 'Total Spend', value: `€${(summary?.totalSpend || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}`, color: [255, 100, 100] },
+        { label: 'ACOS', value: summary?.avgAcos === 'N/A' || summary?.avgAcos === Infinity ? 'N/A' : `${summary?.avgAcos?.toFixed(1)}%`, color: summary?.avgAcos > 30 ? [255, 180, 100] : [100, 200, 100] },
+        { label: 'ROAS', value: summary?.avgRoas === 'N/A' ? 'N/A' : `${summary?.avgRoas?.toFixed(2)}x`, color: summary?.avgRoas < 3 ? [255, 180, 100] : [100, 200, 100] },
+        { label: 'Sessions', value: (summary?.totalSessions || 0).toLocaleString(), color: [100, 180, 255] },
+        { label: 'Conversion', value: summary?.avgConversion === 'N/A' ? (summary?.avgUnitSessionPct === 'N/A' ? 'N/A' : `${summary?.avgUnitSessionPct?.toFixed(1)}%`) : `${summary?.avgConversion?.toFixed(1)}%`, color: [180, 100, 255] },
+        { label: 'Total Units', value: (summary?.totalUnits || 0).toLocaleString(), color: [100, 220, 220] },
+        { label: 'Total Orders', value: (summary?.totalOrders || 0).toLocaleString(), color: [100, 220, 220] },
+      ];
+      
+      // Add Buy Box if available
+      if (summary?.avgBuyBox && summary.avgBuyBox !== 'N/A') {
+        metrics.push({ label: 'Buy Box %', value: `${summary.avgBuyBox.toFixed(1)}%`, color: [255, 180, 100] });
+      }
+      
+      metrics.forEach((m, idx) => {
+        const col = idx % metricsPerRow;
+        const row = Math.floor(idx / metricsPerRow);
+        addMetricBox(m.label, m.value, margin + (col * (metricWidth + 5)), yPos + (row * 22), metricWidth, m.color);
+      });
+      
+      yPos += Math.ceil(metrics.length / metricsPerRow) * 22 + 15;
+      
+      // Detected Metrics
       pdf.setFontSize(11);
-      pdf.setTextColor(200, 200, 200);
-      pdf.text(`Total Sales: €${summary?.totalSales?.toFixed(2) || 'N/A'}`, margin, yPos);
-      pdf.text(`Total Spend: €${summary?.totalSpend?.toFixed(2) || 'N/A'}`, margin + 70, yPos);
-      yPos += 8;
-      pdf.text(`ACOS: ${summary?.avgAcos?.toFixed(2) || 'N/A'}%`, margin, yPos);
-      pdf.text(`ROAS: ${summary?.avgRoas?.toFixed(2) || 'N/A'}x`, margin + 70, yPos);
-      yPos += 8;
-      pdf.text(`Total Units: ${summary?.totalUnits?.toLocaleString() || 'N/A'}`, margin, yPos);
-      pdf.text(`Total Orders: ${summary?.totalOrders?.toLocaleString() || 'N/A'}`, margin + 70, yPos);
-      
-      // Page 2: Findings
-      yPos = addPage('AI Agent Findings');
-      pdf.setFontSize(12);
-      pdf.setTextColor(255, 100, 100);
-      pdf.text(`Critical Issues: ${criticalCount}`, margin, yPos);
-      pdf.setTextColor(255, 200, 100);
-      pdf.text(`Warnings: ${warningCount}`, margin + 60, yPos);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(`Detected Metrics (${availableMetrics?.length || 0})`, margin, yPos);
+      yPos += 6;
+      pdf.setFontSize(8);
       pdf.setTextColor(100, 200, 100);
-      pdf.text(`Opportunities: ${opportunityCount}`, margin + 110, yPos);
-      yPos += 15;
+      const metricsText = availableMetrics?.join(', ') || 'None';
+      const wrappedMetrics = pdf.splitTextToSize(metricsText, contentWidth);
+      pdf.text(wrappedMetrics, margin, yPos);
       
-      // Add top findings
+      // ========== PAGE 2: FINDINGS ==========
+      yPos = addPage('AI Agent Findings', `${criticalCount + warningCount + opportunityCount} Issues Detected`);
+      
+      // Critical Issues
       if (agentResults?.results) {
         const allFindings = agentResults.results.flatMap(agent => 
           (agent.findings || []).map(f => ({ ...f, agent: agent.name }))
-        ).filter(f => f.type === 'alert' || f.type === 'warning' || f.type === 'opportunity').slice(0, 15);
+        ).filter(f => f.type === 'alert' || f.type === 'warning' || f.type === 'opportunity');
         
-        pdf.setFontSize(10);
-        allFindings.forEach((finding, idx) => {
-          if (yPos > pageHeight - 30) {
-            pdf.addPage();
-            yPos = 20;
-          }
-          pdf.setTextColor(finding.type === 'alert' ? 255 : finding.type === 'warning' ? 255 : 100, 
-                          finding.type === 'alert' ? 100 : finding.type === 'warning' ? 200 : 200, 
-                          100);
-          pdf.text(`• ${finding.title}`, margin, yPos);
-          pdf.setTextColor(150, 150, 150);
-          const desc = finding.description?.substring(0, 80) + (finding.description?.length > 80 ? '...' : '');
-          pdf.text(`  ${desc}`, margin, yPos + 5);
-          yPos += 15;
-        });
+        const criticals = allFindings.filter(f => f.type === 'alert').slice(0, 8);
+        const warnings = allFindings.filter(f => f.type === 'warning').slice(0, 8);
+        const opportunities = allFindings.filter(f => f.type === 'opportunity').slice(0, 8);
+        
+        // Critical section
+        if (criticals.length > 0) {
+          pdf.setFontSize(11);
+          pdf.setTextColor(255, 100, 100);
+          pdf.text(`Critical Issues (${criticals.length})`, margin, yPos);
+          yPos += 8;
+          
+          pdf.setFontSize(9);
+          criticals.forEach((f) => {
+            if (yPos > pageHeight - 25) { pdf.addPage(); yPos = 20; }
+            pdf.setTextColor(255, 150, 150);
+            pdf.text(`• ${f.title}`, margin, yPos);
+            pdf.setTextColor(120, 120, 120);
+            const desc = pdf.splitTextToSize(f.description?.substring(0, 100) || '', contentWidth - 10);
+            pdf.text(desc, margin + 3, yPos + 5);
+            yPos += 5 + (desc.length * 4) + 3;
+          });
+          yPos += 5;
+        }
+        
+        // Warnings section
+        if (warnings.length > 0) {
+          pdf.setFontSize(11);
+          pdf.setTextColor(255, 200, 100);
+          pdf.text(`Warnings (${warnings.length})`, margin, yPos);
+          yPos += 8;
+          
+          pdf.setFontSize(9);
+          warnings.forEach((f) => {
+            if (yPos > pageHeight - 25) { pdf.addPage(); yPos = 20; }
+            pdf.setTextColor(255, 220, 150);
+            pdf.text(`• ${f.title}`, margin, yPos);
+            pdf.setTextColor(120, 120, 120);
+            const desc = pdf.splitTextToSize(f.description?.substring(0, 100) || '', contentWidth - 10);
+            pdf.text(desc, margin + 3, yPos + 5);
+            yPos += 5 + (desc.length * 4) + 3;
+          });
+          yPos += 5;
+        }
+        
+        // Opportunities section
+        if (opportunities.length > 0 && yPos < pageHeight - 40) {
+          pdf.setFontSize(11);
+          pdf.setTextColor(100, 200, 255);
+          pdf.text(`Growth Opportunities (${opportunities.length})`, margin, yPos);
+          yPos += 8;
+          
+          pdf.setFontSize(9);
+          opportunities.slice(0, 5).forEach((f) => {
+            if (yPos > pageHeight - 25) { pdf.addPage(); yPos = 20; }
+            pdf.setTextColor(150, 220, 255);
+            pdf.text(`• ${f.title}`, margin, yPos);
+            pdf.setTextColor(120, 120, 120);
+            const desc = pdf.splitTextToSize(f.description?.substring(0, 80) || '', contentWidth - 10);
+            pdf.text(desc, margin + 3, yPos + 5);
+            yPos += 5 + (desc.length * 4) + 3;
+          });
+        }
       }
       
-      // Page 3: ASINs Performance
-      yPos = addPage('ASINs Performance');
+      // ========== PAGE 3: ASINs/SEARCH TERMS ==========
+      yPos = addPage('Product & Keyword Performance', 'Top Performing Items');
+      
+      // ASINs Table
       if (parsedData?.asins && parsedData.asins.length > 0) {
-        pdf.setFontSize(10);
+        pdf.setFontSize(11);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(`Top ASINs (${parsedData.asins.length} total)`, margin, yPos);
+        yPos += 8;
+        
+        // Table header
+        pdf.setFontSize(8);
         pdf.setTextColor(100, 100, 100);
         pdf.text('ASIN', margin, yPos);
-        pdf.text('Sales', margin + 40, yPos);
-        pdf.text('Spend', margin + 70, yPos);
-        pdf.text('ACOS', margin + 100, yPos);
-        pdf.text('ROAS', margin + 130, yPos);
-        yPos += 8;
+        pdf.text('Sales', margin + 35, yPos);
+        pdf.text('Spend', margin + 60, yPos);
+        pdf.text('ACOS', margin + 85, yPos);
+        pdf.text('ROAS', margin + 105, yPos);
+        pdf.text('Units', margin + 125, yPos);
+        yPos += 5;
         pdf.setDrawColor(50, 50, 50);
-        pdf.line(margin, yPos - 3, pageWidth - margin, yPos - 3);
+        pdf.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 5;
         
         pdf.setTextColor(200, 200, 200);
-        parsedData.asins.slice(0, 30).forEach((asin, idx) => {
-          if (yPos > pageHeight - 20) {
-            pdf.addPage();
-            yPos = 20;
-          }
-          pdf.text(String(asin.asin || 'N/A').substring(0, 15), margin, yPos);
-          pdf.text(`€${(asin.totalSales || 0).toFixed(0)}`, margin + 40, yPos);
-          pdf.text(`€${(asin.totalSpend || 0).toFixed(0)}`, margin + 70, yPos);
-          pdf.text(`${(asin.avgAcos || 0).toFixed(1)}%`, margin + 100, yPos);
-          pdf.text(`${(asin.avgRoas || 0).toFixed(2)}x`, margin + 130, yPos);
-          yPos += 7;
+        const topAsins = [...parsedData.asins].sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0)).slice(0, 20);
+        topAsins.forEach((asin) => {
+          if (yPos > pageHeight - 15) { pdf.addPage(); yPos = 20; }
+          pdf.text(String(asin.asin || 'N/A').substring(0, 12), margin, yPos);
+          pdf.text(`€${(asin.totalSales || 0).toFixed(0)}`, margin + 35, yPos);
+          pdf.text(`€${(asin.totalSpend || 0).toFixed(0)}`, margin + 60, yPos);
+          pdf.text(`${(asin.avgAcos || 0).toFixed(1)}%`, margin + 85, yPos);
+          pdf.text(`${(asin.avgRoas || 0).toFixed(2)}x`, margin + 105, yPos);
+          pdf.text(`${(asin.totalUnits || 0)}`, margin + 125, yPos);
+          yPos += 6;
+        });
+      } else if (parsedData?.searchTerms && parsedData.searchTerms.length > 0) {
+        pdf.setFontSize(11);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(`Top Search Terms (${parsedData.searchTerms.length} total)`, margin, yPos);
+        yPos += 8;
+        
+        // Table header
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text('Keyword', margin, yPos);
+        pdf.text('Sales', margin + 55, yPos);
+        pdf.text('Spend', margin + 80, yPos);
+        pdf.text('Clicks', margin + 105, yPos);
+        pdf.text('ACOS', margin + 125, yPos);
+        yPos += 5;
+        pdf.setDrawColor(50, 50, 50);
+        pdf.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 5;
+        
+        pdf.setTextColor(200, 200, 200);
+        const topTerms = [...parsedData.searchTerms].sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0)).slice(0, 20);
+        topTerms.forEach((term) => {
+          if (yPos > pageHeight - 15) { pdf.addPage(); yPos = 20; }
+          pdf.text(String(term.searchTerm || 'N/A').substring(0, 22), margin, yPos);
+          pdf.text(`€${(term.totalSales || 0).toFixed(0)}`, margin + 55, yPos);
+          pdf.text(`€${(term.totalSpend || 0).toFixed(0)}`, margin + 80, yPos);
+          pdf.text(`${(term.totalClicks || 0)}`, margin + 105, yPos);
+          const termAcos = term.totalSales > 0 ? (term.totalSpend / term.totalSales * 100) : 0;
+          pdf.text(`${termAcos.toFixed(1)}%`, margin + 125, yPos);
+          yPos += 6;
         });
       } else {
         pdf.setTextColor(150, 150, 150);
-        pdf.text('No ASIN data available in this report', margin, yPos);
+        pdf.text('No ASIN or Search Term data available in this report', margin, yPos);
       }
       
-      // Page 4: Charts Summary
-      yPos = addPage('Performance Charts Summary');
+      // ========== PAGE 4: CHARTS SUMMARY ==========
+      yPos = addPage('Charts & Visual Analysis', 'Data Visualization Summary');
+      
       pdf.setFontSize(11);
-      pdf.setTextColor(200, 200, 200);
-      pdf.text('Pareto Analysis: Top 20% ASINs drive majority of sales', margin, yPos);
-      yPos += 10;
-      if (chartData.pareto.length > 0) {
-        chartData.pareto.slice(0, 10).forEach((item, idx) => {
-          pdf.text(`${idx + 1}. ${item.asin}: €${item.sales.toFixed(0)} (${item.cumulativePct}% cumulative)`, margin + 5, yPos);
-          yPos += 7;
+      pdf.setTextColor(255, 255, 255);
+      
+      // Pareto Analysis
+      pdf.text('Pareto Analysis (80/20 Rule)', margin, yPos);
+      yPos += 6;
+      pdf.setFontSize(9);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text('Top performing items driving the majority of your revenue:', margin, yPos);
+      yPos += 8;
+      
+      if (chartData.pareto && chartData.pareto.length > 0) {
+        chartData.pareto.slice(0, 8).forEach((item, idx) => {
+          pdf.setTextColor(100, 180, 255);
+          pdf.text(`${idx + 1}. ${item.asin}`, margin, yPos);
+          pdf.setTextColor(100, 220, 150);
+          pdf.text(`€${item.sales.toLocaleString()}`, margin + 50, yPos);
+          pdf.setTextColor(150, 150, 150);
+          pdf.text(`(${item.cumulativePct}% cumulative)`, margin + 85, yPos);
+          yPos += 6;
+        });
+      } else if (chartData.spendByKeyword && chartData.spendByKeyword.length > 0) {
+        pdf.setTextColor(150, 150, 150);
+        pdf.text('Top Keywords by Spend:', margin, yPos);
+        yPos += 6;
+        chartData.spendByKeyword.slice(0, 8).forEach((item, idx) => {
+          pdf.setTextColor(100, 180, 255);
+          pdf.text(`${idx + 1}. ${item.keyword}`, margin, yPos);
+          pdf.setTextColor(255, 100, 100);
+          pdf.text(`Spend: €${item.spend}`, margin + 60, yPos);
+          pdf.setTextColor(100, 220, 150);
+          pdf.text(`Sales: €${item.sales}`, margin + 110, yPos);
+          yPos += 6;
         });
       }
       
-      // Page 5: Master Analysis
-      yPos = addPage('Master Analysis - Strategic Insights');
-      pdf.setFontSize(11);
-      pdf.setTextColor(200, 200, 200);
+      yPos += 10;
       
-      // Add key strategic insights
-      if (summary?.avgAcos && summary.avgAcos !== 'N/A') {
-        const acosStatus = summary.avgAcos > 50 ? 'CRITICAL' : summary.avgAcos > 30 ? 'WARNING' : 'HEALTHY';
-        pdf.setTextColor(acosStatus === 'CRITICAL' ? 255 : acosStatus === 'WARNING' ? 255 : 100, 
-                        acosStatus === 'CRITICAL' ? 100 : acosStatus === 'WARNING' ? 200 : 200, 100);
-        pdf.text(`ACOS Status: ${acosStatus} (${summary.avgAcos.toFixed(1)}%)`, margin, yPos);
-        yPos += 12;
-      }
-      
-      if (summary?.avgRoas && summary.avgRoas !== 'N/A') {
-        const roasStatus = summary.avgRoas < 1 ? 'LOSING MONEY' : summary.avgRoas < 3 ? 'LOW' : 'HEALTHY';
-        pdf.setTextColor(roasStatus === 'LOSING MONEY' ? 255 : roasStatus === 'LOW' ? 255 : 100, 
-                        roasStatus === 'LOSING MONEY' ? 100 : roasStatus === 'LOW' ? 200 : 200, 100);
-        pdf.text(`ROAS Status: ${roasStatus} (${summary.avgRoas.toFixed(2)}x)`, margin, yPos);
-        yPos += 12;
-      }
-      
-      if (parsedData?.wastedSpend?.total > 0) {
+      // Wasted Spend
+      if (chartData.wastedByKeyword && chartData.wastedByKeyword.length > 0) {
+        pdf.setFontSize(11);
         pdf.setTextColor(255, 100, 100);
-        pdf.text(`Wasted Spend: €${parsedData.wastedSpend.total.toFixed(2)} on ${parsedData.wastedSpend.count} non-converting keywords`, margin, yPos);
-        yPos += 12;
+        pdf.text('Wasted Ad Spend', margin, yPos);
+        yPos += 6;
+        pdf.setFontSize(9);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text('Keywords with clicks but zero conversions:', margin, yPos);
+        yPos += 8;
+        
+        chartData.wastedByKeyword.slice(0, 8).forEach((item) => {
+          pdf.setTextColor(200, 200, 200);
+          pdf.text(`• ${item.keyword}`, margin, yPos);
+          pdf.setTextColor(255, 100, 100);
+          pdf.text(`€${item.spend} wasted`, margin + 70, yPos);
+          pdf.setTextColor(150, 150, 150);
+          pdf.text(`(${item.clicks} clicks)`, margin + 110, yPos);
+          yPos += 6;
+        });
       }
       
-      pdf.setTextColor(150, 150, 150);
-      pdf.text('Recommendations:', margin, yPos);
-      yPos += 8;
-      pdf.setFontSize(10);
-      pdf.text('1. Add negative keywords for zero-converting search terms', margin + 5, yPos);
-      yPos += 6;
-      pdf.text('2. Review campaigns with ACOS > 100%', margin + 5, yPos);
-      yPos += 6;
-      pdf.text('3. Increase bids on keywords with ROAS > 5x', margin + 5, yPos);
+      // ========== PAGE 5: MASTER ANALYSIS ==========
+      yPos = addPage('Master Analysis', 'AI-Powered Strategic Insights');
       
-      pdf.save(`AdsGupta_FullAudit_${fileName || 'Report'}_${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.setFontSize(10);
+      
+      // ACOS Analysis
+      if (summary?.avgAcos && summary.avgAcos !== 'N/A' && summary.avgAcos !== Infinity) {
+        const acosStatus = summary.avgAcos > 50 ? 'CRITICAL' : summary.avgAcos > 30 ? 'WARNING' : 'HEALTHY';
+        const acosColor = acosStatus === 'CRITICAL' ? [255, 100, 100] : acosStatus === 'WARNING' ? [255, 200, 100] : [100, 220, 150];
+        
+        pdf.setFillColor(20, 30, 50);
+        pdf.roundedRect(margin, yPos, contentWidth, 25, 2, 2, 'F');
+        pdf.setTextColor(acosColor[0], acosColor[1], acosColor[2]);
+        pdf.setFontSize(12);
+        pdf.text(`${acosStatus}: ACOS at ${summary.avgAcos.toFixed(1)}%`, margin + 5, yPos + 8);
+        pdf.setFontSize(9);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(acosStatus === 'CRITICAL' ? 'Advertising cost consuming over half your revenue' : 
+                 acosStatus === 'WARNING' ? 'ACOS above healthy 25% threshold' : 
+                 'Advertising efficiency within healthy limits', margin + 5, yPos + 16);
+        pdf.setTextColor(180, 100, 255);
+        pdf.text(acosStatus !== 'HEALTHY' ? 'Action: Pause keywords with ACOS > 100%' : 'Action: Consider scaling budget', margin + 5, yPos + 22);
+        yPos += 32;
+      }
+      
+      // ROAS Analysis
+      if (summary?.avgRoas && summary.avgRoas !== 'N/A') {
+        const roasStatus = summary.avgRoas < 1 ? 'CRITICAL' : summary.avgRoas < 3 ? 'WARNING' : 'STRONG';
+        const roasColor = roasStatus === 'CRITICAL' ? [255, 100, 100] : roasStatus === 'WARNING' ? [255, 200, 100] : [100, 220, 150];
+        
+        pdf.setFillColor(20, 30, 50);
+        pdf.roundedRect(margin, yPos, contentWidth, 25, 2, 2, 'F');
+        pdf.setTextColor(roasColor[0], roasColor[1], roasColor[2]);
+        pdf.setFontSize(12);
+        pdf.text(`${roasStatus}: ROAS at ${summary.avgRoas.toFixed(2)}x`, margin + 5, yPos + 8);
+        pdf.setFontSize(9);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(roasStatus === 'CRITICAL' ? 'Losing money on advertising spend' : 
+                 roasStatus === 'WARNING' ? 'Below recommended 3x minimum' : 
+                 'Strong return on advertising investment', margin + 5, yPos + 16);
+        pdf.setTextColor(180, 100, 255);
+        pdf.text(roasStatus !== 'STRONG' ? 'Action: Review targeting and bid strategy' : 'Action: Scale winning campaigns', margin + 5, yPos + 22);
+        yPos += 32;
+      }
+      
+      // Wasted Spend
+      if (parsedData?.wastedSpend?.total > 0) {
+        pdf.setFillColor(30, 20, 20);
+        pdf.roundedRect(margin, yPos, contentWidth, 25, 2, 2, 'F');
+        pdf.setTextColor(255, 100, 100);
+        pdf.setFontSize(12);
+        pdf.text(`€${parsedData.wastedSpend.total.toFixed(2)} Wasted on Non-Converting Keywords`, margin + 5, yPos + 8);
+        pdf.setFontSize(9);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(`${parsedData.wastedSpend.count} keywords with clicks but zero orders`, margin + 5, yPos + 16);
+        pdf.setTextColor(180, 100, 255);
+        pdf.text('Action: Add as negative keywords immediately', margin + 5, yPos + 22);
+        yPos += 32;
+      }
+      
+      // Buy Box (for Business Reports)
+      if (summary?.avgBuyBox && summary.avgBuyBox !== 'N/A') {
+        const bbStatus = summary.avgBuyBox >= 95 ? 'EXCELLENT' : summary.avgBuyBox >= 90 ? 'GOOD' : 'WARNING';
+        const bbColor = bbStatus === 'EXCELLENT' ? [100, 220, 150] : bbStatus === 'GOOD' ? [255, 200, 100] : [255, 100, 100];
+        
+        pdf.setFillColor(20, 30, 50);
+        pdf.roundedRect(margin, yPos, contentWidth, 25, 2, 2, 'F');
+        pdf.setTextColor(bbColor[0], bbColor[1], bbColor[2]);
+        pdf.setFontSize(12);
+        pdf.text(`${bbStatus}: Buy Box at ${summary.avgBuyBox.toFixed(1)}%`, margin + 5, yPos + 8);
+        pdf.setFontSize(9);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(bbStatus === 'EXCELLENT' ? 'Winning Featured Offer position consistently' : 
+                 'May be losing sales to competitors', margin + 5, yPos + 16);
+        pdf.setTextColor(180, 100, 255);
+        pdf.text(bbStatus === 'EXCELLENT' ? 'Action: Maintain pricing strategy' : 'Action: Review pricing vs competitors', margin + 5, yPos + 22);
+        yPos += 32;
+      }
+      
+      // Final recommendations
+      yPos += 10;
+      pdf.setFontSize(11);
+      pdf.setTextColor(255, 255, 255);
+      pdf.text('Key Recommendations', margin, yPos);
+      yPos += 8;
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(180, 180, 180);
+      const recommendations = [
+        '1. Add non-converting search terms as negative keywords',
+        '2. Increase bids on keywords with ROAS > 5x and strong conversion',
+        '3. Review and pause campaigns with ACOS > 100%',
+        '4. Focus on exact match for top-performing keywords',
+        '5. Optimize listing content to improve conversion rates'
+      ];
+      recommendations.forEach((rec) => {
+        pdf.text(rec, margin, yPos);
+        yPos += 6;
+      });
+      
+      // Footer on last page
+      pdf.setFontSize(8);
+      pdf.setTextColor(80, 80, 80);
+      pdf.text('Generated by AdsGupta Monetization AI | www.adsgupta.com', margin, pageHeight - 10);
+      
+      pdf.save(`AdsGupta_Audit_${fileName?.replace(/\.[^/.]+$/, '') || 'Report'}_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
       console.error('PDF export failed:', error);
+      alert('PDF export failed. Please try again.');
     }
 
     setIsExporting(false);
