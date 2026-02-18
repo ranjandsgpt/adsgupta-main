@@ -422,10 +422,9 @@ const InstantAuditPage = () => {
       console.error('File processing error:', error);
       setProcessingStage('Processing failed');
       alert('Failed to process file. Please try again.');
+    } finally {
       setIsProcessing(false);
     }
-    }
-    setIsProcessing(false);
   }, [setUploadedData, navigate]);
 
   const resetAudit = () => {
