@@ -18,12 +18,23 @@ import useMultiFileStore from '../store/multiFileStore';
 // Domain config
 const DEMO_DOMAIN = process.env.REACT_APP_DEMO_DOMAIN || 'https://demoai.adsgupta.com';
 
-// Instant Audit Dropzone Component - Supports Single or Multiple Files
+// Report type options
+const REPORT_TYPES = [
+  { id: 'search_term', label: 'Search Term Report', description: 'Keyword performance & wasted spend' },
+  { id: 'targeting', label: 'Targeting Report', description: 'Campaign targeting analysis' },
+  { id: 'advertised_product', label: 'Advertised Product Report', description: 'Product-level ad performance' },
+  { id: 'business_report', label: 'Business Report', description: 'Sales & traffic data' },
+  { id: 'other', label: 'Other Report', description: 'Generic analysis' },
+];
+
+// Instant Audit Dropzone Component - Supports Single or Multiple Files with Report Type Selection
 const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState('');
   const [fileCount, setFileCount] = useState(0);
+  const [selectedReportType, setSelectedReportType] = useState('search_term');
+  const [showReportTypeSelector, setShowReportTypeSelector] = useState(false);
 
   const processFile = useCallback((file) => {
     setIsProcessing(true);
@@ -37,9 +48,9 @@ const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
         header: true,
         complete: (results) => {
           setTimeout(() => {
-            onFileProcessed(results.data, 'csv', file.name);
+            onFileProcessed(results.data, 'csv', file.name, selectedReportType);
             setIsProcessing(false);
-          }, 1500); // Dramatic pause for effect
+          }, 800);
         },
         error: () => setIsProcessing(false)
       });
@@ -52,13 +63,13 @@ const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         setTimeout(() => {
-          onFileProcessed(jsonData, 'xlsx', file.name);
+          onFileProcessed(jsonData, 'xlsx', file.name, selectedReportType);
           setIsProcessing(false);
-        }, 1500);
+        }, 800);
       };
       reader.readAsArrayBuffer(file);
     }
-  }, [onFileProcessed]);
+  }, [onFileProcessed, selectedReportType]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
