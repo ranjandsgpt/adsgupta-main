@@ -76,21 +76,17 @@ const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
     setIsDragging(false);
     const files = Array.from(e.dataTransfer.files);
     
-    if (files.length > 1) {
-      // Multiple files - redirect to Multi-Vault
-      onMultipleFiles(files);
-    } else if (files.length === 1) {
+    if (files.length >= 1) {
+      // Process the first file
       processFile(files[0]);
     }
-  }, [processFile, onMultipleFiles]);
+  }, [processFile]);
 
   const handleFileInput = (e) => {
     const files = Array.from(e.target.files);
     
-    if (files.length > 1) {
-      // Multiple files - redirect to Multi-Vault
-      onMultipleFiles(files);
-    } else if (files.length === 1) {
+    if (files.length >= 1) {
+      // Process the first file
       processFile(files[0]);
     }
   };
