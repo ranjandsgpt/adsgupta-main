@@ -341,8 +341,7 @@ const AuditDropzone = ({ onFileProcessed }) => {
                   Instant AI Audit
                 </h3>
                 <p className="text-zinc-400">
-                  Drop your Amazon <span className="text-blue-400">Sales & Traffic</span> (CSV) or{' '}
-                  <span className="text-cyan-400">Search Term</span> (XLSX) report
+                  Drop your amazon seller central reports here (CSV preferred)
                 </p>
                 <p className="text-zinc-500 text-sm mt-2">
                   20 AI agents analyze your data in seconds
