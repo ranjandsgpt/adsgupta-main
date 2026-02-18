@@ -189,7 +189,7 @@ const AuditDropzone = ({ onFileProcessed }) => {
       setIsProcessing(false);
       alert('Unsupported file type. Please upload CSV or XLSX files.');
     }
-  }, [onFileProcessed, selectedReportType]);
+  }, [onFileProcessed]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
