@@ -584,6 +584,76 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
             });
           }
         }
+        
+        // 9. Buy Box Analysis (for Business Reports)
+        const avgBuyBox = parsedData.summary?.avgBuyBox;
+        if (avgBuyBox && avgBuyBox !== 'N/A' && typeof avgBuyBox === 'number') {
+          if (avgBuyBox < 90) {
+            insights.push({
+              type: 'warning',
+              icon: 'warning',
+              title: 'Low Buy Box Win Rate: ' + avgBuyBox.toFixed(1) + '%',
+              description: `You're only winning the Buy Box ${avgBuyBox.toFixed(1)}% of the time. This means you're losing potential sales when customers view your listing.`,
+              metric: 'Buy Box',
+              value: avgBuyBox.toFixed(1) + '%',
+              recommendation: 'Review your pricing vs competitors, check FBA vs FBM status, and ensure inventory levels are healthy.'
+            });
+          } else if (avgBuyBox >= 95) {
+            insights.push({
+              type: 'success',
+              icon: 'check',
+              title: 'Excellent Buy Box: ' + avgBuyBox.toFixed(1) + '%',
+              description: `You're winning the Featured Offer position ${avgBuyBox.toFixed(1)}% of the time - excellent!`,
+              metric: 'Buy Box',
+              value: avgBuyBox.toFixed(1) + '%',
+              recommendation: 'Maintain your current pricing and inventory strategy.'
+            });
+          }
+        }
+        
+        // 10. Sessions & Traffic Analysis (for Business Reports)
+        const totalSessions = parsedData.summary?.totalSessions;
+        const totalPageViews = parsedData.summary?.totalPageViews;
+        const avgUnitSessionPct = parsedData.summary?.avgUnitSessionPct;
+        
+        if (totalSessions > 0 && avgUnitSessionPct && avgUnitSessionPct !== 'N/A') {
+          if (avgUnitSessionPct < 10) {
+            insights.push({
+              type: 'warning',
+              icon: 'warning',
+              title: 'Low Unit Session %: ' + avgUnitSessionPct.toFixed(1) + '%',
+              description: `Only ${avgUnitSessionPct.toFixed(1)}% of sessions result in a unit purchase. With ${totalSessions.toLocaleString()} sessions, you could be getting ${Math.round(totalSessions * 0.1)} more sales.`,
+              metric: 'Unit Session %',
+              value: avgUnitSessionPct.toFixed(1) + '%',
+              recommendation: 'Focus on listing optimization: main image, bullet points, A+ content, and competitive pricing.'
+            });
+          } else if (avgUnitSessionPct > 20) {
+            insights.push({
+              type: 'success',
+              icon: 'check',
+              title: 'Strong Conversion: ' + avgUnitSessionPct.toFixed(1) + '%',
+              description: `Your Unit Session Percentage of ${avgUnitSessionPct.toFixed(1)}% is above average - your listing converts visitors into buyers efficiently.`,
+              metric: 'Unit Session %',
+              value: avgUnitSessionPct.toFixed(1) + '%',
+              recommendation: 'Focus on driving more traffic through advertising and SEO to capitalize on your high conversion rate.'
+            });
+          }
+        }
+        
+        if (totalPageViews > 0 && totalSessions > 0) {
+          const pageViewsPerSession = totalPageViews / totalSessions;
+          if (pageViewsPerSession > 1.3) {
+            insights.push({
+              type: 'info',
+              icon: 'info',
+              title: `${pageViewsPerSession.toFixed(1)} Page Views per Session`,
+              description: `Visitors are viewing your listing ${pageViewsPerSession.toFixed(1)} times per session on average - they might be comparing with competitors.`,
+              metric: 'PV/Session',
+              value: pageViewsPerSession.toFixed(1),
+              recommendation: 'Ensure your listing stands out: better images, clearer value proposition, competitive pricing.'
+            });
+          }
+        }
       }
       
       // If no data insights available
