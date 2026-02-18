@@ -225,7 +225,6 @@ const COLUMN_MAPPINGS = {
     'Units Ordered',
     'Units ordered'  // Business Report format
   ],
-  ],
   
   // Performance metrics (with % symbol)
   ctr: [
