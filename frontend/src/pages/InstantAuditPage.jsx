@@ -354,13 +354,13 @@ const InstantAuditPage = () => {
   const currentMarketplace = MARKETPLACES.find(m => m.id === activeMarketplace) || MARKETPLACES[0];
   const isMarketplaceActive = currentMarketplace.status === 'active';
 
-  const handleFileProcessed = useCallback(async (data, fileType, fileName) => {
+  const handleFileProcessed = useCallback(async (data, fileType, fileName, reportType = 'search_term') => {
     setIsProcessing(true);
     setProcessingStage('Parsing file structure...');
     
     // First, store data in Zustand and wait for it to persist
     await new Promise((resolve) => {
-      setUploadedData(data, fileName, fileType);
+      setUploadedData(data, fileName, fileType, reportType);
       // Give Zustand time to persist to sessionStorage
       setTimeout(resolve, 100);
     });
