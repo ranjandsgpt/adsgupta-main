@@ -14,6 +14,59 @@ Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-gra
 | `demoai.adsgupta.com` | Demo Hub - Protocol Showcase Hub | `REACT_APP_SHOW_DEMO=true` |
 | `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (currently integrated) |
 
+## Audit Engine Repair & Expansion (Phase 15 - COMPLETE) ✅
+
+### Date: February 18, 2026
+
+### Critical Bug Fix: /analysis Blank Page
+**Root Cause:** Navigation from `/audit` to `/analysis` was happening before Zustand state persisted to sessionStorage.
+
+**Solution Applied:**
+- Converted `handleFileProcessed()` to async/await pattern
+- Added Promise wrapper around `setUploadedData()` with 100ms delay for sessionStorage sync
+- Added sessionStorage verification before navigation
+- Implemented LoadingSkeleton with "Processing Neural Insights..." animation
+
+**Files Modified:**
+- `/app/frontend/src/pages/InstantAuditPage.jsx` - Async file processing
+- `/app/frontend/src/store/dataStore.js` - Added reportType field
+
+### Mega-Menu Z-Index Fix
+**Issue:** Hero text was overlapping the dropdown menu.
+
+**Solution:**
+- Updated MegaMenu backdrop z-index from `z-40` to `z-[55]`
+- Updated MegaMenu panel z-index from `z-50` to `z-[60]`
+- Changed backdrop background to `bg-black/60` for solid coverage
+- Set HeroSection z-index to `z-0`
+
+### Multi-Report Type Support
+Added report type selector dropdown on `/audit` page:
+- Search Term Report (default) - Keyword performance & wasted spend
+- Targeting Report - Campaign targeting analysis
+- Advertised Product Report - Product-level ad performance
+- Business Report - Sales & traffic data
+- Other Report - Generic analysis
+
+**dataStore.js Updates:**
+- Added `reportType` field to store
+- Updated `setUploadedData()` to accept reportType parameter
+- Updated persistence partialize to include reportType
+
+### Test Results (Phase 15)
+**Test Report:** `/app/test_reports/iteration_16.json`
+**Pass Rate:** 100% (28/28 tests)
+
+Key verifications:
+- ✅ Blank page bug fix - Loading skeleton displays, redirects to full analysis
+- ✅ Mega-Menu z-index - No overlap with hero text
+- ✅ Report type selector - All 5 types selectable
+- ✅ OmniNav on /analysis - Shows 5 protocols active
+- ✅ PersistentSLMChat - Works in fallback mode
+- ✅ Master Analysis tab - Shows cross-report SLM insights
+
+---
+
 ## AdsGupta Core Architecture Overhaul (Phase 14 - COMPLETE) ✅
 
 ### Overview
