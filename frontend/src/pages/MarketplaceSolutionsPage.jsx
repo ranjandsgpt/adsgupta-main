@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Search, Zap, BarChart3, Package, TrendingUp, ArrowUpRight, CheckCircle, Store, Truck, LayoutDashboard, LineChart, Sparkles, AlertTriangle, FileSpreadsheet } from 'lucide-react';
@@ -7,6 +8,11 @@ import { Footer } from '../components/Footer';
 import { ChatBot } from '../components/ChatBot';
 
 const MarketplaceSolutionsPage = () => {
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const platforms = [
     { name: 'Amazon', color: 'text-orange-400', bg: 'bg-orange-500/10' },
     { name: 'Walmart', color: 'text-blue-400', bg: 'bg-blue-500/10' },
