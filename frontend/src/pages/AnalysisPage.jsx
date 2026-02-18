@@ -538,7 +538,7 @@ const AnalysisPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   const { 
-    uploadedData, fileName, fileType, reportType,
+    uploadedData, fileName, fileType, reportType, rowCount,
     parsedData, setParsedData, 
     agentResults, setAgentResults, 
     clearData 
@@ -547,13 +547,31 @@ const AnalysisPage = () => {
   // Parse data and run agents on mount (with proper async handling)
   useEffect(() => {
     const processData = async () => {
-      if (!uploadedData) {
-        navigate('/audit');
+      // If we already have parsed results, use them
+      if (parsedData && agentResults) {
+        console.log('Using cached results, rows:', parsedData.totalRows || parsedData.rows?.length);
+        setIsLoading(false);
         return;
       }
-
-      if (parsedData && agentResults) {
+      
+      // For large files that were persisted without raw data, show cached summary
+      if (!uploadedData && parsedData?.summary) {
+        console.log('Large file mode: Using persisted summary only');
+        // Run minimal agents with available data
+        try {
+          const results = runAllAgents(parsedData);
+          setAgentResults(results);
+        } catch (e) {
+          console.warn('Could not run agents on cached data:', e);
+        }
         setIsLoading(false);
+        return;
+      }
+      
+      // No data at all, redirect to upload
+      if (!uploadedData) {
+        console.log('No data available, redirecting to audit');
+        navigate('/audit');
         return;
       }
 
