@@ -398,7 +398,7 @@ const NeuralMapPage = () => {
   
   useEffect(() => {
     if (files.length === 0) {
-      navigate('/multi-vault');
+      navigate('/audit');
       return;
     }
     
@@ -572,11 +572,11 @@ const NeuralMapPage = () => {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
             <div>
               <button
-                onClick={() => navigate('/multi-vault')}
+                onClick={() => navigate('/audit')}
                 className="flex items-center gap-2 text-zinc-400 hover:text-white mb-4 transition-colors"
               >
                 <ArrowLeft size={16} />
-                Back to Vault
+                Back to Audit
               </button>
               <h1 className="text-3xl font-bold text-white font-['Manrope'] tracking-tight mb-2">
                 Marketplace Neural Map
