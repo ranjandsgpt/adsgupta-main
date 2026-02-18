@@ -387,52 +387,145 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
   const [masterInsights, setMasterInsights] = useState([]);
 
   useEffect(() => {
-    // Simulate SLM analysis delay
+    // Generate cross-report insights based on actual data
     const timer = setTimeout(() => {
-      // Generate cross-report insights
       const insights = [];
       
       if (parsedData?.summary) {
-        // High ACOS + Low Conversion correlation
-        if (parsedData.summary.avgAcos > 30 && parsedData.summary.avgConversion < 5) {
+        const { totalSales, totalSpend, avgAcos, avgRoas, avgConversion, totalOrders, totalUnits } = parsedData.summary;
+        
+        // 1. ACOS Analysis
+        if (avgAcos !== 'N/A' && avgAcos !== Infinity) {
+          if (avgAcos > 50) {
+            insights.push({
+              type: 'critical',
+              icon: 'alert',
+              title: 'Critical: ACOS at ' + avgAcos.toFixed(1) + '%',
+              description: `Your advertising cost is consuming over half of your revenue. For every €100 in ad-driven sales, you're spending €${avgAcos.toFixed(0)} on ads.`,
+              metric: 'ACOS',
+              value: avgAcos.toFixed(1) + '%',
+              recommendation: 'Immediately pause all keywords with ACOS > 100%. Focus on your top 20 converting keywords.'
+            });
+          } else if (avgAcos > 30) {
+            insights.push({
+              type: 'warning',
+              icon: 'warning',
+              title: 'High ACOS: ' + avgAcos.toFixed(1) + '%',
+              description: `Your ACOS is above the healthy 25% threshold for most categories. Total ad spend: €${totalSpend?.toFixed(2) || 0}.`,
+              metric: 'ACOS',
+              value: avgAcos.toFixed(1) + '%',
+              recommendation: 'Review and reduce bids on keywords with ACOS above your profit margin.'
+            });
+          } else if (avgAcos > 0) {
+            insights.push({
+              type: 'success',
+              icon: 'check',
+              title: 'Healthy ACOS: ' + avgAcos.toFixed(1) + '%',
+              description: `Your advertising efficiency is within healthy limits. You're spending €${totalSpend?.toFixed(2) || 0} to generate €${totalSales?.toFixed(2) || 0} in sales.`,
+              metric: 'ACOS',
+              value: avgAcos.toFixed(1) + '%',
+              recommendation: 'Consider scaling your budget on top-performing campaigns.'
+            });
+          }
+        }
+        
+        // 2. ROAS Analysis
+        if (avgRoas && avgRoas !== 'N/A' && avgRoas !== Infinity && totalSpend > 0) {
+          if (avgRoas < 1) {
+            insights.push({
+              type: 'critical',
+              icon: 'alert',
+              title: 'Losing Money: ROAS ' + avgRoas.toFixed(2) + 'x',
+              description: `For every €1 spent on ads, you're only making €${avgRoas.toFixed(2)} in revenue. You're losing €${(totalSpend - totalSales).toFixed(2)} on advertising.`,
+              metric: 'ROAS',
+              value: avgRoas.toFixed(2) + 'x',
+              recommendation: 'Stop all campaigns immediately and audit your targeting, bids, and listing quality.'
+            });
+          } else if (avgRoas < 3) {
+            insights.push({
+              type: 'warning',
+              icon: 'warning',
+              title: 'Low ROAS: ' + avgRoas.toFixed(2) + 'x',
+              description: `Your return on ad spend is below the recommended 3x minimum for profitability after COGS.`,
+              metric: 'ROAS',
+              value: avgRoas.toFixed(2) + 'x',
+              recommendation: 'Increase focus on exact match keywords and reduce broad match spending.'
+            });
+          }
+        }
+        
+        // 3. Wasted Spend Analysis
+        if (parsedData.wastedSpend && parsedData.wastedSpend.total > 0) {
+          const wastedPct = totalSpend > 0 ? (parsedData.wastedSpend.total / totalSpend * 100) : 0;
           insights.push({
-            type: 'correlation',
-            severity: 'critical',
-            title: 'ACOS-Conversion Mismatch',
-            description: `Your ACOS (${parsedData.summary.avgAcos?.toFixed(1)}%) is high while conversion (${parsedData.summary.avgConversion?.toFixed(2)}%) is low. This indicates you're paying for clicks that don't convert.`,
-            recommendation: 'Focus on improving listing quality (images, bullets, A+ content) before increasing ad spend.'
+            type: wastedPct > 20 ? 'critical' : 'warning',
+            icon: 'alert',
+            title: `€${parsedData.wastedSpend.total.toFixed(2)} Wasted on Zero-Converting Keywords`,
+            description: `${parsedData.wastedSpend.count} keywords received clicks but generated ZERO orders. This represents ${wastedPct.toFixed(1)}% of your total spend.`,
+            metric: 'Wasted Spend',
+            value: '€' + parsedData.wastedSpend.total.toFixed(2),
+            recommendation: 'Add these keywords as negative keywords to your campaigns immediately.',
+            data: parsedData.wastedSpend.terms?.slice(0, 10)
           });
         }
         
-        // High spend with low ROAS
-        if (parsedData.summary.totalSpend > 1000 && parsedData.summary.avgRoas < 2) {
-          insights.push({
-            type: 'warning',
-            severity: 'high',
-            title: 'Ad Spend Efficiency Alert',
-            description: `You've spent $${parsedData.summary.totalSpend?.toLocaleString()} with only ${parsedData.summary.avgRoas?.toFixed(2)}x ROAS. Target should be 3x+ for profitability.`,
-            recommendation: 'Audit your top-spending campaigns and pause keywords with <2x ROAS.'
-          });
+        // 4. Conversion Analysis
+        if (avgConversion && avgConversion !== 'N/A') {
+          if (avgConversion < 5) {
+            insights.push({
+              type: 'warning',
+              icon: 'warning',
+              title: 'Low Conversion Rate: ' + avgConversion.toFixed(2) + '%',
+              description: `Only ${avgConversion.toFixed(2)}% of clicks convert to sales. Industry average is 10-15% for Amazon.`,
+              metric: 'Conversion',
+              value: avgConversion.toFixed(2) + '%',
+              recommendation: 'Improve your listing quality: main image, bullet points, pricing, and reviews.'
+            });
+          } else if (avgConversion > 15) {
+            insights.push({
+              type: 'success',
+              icon: 'check',
+              title: 'Excellent Conversion: ' + avgConversion.toFixed(2) + '%',
+              description: `Your ${avgConversion.toFixed(2)}% conversion rate is above average. Your listing is converting traffic efficiently.`,
+              metric: 'Conversion',
+              value: avgConversion.toFixed(2) + '%',
+              recommendation: 'Focus on driving more traffic - your listing converts well!'
+            });
+          }
         }
         
-        // Success pattern
-        if (parsedData.summary.avgRoas > 4) {
+        // 5. Overall Health Assessment
+        const healthScore = agentResults?.summary?.healthScore || 0;
+        if (healthScore < 50) {
           insights.push({
-            type: 'success',
-            severity: 'low',
-            title: 'Strong ROAS Performance',
-            description: `Your ${parsedData.summary.avgRoas?.toFixed(2)}x ROAS indicates healthy ad performance. Consider scaling winning campaigns.`,
-            recommendation: 'Identify your top 20% of keywords driving 80% of sales and increase bids strategically.'
+            type: 'critical',
+            icon: 'alert',
+            title: 'Account Health Critical: ' + healthScore + '/100',
+            description: `Multiple issues detected across your advertising account. Immediate action required.`,
+            metric: 'Health Score',
+            value: healthScore + '/100',
+            recommendation: 'Review all findings in the Findings tab and address critical issues first.'
           });
         }
       }
       
+      // If no data insights available
+      if (insights.length === 0) {
+        insights.push({
+          type: 'info',
+          icon: 'info',
+          title: 'Analysis Complete',
+          description: 'Your data has been analyzed. No critical issues detected based on the uploaded report.',
+          recommendation: 'Upload additional report types (Targeting, Business Report) for deeper cross-report analysis.'
+        });
+      }
+      
       setMasterInsights(insights);
       setIsGenerating(false);
-    }, 2000);
+    }, 1500);
     
     return () => clearTimeout(timer);
-  }, [parsedData]);
+  }, [parsedData, agentResults]);
 
   return (
     <motion.div
@@ -448,7 +541,7 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
           <h3 className="text-lg font-semibold text-white font-['Space_Grotesk']">Master Analysis</h3>
           <div className="flex items-center gap-2">
             <Cpu size={12} className="text-violet-400" />
-            <p className="text-zinc-400 text-sm">Cross-Report Intelligence by Neural Engine</p>
+            <p className="text-zinc-400 text-sm">AI-Powered Strategic Insights</p>
           </div>
         </div>
       </div>
@@ -456,39 +549,66 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
       {isGenerating ? (
         <div className="flex items-center gap-3 py-8">
           <Loader2 size={20} className="text-violet-400 animate-spin" />
-          <span className="text-zinc-400">Synthesizing cross-report patterns...</span>
+          <span className="text-zinc-400">Analyzing patterns and correlations...</span>
         </div>
-      ) : masterInsights.length > 0 ? (
+      ) : (
         <div className="space-y-4">
           {masterInsights.map((insight, i) => (
             <div key={i} className={`p-4 rounded-xl border ${
-              insight.type === 'correlation' ? 'border-red-500/30 bg-red-500/5' :
+              insight.type === 'critical' ? 'border-red-500/30 bg-red-500/5' :
               insight.type === 'warning' ? 'border-amber-500/30 bg-amber-500/5' :
-              'border-emerald-500/30 bg-emerald-500/5'
+              insight.type === 'success' ? 'border-emerald-500/30 bg-emerald-500/5' :
+              'border-blue-500/30 bg-blue-500/5'
             }`}>
               <div className="flex items-start gap-3">
                 <div className={`mt-1 ${
-                  insight.type === 'correlation' ? 'text-red-400' :
+                  insight.type === 'critical' ? 'text-red-400' :
                   insight.type === 'warning' ? 'text-amber-400' :
-                  'text-emerald-400'
+                  insight.type === 'success' ? 'text-emerald-400' :
+                  'text-blue-400'
                 }`}>
-                  {insight.type === 'success' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+                  {insight.type === 'success' ? <CheckCircle2 size={16} /> : 
+                   insight.type === 'info' ? <Info size={16} /> : 
+                   <AlertTriangle size={16} />}
                 </div>
-                <div>
-                  <h4 className="text-white font-medium mb-1">{insight.title}</h4>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="text-white font-medium">{insight.title}</h4>
+                    {insight.value && (
+                      <span className={`text-lg font-bold font-['JetBrains_Mono'] ${
+                        insight.type === 'critical' ? 'text-red-400' :
+                        insight.type === 'warning' ? 'text-amber-400' :
+                        insight.type === 'success' ? 'text-emerald-400' :
+                        'text-blue-400'
+                      }`}>
+                        {insight.value}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-zinc-400 text-sm mb-2">{insight.description}</p>
                   <p className="text-violet-400 text-sm flex items-center gap-2">
                     <Zap size={12} /> {insight.recommendation}
                   </p>
+                  
+                  {/* Show wasted keyword data if available */}
+                  {insight.data && insight.data.length > 0 && (
+                    <div className="mt-3 bg-black/20 rounded-lg p-3 max-h-48 overflow-y-auto">
+                      <p className="text-zinc-500 text-xs mb-2">Top Wasted Keywords:</p>
+                      <div className="space-y-1">
+                        {insight.data.map((kw, idx) => (
+                          <div key={idx} className="flex justify-between text-xs">
+                            <span className="text-zinc-300 truncate max-w-[200px]">{kw.searchTerm || kw.term || 'Unknown'}</span>
+                            <span className="text-red-400 font-mono">€{(kw.spend || 0).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           ))}
         </div>
-      ) : (
-        <p className="text-zinc-500 text-center py-8">
-          Upload multiple report types for cross-report analysis
-        </p>
       )}
     </motion.div>
   );
