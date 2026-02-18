@@ -374,40 +374,56 @@ const InstantAuditPage = () => {
   const isMarketplaceActive = currentMarketplace.status === 'active';
 
   const handleFileProcessed = useCallback(async (data, fileType, fileName, reportType = 'search_term') => {
-    setIsProcessing(true);
-    setProcessingStage('Parsing file structure...');
-    
-    // First, store data in Zustand and wait for it to persist
-    await new Promise((resolve) => {
-      setUploadedData(data, fileName, fileType, reportType);
-      // Give Zustand time to persist to sessionStorage
-      setTimeout(resolve, 100);
-    });
-    
-    // Visual progress stages with async delays
-    setProcessingStage('Detecting data columns...');
-    await new Promise(r => setTimeout(r, 400));
-    
-    setProcessingStage('Running 20 AI agents...');
-    await new Promise(r => setTimeout(r, 500));
-    
-    setProcessingStage('Generating insights...');
-    await new Promise(r => setTimeout(r, 400));
-    
-    // Verify data is persisted before redirect
-    const storedData = sessionStorage.getItem('adsgupta-data-store');
-    if (storedData) {
-      const parsed = JSON.parse(storedData);
-      if (parsed.state?.uploadedData) {
-        navigate('/analysis');
+    try {
+      // Validate input data
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('Invalid file data:', data);
+        alert('No valid data found in the uploaded file.');
+        return;
+      }
+      
+      console.log('Processing file:', fileName, 'with', data.length, 'rows');
+      
+      setIsProcessing(true);
+      setProcessingStage('Parsing file structure...');
+      
+      // Store data in Zustand and wait for it to persist
+      await new Promise((resolve) => {
+        setUploadedData(data, fileName, fileType, reportType);
+        setTimeout(resolve, 150);
+      });
+      
+      setProcessingStage('Detecting data columns...');
+      await new Promise(r => setTimeout(r, 300));
+      
+      setProcessingStage('Running 20 AI agents...');
+      await new Promise(r => setTimeout(r, 400));
+      
+      setProcessingStage('Generating insights...');
+      await new Promise(r => setTimeout(r, 300));
+      
+      // Verify data is persisted before redirect
+      const storedData = sessionStorage.getItem('adsgupta-data-store');
+      if (storedData) {
+        const parsed = JSON.parse(storedData);
+        if (parsed.state?.uploadedData && parsed.state.uploadedData.length > 0) {
+          console.log('Data persisted, redirecting to analysis...');
+          navigate('/analysis');
+        } else {
+          console.warn('Data not found in sessionStorage, retrying...');
+          await new Promise(r => setTimeout(r, 300));
+          navigate('/analysis');
+        }
       } else {
-        // Retry once if data not found
-        await new Promise(r => setTimeout(r, 300));
+        console.warn('SessionStorage empty, redirecting anyway...');
         navigate('/analysis');
       }
-    } else {
-      // Fallback redirect
-      navigate('/analysis');
+    } catch (error) {
+      console.error('File processing error:', error);
+      setProcessingStage('Processing failed');
+      alert('Failed to process file. Please try again.');
+      setIsProcessing(false);
+    }
     }
     setIsProcessing(false);
   }, [setUploadedData, navigate]);
