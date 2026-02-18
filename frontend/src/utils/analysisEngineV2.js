@@ -461,38 +461,50 @@ const COLUMN_MAPPINGS = {
 // Field name normalization for different CSV formats
 const normalizeFieldName = (field) => {
   if (!field) return '';
-  return field.toLowerCase()
+  // First normalize en-dash and em-dash to hyphen
+  let normalized = field
+    .replace(/[\u2013\u2014]/g, '-')  // en-dash and em-dash
+    .toLowerCase()
     .replace(/[^a-z0-9]/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_|_$/g, '');
+  return normalized;
 };
 
 // Get field value with multiple possible column names
+// Uses fuzzy matching to handle various CSV formats
 const getField = (row, possibleNames) => {
   if (!row || !possibleNames) return null;
   
+  const rowKeys = Object.keys(row);
+  
   for (const name of possibleNames) {
-    // Try exact match first
-    if (row[name] !== undefined && row[name] !== null) {
+    // 1. Try exact match first
+    if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
       return row[name];
     }
     
-    // Try with trimmed key names (Amazon sometimes has trailing spaces)
-    for (const key of Object.keys(row)) {
+    // 2. Try trimmed key names (Amazon sometimes has trailing spaces)
+    for (const key of rowKeys) {
       const trimmedKey = key.trim();
-      if (trimmedKey === name || trimmedKey === name.trim()) {
+      if (trimmedKey === name.trim()) {
         return row[key];
       }
     }
     
-    // Try normalized match
-    const normalized = normalizeFieldName(name);
-    for (const key of Object.keys(row)) {
-      if (normalizeFieldName(key) === normalized) {
+    // 3. Try normalized match (handles en-dash, special chars)
+    const normalizedName = normalizeFieldName(name);
+    for (const key of rowKeys) {
+      if (normalizeFieldName(key) === normalizedName) {
         return row[key];
       }
-      // Partial match for flexibility
-      if (key.toLowerCase().includes(name.toLowerCase())) {
+    }
+    
+    // 4. Try partial match (contains)
+    const lowerName = name.toLowerCase().replace(/[\u2013\u2014-]/g, '');
+    for (const key of rowKeys) {
+      const lowerKey = key.toLowerCase().replace(/[\u2013\u2014-]/g, '');
+      if (lowerKey.includes(lowerName) || lowerName.includes(lowerKey)) {
         return row[key];
       }
     }
