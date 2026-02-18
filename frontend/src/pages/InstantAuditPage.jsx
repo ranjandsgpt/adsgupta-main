@@ -27,8 +27,8 @@ const REPORT_TYPES = [
   { id: 'other', label: 'Other Report', description: 'Generic analysis' },
 ];
 
-// Instant Audit Dropzone Component - Supports Single or Multiple Files with Report Type Selection
-const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
+// Instant Audit Dropzone Component - Supports file upload with Report Type Selection
+const AuditDropzone = ({ onFileProcessed }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState('');
