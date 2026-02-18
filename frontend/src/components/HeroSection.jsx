@@ -38,7 +38,7 @@ export const HeroSection = () => {
     <section
       id="hero"
       data-testid="hero-section"
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-screen flex items-center overflow-hidden z-0"
     >
       {/* Grid background */}
       <div className="grid-background" />
