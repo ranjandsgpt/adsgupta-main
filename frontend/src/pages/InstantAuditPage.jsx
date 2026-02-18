@@ -341,9 +341,8 @@ const InstantAuditPage = () => {
   const [activeMarketplace, setActiveMarketplace] = useState('amazon');
   const [notifyModalOpen, setNotifyModalOpen] = useState(false);
   
-  // Zustand stores
+  // Zustand store
   const { setUploadedData, clearData } = useDataStore();
-  const { addFile, clearAllFiles, detectReportType } = useMultiFileStore();
 
   // Get current marketplace config
   const currentMarketplace = MARKETPLACES.find(m => m.id === activeMarketplace) || MARKETPLACES[0];
