@@ -559,35 +559,66 @@ const AnalysisPage = () => {
 
       try {
         setLoadingStage('Parsing file structure...');
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 200));
+        
+        // Validate uploadedData
+        if (!Array.isArray(uploadedData)) {
+          console.error('Invalid uploadedData type:', typeof uploadedData);
+          throw new Error('Invalid data format');
+        }
+        
+        if (uploadedData.length === 0) {
+          console.error('Empty data array');
+          throw new Error('No data rows found in file');
+        }
+        
+        console.log('Parsing', uploadedData.length, 'rows. Sample columns:', Object.keys(uploadedData[0] || {}).slice(0, 5));
         
         setLoadingStage('Detecting data columns...');
         const parsed = parseUploadedData(uploadedData);
+        
+        if (!parsed || !parsed.rows) {
+          console.error('Parse result invalid:', parsed);
+          throw new Error('Failed to parse data');
+        }
+        
+        console.log('Parsed:', parsed.rows.length, 'rows,', parsed.availableMetrics?.length, 'metrics');
+        
         setParsedData(parsed);
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 200));
         
         setLoadingStage('Running 20 AI optimization agents...');
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 300));
         
         setLoadingStage('Generating insights...');
         const results = runAllAgents(parsed);
+        
+        if (!results) {
+          throw new Error('Agent analysis returned no results');
+        }
+        
+        console.log('Analysis complete. Health:', results.summary?.healthScore);
+        
         setAgentResults(results);
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 200));
         
         setIsLoading(false);
       } catch (error) {
-        console.error('Analysis failed:', error);
+        console.error('Analysis failed:', error.message);
         setLoadingStage('Analysis failed. Retrying...');
-        // Retry once
+        
         setTimeout(() => {
           try {
-            const parsed = parseUploadedData(uploadedData);
+            console.log('Retrying analysis...');
+            const parsed = parseUploadedData(uploadedData || []);
             setParsedData(parsed);
             const results = runAllAgents(parsed);
             setAgentResults(results);
             setIsLoading(false);
-          } catch (e) {
-            navigate('/audit');
+          } catch (retryError) {
+            console.error('Retry failed:', retryError.message);
+            setLoadingStage('Unable to analyze file. Check file format.');
+            setTimeout(() => navigate('/audit'), 2000);
           }
         }, 1000);
       }
