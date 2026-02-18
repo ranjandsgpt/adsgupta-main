@@ -106,7 +106,7 @@ const AuditDropzone = ({ onFileProcessed }) => {
               console.log('Valid rows after filtering:', validData.length);
               
               setTimeout(() => {
-                onFileProcessed(validData, 'csv', file.name, selectedReportType);
+                onFileProcessed(validData, 'csv', file.name, 'auto');
                 setIsProcessing(false);
               }, 500);
             } else if (encoding === 'UTF-8') {
