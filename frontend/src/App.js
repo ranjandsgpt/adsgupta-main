@@ -27,7 +27,6 @@ import ToolsPage from "./pages/ToolsPage";
 import DashboardPage from "./pages/DashboardPage";
 import InstantAuditPage from "./pages/InstantAuditPage";
 import AnalysisPage from "./pages/AnalysisPage";
-import MultiVaultPage from "./pages/MultiVaultPage";
 import NeuralMapPage from "./pages/NeuralMapPage";
 
 // Demo Universe Module (Isolated)
@@ -135,7 +134,6 @@ function App() {
               {/* Allow access to tools for comparison */}
               <Route path="/audit" element={<InstantAuditPage />} />
               <Route path="/analysis" element={<AnalysisPage />} />
-              <Route path="/multi-vault" element={<MultiVaultPage />} />
               <Route path="/neural-map" element={<NeuralMapPage />} />
             </>
           ) : (
@@ -144,10 +142,9 @@ function App() {
               {/* Main Homepage - Marketing Landing */}
               <Route path="/" element={<HomePage />} />
               
-              {/* Tools Routes - Multi-File Instant Audit is default */}
+              {/* Tools Routes */}
               <Route path="/audit" element={<InstantAuditPage />} />
               <Route path="/analysis" element={<AnalysisPage />} />
-              <Route path="/multi-vault" element={<MultiVaultPage />} />
               <Route path="/neural-map" element={<NeuralMapPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               
