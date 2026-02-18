@@ -392,10 +392,10 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
       const insights = [];
       
       if (parsedData?.summary) {
-        const { totalSales, totalSpend, avgAcos, avgRoas, avgConversion, totalOrders, totalUnits } = parsedData.summary;
+        const { totalSales, totalSpend, avgAcos, avgRoas, avgConversion, totalOrders, totalUnits, totalClicks, totalImpressions, avgCtr, avgCpc } = parsedData.summary;
         
         // 1. ACOS Analysis
-        if (avgAcos !== 'N/A' && avgAcos !== Infinity) {
+        if (avgAcos !== 'N/A' && avgAcos !== Infinity && typeof avgAcos === 'number') {
           if (avgAcos > 50) {
             insights.push({
               type: 'critical',
@@ -451,6 +451,16 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
               value: avgRoas.toFixed(2) + 'x',
               recommendation: 'Increase focus on exact match keywords and reduce broad match spending.'
             });
+          } else {
+            insights.push({
+              type: 'success',
+              icon: 'check',
+              title: 'Strong ROAS: ' + avgRoas.toFixed(2) + 'x',
+              description: `For every €1 spent, you're generating €${avgRoas.toFixed(2)} in revenue. This indicates profitable advertising.`,
+              metric: 'ROAS',
+              value: avgRoas.toFixed(2) + 'x',
+              recommendation: 'Consider increasing budget on your best-performing campaigns to maximize returns.'
+            });
           }
         }
         
@@ -470,7 +480,7 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
         }
         
         // 4. Conversion Analysis
-        if (avgConversion && avgConversion !== 'N/A') {
+        if (avgConversion && avgConversion !== 'N/A' && typeof avgConversion === 'number') {
           if (avgConversion < 5) {
             insights.push({
               type: 'warning',
@@ -494,7 +504,48 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
           }
         }
         
-        // 5. Overall Health Assessment
+        // 5. CTR Analysis
+        if (avgCtr && avgCtr !== 'N/A' && typeof avgCtr === 'number' && totalImpressions > 0) {
+          if (avgCtr < 0.3) {
+            insights.push({
+              type: 'warning',
+              icon: 'warning',
+              title: 'Low Click-Through Rate: ' + avgCtr.toFixed(2) + '%',
+              description: `Your CTR of ${avgCtr.toFixed(2)}% indicates your ads aren't compelling to shoppers. You had ${totalImpressions.toLocaleString()} impressions but only ${totalClicks.toLocaleString()} clicks.`,
+              metric: 'CTR',
+              value: avgCtr.toFixed(2) + '%',
+              recommendation: 'Improve main image quality, optimize your title, and ensure competitive pricing.'
+            });
+          } else if (avgCtr > 0.5) {
+            insights.push({
+              type: 'success',
+              icon: 'check',
+              title: 'Strong CTR: ' + avgCtr.toFixed(2) + '%',
+              description: `Your ads are generating strong interest with ${avgCtr.toFixed(2)}% CTR.`,
+              metric: 'CTR',
+              value: avgCtr.toFixed(2) + '%',
+              recommendation: 'Your creative and targeting are working well. Focus on conversion optimization now.'
+            });
+          }
+        }
+        
+        // 6. CPC Analysis
+        if (avgCpc && avgCpc !== 'N/A' && typeof avgCpc === 'number' && avgCpc > 0) {
+          const cpcAnalysis = avgCpc > 1.5 ? 'high' : avgCpc > 0.8 ? 'moderate' : 'low';
+          insights.push({
+            type: cpcAnalysis === 'high' ? 'warning' : 'info',
+            icon: cpcAnalysis === 'high' ? 'warning' : 'info',
+            title: `Average CPC: €${avgCpc.toFixed(2)}`,
+            description: `You're paying €${avgCpc.toFixed(2)} per click on average. ${cpcAnalysis === 'high' ? 'This is relatively high - consider optimizing bids.' : 'This is within typical ranges.'}`,
+            metric: 'CPC',
+            value: '€' + avgCpc.toFixed(2),
+            recommendation: cpcAnalysis === 'high' 
+              ? 'Lower bids on poor-performing keywords and use bid adjustments by placement.'
+              : 'Monitor CPC trends and adjust bids based on conversion data.'
+          });
+        }
+        
+        // 7. Overall Health Assessment
         const healthScore = agentResults?.summary?.healthScore || 0;
         if (healthScore < 50) {
           insights.push({
@@ -506,6 +557,32 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
             value: healthScore + '/100',
             recommendation: 'Review all findings in the Findings tab and address critical issues first.'
           });
+        } else if (healthScore >= 80) {
+          insights.push({
+            type: 'success',
+            icon: 'check',
+            title: 'Account Health Strong: ' + healthScore + '/100',
+            description: `Your advertising account is performing well with minimal issues detected.`,
+            metric: 'Health Score',
+            value: healthScore + '/100',
+            recommendation: 'Keep monitoring and optimizing. Consider scaling your best campaigns.'
+          });
+        }
+        
+        // 8. Volume Analysis
+        if (totalOrders > 0 && totalUnits > 0) {
+          const unitsPerOrder = totalUnits / totalOrders;
+          if (unitsPerOrder > 1.5) {
+            insights.push({
+              type: 'opportunity',
+              icon: 'info',
+              title: `Multi-Unit Orders: ${unitsPerOrder.toFixed(1)} units/order`,
+              description: `Customers are buying ${unitsPerOrder.toFixed(1)} units per order on average, indicating strong bundle potential.`,
+              metric: 'Units/Order',
+              value: unitsPerOrder.toFixed(1),
+              recommendation: 'Consider creating bundle listings or virtual bundles to capitalize on buying behavior.'
+            });
+          }
         }
       }
       
@@ -558,6 +635,7 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
               insight.type === 'critical' ? 'border-red-500/30 bg-red-500/5' :
               insight.type === 'warning' ? 'border-amber-500/30 bg-amber-500/5' :
               insight.type === 'success' ? 'border-emerald-500/30 bg-emerald-500/5' :
+              insight.type === 'opportunity' ? 'border-cyan-500/30 bg-cyan-500/5' :
               'border-blue-500/30 bg-blue-500/5'
             }`}>
               <div className="flex items-start gap-3">
@@ -565,10 +643,11 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
                   insight.type === 'critical' ? 'text-red-400' :
                   insight.type === 'warning' ? 'text-amber-400' :
                   insight.type === 'success' ? 'text-emerald-400' :
+                  insight.type === 'opportunity' ? 'text-cyan-400' :
                   'text-blue-400'
                 }`}>
                   {insight.type === 'success' ? <CheckCircle2 size={16} /> : 
-                   insight.type === 'info' ? <Info size={16} /> : 
+                   insight.type === 'info' || insight.type === 'opportunity' ? <Info size={16} /> : 
                    <AlertTriangle size={16} />}
                 </div>
                 <div className="flex-1">
@@ -579,6 +658,7 @@ const MasterSummarySection = ({ parsedData, agentResults }) => {
                         insight.type === 'critical' ? 'text-red-400' :
                         insight.type === 'warning' ? 'text-amber-400' :
                         insight.type === 'success' ? 'text-emerald-400' :
+                        insight.type === 'opportunity' ? 'text-cyan-400' :
                         'text-blue-400'
                       }`}>
                         {insight.value}
