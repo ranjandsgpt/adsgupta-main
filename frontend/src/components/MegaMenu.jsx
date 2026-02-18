@@ -49,12 +49,12 @@ const MegaMenu = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - High z-index to cover hero content */}
+          {/* Backdrop - Covers everything below navbar */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm"
+            className="fixed top-[64px] left-0 right-0 bottom-0 z-[55] bg-black/60"
             onClick={onClose}
           />
           
@@ -69,7 +69,7 @@ const MegaMenu = ({ isOpen, onClose }) => {
             data-testid="mega-menu"
           >
             <div className="max-w-[1200px] mx-auto px-6 md:px-12">
-              <div className="bg-[#0A0A0A]/98 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
+              <div className="bg-[#0A0A0A] backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
                 <div className="p-6 md:p-8">
                   {/* Header */}
                   <div className="flex items-center justify-between mb-6">
