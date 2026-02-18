@@ -48,13 +48,40 @@ const AuditDropzone = ({ onFileProcessed }) => {
         Papa.parse(file, {
           header: true,
           encoding: encoding,
-          skipEmptyLines: true,
-          transformHeader: (header) => header.trim(), // Remove trailing spaces from headers
+          skipEmptyLines: 'greedy', // Skip all empty lines including whitespace-only
+          transformHeader: (header) => {
+            // Remove BOM character, trim whitespace, and normalize
+            return header
+              .replace(/^\uFEFF/, '')  // Remove UTF-8 BOM
+              .replace(/^\xEF\xBB\xBF/, '') // Remove BOM bytes
+              .trim();
+          },
+          transform: (value) => {
+            // Clean cell values - trim whitespace
+            return typeof value === 'string' ? value.trim() : value;
+          },
           complete: (results) => {
             // Check if parsing was successful
             if (results.data && results.data.length > 0) {
-              const firstRow = results.data[0];
-              const keys = Object.keys(firstRow);
+              let firstRow = results.data[0];
+              let keys = Object.keys(firstRow);
+              
+              // Clean up keys that might still have BOM
+              if (keys.length > 0 && keys[0].charCodeAt(0) === 65279) {
+                // BOM detected in first key, clean all keys
+                const cleanedData = results.data.map(row => {
+                  const cleanedRow = {};
+                  for (const [key, value] of Object.entries(row)) {
+                    const cleanKey = key.replace(/^\uFEFF/, '').trim();
+                    cleanedRow[cleanKey] = value;
+                  }
+                  return cleanedRow;
+                });
+                results.data = cleanedData;
+                firstRow = cleanedData[0];
+                keys = Object.keys(firstRow);
+                console.log('BOM detected and cleaned from headers');
+              }
               
               // If keys look garbled (wrong encoding), try another encoding
               if (encoding === 'UTF-8' && keys.some(k => k.includes('�') || k.includes('ÿþ'))) {
@@ -70,6 +97,15 @@ const AuditDropzone = ({ onFileProcessed }) => {
                 const values = Object.values(row);
                 return values.some(v => v !== null && v !== undefined && v !== '');
               });
+              
+              if (validData.length === 0) {
+                console.error('No valid data rows after filtering');
+                setIsProcessing(false);
+                alert('No valid data found in file. Please check the file content.');
+                return;
+              }
+              
+              console.log('Valid rows after filtering:', validData.length);
               
               setTimeout(() => {
                 onFileProcessed(validData, 'csv', file.name, selectedReportType);
@@ -97,6 +133,7 @@ const AuditDropzone = ({ onFileProcessed }) => {
             } else {
               setIsProcessing(false);
               alert('Failed to parse CSV file. Please check the file format.');
+            }
             }
           }
         });
