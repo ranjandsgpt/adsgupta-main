@@ -15,6 +15,7 @@ const useDataStore = create(
       uploadedData: null,
       fileName: null,
       fileType: null,
+      reportType: null, // New: track specific report type
       uploadedAt: null,
       
       // Parsed and analyzed data
@@ -30,10 +31,11 @@ const useDataStore = create(
       isPro: false,
       
       // Actions
-      setUploadedData: (data, fileName, fileType) => set({
+      setUploadedData: (data, fileName, fileType, reportType = 'search_term') => set({
         uploadedData: data,
         fileName,
         fileType,
+        reportType,
         uploadedAt: new Date().toISOString(),
         analysisComplete: false,
         agentResults: null
@@ -66,6 +68,7 @@ const useDataStore = create(
         uploadedData: null,
         fileName: null,
         fileType: null,
+        reportType: null,
         uploadedAt: null,
         parsedData: null,
         agentResults: null,
@@ -102,6 +105,7 @@ const useDataStore = create(
         uploadedData: state.uploadedData,
         fileName: state.fileName,
         fileType: state.fileType,
+        reportType: state.reportType,
         uploadedAt: state.uploadedAt,
         parsedData: state.parsedData,
         agentResults: state.agentResults,
