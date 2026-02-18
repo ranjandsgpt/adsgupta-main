@@ -2,30 +2,236 @@
  * AI Analysis Engine v2 - Deterministic, Zero-Hallucination
  * All calculations are based strictly on uploaded data
  * Returns 'N/A' or 'Requires API' for missing metrics
+ * 
+ * Supports Amazon Sponsored Products Search Term Reports with:
+ * - Currency symbols (€, $, £)
+ * - Percentage values with %
+ * - Comma-separated thousands
+ * - Various date/number formats
  */
 
 // ============================================
-// UTILITY FUNCTIONS
+// DATA CLEANING PROTOCOL
 // ============================================
 
-export const safeNumber = (val) => {
-  if (val === null || val === undefined || val === '') return 0;
-  const num = typeof val === 'string' 
-    ? parseFloat(val.replace(/[$,%]/g, '').replace(/,/g, ''))
-    : parseFloat(val);
+/**
+ * Clean and parse numeric values from Amazon reports
+ * Handles: €123.45, $1,234.56, 12.5%, "1,234", "-", empty strings
+ */
+export const cleanValue = (val) => {
+  if (val === null || val === undefined) return 0;
+  if (typeof val === 'number') return isNaN(val) ? 0 : val;
+  
+  // Convert to string
+  const str = String(val).trim();
+  
+  // Handle empty or dash values
+  if (str === '' || str === '-' || str === '--' || str === 'N/A' || str === 'n/a') {
+    return 0;
+  }
+  
+  // Remove currency symbols (€, $, £, ¥) and percentage signs
+  // Remove thousand separators (commas and spaces)
+  // Handle European decimal format (replace , with . if it's the decimal separator)
+  let cleaned = str
+    .replace(/[€$£¥₹]/g, '')  // Currency symbols
+    .replace(/%/g, '')         // Percentage symbol
+    .replace(/\s/g, '')        // Spaces
+    .trim();
+  
+  // Handle European number format: 1.234,56 → 1234.56
+  // If there's a comma after a dot, it's European format
+  if (cleaned.includes('.') && cleaned.includes(',')) {
+    const lastDot = cleaned.lastIndexOf('.');
+    const lastComma = cleaned.lastIndexOf(',');
+    if (lastComma > lastDot) {
+      // European format: 1.234,56
+      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    } else {
+      // US format: 1,234.56
+      cleaned = cleaned.replace(/,/g, '');
+    }
+  } else if (cleaned.includes(',')) {
+    // Check if comma is decimal separator (no dot present)
+    const parts = cleaned.split(',');
+    if (parts.length === 2 && parts[1].length <= 2) {
+      // Likely European decimal: 123,45
+      cleaned = cleaned.replace(',', '.');
+    } else {
+      // Thousand separator: 1,234,567
+      cleaned = cleaned.replace(/,/g, '');
+    }
+  }
+  
+  const num = parseFloat(cleaned);
   return isNaN(num) ? 0 : num;
 };
 
-export const safeInt = (val) => Math.round(safeNumber(val));
+// Legacy alias for backward compatibility
+export const safeNumber = cleanValue;
+export const safeInt = (val) => Math.round(cleanValue(val));
 
-export const formatCurrency = (val) => {
+export const formatCurrency = (val, currency = '$') => {
   if (val === 'N/A' || val === null || val === undefined) return 'N/A';
-  return `$${safeNumber(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `${currency}${cleanValue(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 export const formatPercent = (val) => {
   if (val === 'N/A' || val === null || val === undefined) return 'N/A';
-  return `${safeNumber(val).toFixed(2)}%`;
+  return `${cleanValue(val).toFixed(2)}%`;
+};
+
+// ============================================
+// COLUMN MAPPING FOR AMAZON REPORTS
+// ============================================
+
+// Mandatory column mappings for different report types
+const COLUMN_MAPPINGS = {
+  // Search Term Report columns
+  searchTerm: [
+    'Customer Search Term', 
+    'customer_search_term',
+    'Search Term',
+    'search_term',
+    'Query',
+    'Keyword'
+  ],
+  
+  // Targeting Report columns  
+  targeting: [
+    'Targeting',
+    'targeting',
+    'Keyword',
+    'keyword',
+    'Target'
+  ],
+  
+  // Advertised Product Report columns
+  advertisedSku: [
+    'Advertised SKU',
+    'advertised_sku',
+    'SKU',
+    'sku',
+    'Advertised ASIN',
+    'advertised_asin'
+  ],
+  
+  // Common engagement columns
+  impressions: [
+    'Impressions',
+    'impressions'
+  ],
+  
+  clicks: [
+    'Clicks',
+    'clicks'
+  ],
+  
+  // Financial columns (with currency symbols)
+  spend: [
+    'Spend',
+    'spend',
+    'Cost',
+    'cost',
+    'Total Spend'
+  ],
+  
+  sales: [
+    '7 Day Total Sales',
+    '7 Day Total Sales ',  // Sometimes has trailing space
+    '7_day_total_sales',
+    '14 Day Total Sales',
+    'Sales',
+    'sales',
+    'Total Sales',
+    'Ordered Product Sales'
+  ],
+  
+  // Conversion columns
+  orders: [
+    '7 Day Total Orders (#)',
+    '7 Day Total Orders',
+    '7_day_total_orders',
+    '14 Day Total Orders (#)',
+    '14 Day Total Orders',
+    'Orders',
+    'orders',
+    'Total Orders'
+  ],
+  
+  units: [
+    '7 Day Total Units (#)',
+    '7 Day Total Units',
+    '7_day_total_units',
+    '14 Day Total Units (#)',
+    'Units',
+    'units',
+    'Units Ordered'
+  ],
+  
+  // Performance metrics (with % symbol)
+  ctr: [
+    'Click-Thru Rate (CTR)',
+    'CTR',
+    'ctr',
+    'Click Through Rate'
+  ],
+  
+  conversionRate: [
+    '7 Day Conversion Rate',
+    'Conversion Rate',
+    'conversion_rate',
+    'Conv. Rate'
+  ],
+  
+  acos: [
+    'Total Advertising Cost of Sales (ACOS)',
+    'ACOS',
+    'acos',
+    'ACoS'
+  ],
+  
+  cpc: [
+    'Cost Per Click (CPC)',
+    'CPC',
+    'cpc',
+    'Avg. CPC'
+  ],
+  
+  // Campaign identifiers
+  campaignName: [
+    'Campaign Name',
+    'campaign_name',
+    'Campaign'
+  ],
+  
+  adGroupName: [
+    'Ad Group Name',
+    'ad_group_name',
+    'Ad Group'
+  ],
+  
+  matchType: [
+    'Match Type',
+    'match_type',
+    'Targeting Type'
+  ],
+  
+  // Additional identifiers
+  asin: [
+    'ASIN',
+    'asin',
+    'Parent ASIN',
+    'Child ASIN',
+    'Advertised ASIN'
+  ],
+  
+  sku: [
+    'SKU',
+    'sku',
+    'Seller SKU',
+    'Advertised SKU'
+  ]
 };
 
 // Field name normalization for different CSV formats
@@ -39,9 +245,21 @@ const normalizeFieldName = (field) => {
 
 // Get field value with multiple possible column names
 const getField = (row, possibleNames) => {
+  if (!row || !possibleNames) return null;
+  
   for (const name of possibleNames) {
     // Try exact match first
-    if (row[name] !== undefined) return row[name];
+    if (row[name] !== undefined && row[name] !== null) {
+      return row[name];
+    }
+    
+    // Try with trimmed key names (Amazon sometimes has trailing spaces)
+    for (const key of Object.keys(row)) {
+      const trimmedKey = key.trim();
+      if (trimmedKey === name || trimmedKey === name.trim()) {
+        return row[key];
+      }
+    }
     
     // Try normalized match
     const normalized = normalizeFieldName(name);
@@ -49,7 +267,7 @@ const getField = (row, possibleNames) => {
       if (normalizeFieldName(key) === normalized) {
         return row[key];
       }
-      // Partial match
+      // Partial match for flexibility
       if (key.toLowerCase().includes(name.toLowerCase())) {
         return row[key];
       }
