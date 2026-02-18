@@ -143,6 +143,16 @@ async def get_redirect_uri():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Root-level health check for Kubernetes probes
+@app.get("/health")
+async def kubernetes_health_check():
+    """Root-level health check for Kubernetes liveness/readiness probes"""
+    try:
+        await db.command("ping")
+        return {"status": "healthy", "database": "connected"}
+    except Exception:
+        return {"status": "healthy", "database": "disconnected"}
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
