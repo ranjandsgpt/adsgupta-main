@@ -9,9 +9,92 @@ Build the ultimate conversion tool for tools.adsgupta.com - a $50M/year SaaS-gra
 
 | Domain | Purpose | Mode |
 |--------|---------|------|
+| `adsgupta.com` | Production - Main Landing/Marketing | Primary domain |
 | `tools.adsgupta.com` | Production - Multi-Marketplace Audit | `REACT_APP_SHOW_DEMO=false` |
 | `demoai.adsgupta.com` | Demo Hub - Protocol Showcase Hub | `REACT_APP_SHOW_DEMO=true` |
 | `talentos.adsgupta.com` | TalentOS - Career & Interview AI | Standalone (currently integrated) |
+
+## AdsGupta Core Architecture Overhaul (Phase 14 - COMPLETE) ✅
+
+### Overview
+Major architecture update with unified naming, dynamic navigation, and persistent SLM chatbot integration.
+
+### Brand Naming Protocol (February 2026)
+- **The Neural Engine**: The foundational AI layer powering all protocols (formerly "The Core/Ecosystem")
+- **The Protocols**: The product suite (Amazon Audit, TalentOS, Monetization, etc.) (formerly "Solutions/Hub")
+- Navigation updated to reflect new naming throughout
+
+### New Components Created
+
+#### 1. protocolsConfig.js - Single Source of Truth
+```javascript
+// /app/frontend/src/config/protocolsConfig.js
+export const protocolsConfig = [
+  { id: 'amazon-audit', name: 'Amazon Audit', status: 'live', href: 'https://demoai.adsgupta.com/amazon-audit' },
+  { id: 'walmart-audit', name: 'Walmart Audit', status: 'coming-soon' },
+  { id: 'insights-engine', name: 'Insights Engine', status: 'live' },
+  { id: 'demoai', name: 'DemoAI Sandbox', status: 'live' },
+  { id: 'talentos', name: 'TalentOS', status: 'live' },
+  { id: 'monetization', name: 'Monetization AI', status: 'live' },
+];
+```
+
+#### 2. MegaMenu.jsx - Dynamic Protocols Menu
+- Hover-triggered dropdown from "The Protocols" nav item
+- Auto-populates from protocolsConfig.js
+- Shows LIVE/COMING SOON badges
+- External link indicators
+
+#### 3. OmniNav.jsx - Sticky Sub-Navigation
+- Appears on tool pages (/audit, /tools, etc.)
+- Dynamically pulls from protocolsConfig.js
+- Always visible for protocol switching
+
+#### 4. PersistentSLMChat.jsx - Browser SLM Chatbot
+- Persists across ALL pages
+- Uses Chrome's Prompt API (Gemini Nano) when available
+- Privacy-first: processes on-device, no external data sent
+- Fallback mode with contextual preset responses
+- Positioned at bottom: 80px to avoid sticky ad overlap
+
+### UI/UX Fixes
+
+#### Hero Section Responsive Fix
+- Replaced `position: absolute` with Flexbox wrapper
+- Text container: 55% width, Animation: 40% width
+- Uses `clamp()` for responsive font sizing
+- Tested at 1440p, 1080p, 720p - zero overlap
+
+#### /aboutme Page Redesign
+- Minimalist two-card layout
+- Pousali Dasgupta: "Strategic Ad-Tech Leader & Growth Architect"
+- Ranjan Dasgupta: "Technical Visionary & Neural Systems Specialist"
+- Portfolio + LinkedIn CTAs with avatar placeholders
+
+#### /privacy Page Created
+- "Your Data, Your Control" heading
+- Three key principles: Local SLM Processing, Privacy-First Ad Serving, Edge Computing
+- GAM/TAM/Prebid transparency section
+- 2026 data privacy standards compliance
+
+### Route Changes
+
+| Route | Action |
+|-------|--------|
+| `/amazon-audit` | 301 redirect → `demoai.adsgupta.com/amazon-audit` |
+| MARKETPLACE INTEL section | REMOVED from homepage |
+
+### Test Results
+**Phase 14:** 100% pass rate (25/25 features verified)
+- Hero overlap fix ✓
+- Brand naming update ✓
+- MegaMenu dynamic population ✓
+- Persistent SLM Chat ✓
+- About page two-card ✓
+- Privacy page ✓
+- /amazon-audit redirect ✓
+
+---
 
 ## Monetization AI - Native Ad Engine (Phase 13 - COMPLETE) ✅
 
