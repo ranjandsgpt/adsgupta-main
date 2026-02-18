@@ -51,22 +51,47 @@ const AuditDropzone = ({ onFileProcessed }) => {
             setIsProcessing(false);
           }, 800);
         },
-        error: () => setIsProcessing(false)
+        error: (error) => {
+          console.error('CSV parse error:', error);
+          setIsProcessing(false);
+          alert('Failed to parse CSV file. Please check the file format.');
+        }
       });
     } else if (['xlsx', 'xls'].includes(extension)) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        setTimeout(() => {
-          onFileProcessed(jsonData, 'xlsx', file.name, selectedReportType);
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          
+          if (!jsonData || jsonData.length === 0) {
+            throw new Error('No data found in spreadsheet');
+          }
+          
+          console.log('XLSX parsed:', jsonData.length, 'rows. Columns:', Object.keys(jsonData[0] || {}).slice(0, 5));
+          
+          setTimeout(() => {
+            onFileProcessed(jsonData, 'xlsx', file.name, selectedReportType);
+            setIsProcessing(false);
+          }, 800);
+        } catch (parseError) {
+          console.error('XLSX parse error:', parseError);
           setIsProcessing(false);
-        }, 800);
+          alert('Failed to parse Excel file. Please check the file format.');
+        }
+      };
+      reader.onerror = (error) => {
+        console.error('FileReader error:', error);
+        setIsProcessing(false);
+        alert('Failed to read file. Please try again.');
       };
       reader.readAsArrayBuffer(file);
+    } else {
+      setIsProcessing(false);
+      alert('Unsupported file type. Please upload CSV or XLSX files.');
     }
   }, [onFileProcessed, selectedReportType]);
 
