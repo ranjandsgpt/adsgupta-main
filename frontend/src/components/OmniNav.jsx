@@ -32,7 +32,7 @@ const colorMap = {
   amber: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
 };
 
-const OmniNav = ({ showOnPages = ['/audit', '/tools', '/analysis', '/multi-vault', '/neural-map', '/talentos'] }) => {
+const OmniNav = ({ showOnPages = ['/audit', '/tools', '/analysis', '/neural-map', '/talentos'] }) => {
   const location = useLocation();
   const [isVisible, setIsVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
