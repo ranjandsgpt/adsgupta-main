@@ -191,6 +191,13 @@ const DemoRedirect = () => {
   return null;
 };
 
+// 301 Redirect component for /amazon-audit route
+const AmazonAuditRedirect = () => {
+  // Simulate 301 redirect by replacing current history entry
+  window.location.replace(`${DEMO_DOMAIN}/amazon-audit`);
+  return null;
+};
+
 // Export domain config for use in components
 export { DEMO_DOMAIN, TOOLS_DOMAIN, isDemoDomain };
 
