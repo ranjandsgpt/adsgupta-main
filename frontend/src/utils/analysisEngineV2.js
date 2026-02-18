@@ -214,11 +214,6 @@ const COLUMN_MAPPINGS = {
     'Total Orders',
     'Total order items'  // Business Report format
   ],
-    '14 Day Total Orders',
-    'Orders',
-    'orders',
-    'Total Orders'
-  ],
   
   units: [
     '7 Day Total Units (#)',
@@ -227,7 +222,9 @@ const COLUMN_MAPPINGS = {
     '14 Day Total Units (#)',
     'Units',
     'units',
-    'Units Ordered'
+    'Units Ordered',
+    'Units ordered'  // Business Report format
+  ],
   ],
   
   // Performance metrics (with % symbol)
