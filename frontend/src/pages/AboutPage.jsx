@@ -1,83 +1,69 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Linkedin, Twitter, ExternalLink, Award, TrendingUp, Users, Globe, ArrowUpRight } from 'lucide-react';
+import { Linkedin, ExternalLink, ArrowUpRight, Sparkles, Cpu } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
-import { ChatBot } from '../components/ChatBot';
+import PersistentSLMChat from '../components/PersistentSLMChat';
 
 const AboutPage = () => {
   const founders = [
     {
-      name: 'Ranjan Dasgupta',
-      role: 'Co-Founder & CEO',
-      portfolio: 'https://ranjan.adsgupta.com',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
-      bio: 'Former General Manager at Britannia Industries. 15+ years shaping brand narratives at the intersection of consumer psychology and technology.',
-      highlights: ['Britannia Industries GM', '500M+ consumers reached', 'FMCG & Digital Transformation'],
+      name: 'Pousali Dasgupta',
+      tagline: 'Strategic Ad-Tech Leader & Growth Architect',
+      portfolio: 'https://pousali.adsgupta.com',
+      linkedin: 'https://linkedin.com/in/pousalidasgupta',
+      avatar: null, // Placeholder - will be handled via user login
+      gradient: 'from-violet-500 to-purple-600',
+      bgGradient: 'from-violet-500/10 to-purple-500/5',
     },
     {
-      name: 'Pousali Dasgupta',
-      role: 'Co-Founder & COO',
-      portfolio: 'https://pousali.adsgupta.com',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop',
-      bio: 'Strategic operations leader with expertise in scaling ad-tech platforms. Driving operational excellence across Supply, Demand, and Marketplace divisions.',
-      highlights: ['Operations Excellence', 'Platform Scaling', 'Cross-functional Leadership'],
+      name: 'Ranjan Dasgupta',
+      tagline: 'Technical Visionary & Neural Systems Specialist',
+      portfolio: 'https://ranjan.adsgupta.com',
+      linkedin: 'https://linkedin.com/in/ranjandasgupta',
+      avatar: null, // Placeholder - will be handled via user login
+      gradient: 'from-cyan-500 to-blue-600',
+      bgGradient: 'from-cyan-500/10 to-blue-500/5',
     },
   ];
 
-  const achievements = [
-    {
-      icon: Award,
-      title: 'Industry Recognition',
-      description: 'Multiple awards for innovation in AI-driven advertising technology',
-    },
-    {
-      icon: TrendingUp,
-      title: '15+ Years Combined',
-      description: 'Deep expertise across FMCG, retail, and digital advertising',
-    },
-    {
-      icon: Users,
-      title: 'Team of 50+',
-      description: 'Engineers, data scientists, and ad-tech specialists',
-    },
-    {
-      icon: Globe,
-      title: 'Pan-India Impact',
-      description: 'Campaigns reaching 500M+ consumers across diverse markets',
-    },
-  ];
+  // Generate initials for avatar placeholder
+  const getInitials = (name) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
 
   return (
-    <div className="min-h-screen bg-[#121212] relative">
+    <div className="min-h-screen bg-[#0A0A0A] relative">
       <div className="grain-overlay" />
       <Navigation />
       <MobileNav />
       
       <main className="pt-28 pb-24">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          {/* Hero Section */}
+        <div className="max-w-5xl mx-auto px-6 md:px-12">
+          {/* Minimalist Hero */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-20"
+            className="text-center mb-16"
           >
-            <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-              Leadership
-            </span>
-            <h1 className="text-4xl md:text-6xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-6">
-              THE FOUNDERS' CIRCLE
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Cpu size={16} className="text-cyan-400" />
+              <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase">
+                The Neural Engine
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
+              Meet the Architects
             </h1>
-            <p className="text-zinc-400 text-lg md:text-xl max-w-3xl mx-auto">
-              Building the future of neural advertising. Meet the minds behind Ads Gupta's vision 
-              of AI-native marketing infrastructure.
+            <p className="text-zinc-500 text-lg max-w-2xl mx-auto">
+              Building the future of AI-native advertising
             </p>
           </motion.div>
 
-          {/* Founders Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-24">
+          {/* Two-Card Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {founders.map((founder, index) => (
               <motion.div
                 key={index}
@@ -86,148 +72,95 @@ const AboutPage = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
                 data-testid={`founder-card-${index}`}
-                className="glass-card group rounded-2xl overflow-hidden"
+                className={`relative rounded-2xl bg-gradient-to-br ${founder.bgGradient} border border-white/5 p-8 md:p-10 group hover:border-white/10 transition-all duration-500`}
               >
-                {/* Profile Image with Gradient Overlay */}
-                <div className="relative h-64 md:h-80 overflow-hidden">
-                  <img
-                    src={founder.image}
-                    alt={founder.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/50 to-transparent" />
-                  
-                  {/* Digital DNA Background Effect */}
-                  <div className="absolute inset-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,240,255,0.1)_25%,rgba(0,240,255,0.1)_50%,transparent_50%,transparent_75%,rgba(0,240,255,0.1)_75%)] bg-[length:20px_20px] animate-pulse" />
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 md:p-8 -mt-16 relative z-10">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-2xl md:text-3xl font-bold text-white font-['Space_Grotesk'] tracking-tight">
-                        {founder.name}
-                      </h3>
-                      <p className="text-cyan-400 font-medium">{founder.role}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <a
-                        href="#"
-                        data-hoverable="true"
-                        className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-                      >
-                        <Linkedin size={18} strokeWidth={1.5} />
-                      </a>
-                      <a
-                        href="#"
-                        data-hoverable="true"
-                        className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
-                      >
-                        <Twitter size={18} strokeWidth={1.5} />
-                      </a>
-                    </div>
+                {/* Glow Effect */}
+                <div className={`absolute -inset-px rounded-2xl bg-gradient-to-r ${founder.gradient} opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500`} />
+                
+                <div className="relative">
+                  {/* Avatar Placeholder */}
+                  <div className="mb-6">
+                    {founder.avatar ? (
+                      <img
+                        src={founder.avatar}
+                        alt={founder.name}
+                        className="w-20 h-20 rounded-2xl object-cover border border-white/10"
+                      />
+                    ) : (
+                      <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${founder.gradient} flex items-center justify-center`}>
+                        <span className="text-2xl font-bold text-white">
+                          {getInitials(founder.name)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <p className="text-zinc-400 leading-relaxed mb-6">
-                    {founder.bio}
+                  {/* Name & Tagline */}
+                  <h2 className="text-2xl md:text-3xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-2">
+                    {founder.name}
+                  </h2>
+                  <p className="text-zinc-400 text-base md:text-lg mb-8">
+                    {founder.tagline}
                   </p>
 
-                  {/* Highlights */}
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {founder.highlights.map((highlight, hIndex) => (
-                      <span
-                        key={hIndex}
-                        className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-zinc-300"
-                      >
-                        {highlight}
-                      </span>
-                    ))}
+                  {/* CTAs */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <motion.a
+                      href={founder.portfolio}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-testid={`founder-portfolio-${index}`}
+                      data-hoverable="true"
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r ${founder.gradient} text-white font-medium text-sm hover:opacity-90 transition-all`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <ExternalLink size={16} />
+                      Portfolio
+                    </motion.a>
+                    
+                    <motion.a
+                      href={founder.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-testid={`founder-linkedin-${index}`}
+                      data-hoverable="true"
+                      className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-medium text-sm hover:bg-white/10 transition-all"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Linkedin size={16} />
+                      LinkedIn
+                    </motion.a>
                   </div>
-
-                  {/* Portfolio Link */}
-                  <motion.a
-                    href={founder.portfolio}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-testid={`founder-portfolio-${index}`}
-                    data-hoverable="true"
-                    className="glow-button w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 text-white font-medium
-                      hover:from-cyan-500/20 hover:to-violet-500/20 transition-all"
-                    whileHover={{ scale: 1.01 }}
-                  >
-                    <ExternalLink size={16} />
-                    View Portfolio
-                  </motion.a>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Company Achievements */}
+          {/* Simple CTA */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-20"
+            className="text-center mt-16"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-white font-['Space_Grotesk'] mb-8 text-center">
-              Milestones
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {achievements.map((item, index) => (
-                <motion.div
-                  key={index}
-                  data-testid={`achievement-${index}`}
-                  className="neumorphic-card p-6 text-center hover:-translate-y-1 transition-transform duration-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="w-14 h-14 rounded-xl bg-cyan-500/10 flex items-center justify-center mx-auto mb-4 text-cyan-400">
-                    <item.icon size={28} strokeWidth={1.5} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-zinc-400 text-sm">
-                    {item.description}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* CTA Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-['Space_Grotesk'] mb-6">
-              Join the Neural Revolution
-            </h2>
-            <p className="text-zinc-400 text-lg mb-8 max-w-2xl mx-auto">
-              Interested in strategic partnerships, speaking engagements, or exploring how AI can transform your advertising strategy?
-            </p>
             <Link
               to="/contact"
               data-testid="about-cta"
               data-hoverable="true"
-              className="glow-button inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-xl font-bold text-sm tracking-wide hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-medium text-sm hover:bg-white/10 transition-all"
             >
+              <Sparkles size={16} className="text-cyan-400" />
               Start a Conversation
-              <ArrowUpRight size={18} />
+              <ArrowUpRight size={16} />
             </Link>
           </motion.div>
         </div>
       </main>
 
       <Footer />
-      <ChatBot />
+      <PersistentSLMChat />
     </div>
   );
 };
