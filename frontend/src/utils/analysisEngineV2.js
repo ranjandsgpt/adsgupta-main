@@ -836,7 +836,7 @@ const calculateSummary = (rows, availableMetrics = []) => {
       totalSales: 0, totalUnits: 0, totalSessions: 0, totalPageViews: 0,
       totalImpressions: 0, totalClicks: 0, totalSpend: 0, totalOrders: 0,
       avgConversion: 'N/A', avgBuyBox: 'N/A', avgAcos: 'N/A', avgRoas: 'N/A',
-      avgCtr: 'N/A', avgCpc: 'N/A', rowCount: 0
+      avgCtr: 'N/A', avgCpc: 'N/A', avgUnitSessionPct: 'N/A', rowCount: 0
     };
   }
 
@@ -849,10 +849,37 @@ const calculateSummary = (rows, availableMetrics = []) => {
     clicks: acc.clicks + row.clicks,
     spend: acc.spend + row.spend,
     orders: acc.orders + row.orders,
+    buyBoxSum: acc.buyBoxSum + (row.buyBoxPct || 0),
+    buyBoxCount: row.buyBoxPct > 0 ? acc.buyBoxCount + 1 : acc.buyBoxCount,
+    unitSessionPctSum: acc.unitSessionPctSum + (row.unitSessionPct || 0),
+    unitSessionPctCount: row.unitSessionPct > 0 ? acc.unitSessionPctCount + 1 : acc.unitSessionPctCount,
   }), {
     sales: 0, units: 0, sessions: 0, pageViews: 0,
-    impressions: 0, clicks: 0, spend: 0, orders: 0
+    impressions: 0, clicks: 0, spend: 0, orders: 0,
+    buyBoxSum: 0, buyBoxCount: 0,
+    unitSessionPctSum: 0, unitSessionPctCount: 0
   });
+
+  // Calculate average buy box percentage
+  const avgBuyBoxCalc = totals.buyBoxCount > 0 
+    ? Math.round((totals.buyBoxSum / totals.buyBoxCount) * 100) / 100 
+    : 'N/A';
+    
+  // Calculate average unit session percentage (conversion for Business Reports)
+  const avgUnitSessionPctCalc = totals.unitSessionPctCount > 0 
+    ? Math.round((totals.unitSessionPctSum / totals.unitSessionPctCount) * 100) / 100 
+    : 'N/A';
+  
+  // For Business Reports, conversion is unit session %
+  // For PPC reports, conversion is clicks to orders
+  let avgConversionCalc = 'N/A';
+  if (totals.sessions > 0) {
+    avgConversionCalc = Math.round((totals.units / totals.sessions * 100) * 100) / 100;
+  } else if (totals.clicks > 0 && totals.orders > 0) {
+    avgConversionCalc = Math.round((totals.orders / totals.clicks * 100) * 100) / 100;
+  } else if (avgUnitSessionPctCalc !== 'N/A') {
+    avgConversionCalc = avgUnitSessionPctCalc;
+  }
 
   return {
     totalSales: Math.round(totals.sales * 100) / 100,
@@ -865,12 +892,9 @@ const calculateSummary = (rows, availableMetrics = []) => {
     totalOrders: totals.orders,
     
     // Calculated averages (return N/A if data doesn't support it)
-    avgConversion: totals.sessions > 0 
-      ? Math.round((totals.units / totals.sessions * 100) * 100) / 100 
-      : 'N/A',
-    avgBuyBox: availableMetrics.includes('buyBoxPct')
-      ? Math.round((rows.reduce((s, r) => s + r.buyBoxPct, 0) / rows.filter(r => r.buyBoxPct > 0).length) * 100) / 100 || 'N/A'
-      : 'N/A',
+    avgConversion: avgConversionCalc,
+    avgUnitSessionPct: avgUnitSessionPctCalc,
+    avgBuyBox: avgBuyBoxCalc,
     avgAcos: totals.sales > 0 
       ? Math.round((totals.spend / totals.sales * 100) * 100) / 100 
       : totals.spend > 0 ? Infinity : 'N/A',
