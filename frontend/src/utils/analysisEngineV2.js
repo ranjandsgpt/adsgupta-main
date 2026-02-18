@@ -1865,6 +1865,7 @@ export const agentCampaignStructure = (data) => {
 
 export const runAllAgents = (parsedData) => {
   const agents = [
+    agentWastedSpend,        // NEW - Critical wasted spend analysis
     agentNegativeNinja,
     agentCannibalization,
     agentDayparting,
@@ -1876,6 +1877,9 @@ export const runAllAgents = (parsedData) => {
     agentTopPerformers,
     agentBudgetPacing,
     agentSearchTermQuality,
+    agentMatchTypeAnalysis,    // NEW - Match type comparison
+    agentCampaignStructure,    // NEW - Campaign analysis
+    agentHaloEffect,           // NEW - Cross-selling analysis
     agentInventoryAdSync,
     agentPriceElasticity,
     agentLtvCalculator,
