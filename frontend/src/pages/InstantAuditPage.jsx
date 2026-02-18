@@ -389,59 +389,6 @@ const InstantAuditPage = () => {
     setIsProcessing(false);
   }, [setUploadedData, navigate]);
 
-  // Handle multiple files - process and redirect to Multi-Vault
-  const handleMultipleFiles = useCallback(async (files) => {
-    clearAllFiles();
-    setIsProcessing(true);
-    setProcessingStage(`Processing ${files.length} files...`);
-    
-    // Parse each file and add to store
-    for (const file of files) {
-      const extension = file.name.split('.').pop().toLowerCase();
-      
-      try {
-        let data, headers;
-        
-        if (extension === 'csv') {
-          const result = await new Promise((resolve, reject) => {
-            Papa.parse(file, {
-              header: true,
-              complete: resolve,
-              error: reject
-            });
-          });
-          data = result.data;
-          headers = result.meta.fields || [];
-        } else if (['xlsx', 'xls'].includes(extension)) {
-          const arrayBuffer = await file.arrayBuffer();
-          const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          data = XLSX.utils.sheet_to_json(worksheet);
-          headers = data.length > 0 ? Object.keys(data[0]) : [];
-        }
-        
-        const reportType = detectReportType(headers);
-        addFile({
-          name: file.name,
-          type: extension,
-          reportType,
-          headers,
-          data,
-          rowCount: data.length,
-          uploadedAt: new Date().toISOString()
-        });
-      } catch (error) {
-        console.error('Error parsing file:', file.name, error);
-      }
-    }
-    
-    setTimeout(() => {
-      setIsProcessing(false);
-      navigate('/multi-vault');
-    }, 500);
-  }, [addFile, clearAllFiles, detectReportType, navigate]);
-
   const resetAudit = () => {
     clearData();
     setIsProcessing(false);
