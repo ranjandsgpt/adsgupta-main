@@ -204,6 +204,8 @@ const FindingCard = ({ finding, agentName }) => {
       ? severityColors.critical 
       : 'border-white/10 bg-white/5';
 
+  const [showDetails, setShowDetails] = useState(false);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -237,6 +239,58 @@ const FindingCard = ({ finding, agentName }) => {
             }`}>
               {finding.value}
             </p>
+          )}
+          
+          {/* Expandable Keyword List for Wasted Spend */}
+          {(finding.wastedTerms || finding.data) && (finding.wastedTerms?.length > 0 || finding.data?.length > 0) && (
+            <div className="mt-3">
+              <button
+                onClick={() => setShowDetails(!showDetails)}
+                className="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <span>{showDetails ? 'Hide' : 'Show'} Details ({(finding.wastedTerms || finding.data)?.length} items)</span>
+                <ChevronDown size={14} className={`transform transition-transform ${showDetails ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showDetails && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-3 max-h-64 overflow-y-auto rounded-lg bg-black/20 p-3"
+                >
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-zinc-500 border-b border-white/10">
+                        <th className="text-left py-2 px-2">Keyword</th>
+                        <th className="text-right py-2 px-2">Spend</th>
+                        <th className="text-right py-2 px-2">Clicks</th>
+                        {finding.wastedTerms?.[0]?.cpc && <th className="text-right py-2 px-2">CPC</th>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(finding.wastedTerms || finding.data)?.map((item, idx) => (
+                        <tr key={idx} className="border-b border-white/5 hover:bg-white/5">
+                          <td className="py-2 px-2 text-white truncate max-w-[200px]" title={item.term || item.searchTerm || item.campaign || item.keyword || 'Unknown'}>
+                            {item.term || item.searchTerm || item.campaign || item.keyword || item.matchType || 'Unknown'}
+                          </td>
+                          <td className="text-right py-2 px-2 text-red-400 font-mono">
+                            €{(item.spend || 0).toFixed(2)}
+                          </td>
+                          <td className="text-right py-2 px-2 text-zinc-400 font-mono">
+                            {item.clicks || 0}
+                          </td>
+                          {finding.wastedTerms?.[0]?.cpc && (
+                            <td className="text-right py-2 px-2 text-zinc-400 font-mono">
+                              €{(item.cpc || 0).toFixed(2)}
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </motion.div>
+              )}
+            </div>
           )}
         </div>
       </div>
