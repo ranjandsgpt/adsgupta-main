@@ -695,7 +695,7 @@ const AnalysisPage = () => {
       
       <Navigation />
       <MobileNav />
-      <OmniNav showOnPages={['/analysis', '/audit', '/tools', '/multi-vault', '/neural-map']} />
+      <OmniNav showOnPages={['/analysis', '/audit', '/tools', '/neural-map']} />
 
       <main className="relative pt-32 pb-24" ref={reportRef}>
         <div className="max-w-[1400px] mx-auto px-6">
