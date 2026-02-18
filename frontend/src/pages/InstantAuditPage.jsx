@@ -26,14 +26,12 @@ const REPORT_TYPES = [
   { id: 'other', label: 'Other Report', description: 'Generic analysis' },
 ];
 
-// Instant Audit Dropzone Component - Supports file upload with Report Type Selection
+// Instant Audit Dropzone Component - Supports file upload
 const AuditDropzone = ({ onFileProcessed }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [fileName, setFileName] = useState('');
   const [fileCount, setFileCount] = useState(0);
-  const [selectedReportType, setSelectedReportType] = useState('search_term');
-  const [showReportTypeSelector, setShowReportTypeSelector] = useState(false);
 
   const processFile = useCallback((file) => {
     setIsProcessing(true);
