@@ -61,6 +61,7 @@ export const Navigation = () => {
                   onMouseLeave={() => setMegaMenuOpen(false)}
                 >
                   <motion.button
+                    onClick={() => setMegaMenuOpen(!megaMenuOpen)}
                     data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                     data-hoverable="true"
                     className="flex items-center gap-1 text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
