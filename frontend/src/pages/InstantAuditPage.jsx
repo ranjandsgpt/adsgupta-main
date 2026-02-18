@@ -223,7 +223,7 @@ const AuditDropzone = ({ onFileProcessed }) => {
                   <span className="text-cyan-400">Search Term</span> (XLSX) report
                 </p>
                 <p className="text-zinc-500 text-sm mt-2">
-                  Select <span className="text-violet-400">multiple files</span> for Cross-Pollination Analysis
+                  20 AI agents analyze your data in seconds
                 </p>
               </div>
               <div className="flex items-center justify-center gap-4 text-xs text-zinc-500">
