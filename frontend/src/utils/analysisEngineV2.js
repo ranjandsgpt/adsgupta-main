@@ -1568,6 +1568,297 @@ export const agentAplusScorer = (data) => {
   };
 };
 
+// Agent 21: Wasted Ad Spend Analyzer (NEW - CRITICAL)
+export const agentWastedSpend = (data) => {
+  const { wastedSpend, rows, summary } = data;
+  const findings = [];
+  
+  if (!wastedSpend || !wastedSpend.total) {
+    // Calculate on the fly if not pre-calculated
+    const wastedRows = (rows || []).filter(row => {
+      const orders = row.orders || 0;
+      const clicks = row.clicks || 0;
+      const spend = row.spend || 0;
+      return orders === 0 && clicks > 5 && spend > 0;
+    });
+    
+    if (wastedRows.length === 0) {
+      return {
+        agentId: 'wasted-spend',
+        name: 'Wasted Ad Spend Analyzer',
+        status: 'complete',
+        findings: [{
+          type: 'success',
+          title: 'No significant wasted spend detected',
+          description: 'All keywords with 5+ clicks have generated at least one order'
+        }]
+      };
+    }
+    
+    const totalWasted = wastedRows.reduce((sum, r) => sum + (r.spend || 0), 0);
+    const wastedPct = summary.totalSpend > 0 ? (totalWasted / summary.totalSpend * 100) : 0;
+    
+    findings.push({
+      type: 'alert',
+      severity: 'critical',
+      title: `€${totalWasted.toFixed(2)} wasted on non-converting keywords`,
+      description: `${wastedPct.toFixed(1)}% of total spend went to ${wastedRows.length} keywords with clicks but zero orders`,
+      value: `€${totalWasted.toFixed(0)}`,
+      metric: 'Wasted Spend',
+      wastedTerms: wastedRows
+        .sort((a, b) => (b.spend || 0) - (a.spend || 0))
+        .slice(0, 20)
+        .map(r => ({
+          term: r.searchTerm || r.targeting || 'Unknown',
+          spend: r.spend,
+          clicks: r.clicks,
+          impressions: r.impressions,
+          cpc: r.cpc,
+          campaign: r.campaignName
+        }))
+    });
+    
+    return {
+      agentId: 'wasted-spend',
+      name: 'Wasted Ad Spend Analyzer',
+      status: 'complete',
+      findings
+    };
+  }
+  
+  // Use pre-calculated wasted spend
+  const wastedPct = summary.totalSpend > 0 ? (wastedSpend.total / summary.totalSpend * 100) : 0;
+  
+  if (wastedSpend.total > 0) {
+    findings.push({
+      type: 'alert',
+      severity: wastedPct > 20 ? 'critical' : wastedPct > 10 ? 'high' : 'medium',
+      title: `€${wastedSpend.total.toFixed(2)} wasted on non-converting keywords`,
+      description: `${wastedPct.toFixed(1)}% of total spend (${wastedSpend.count} keywords with ${wastedSpend.clickThreshold}+ clicks and 0 orders)`,
+      value: `€${wastedSpend.total.toFixed(0)}`,
+      metric: 'Wasted Spend',
+      wastedTerms: wastedSpend.terms
+    });
+    
+    // Actionable recommendation
+    findings.push({
+      type: 'recommendation',
+      title: 'Add negative keywords to stop waste',
+      description: `Adding the top ${Math.min(20, wastedSpend.count)} wasted terms as negative keywords could save €${wastedSpend.total.toFixed(2)}/month`,
+      priority: 'high',
+      action: 'ADD_NEGATIVE_KEYWORDS',
+      data: wastedSpend.terms.slice(0, 20)
+    });
+  } else {
+    findings.push({
+      type: 'success',
+      title: 'No significant wasted spend detected',
+      description: 'Your campaigns are efficiently converting clicks to orders'
+    });
+  }
+  
+  return {
+    agentId: 'wasted-spend',
+    name: 'Wasted Ad Spend Analyzer',
+    status: 'complete',
+    findings
+  };
+};
+
+// Agent 22: Halo Effect Analyzer (Other SKU Sales)
+export const agentHaloEffect = (data) => {
+  const { rows, summary } = data;
+  const findings = [];
+  
+  // Check for Other SKU Sales data
+  const rowsWithHalo = rows.filter(r => r._raw && (
+    r._raw['7 Day Other SKU Sales'] || r._raw['7 Day Other SKU Units (#)']
+  ));
+  
+  if (rowsWithHalo.length === 0) {
+    return {
+      agentId: 'halo-effect',
+      name: 'Halo Effect Analyzer',
+      status: 'requires_data',
+      findings: [{
+        type: 'info',
+        title: 'No halo sales data found',
+        description: 'Upload Search Term or Advertised Product reports to analyze cross-selling performance'
+      }]
+    };
+  }
+  
+  // Calculate halo effect metrics
+  let totalAdvertisedSales = 0;
+  let totalOtherSales = 0;
+  
+  rowsWithHalo.forEach(r => {
+    const advSales = cleanValue(r._raw['7 Day Advertised SKU Sales'] || 0);
+    const otherSales = cleanValue(r._raw['7 Day Other SKU Sales'] || 0);
+    totalAdvertisedSales += advSales;
+    totalOtherSales += otherSales;
+  });
+  
+  const totalSales = totalAdvertisedSales + totalOtherSales;
+  const haloPct = totalSales > 0 ? (totalOtherSales / totalSales * 100) : 0;
+  
+  if (haloPct > 20) {
+    findings.push({
+      type: 'opportunity',
+      title: `${haloPct.toFixed(1)}% of sales are cross-selling (halo effect)`,
+      description: `Your ads drove €${totalOtherSales.toFixed(2)} in OTHER product sales. This indicates strong brand loyalty.`,
+      value: `€${totalOtherSales.toFixed(0)}`,
+      metric: 'Halo Sales'
+    });
+  } else {
+    findings.push({
+      type: 'info',
+      title: `${haloPct.toFixed(1)}% halo effect detected`,
+      description: `Most sales (${(100 - haloPct).toFixed(1)}%) are for the advertised product itself`
+    });
+  }
+  
+  return {
+    agentId: 'halo-effect',
+    name: 'Halo Effect Analyzer',
+    status: 'complete',
+    findings
+  };
+};
+
+// Agent 23: Match Type Performance
+export const agentMatchTypeAnalysis = (data) => {
+  const { rows, summary } = data;
+  const findings = [];
+  
+  // Group by match type
+  const matchTypes = {};
+  rows.forEach(r => {
+    const match = r.matchType || 'Unknown';
+    if (!matchTypes[match]) {
+      matchTypes[match] = { spend: 0, sales: 0, orders: 0, clicks: 0, impressions: 0 };
+    }
+    matchTypes[match].spend += r.spend || 0;
+    matchTypes[match].sales += r.sales || 0;
+    matchTypes[match].orders += r.orders || 0;
+    matchTypes[match].clicks += r.clicks || 0;
+    matchTypes[match].impressions += r.impressions || 0;
+  });
+  
+  if (Object.keys(matchTypes).length <= 1) {
+    return {
+      agentId: 'match-type-analysis',
+      name: 'Match Type Performance',
+      status: 'requires_data',
+      findings: [{
+        type: 'info',
+        title: 'Single match type detected',
+        description: 'Upload Search Term reports with multiple match types for comparison'
+      }]
+    };
+  }
+  
+  // Calculate ACOS and ROAS for each match type
+  const matchTypePerf = Object.entries(matchTypes).map(([type, data]) => ({
+    matchType: type,
+    spend: data.spend,
+    sales: data.sales,
+    orders: data.orders,
+    acos: data.sales > 0 ? (data.spend / data.sales * 100) : Infinity,
+    roas: data.spend > 0 ? (data.sales / data.spend) : 0,
+    convRate: data.clicks > 0 ? (data.orders / data.clicks * 100) : 0
+  })).sort((a, b) => b.roas - a.roas);
+  
+  const bestType = matchTypePerf[0];
+  const worstType = matchTypePerf[matchTypePerf.length - 1];
+  
+  if (bestType && worstType && bestType.matchType !== worstType.matchType) {
+    findings.push({
+      type: 'opportunity',
+      title: `${bestType.matchType} has best ROAS: ${bestType.roas.toFixed(2)}x`,
+      description: `Consider shifting budget from ${worstType.matchType} (${worstType.roas.toFixed(2)}x ROAS) to ${bestType.matchType}`,
+      data: matchTypePerf
+    });
+  }
+  
+  return {
+    agentId: 'match-type-analysis',
+    name: 'Match Type Performance',
+    status: 'complete',
+    findings: findings.length > 0 ? findings : [{
+      type: 'info',
+      title: 'Match type analysis complete',
+      description: 'All match types performing similarly'
+    }]
+  };
+};
+
+// Agent 24: Campaign Structure Analyzer
+export const agentCampaignStructure = (data) => {
+  const { rows, summary } = data;
+  const findings = [];
+  
+  // Group by campaign
+  const campaigns = {};
+  rows.forEach(r => {
+    const campaign = r.campaignName || 'Unknown';
+    if (!campaigns[campaign]) {
+      campaigns[campaign] = { spend: 0, sales: 0, orders: 0, keywords: 0 };
+    }
+    campaigns[campaign].spend += r.spend || 0;
+    campaigns[campaign].sales += r.sales || 0;
+    campaigns[campaign].orders += r.orders || 0;
+    campaigns[campaign].keywords++;
+  });
+  
+  const campaignPerf = Object.entries(campaigns).map(([name, data]) => ({
+    campaign: name,
+    spend: data.spend,
+    sales: data.sales,
+    orders: data.orders,
+    keywords: data.keywords,
+    acos: data.sales > 0 ? (data.spend / data.sales * 100) : Infinity,
+    roas: data.spend > 0 ? (data.sales / data.spend) : 0
+  })).sort((a, b) => b.spend - a.spend);
+  
+  // Find campaigns with high spend but low returns
+  const underperformers = campaignPerf.filter(c => c.spend > 100 && (c.roas < 1 || c.acos > 100));
+  
+  if (underperformers.length > 0) {
+    findings.push({
+      type: 'alert',
+      severity: 'high',
+      title: `${underperformers.length} campaigns with ACOS > 100%`,
+      description: 'These campaigns are spending more than they earn',
+      value: `€${underperformers.reduce((s, c) => s + c.spend, 0).toFixed(0)}`,
+      metric: 'At Risk Spend',
+      data: underperformers.slice(0, 5)
+    });
+  }
+  
+  // Top performing campaigns
+  const topPerformers = campaignPerf.filter(c => c.roas > 3 && c.spend > 50);
+  if (topPerformers.length > 0) {
+    findings.push({
+      type: 'opportunity',
+      title: `${topPerformers.length} campaigns with ROAS > 3x`,
+      description: 'Consider increasing budget on these high-performers',
+      data: topPerformers.slice(0, 5)
+    });
+  }
+  
+  return {
+    agentId: 'campaign-structure',
+    name: 'Campaign Structure Analyzer',
+    status: 'complete',
+    findings: findings.length > 0 ? findings : [{
+      type: 'info',
+      title: `${Object.keys(campaigns).length} campaigns analyzed`,
+      description: 'Campaign performance data available'
+    }]
+  };
+};
+
 // ============================================
 // RUN ALL AGENTS
 // ============================================
