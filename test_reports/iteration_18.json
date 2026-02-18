@@ -1,0 +1,116 @@
+{
+  "summary": "Business Report and Search Term Report parsing fix verification COMPLETE. All requested features verified: 1) Business Report CSV correctly detects 11 metrics including sessions, pageViews, buyBoxPct, unitSessionPct, 2) Search Term Report XLSX (4,664 rows) correctly detects all 19 PPC metrics including ACOS, ROAS, CTR, CPC, wasted spend, 3) Master Analysis shows Buy Box %, Unit Session %, Traffic analysis for Business Reports, 4) Master Analysis shows ACOS, ROAS, Wasted Spend, CTR for PPC reports, 5) Charts Tab displays with both report types, 6) KPI Cards show Buy Box % when available.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_18.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Column mappings correctly handle en-dash (–) characters in Business Report headers like 'Sessions – Total'",
+    "normalizeColumnName function correctly converts en-dash/em-dash to hyphen for matching",
+    "detectReportType correctly identifies 'business' type by sessions/pageViews columns",
+    "detectReportType correctly identifies 'search_term' type by Customer Search Term column",
+    "XLSX parsing working correctly for large files (4,664 rows)",
+    "Large file mode correctly enabled for files over 1000 rows"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A - frontend only testing",
+    "frontend": "100%"
+  },
+  "test_credentials": "No auth required - public pages",
+  "seed_data_creation": "Used /tmp/BusinessReport.csv (16 rows Business Report) and /tmp/SearchTermReport.xlsx (4,664 rows Search Term Report)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Business Report and Search Term Report parsing fully working. Business Reports detect: asin, sessions, pageViews, sales, units, orders, unitSessionPct, buyBoxPct, title, parentAsin, childAsin (11 metrics). Search Term Reports detect: sku, searchTerm, targeting, impressions, clicks, sales, units, spend, orders, conversionRate, unitSessionPct, ctr, acos, cpc, roas, date, campaignName, adGroupName, matchType (19 metrics).",
+  "passed_tests": [
+    "1. BUSINESS REPORT - File upload works for BusinessReport.csv (16 rows) - PASS",
+    "2. BUSINESS REPORT - Report type detected as 'business' - PASS",
+    "3. BUSINESS REPORT - 11 metrics detected correctly - PASS",
+    "4. BUSINESS REPORT - Sessions metric (5,146) displayed in KPIs - PASS",
+    "5. BUSINESS REPORT - Page Views metric detected - PASS",
+    "6. BUSINESS REPORT - Buy Box % (99.7%) displayed in KPIs - PASS",
+    "7. BUSINESS REPORT - Unit Session % / Conversion (24.62%) displayed - PASS",
+    "8. BUSINESS REPORT - Total Sales ($31,970.64) calculated correctly - PASS",
+    "9. BUSINESS REPORT - Total Units (1,267) calculated correctly - PASS",
+    "10. BUSINESS REPORT - Health Score 92/100 displayed - PASS",
+    "11. BUSINESS REPORT - Master Analysis shows 'Excellent Conversion: 24.62%' insight - PASS",
+    "12. BUSINESS REPORT - Master Analysis shows 'Account Health Strong: 92/100' - PASS",
+    "13. BUSINESS REPORT - Charts Tab shows Pareto Analysis chart - PASS",
+    "14. BUSINESS REPORT - Charts Tab shows Performance Overview chart - PASS",
+    "15. SEARCH TERM REPORT - File upload works for SearchTermReport.xlsx (4,664 rows) - PASS",
+    "16. SEARCH TERM REPORT - All 4,664 rows parsed correctly - PASS",
+    "17. SEARCH TERM REPORT - Report type detected as 'search_term' - PASS",
+    "18. SEARCH TERM REPORT - 19 metrics detected correctly - PASS",
+    "19. SEARCH TERM REPORT - ACOS (43.71%) displayed in KPIs - PASS",
+    "20. SEARCH TERM REPORT - ROAS (2.29x) displayed in KPIs - PASS",
+    "21. SEARCH TERM REPORT - Total Sales ($23,402.04) calculated - PASS",
+    "22. SEARCH TERM REPORT - Total Spend ($10,229.53) calculated - PASS",
+    "23. SEARCH TERM REPORT - Conversion (16.15%) displayed - PASS",
+    "24. SEARCH TERM REPORT - CTR metric detected - PASS",
+    "25. SEARCH TERM REPORT - CPC metric detected - PASS",
+    "26. SEARCH TERM REPORT - Master Analysis shows 'High ACOS: 43.7%' warning - PASS",
+    "27. SEARCH TERM REPORT - Master Analysis shows 'Low ROAS: 2.29x' warning - PASS",
+    "28. SEARCH TERM REPORT - Master Analysis shows Wasted Spend insight - PASS",
+    "29. SEARCH TERM REPORT - Charts Tab shows 'Top Keywords by Spend' chart - PASS",
+    "30. SEARCH TERM REPORT - Charts Tab shows 4 Recharts visualizations - PASS",
+    "31. SEARCH TERM REPORT - Overview shows €108.97 wasted on non-converting keywords - PASS",
+    "32. SEARCH TERM REPORT - Overview shows 11 keywords wasting $138.01 - PASS",
+    "33. TABS NAVIGATION - All 5 tabs (Overview, Findings, Asins, Charts, Master Analysis) work - PASS",
+    "34. EXPORT BUTTONS - Export CSV and Download PDF buttons present - PASS"
+  ],
+  "feature_verification": {
+    "business_report_parsing": {
+      "report_type_detection": "WORKING - correctly identifies 'business' type",
+      "sessions_metric": "WORKING - detected and displays 5,146 sessions",
+      "pageViews_metric": "WORKING - detected from 'Page views – Total' column",
+      "buyBoxPct_metric": "WORKING - detected and displays 99.7% in KPI card",
+      "unitSessionPct_metric": "WORKING - detected and displays 24.62% conversion",
+      "en_dash_handling": "WORKING - correctly parses headers with – character"
+    },
+    "search_term_report_parsing": {
+      "report_type_detection": "WORKING - correctly identifies 'search_term' type",
+      "row_count": "WORKING - all 4,664 rows processed",
+      "all_19_metrics": "WORKING - searchTerm, targeting, impressions, clicks, sales, units, spend, orders, conversionRate, unitSessionPct, ctr, acos, cpc, roas, date, campaignName, adGroupName, matchType",
+      "acos_calculation": "WORKING - 43.71% calculated correctly",
+      "roas_calculation": "WORKING - 2.29x calculated correctly",
+      "wasted_spend_detection": "WORKING - identifies €108.97 wasted and 11 keywords with zero sales"
+    },
+    "master_analysis": {
+      "business_report_insights": "WORKING - shows Buy Box %, Unit Session %, Traffic analysis when data available",
+      "ppc_report_insights": "WORKING - shows ACOS, ROAS, Wasted Spend, CTR for PPC reports"
+    },
+    "charts_tab": {
+      "business_report_charts": "WORKING - Pareto Analysis, Performance Overview",
+      "search_term_charts": "WORKING - Top Keywords by Spend, Performance Overview, 4 total charts"
+    },
+    "kpi_cards": {
+      "buy_box_display": "WORKING - shows 'BUY BOX %: 99.7%' when available in Business Reports",
+      "dynamic_label": "WORKING - shows 'UNIQUE ASINS' when Buy Box not available"
+    }
+  },
+  "data_processing_verification": {
+    "business_report": {
+      "columns_detected": ["(Parent) ASIN", "(Child) ASIN", "Title", "Sessions – Total", "Page views – Total", "Featured Offer (Buy Box) percentage", "Unit Session Percentage"],
+      "metrics_extracted": 11,
+      "totals_calculated": {"sales": "$31,970.64", "units": 1267, "sessions": 5146, "buyBoxPct": "99.7%", "conversion": "24.62%"}
+    },
+    "search_term_report": {
+      "columns_detected": 25,
+      "metrics_extracted": 19,
+      "rows_processed": 4664,
+      "totals_calculated": {"sales": "$23,402.04", "spend": "$10,229.53", "units": 1657, "acos": "43.71%", "roas": "2.29x", "conversion": "16.15%"}
+    }
+  },
+  "mocked_integrations": {
+    "note": "No mocked APIs - all analysis is client-side using analysisEngineV2.js"
+  }
+}
