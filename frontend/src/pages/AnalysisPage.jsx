@@ -1352,49 +1352,191 @@ const AnalysisPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                className="space-y-6"
               >
-                <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
-                  <h3 className="text-lg font-semibold text-white mb-4">Pareto Analysis (80/20 Rule)</h3>
-                  {chartData.pareto.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={chartData.pareto}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-                        <XAxis dataKey="asin" stroke="#52525B" fontSize={10} tickLine={false} angle={-45} textAnchor="end" height={60} />
-                        <YAxis yAxisId="left" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
-                        <YAxis yAxisId="right" orientation="right" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Bar yAxisId="left" dataKey="sales" fill="#3B82F6" name="Sales" radius={[4, 4, 0, 0]} />
-                        <Line yAxisId="right" type="monotone" dataKey="cumulativePct" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981', r: 3 }} name="Cumulative %" />
-                        <ReferenceLine yAxisId="right" y={80} stroke="#F59E0B" strokeDasharray="3 3" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <p className="text-zinc-500 text-center py-12">No ASIN sales data available</p>
-                  )}
+                {/* Row 1: Main charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Pareto Analysis OR Spend by Keyword */}
+                  <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
+                    <h3 className="text-lg font-semibold text-white mb-4">
+                      {chartData.pareto.length > 0 ? 'Pareto Analysis (80/20 Rule)' : 'Top Keywords by Spend'}
+                    </h3>
+                    {chartData.pareto.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={chartData.pareto}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                          <XAxis dataKey="asin" stroke="#52525B" fontSize={10} tickLine={false} angle={-45} textAnchor="end" height={60} />
+                          <YAxis yAxisId="left" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `€${(v/1000).toFixed(0)}k`} />
+                          <YAxis yAxisId="right" orientation="right" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar yAxisId="left" dataKey="sales" fill="#3B82F6" name="Sales" radius={[4, 4, 0, 0]} />
+                          <Line yAxisId="right" type="monotone" dataKey="cumulativePct" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981', r: 3 }} name="Cumulative %" />
+                          <ReferenceLine yAxisId="right" y={80} stroke="#F59E0B" strokeDasharray="3 3" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : chartData.spendByKeyword.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={chartData.spendByKeyword} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                          <XAxis type="number" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                          <YAxis type="category" dataKey="keyword" stroke="#52525B" fontSize={9} tickLine={false} width={100} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar dataKey="spend" fill="#EF4444" name="Spend" radius={[0, 4, 4, 0]} />
+                          <Bar dataKey="sales" fill="#10B981" name="Sales" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <p className="text-zinc-500 text-center py-12">No data available for chart</p>
+                    )}
+                  </div>
+
+                  {/* Scatter OR Performance Metrics */}
+                  <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
+                    <h3 className="text-lg font-semibold text-white mb-4">
+                      {chartData.scatter.length > 0 ? 'Spend vs Conversion' : 'Performance Overview'}
+                    </h3>
+                    {chartData.scatter.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <ScatterChart>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                          <XAxis dataKey="spend" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                          <YAxis dataKey="conversion" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Scatter name="ASINs" data={chartData.scatter} fill="#8B5CF6">
+                            {chartData.scatter.map((entry, index) => (
+                              <Cell key={index} fill={entry.conversion > 10 ? '#10B981' : entry.conversion > 5 ? '#F59E0B' : '#EF4444'} />
+                            ))}
+                          </Scatter>
+                          <ReferenceLine y={10} stroke="#10B981" strokeDasharray="3 3" />
+                        </ScatterChart>
+                      </ResponsiveContainer>
+                    ) : chartData.performanceMetrics.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={chartData.performanceMetrics}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                          <XAxis dataKey="name" stroke="#52525B" fontSize={10} tickLine={false} />
+                          <YAxis stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar dataKey="value" name="Value" radius={[4, 4, 0, 0]}>
+                            {chartData.performanceMetrics.map((entry, index) => (
+                              <Cell key={index} fill={entry.color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <p className="text-zinc-500 text-center py-12">No data available for chart</p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
-                  <h3 className="text-lg font-semibold text-white mb-4">Spend vs Conversion</h3>
-                  {chartData.scatter.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
-                      <ScatterChart>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-                        <XAxis dataKey="spend" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `$${v}`} />
-                        <YAxis dataKey="conversion" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Scatter name="ASINs" data={chartData.scatter} fill="#8B5CF6">
-                          {chartData.scatter.map((entry, index) => (
-                            <Cell key={index} fill={entry.conversion > 10 ? '#10B981' : entry.conversion > 5 ? '#F59E0B' : '#EF4444'} />
-                          ))}
-                        </Scatter>
-                        <ReferenceLine y={10} stroke="#10B981" strokeDasharray="3 3" />
-                      </ScatterChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <p className="text-zinc-500 text-center py-12">No spend/conversion data available</p>
-                  )}
+                {/* Row 2: Wasted Spend Chart & ACOS Analysis */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Wasted Spend by Keyword */}
+                  <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
+                    <h3 className="text-lg font-semibold text-white mb-2">Wasted Ad Spend</h3>
+                    <p className="text-zinc-500 text-sm mb-4">Keywords with clicks but zero orders</p>
+                    {chartData.wastedByKeyword.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={chartData.wastedByKeyword} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                          <XAxis type="number" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                          <YAxis type="category" dataKey="keyword" stroke="#52525B" fontSize={9} tickLine={false} width={120} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar dataKey="spend" fill="#EF4444" name="Wasted Spend" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-[280px]">
+                        <div className="text-center">
+                          <CheckCircle2 size={48} className="text-emerald-500 mx-auto mb-3" />
+                          <p className="text-emerald-400 font-medium">No Wasted Spend Detected</p>
+                          <p className="text-zinc-500 text-sm">All keywords are converting</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Spend vs Sales Distribution */}
+                  <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
+                    <h3 className="text-lg font-semibold text-white mb-2">Spend vs Sales</h3>
+                    <p className="text-zinc-500 text-sm mb-4">Compare advertising cost to revenue generated</p>
+                    {chartData.spendByKeyword.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={280}>
+                        <AreaChart data={chartData.spendByKeyword.slice(0, 8)}>
+                          <defs>
+                            <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
+                            </linearGradient>
+                            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                          <XAxis dataKey="keyword" stroke="#52525B" fontSize={9} tickLine={false} angle={-30} textAnchor="end" height={50} />
+                          <YAxis stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `€${v}`} />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Area type="monotone" dataKey="spend" stroke="#EF4444" fillOpacity={1} fill="url(#colorSpend)" name="Spend" />
+                          <Area type="monotone" dataKey="sales" stroke="#10B981" fillOpacity={1} fill="url(#colorSales)" name="Sales" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-[280px]">
+                        <p className="text-zinc-500">No keyword data available</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Summary Stats */}
+                {summary && (
+                  <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <BarChart3 size={18} className="text-blue-400" />
+                      Key Metrics Summary
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-bold text-emerald-400 font-['JetBrains_Mono']">
+                          €{(summary.totalSales || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </p>
+                        <p className="text-zinc-500 text-xs">Total Sales</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-red-400 font-['JetBrains_Mono']">
+                          €{(summary.totalSpend || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </p>
+                        <p className="text-zinc-500 text-xs">Total Spend</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-amber-400 font-['JetBrains_Mono']">
+                          {summary.avgAcos === 'N/A' || summary.avgAcos === Infinity ? 'N/A' : `${summary.avgAcos.toFixed(1)}%`}
+                        </p>
+                        <p className="text-zinc-500 text-xs">ACOS</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-blue-400 font-['JetBrains_Mono']">
+                          {summary.avgRoas === 'N/A' ? 'N/A' : `${summary.avgRoas.toFixed(2)}x`}
+                        </p>
+                        <p className="text-zinc-500 text-xs">ROAS</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-cyan-400 font-['JetBrains_Mono']">
+                          {(summary.totalClicks || 0).toLocaleString()}
+                        </p>
+                        <p className="text-zinc-500 text-xs">Total Clicks</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-violet-400 font-['JetBrains_Mono']">
+                          {summary.avgCtr === 'N/A' ? 'N/A' : `${summary.avgCtr.toFixed(2)}%`}
+                        </p>
+                        <p className="text-zinc-500 text-xs">CTR</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
