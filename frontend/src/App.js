@@ -162,7 +162,8 @@ function App() {
               <Route path="/demo" element={<DemoRedirect />} />
               <Route path="/showcase" element={<DemoShowcaseHub />} />
               <Route path="/monetization" element={<MonetizationPage />} />
-              <Route path="/amazon-audit" element={<DemoUniversePage />} />
+              {/* 301 Redirect: /amazon-audit -> demoai.adsgupta.com/amazon-audit */}
+              <Route path="/amazon-audit" element={<AmazonAuditRedirect />} />
               {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
               
               {/* Marketing/Landing Pages */}
