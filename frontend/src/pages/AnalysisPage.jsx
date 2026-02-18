@@ -30,7 +30,6 @@ import { Footer } from '../components/Footer';
 import OmniNav from '../components/OmniNav';
 import PersistentSLMChat from '../components/PersistentSLMChat';
 import useDataStore from '../store/dataStore';
-import useMultiFileStore from '../store/multiFileStore';
 import { 
   parseUploadedData, 
   runAllAgents, 
