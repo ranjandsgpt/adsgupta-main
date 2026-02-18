@@ -17,15 +17,6 @@ import useDataStore from '../store/dataStore';
 // Domain config
 const DEMO_DOMAIN = process.env.REACT_APP_DEMO_DOMAIN || 'https://demoai.adsgupta.com';
 
-// Report type options
-const REPORT_TYPES = [
-  { id: 'search_term', label: 'Search Term Report', description: 'Keyword performance & wasted spend' },
-  { id: 'targeting', label: 'Targeting Report', description: 'Campaign targeting analysis' },
-  { id: 'advertised_product', label: 'Advertised Product Report', description: 'Product-level ad performance' },
-  { id: 'business_report', label: 'Business Report', description: 'Sales & traffic data' },
-  { id: 'other', label: 'Other Report', description: 'Generic analysis' },
-];
-
 // Instant Audit Dropzone Component - Supports file upload
 const AuditDropzone = ({ onFileProcessed }) => {
   const [isDragging, setIsDragging] = useState(false);
