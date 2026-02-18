@@ -49,22 +49,22 @@ const MegaMenu = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - High z-index to cover hero content */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/20"
+            className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
           
-          {/* Menu Panel - Fixed positioning for full-width dropdown */}
+          {/* Menu Panel - Fixed positioning for full-width dropdown with high z-index */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-[64px] left-0 right-0 z-50 pt-2"
+            className="fixed top-[64px] left-0 right-0 z-[60] pt-2"
             onMouseLeave={onClose}
             data-testid="mega-menu"
           >

@@ -282,21 +282,43 @@ const InstantAuditPage = () => {
   const currentMarketplace = MARKETPLACES.find(m => m.id === activeMarketplace) || MARKETPLACES[0];
   const isMarketplaceActive = currentMarketplace.status === 'active';
 
-  const handleFileProcessed = useCallback((data, fileType, fileName) => {
-    // Store data in Zustand
-    setUploadedData(data, fileName, fileType);
-    
-    // Show processing animation then redirect
+  const handleFileProcessed = useCallback(async (data, fileType, fileName) => {
     setIsProcessing(true);
     setProcessingStage('Parsing file structure...');
     
-    setTimeout(() => setProcessingStage('Detecting data columns...'), 400);
-    setTimeout(() => setProcessingStage('Running 20 AI agents...'), 800);
-    setTimeout(() => setProcessingStage('Generating insights...'), 1200);
-    setTimeout(() => {
-      setIsProcessing(false);
+    // First, store data in Zustand and wait for it to persist
+    await new Promise((resolve) => {
+      setUploadedData(data, fileName, fileType);
+      // Give Zustand time to persist to sessionStorage
+      setTimeout(resolve, 100);
+    });
+    
+    // Visual progress stages with async delays
+    setProcessingStage('Detecting data columns...');
+    await new Promise(r => setTimeout(r, 400));
+    
+    setProcessingStage('Running 20 AI agents...');
+    await new Promise(r => setTimeout(r, 500));
+    
+    setProcessingStage('Generating insights...');
+    await new Promise(r => setTimeout(r, 400));
+    
+    // Verify data is persisted before redirect
+    const storedData = sessionStorage.getItem('adsgupta-data-store');
+    if (storedData) {
+      const parsed = JSON.parse(storedData);
+      if (parsed.state?.uploadedData) {
+        navigate('/analysis');
+      } else {
+        // Retry once if data not found
+        await new Promise(r => setTimeout(r, 300));
+        navigate('/analysis');
+      }
+    } else {
+      // Fallback redirect
       navigate('/analysis');
-    }, 1800);
+    }
+    setIsProcessing(false);
   }, [setUploadedData, navigate]);
 
   // Handle multiple files - process and redirect to Multi-Vault
