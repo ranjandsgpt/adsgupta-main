@@ -548,14 +548,19 @@ export const parseUploadedData = (rawData, reportType = 'auto') => {
     ...calculateSummary(termRows, availableMetrics)
   })).sort((a, b) => b.totalSpend - a.totalSpend);
 
+  // Calculate wasted ad spend using specific algorithm
+  const wastedSpend = calculateWastedAdSpend(rows, 10);
+
   return { 
     rows, 
     summary, 
     asins, 
     searchTerms,
+    wastedSpend,
     availableMetrics,
     missingMetrics,
-    totalRows: rawData.length,
+    reportType: detectedType,
+    totalRows: filteredData.length,
     columns: allColumns
   };
 };
