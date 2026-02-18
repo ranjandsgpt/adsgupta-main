@@ -186,9 +186,17 @@ const COLUMN_MAPPINGS = {
   
   acos: [
     'Total Advertising Cost of Sales (ACOS)',
+    'Total Advertising Cost of Sales (ACOS) ', // With trailing space
     'ACOS',
     'acos',
     'ACoS'
+  ],
+  
+  roas: [
+    'Total Return on Advertising Spend (ROAS)',
+    'ROAS',
+    'roas',
+    'Return on Ad Spend'
   ],
   
   cpc: [
@@ -217,6 +225,17 @@ const COLUMN_MAPPINGS = {
     'Targeting Type'
   ],
   
+  country: [
+    'Country',
+    'country',
+    'Marketplace'
+  ],
+  
+  currency: [
+    'Currency',
+    'currency'
+  ],
+  
   // Additional identifiers
   asin: [
     'ASIN',
@@ -230,7 +249,27 @@ const COLUMN_MAPPINGS = {
     'SKU',
     'sku',
     'Seller SKU',
-    'Advertised SKU'
+    'Advertised SKU',
+    '7 Day Advertised SKU Units (#)',
+    '7 Day Advertised SKU Sales'
+  ],
+  
+  // Date columns
+  startDate: [
+    'Start Date',
+    'start_date',
+    'Date'
+  ],
+  
+  endDate: [
+    'End Date',
+    'end_date'
+  ],
+  
+  portfolio: [
+    'Portfolio name',
+    'Portfolio',
+    'portfolio'
   ]
 };
 
