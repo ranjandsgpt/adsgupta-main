@@ -43,44 +43,106 @@ const AuditDropzone = ({ onFileProcessed }) => {
     const extension = file.name.split('.').pop().toLowerCase();
 
     if (extension === 'csv') {
-      Papa.parse(file, {
-        header: true,
-        complete: (results) => {
-          setTimeout(() => {
-            onFileProcessed(results.data, 'csv', file.name, selectedReportType);
-            setIsProcessing(false);
-          }, 800);
-        },
-        error: (error) => {
-          console.error('CSV parse error:', error);
-          setIsProcessing(false);
-          alert('Failed to parse CSV file. Please check the file format.');
-        }
-      });
+      // Try UTF-8 first, then fallback to UTF-16 or ISO-8859-1
+      const tryParseCSV = (encoding) => {
+        Papa.parse(file, {
+          header: true,
+          encoding: encoding,
+          skipEmptyLines: true,
+          transformHeader: (header) => header.trim(), // Remove trailing spaces from headers
+          complete: (results) => {
+            // Check if parsing was successful
+            if (results.data && results.data.length > 0) {
+              const firstRow = results.data[0];
+              const keys = Object.keys(firstRow);
+              
+              // If keys look garbled (wrong encoding), try another encoding
+              if (encoding === 'UTF-8' && keys.some(k => k.includes('�') || k.includes('ÿþ'))) {
+                console.log('UTF-8 produced garbled output, trying UTF-16...');
+                tryParseCSV('UTF-16');
+                return;
+              }
+              
+              console.log('CSV parsed with', encoding, ':', results.data.length, 'rows. Columns:', keys.slice(0, 5));
+              
+              // Filter out empty rows
+              const validData = results.data.filter(row => {
+                const values = Object.values(row);
+                return values.some(v => v !== null && v !== undefined && v !== '');
+              });
+              
+              setTimeout(() => {
+                onFileProcessed(validData, 'csv', file.name, selectedReportType);
+                setIsProcessing(false);
+              }, 500);
+            } else if (encoding === 'UTF-8') {
+              // UTF-8 failed, try UTF-16
+              console.log('UTF-8 parsing returned no data, trying UTF-16...');
+              tryParseCSV('UTF-16');
+            } else if (encoding === 'UTF-16') {
+              // UTF-16 failed, try ISO-8859-1
+              console.log('UTF-16 parsing returned no data, trying ISO-8859-1...');
+              tryParseCSV('ISO-8859-1');
+            } else {
+              setIsProcessing(false);
+              alert('Failed to parse CSV file. The file may be empty or corrupted.');
+            }
+          },
+          error: (error) => {
+            console.error('CSV parse error with', encoding, ':', error);
+            if (encoding === 'UTF-8') {
+              tryParseCSV('UTF-16');
+            } else if (encoding === 'UTF-16') {
+              tryParseCSV('ISO-8859-1');
+            } else {
+              setIsProcessing(false);
+              alert('Failed to parse CSV file. Please check the file format.');
+            }
+          }
+        });
+      };
+      
+      // Start with UTF-8
+      tryParseCSV('UTF-8');
+      
     } else if (['xlsx', 'xls'].includes(extension)) {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
           const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          
+          // Convert to JSON with raw values preserved
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+            raw: false,      // Get formatted strings to preserve € symbols etc
+            defval: ''       // Default value for empty cells
+          });
           
           if (!jsonData || jsonData.length === 0) {
             throw new Error('No data found in spreadsheet');
           }
           
-          console.log('XLSX parsed:', jsonData.length, 'rows. Columns:', Object.keys(jsonData[0] || {}).slice(0, 5));
+          // Clean up header names (trim whitespace)
+          const cleanedData = jsonData.map(row => {
+            const cleaned = {};
+            for (const [key, value] of Object.entries(row)) {
+              cleaned[key.trim()] = value;
+            }
+            return cleaned;
+          });
+          
+          console.log('XLSX parsed:', cleanedData.length, 'rows. Columns:', Object.keys(cleanedData[0] || {}).slice(0, 5));
           
           setTimeout(() => {
-            onFileProcessed(jsonData, 'xlsx', file.name, selectedReportType);
+            onFileProcessed(cleanedData, 'xlsx', file.name, selectedReportType);
             setIsProcessing(false);
-          }, 800);
+          }, 500);
         } catch (parseError) {
           console.error('XLSX parse error:', parseError);
           setIsProcessing(false);
-          alert('Failed to parse Excel file. Please check the file format.');
+          alert('Failed to parse Excel file: ' + parseError.message);
         }
       };
       reader.onerror = (error) => {
