@@ -1265,10 +1265,10 @@ const AnalysisPage = () => {
               <KPICard label="Total Units" value={summary?.totalUnits} icon={Package} color="text-cyan-400" />
               <KPICard label="Total Spend" value={summary?.totalSpend} prefix="$" icon={BarChart3} color="text-rose-400" />
               <KPICard label="Avg ACOS" value={summary?.avgAcos === Infinity ? '∞' : summary?.avgAcos} suffix="%" icon={Percent} color="text-amber-400" />
-              <KPICard label="Sessions" value={summary?.totalSessions} icon={Eye} color="text-blue-400" />
-              <KPICard label="Conversion" value={summary?.avgConversion} suffix="%" icon={Target} color="text-violet-400" />
+              <KPICard label="Sessions" value={summary?.totalSessions || 0} icon={Eye} color="text-blue-400" />
+              <KPICard label="Conversion" value={summary?.avgConversion !== 'N/A' ? summary?.avgConversion : summary?.avgUnitSessionPct} suffix="%" icon={Target} color="text-violet-400" />
               <KPICard label="ROAS" value={summary?.avgRoas} suffix="x" icon={TrendingUp} color="text-emerald-400" />
-              <KPICard label="Unique ASINs" value={asins?.length} icon={Package} color="text-orange-400" />
+              <KPICard label={summary?.avgBuyBox !== 'N/A' ? 'Buy Box %' : 'Unique ASINs'} value={summary?.avgBuyBox !== 'N/A' ? summary?.avgBuyBox : asins?.length} suffix={summary?.avgBuyBox !== 'N/A' ? '%' : ''} icon={Package} color="text-orange-400" />
             </div>
           </div>
 
