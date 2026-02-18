@@ -76,27 +76,24 @@ const HomePage = () => {
         {/* Stats Ticker */}
         <StatsTicker />
         
-        {/* 2. The Neural Engine (The Core) - Moved Up */}
+        {/* 2. The Neural Engine (formerly "The Core") */}
         <FeaturesSection />
         
-        {/* 3. The Hub (The Protocols) */}
+        {/* 3. The Protocols (formerly "The Hub") */}
         <HubSection />
         
-        {/* 4. Marketplace Solutions (Feature Deep-Dive) */}
-        <MarketplaceSection />
-        
-        {/* 5. Blog Preview */}
+        {/* 4. Blog Preview - MARKETPLACE INTEL REMOVED per task */}
         <BlogPreview />
         
-        {/* 6. Network Solutions (The Ecosystem) - Moved to Bottom */}
+        {/* 5. Network Solutions (The Ecosystem) */}
         <NetworkSection />
       </main>
       
       {/* Footer */}
       <Footer />
       
-      {/* Chatbot */}
-      <ChatBot />
+      {/* Persistent SLM Chatbot */}
+      <PersistentSLMChat />
     </div>
   );
 };
