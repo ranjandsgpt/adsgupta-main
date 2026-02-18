@@ -528,12 +528,30 @@ const fieldExists = (rows, possibleNames) => {
  */
 const detectReportType = (row) => {
   if (!row) return 'generic';
-  const keys = Object.keys(row).map(k => k.toLowerCase());
+  const keys = Object.keys(row);
+  // Normalize keys for matching (handle en-dash, em-dash, special chars)
+  const normalizedKeys = keys.map(k => k.toLowerCase().replace(/[\u2013\u2014]/g, '-'));
   
-  if (keys.some(k => k.includes('customer search term'))) return 'search_term';
-  if (keys.some(k => k.includes('targeting'))) return 'targeting';
-  if (keys.some(k => k.includes('advertised sku') || k.includes('advertised asin'))) return 'advertised_product';
-  if (keys.some(k => k.includes('sessions') || k.includes('page views'))) return 'business';
+  // Business Report detection - Sessions and Page Views columns
+  if (normalizedKeys.some(k => k.includes('sessions - total') || k.includes('sessions – total') || k === 'sessions')) {
+    return 'business';
+  }
+  if (normalizedKeys.some(k => k.includes('page views - total') || k.includes('page views – total'))) {
+    return 'business';
+  }
+  if (normalizedKeys.some(k => k.includes('unit session percentage'))) {
+    return 'business';
+  }
+  
+  // Search Term Report detection
+  if (normalizedKeys.some(k => k.includes('customer search term'))) return 'search_term';
+  
+  // Targeting Report detection
+  if (normalizedKeys.some(k => k === 'targeting' || k.includes('keyword or product targeting'))) return 'targeting';
+  
+  // Advertised Product Report detection
+  if (normalizedKeys.some(k => k.includes('advertised sku') || k.includes('advertised asin'))) return 'advertised_product';
+  
   return 'generic';
 };
 
