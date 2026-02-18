@@ -104,6 +104,67 @@ const AuditDropzone = ({ onFileProcessed, onMultipleFiles }) => {
       {/* Glow Effect */}
       <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-75" />
       
+      {/* Report Type Selector */}
+      <div className="relative mb-4">
+        <button
+          type="button"
+          onClick={() => setShowReportTypeSelector(!showReportTypeSelector)}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#0A1628] border border-white/10 text-white hover:border-blue-500/30 transition-all"
+          data-testid="report-type-selector"
+        >
+          <div className="flex items-center gap-3">
+            <FileSpreadsheet size={18} className="text-blue-400" />
+            <div className="text-left">
+              <p className="text-sm font-medium">{REPORT_TYPES.find(r => r.id === selectedReportType)?.label}</p>
+              <p className="text-xs text-zinc-500">{REPORT_TYPES.find(r => r.id === selectedReportType)?.description}</p>
+            </div>
+          </div>
+          <motion.div animate={{ rotate: showReportTypeSelector ? 180 : 0 }}>
+            <Package size={16} className="text-zinc-500" />
+          </motion.div>
+        </button>
+        
+        <AnimatePresence>
+          {showReportTypeSelector && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-full left-0 right-0 mt-2 p-2 rounded-xl bg-[#0A1628] border border-white/10 shadow-xl z-10"
+            >
+              {REPORT_TYPES.map((type) => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedReportType(type.id);
+                    setShowReportTypeSelector(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all ${
+                    selectedReportType === type.id
+                      ? 'bg-blue-500/20 border border-blue-500/30 text-white'
+                      : 'hover:bg-white/5 text-zinc-400'
+                  }`}
+                  data-testid={`report-type-${type.id}`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    selectedReportType === type.id ? 'border-blue-400' : 'border-zinc-600'
+                  }`}>
+                    {selectedReportType === type.id && (
+                      <div className="w-2 h-2 rounded-full bg-blue-400" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{type.label}</p>
+                    <p className="text-xs text-zinc-500">{type.description}</p>
+                  </div>
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      
       <motion.div
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
