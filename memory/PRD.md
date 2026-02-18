@@ -430,6 +430,31 @@ Zomato    - Coming (quick commerce)
 - `/app/frontend/src/pages/AnalysisPage.jsx` - Enhanced chartData with 5 data types, enhanced MasterSummarySection with 8 insight types
 - `/app/frontend/src/pages/InstantAuditPage.jsx` - Updated dropzone text
 
+#### P0 - Comprehensive Report Parsing Fix ✅
+**Test Report:** `/app/test_reports/iteration_18.json`
+**Pass Rate:** 100% (34/34 tests)
+
+**Business Report Parsing:**
+- Fixed column mapping for en-dash (–) characters in headers like "Sessions – Total"
+- Added detection for: sessions, pageViews, buyBoxPct, unitSessionPct, parentAsin, childAsin, title
+- Total 11 metrics detected from Business Reports
+- Buy Box % now displays in KPI cards when available
+
+**Search Term Report Parsing:**
+- All 19 metrics detected: searchTerm, targeting, impressions, clicks, sales, units, spend, orders, conversionRate, unitSessionPct, ctr, acos, cpc, roas, date, campaignName, adGroupName, matchType, sku
+- Large file handling (4,664 rows) working correctly
+- Wasted spend calculation working (€108.97 wasted, 11 keywords identified)
+
+**Master Analysis Enhanced Insights:**
+- Buy Box % analysis for Business Reports (>95% excellent, <90% warning)
+- Unit Session % analysis (>20% strong, <10% warning)
+- Page Views per Session analysis
+- Sessions and traffic analysis
+
+**Files Modified:**
+- `/app/frontend/src/utils/analysisEngineV2.js` - Complete column mappings rewrite, normalizeColumnName function, detectReportType enhancement, calculateSummary with Buy Box/Unit Session %
+- `/app/frontend/src/pages/AnalysisPage.jsx` - Added Buy Box, Unit Session %, Traffic insights to Master Analysis; Updated KPI cards to show Buy Box % when available
+
 ### P0 - Deploy (READY)
 - Deploy tools domain to tools.adsgupta.com
 - Deploy demo domain to demoai.adsgupta.com
