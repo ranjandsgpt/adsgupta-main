@@ -41,6 +41,9 @@ import TalentOSWorkspace from "./modules/talentos/pages/TalentOSWorkspace";
 import TalentOSAnalysis from "./modules/talentos/pages/TalentOSAnalysis";
 import TalentOSInterview from "./modules/talentos/pages/TalentOSInterview";
 
+import PersistentSLMChat from './components/PersistentSLMChat';
+import OmniNav from './components/OmniNav';
+
 // Environment config
 const SHOW_DEMO = process.env.REACT_APP_SHOW_DEMO === 'true';
 const SITE_MODE = process.env.REACT_APP_SITE_MODE || 'tools';
