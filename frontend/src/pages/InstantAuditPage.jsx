@@ -508,7 +508,7 @@ const InstantAuditPage = () => {
 
                 {/* Dropzone */}
                 <div className="max-w-2xl mx-auto">
-                  <AuditDropzone onFileProcessed={handleFileProcessed} onMultipleFiles={handleMultipleFiles} />
+                  <AuditDropzone onFileProcessed={handleFileProcessed} />
                 </div>
 
                 {/* Supported Reports */}
