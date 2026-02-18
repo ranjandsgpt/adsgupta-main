@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse';
@@ -13,7 +13,6 @@ import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
 import MarketplaceContextSwitcher, { MARKETPLACES, ProtocolDevelopmentState } from '../components/MarketplaceContextSwitcher';
 import useDataStore from '../store/dataStore';
-import useMultiFileStore from '../store/multiFileStore';
 
 // Domain config
 const DEMO_DOMAIN = process.env.REACT_APP_DEMO_DOMAIN || 'https://demoai.adsgupta.com';
