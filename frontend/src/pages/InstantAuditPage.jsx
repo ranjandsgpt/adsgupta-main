@@ -170,7 +170,7 @@ const AuditDropzone = ({ onFileProcessed }) => {
           console.log('XLSX parsed:', cleanedData.length, 'rows. Columns:', Object.keys(cleanedData[0] || {}).slice(0, 5));
           
           setTimeout(() => {
-            onFileProcessed(cleanedData, 'xlsx', file.name, selectedReportType);
+            onFileProcessed(cleanedData, 'xlsx', file.name, 'auto');
             setIsProcessing(false);
           }, 500);
         } catch (parseError) {
