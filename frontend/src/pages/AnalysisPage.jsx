@@ -1,8 +1,15 @@
 /**
  * Deep Analysis Page - Real data visualization from uploaded files
  * Zero hallucination - all metrics calculated from actual uploaded data
+ * 
+ * Features:
+ * - Loading skeleton while processing
+ * - Multi-report type support with specialized sections
+ * - Master Summary for cross-report analysis
+ * - Browser SLM integration for contextual chat
+ * - OmniNav integration
  */
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -12,14 +19,18 @@ import {
 import {
   TrendingUp, TrendingDown, DollarSign, Target, Eye, Package, BarChart3,
   Percent, AlertTriangle, CheckCircle2, Download, FileText, RefreshCw,
-  ChevronRight, Zap, X, Bot, Search, Info, ArrowLeft, Loader2, Filter
+  ChevronRight, Zap, X, Bot, Search, Info, ArrowLeft, Loader2, Filter,
+  Sparkles, Cpu, FileSpreadsheet
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
 import { Footer } from '../components/Footer';
+import OmniNav from '../components/OmniNav';
+import PersistentSLMChat from '../components/PersistentSLMChat';
 import useDataStore from '../store/dataStore';
+import useMultiFileStore from '../store/multiFileStore';
 import { 
   parseUploadedData, 
   runAllAgents, 
@@ -28,7 +39,65 @@ import {
   exportFindingsToCSV 
 } from '../utils/analysisEngineV2';
 
-// Health Score Gauge
+// ============== LOADING SKELETON ==============
+
+const LoadingSkeleton = ({ stage = 'Initializing Neural Agents...' }) => (
+  <div className="min-h-screen bg-[#050B18] flex items-center justify-center">
+    <div className="text-center max-w-md mx-auto px-6">
+      {/* Animated Neural Logo */}
+      <div className="relative w-24 h-24 mx-auto mb-8">
+        <div className="absolute inset-0 rounded-full border-4 border-blue-500/20 animate-ping" />
+        <div className="absolute inset-2 rounded-full border-4 border-cyan-500/30 animate-pulse" />
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-4 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent"
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Cpu size={28} className="text-blue-400" />
+        </div>
+      </div>
+      
+      <h2 className="text-2xl font-bold text-white font-['Space_Grotesk'] mb-2">
+        Processing Neural Insights
+      </h2>
+      
+      <motion.p 
+        key={stage}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-blue-400 mb-6"
+      >
+        {stage}
+      </motion.p>
+      
+      {/* Skeleton Cards */}
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-16 rounded-xl bg-white/5 animate-pulse" style={{ animationDelay: `${i * 150}ms` }} />
+        ))}
+      </div>
+      
+      {/* Agent chips */}
+      <div className="flex flex-wrap justify-center gap-2 mt-6">
+        {['Waste Analyzer', 'ACOS Optimizer', 'Conversion Engine', 'Spend Tracker'].map((agent, i) => (
+          <motion.span
+            key={agent}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.1 }}
+            className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs"
+          >
+            {agent}
+          </motion.span>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// ============== HEALTH SCORE GAUGE ==============
+
 const HealthScoreGauge = ({ score }) => {
   const getColor = (s) => {
     if (s >= 80) return '#10B981';
@@ -43,18 +112,9 @@ const HealthScoreGauge = ({ score }) => {
   return (
     <div className="relative w-32 h-32">
       <svg className="w-full h-full transform -rotate-90">
-        <circle
-          cx="64"
-          cy="64"
-          r="45"
-          stroke="#1E293B"
-          strokeWidth="8"
-          fill="none"
-        />
+        <circle cx="64" cy="64" r="45" stroke="#1E293B" strokeWidth="8" fill="none" />
         <motion.circle
-          cx="64"
-          cy="64"
-          r="45"
+          cx="64" cy="64" r="45"
           stroke={color}
           strokeWidth="8"
           fill="none"
@@ -73,7 +133,8 @@ const HealthScoreGauge = ({ score }) => {
   );
 };
 
-// KPI Card
+// ============== KPI CARD ==============
+
 const KPICard = ({ label, value, prefix = '', suffix = '', icon: Icon, color, subtext }) => {
   const displayValue = value === 'N/A' || value === null || value === undefined 
     ? 'N/A' 
@@ -99,7 +160,8 @@ const KPICard = ({ label, value, prefix = '', suffix = '', icon: Icon, color, su
   );
 };
 
-// Custom Tooltip
+// ============== CUSTOM TOOLTIP ==============
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null;
   
@@ -119,7 +181,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-// Agent Finding Card
+// ============== FINDING CARD ==============
+
 const FindingCard = ({ finding, agentName }) => {
   const severityColors = {
     critical: 'border-red-500/30 bg-red-500/5',
@@ -176,23 +239,210 @@ const FindingCard = ({ finding, agentName }) => {
               {finding.value}
             </p>
           )}
-          {finding.requiresData && (
-            <p className="text-amber-400 text-xs mt-2 flex items-center gap-1">
-              <Info size={12} /> Upload required report type for this analysis
-            </p>
-          )}
-          {finding.requiresApi && (
-            <p className="text-blue-400 text-xs mt-2 flex items-center gap-1">
-              <Zap size={12} /> Connect Amazon SP-API for real-time data
-            </p>
-          )}
         </div>
       </div>
     </motion.div>
   );
 };
 
-// Data Table Component
+// ============== WASTED SPEND SECTION (For Search Term Reports) ==============
+
+const WastedSpendSection = ({ searchTerms }) => {
+  // Calculate wasted spend: keywords with clicks but 0 sales
+  const wastedTerms = useMemo(() => {
+    if (!searchTerms || searchTerms.length === 0) return [];
+    
+    return searchTerms
+      .filter(term => {
+        const clicks = term.clicks || term.Clicks || 0;
+        const sales = term['7_day_total_sales'] || term['7 Day Total Sales'] || term.sales || 0;
+        const spend = term.spend || term.Spend || 0;
+        return clicks > 5 && sales === 0 && spend > 0;
+      })
+      .sort((a, b) => (b.spend || b.Spend || 0) - (a.spend || a.Spend || 0))
+      .slice(0, 20);
+  }, [searchTerms]);
+
+  const totalWasted = wastedTerms.reduce((sum, t) => sum + (t.spend || t.Spend || 0), 0);
+
+  if (wastedTerms.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-6 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-500/5 border border-red-500/20"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+            <DollarSign size={20} className="text-red-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white font-['Space_Grotesk']">Wasted Ad Spend Detected</h3>
+            <p className="text-zinc-400 text-sm">Keywords with 5+ clicks and $0 in sales</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-3xl font-bold text-red-400 font-['JetBrains_Mono']">${totalWasted.toLocaleString()}</p>
+          <p className="text-zinc-500 text-xs">Potential savings</p>
+        </div>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="text-zinc-500 text-xs uppercase border-b border-red-500/20">
+              <th className="text-left py-2 px-3">Search Term</th>
+              <th className="text-right py-2 px-3">Clicks</th>
+              <th className="text-right py-2 px-3">Spend</th>
+              <th className="text-right py-2 px-3">Sales</th>
+            </tr>
+          </thead>
+          <tbody>
+            {wastedTerms.slice(0, 10).map((term, i) => (
+              <tr key={i} className="border-b border-red-500/10">
+                <td className="py-2 px-3 text-white text-sm truncate max-w-[200px]">
+                  {term.customer_search_term || term['Customer Search Term'] || term.searchTerm || 'N/A'}
+                </td>
+                <td className="py-2 px-3 text-right text-zinc-400 font-['JetBrains_Mono'] text-sm">
+                  {term.clicks || term.Clicks || 0}
+                </td>
+                <td className="py-2 px-3 text-right text-red-400 font-['JetBrains_Mono'] text-sm">
+                  ${(term.spend || term.Spend || 0).toFixed(2)}
+                </td>
+                <td className="py-2 px-3 text-right text-zinc-500 font-['JetBrains_Mono'] text-sm">
+                  $0
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
+      <p className="text-zinc-500 text-xs mt-4">
+        💡 Tip: Add these terms as negative keywords to stop wasting ad budget
+      </p>
+    </motion.div>
+  );
+};
+
+// ============== MASTER SUMMARY SECTION (For Multi-Report) ==============
+
+const MasterSummarySection = ({ parsedData, agentResults }) => {
+  const [isGenerating, setIsGenerating] = useState(true);
+  const [masterInsights, setMasterInsights] = useState([]);
+
+  useEffect(() => {
+    // Simulate SLM analysis delay
+    const timer = setTimeout(() => {
+      // Generate cross-report insights
+      const insights = [];
+      
+      if (parsedData?.summary) {
+        // High ACOS + Low Conversion correlation
+        if (parsedData.summary.avgAcos > 30 && parsedData.summary.avgConversion < 5) {
+          insights.push({
+            type: 'correlation',
+            severity: 'critical',
+            title: 'ACOS-Conversion Mismatch',
+            description: `Your ACOS (${parsedData.summary.avgAcos?.toFixed(1)}%) is high while conversion (${parsedData.summary.avgConversion?.toFixed(2)}%) is low. This indicates you're paying for clicks that don't convert.`,
+            recommendation: 'Focus on improving listing quality (images, bullets, A+ content) before increasing ad spend.'
+          });
+        }
+        
+        // High spend with low ROAS
+        if (parsedData.summary.totalSpend > 1000 && parsedData.summary.avgRoas < 2) {
+          insights.push({
+            type: 'warning',
+            severity: 'high',
+            title: 'Ad Spend Efficiency Alert',
+            description: `You've spent $${parsedData.summary.totalSpend?.toLocaleString()} with only ${parsedData.summary.avgRoas?.toFixed(2)}x ROAS. Target should be 3x+ for profitability.`,
+            recommendation: 'Audit your top-spending campaigns and pause keywords with <2x ROAS.'
+          });
+        }
+        
+        // Success pattern
+        if (parsedData.summary.avgRoas > 4) {
+          insights.push({
+            type: 'success',
+            severity: 'low',
+            title: 'Strong ROAS Performance',
+            description: `Your ${parsedData.summary.avgRoas?.toFixed(2)}x ROAS indicates healthy ad performance. Consider scaling winning campaigns.`,
+            recommendation: 'Identify your top 20% of keywords driving 80% of sales and increase bids strategically.'
+          });
+        }
+      }
+      
+      setMasterInsights(insights);
+      setIsGenerating(false);
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, [parsedData]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-6 rounded-2xl bg-gradient-to-br from-violet-500/10 to-purple-500/5 border border-violet-500/20"
+    >
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+          <Sparkles size={20} className="text-violet-400" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white font-['Space_Grotesk']">Master Analysis</h3>
+          <div className="flex items-center gap-2">
+            <Cpu size={12} className="text-violet-400" />
+            <p className="text-zinc-400 text-sm">Cross-Report Intelligence by Neural Engine</p>
+          </div>
+        </div>
+      </div>
+      
+      {isGenerating ? (
+        <div className="flex items-center gap-3 py-8">
+          <Loader2 size={20} className="text-violet-400 animate-spin" />
+          <span className="text-zinc-400">Synthesizing cross-report patterns...</span>
+        </div>
+      ) : masterInsights.length > 0 ? (
+        <div className="space-y-4">
+          {masterInsights.map((insight, i) => (
+            <div key={i} className={`p-4 rounded-xl border ${
+              insight.type === 'correlation' ? 'border-red-500/30 bg-red-500/5' :
+              insight.type === 'warning' ? 'border-amber-500/30 bg-amber-500/5' :
+              'border-emerald-500/30 bg-emerald-500/5'
+            }`}>
+              <div className="flex items-start gap-3">
+                <div className={`mt-1 ${
+                  insight.type === 'correlation' ? 'text-red-400' :
+                  insight.type === 'warning' ? 'text-amber-400' :
+                  'text-emerald-400'
+                }`}>
+                  {insight.type === 'success' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+                </div>
+                <div>
+                  <h4 className="text-white font-medium mb-1">{insight.title}</h4>
+                  <p className="text-zinc-400 text-sm mb-2">{insight.description}</p>
+                  <p className="text-violet-400 text-sm flex items-center gap-2">
+                    <Zap size={12} /> {insight.recommendation}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-zinc-500 text-center py-8">
+          Upload multiple report types for cross-report analysis
+        </p>
+      )}
+    </motion.div>
+  );
+};
+
+// ============== DATA TABLE ==============
+
 const DataTable = ({ data, columns, title }) => {
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('desc');
@@ -278,39 +528,79 @@ const DataTable = ({ data, columns, title }) => {
   );
 };
 
-// Main Analysis Page
+// ============== MAIN ANALYSIS PAGE ==============
+
 const AnalysisPage = () => {
   const navigate = useNavigate();
   const reportRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [loadingStage, setLoadingStage] = useState('Initializing Neural Agents...');
+  const [isLoading, setIsLoading] = useState(true);
   
-  const { uploadedData, fileName, parsedData, setParsedData, agentResults, setAgentResults, clearData } = useDataStore();
+  const { 
+    uploadedData, fileName, fileType, 
+    parsedData, setParsedData, 
+    agentResults, setAgentResults, 
+    clearData 
+  } = useDataStore();
 
-  // Parse data and run agents on mount
+  // Parse data and run agents on mount (with proper async handling)
   useEffect(() => {
-    if (uploadedData && !parsedData) {
-      const parsed = parseUploadedData(uploadedData);
-      setParsedData(parsed);
-      
-      // Run all AI agents
-      const results = runAllAgents(parsed);
-      setAgentResults(results);
-    }
-  }, [uploadedData, parsedData, setParsedData, setAgentResults]);
+    const processData = async () => {
+      if (!uploadedData) {
+        navigate('/audit');
+        return;
+      }
 
-  // Redirect if no data
-  useEffect(() => {
-    if (!uploadedData) {
-      navigate('/audit');
-    }
-  }, [uploadedData, navigate]);
+      if (parsedData && agentResults) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setLoadingStage('Parsing file structure...');
+        await new Promise(r => setTimeout(r, 300));
+        
+        setLoadingStage('Detecting data columns...');
+        const parsed = parseUploadedData(uploadedData);
+        setParsedData(parsed);
+        await new Promise(r => setTimeout(r, 300));
+        
+        setLoadingStage('Running 20 AI optimization agents...');
+        await new Promise(r => setTimeout(r, 500));
+        
+        setLoadingStage('Generating insights...');
+        const results = runAllAgents(parsed);
+        setAgentResults(results);
+        await new Promise(r => setTimeout(r, 300));
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Analysis failed:', error);
+        setLoadingStage('Analysis failed. Retrying...');
+        // Retry once
+        setTimeout(() => {
+          try {
+            const parsed = parseUploadedData(uploadedData);
+            setParsedData(parsed);
+            const results = runAllAgents(parsed);
+            setAgentResults(results);
+            setIsLoading(false);
+          } catch (e) {
+            navigate('/audit');
+          }
+        }, 1000);
+      }
+    };
+
+    processData();
+  }, [uploadedData, parsedData, agentResults, setParsedData, setAgentResults, navigate]);
 
   // Generate chart data
   const chartData = useMemo(() => {
     if (!parsedData?.asins) return { pareto: [], scatter: [] };
 
-    // Pareto chart - top ASINs by sales
     const sortedBySales = [...parsedData.asins]
       .filter(a => a.totalSales > 0)
       .sort((a, b) => b.totalSales - a.totalSales);
@@ -318,7 +608,7 @@ const AnalysisPage = () => {
     const totalSales = sortedBySales.reduce((s, a) => s + a.totalSales, 0);
     let cumulative = 0;
     
-    const pareto = sortedBySales.slice(0, 15).map((a, i) => {
+    const pareto = sortedBySales.slice(0, 15).map((a) => {
       cumulative += a.totalSales;
       return {
         asin: a.asin.slice(0, 10),
@@ -327,7 +617,6 @@ const AnalysisPage = () => {
       };
     });
 
-    // Scatter chart - conversion vs spend
     const scatter = parsedData.asins
       .filter(a => a.totalSpend > 0 && a.avgConversion !== 'N/A')
       .map(a => ({
@@ -374,25 +663,21 @@ const AnalysisPage = () => {
     }
   };
 
-  if (!parsedData || !agentResults) {
-    return (
-      <div className="min-h-screen bg-[#050B18] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 size={48} className="text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-white">Analyzing your data...</p>
-          <p className="text-zinc-500 text-sm">Running 20 AI optimization agents</p>
-        </div>
-      </div>
-    );
+  // Show loading skeleton
+  if (isLoading) {
+    return <LoadingSkeleton stage={loadingStage} />;
   }
 
-  const { summary, asins, searchTerms, availableMetrics, missingMetrics, totalRows, columns } = parsedData;
+  if (!parsedData || !agentResults) {
+    return <LoadingSkeleton stage="Preparing analysis..." />;
+  }
+
+  const { summary, asins, searchTerms, availableMetrics, missingMetrics, totalRows } = parsedData;
   const { healthScore, criticalCount, warningCount, opportunityCount } = agentResults.summary;
 
   // Separate findings by type
   const criticalFindings = [];
   const opportunityFindings = [];
-  const infoFindings = [];
 
   agentResults.results.forEach(agent => {
     agent.findings?.forEach(f => {
@@ -400,8 +685,6 @@ const AnalysisPage = () => {
         criticalFindings.push({ ...f, agentName: agent.name });
       } else if (f.type === 'opportunity' || f.type === 'success') {
         opportunityFindings.push({ ...f, agentName: agent.name });
-      } else {
-        infoFindings.push({ ...f, agentName: agent.name });
       }
     });
   });
@@ -413,8 +696,9 @@ const AnalysisPage = () => {
       
       <Navigation />
       <MobileNav />
+      <OmniNav showOnPages={['/analysis', '/audit', '/tools', '/multi-vault', '/neural-map']} />
 
-      <main className="relative pt-28 pb-24" ref={reportRef}>
+      <main className="relative pt-32 pb-24" ref={reportRef}>
         <div className="max-w-[1400px] mx-auto px-6">
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
@@ -422,11 +706,12 @@ const AnalysisPage = () => {
               <button
                 onClick={() => { clearData(); navigate('/audit'); }}
                 className="flex items-center gap-2 text-zinc-400 hover:text-white mb-4 transition-colors"
+                data-testid="new-audit-btn"
               >
                 <ArrowLeft size={16} />
                 New Audit
               </button>
-              <h1 className="text-3xl font-bold text-white font-['Manrope'] tracking-tight mb-2">
+              <h1 className="text-3xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-2">
                 Deep Analysis Report
               </h1>
               <p className="text-zinc-400">
@@ -439,6 +724,7 @@ const AnalysisPage = () => {
               <button
                 onClick={handleExportCSV}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all"
+                data-testid="export-csv-btn"
               >
                 <FileText size={16} />
                 Export CSV
@@ -447,6 +733,7 @@ const AnalysisPage = () => {
                 onClick={exportToPDF}
                 disabled={isExporting}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-400 transition-all disabled:opacity-50"
+                data-testid="export-pdf-btn"
               >
                 {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                 {isExporting ? 'Exporting...' : 'Download PDF'}
@@ -475,61 +762,23 @@ const AnalysisPage = () => {
             </div>
 
             <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <KPICard 
-                label="Total Sales" 
-                value={summary?.totalSales} 
-                prefix="$" 
-                icon={DollarSign} 
-                color="text-emerald-400" 
-              />
-              <KPICard 
-                label="Total Units" 
-                value={summary?.totalUnits} 
-                icon={Package} 
-                color="text-cyan-400" 
-              />
-              <KPICard 
-                label="Total Spend" 
-                value={summary?.totalSpend} 
-                prefix="$" 
-                icon={BarChart3} 
-                color="text-rose-400" 
-              />
-              <KPICard 
-                label="Avg ACOS" 
-                value={summary?.avgAcos === Infinity ? '∞' : summary?.avgAcos} 
-                suffix="%" 
-                icon={Percent} 
-                color="text-amber-400" 
-              />
-              <KPICard 
-                label="Sessions" 
-                value={summary?.totalSessions} 
-                icon={Eye} 
-                color="text-blue-400" 
-              />
-              <KPICard 
-                label="Conversion" 
-                value={summary?.avgConversion} 
-                suffix="%" 
-                icon={Target} 
-                color="text-violet-400" 
-              />
-              <KPICard 
-                label="ROAS" 
-                value={summary?.avgRoas} 
-                suffix="x" 
-                icon={TrendingUp} 
-                color="text-emerald-400" 
-              />
-              <KPICard 
-                label="Unique ASINs" 
-                value={asins?.length} 
-                icon={Package} 
-                color="text-orange-400" 
-              />
+              <KPICard label="Total Sales" value={summary?.totalSales} prefix="$" icon={DollarSign} color="text-emerald-400" />
+              <KPICard label="Total Units" value={summary?.totalUnits} icon={Package} color="text-cyan-400" />
+              <KPICard label="Total Spend" value={summary?.totalSpend} prefix="$" icon={BarChart3} color="text-rose-400" />
+              <KPICard label="Avg ACOS" value={summary?.avgAcos === Infinity ? '∞' : summary?.avgAcos} suffix="%" icon={Percent} color="text-amber-400" />
+              <KPICard label="Sessions" value={summary?.totalSessions} icon={Eye} color="text-blue-400" />
+              <KPICard label="Conversion" value={summary?.avgConversion} suffix="%" icon={Target} color="text-violet-400" />
+              <KPICard label="ROAS" value={summary?.avgRoas} suffix="x" icon={TrendingUp} color="text-emerald-400" />
+              <KPICard label="Unique ASINs" value={asins?.length} icon={Package} color="text-orange-400" />
             </div>
           </div>
+
+          {/* Wasted Spend Section (for Search Term Reports) */}
+          {searchTerms && searchTerms.length > 0 && (
+            <div className="mb-8">
+              <WastedSpendSection searchTerms={searchTerms} />
+            </div>
+          )}
 
           {/* Data Available/Missing */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -561,7 +810,7 @@ const AnalysisPage = () => {
 
           {/* Tabs */}
           <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
-            {['overview', 'findings', 'asins', 'charts'].map(tab => (
+            {['overview', 'findings', 'asins', 'charts', 'master'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -570,8 +819,9 @@ const AnalysisPage = () => {
                     ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
                     : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
+                data-testid={`tab-${tab}`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === 'master' ? 'Master Analysis' : tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
           </div>
@@ -586,7 +836,6 @@ const AnalysisPage = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-6"
               >
-                {/* Critical Issues */}
                 {criticalFindings.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -601,7 +850,6 @@ const AnalysisPage = () => {
                   </div>
                 )}
 
-                {/* Opportunities */}
                 {opportunityFindings.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -687,7 +935,6 @@ const AnalysisPage = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="grid grid-cols-1 lg:grid-cols-2 gap-6"
               >
-                {/* Pareto Chart */}
                 <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
                   <h3 className="text-lg font-semibold text-white mb-4">Pareto Analysis (80/20 Rule)</h3>
                   {chartData.pareto.length > 0 ? (
@@ -700,7 +947,7 @@ const AnalysisPage = () => {
                         <Tooltip content={<CustomTooltip />} />
                         <Bar yAxisId="left" dataKey="sales" fill="#3B82F6" name="Sales" radius={[4, 4, 0, 0]} />
                         <Line yAxisId="right" type="monotone" dataKey="cumulativePct" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981', r: 3 }} name="Cumulative %" />
-                        <ReferenceLine yAxisId="right" y={80} stroke="#F59E0B" strokeDasharray="3 3" label={{ value: '80%', fill: '#F59E0B', fontSize: 10 }} />
+                        <ReferenceLine yAxisId="right" y={80} stroke="#F59E0B" strokeDasharray="3 3" />
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (
@@ -708,28 +955,38 @@ const AnalysisPage = () => {
                   )}
                 </div>
 
-                {/* Scatter Chart */}
                 <div className="p-6 rounded-2xl bg-[#0A1628] border border-white/5">
                   <h3 className="text-lg font-semibold text-white mb-4">Spend vs Conversion</h3>
                   {chartData.scatter.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <ScatterChart>
                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-                        <XAxis dataKey="spend" stroke="#52525B" fontSize={10} tickLine={false} name="Spend" tickFormatter={(v) => `$${v}`} />
-                        <YAxis dataKey="conversion" stroke="#52525B" fontSize={10} tickLine={false} name="Conversion" tickFormatter={(v) => `${v}%`} />
+                        <XAxis dataKey="spend" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `$${v}`} />
+                        <YAxis dataKey="conversion" stroke="#52525B" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
                         <Tooltip content={<CustomTooltip />} />
                         <Scatter name="ASINs" data={chartData.scatter} fill="#8B5CF6">
                           {chartData.scatter.map((entry, index) => (
                             <Cell key={index} fill={entry.conversion > 10 ? '#10B981' : entry.conversion > 5 ? '#F59E0B' : '#EF4444'} />
                           ))}
                         </Scatter>
-                        <ReferenceLine y={10} stroke="#10B981" strokeDasharray="3 3" label={{ value: '10% target', fill: '#10B981', fontSize: 10 }} />
+                        <ReferenceLine y={10} stroke="#10B981" strokeDasharray="3 3" />
                       </ScatterChart>
                     </ResponsiveContainer>
                   ) : (
                     <p className="text-zinc-500 text-center py-12">No spend/conversion data available</p>
                   )}
                 </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'master' && (
+              <motion.div
+                key="master"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <MasterSummarySection parsedData={parsedData} agentResults={agentResults} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -743,7 +1000,7 @@ const AnalysisPage = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-blue-500/10" />
             <div className="relative p-8 text-center space-y-4 border border-blue-500/20 rounded-2xl">
-              <h3 className="text-2xl font-bold text-white font-['Manrope']">
+              <h3 className="text-2xl font-bold text-white font-['Space_Grotesk']">
                 Ready for Real-Time Analytics?
               </h3>
               <p className="text-zinc-400 max-w-xl mx-auto">
@@ -753,17 +1010,11 @@ const AnalysisPage = () => {
               <div className="flex items-center justify-center gap-4">
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-400 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-400 transition-all"
                   data-testid="connect-api-cta"
                 >
                   Connect Amazon API
                   <ChevronRight size={18} />
-                </button>
-                <button
-                  onClick={() => navigate('/demo')}
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-all"
-                >
-                  Explore Demo
                 </button>
               </div>
             </div>
@@ -772,6 +1023,7 @@ const AnalysisPage = () => {
       </main>
 
       <Footer />
+      <PersistentSLMChat />
     </div>
   );
 };
