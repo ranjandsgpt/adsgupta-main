@@ -54,17 +54,17 @@ const MegaMenu = ({ isOpen, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 bg-black/20"
             onClick={onClose}
           />
           
-          {/* Menu Panel */}
+          {/* Menu Panel - Fixed positioning for full-width dropdown */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 z-50 mt-2"
+            className="fixed top-[64px] left-0 right-0 z-50 pt-2"
             onMouseLeave={onClose}
             data-testid="mega-menu"
           >
