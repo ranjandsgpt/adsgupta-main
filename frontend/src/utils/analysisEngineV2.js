@@ -286,103 +286,217 @@ const fieldExists = (rows, possibleNames) => {
 // DATA PARSING
 // ============================================
 
-export const parseUploadedData = (rawData) => {
+/**
+ * Detect report type based on available columns
+ * Returns: 'search_term' | 'targeting' | 'advertised_product' | 'business' | 'generic'
+ */
+const detectReportType = (row) => {
+  if (!row) return 'generic';
+  const keys = Object.keys(row).map(k => k.toLowerCase());
+  
+  if (keys.some(k => k.includes('customer search term'))) return 'search_term';
+  if (keys.some(k => k.includes('targeting'))) return 'targeting';
+  if (keys.some(k => k.includes('advertised sku') || k.includes('advertised asin'))) return 'advertised_product';
+  if (keys.some(k => k.includes('sessions') || k.includes('page views'))) return 'business';
+  return 'generic';
+};
+
+/**
+ * Calculate wasted ad spend using specific algorithm
+ * Filter: Rows where orders == 0 AND clicks > threshold
+ */
+export const calculateWastedAdSpend = (rows, clickThreshold = 10) => {
+  if (!rows || rows.length === 0) return { total: 0, terms: [], details: [] };
+  
+  const wastedRows = rows.filter(row => {
+    const orders = row.orders || 0;
+    const clicks = row.clicks || 0;
+    const spend = row.spend || 0;
+    
+    // Wasted: No orders, but clicks > threshold, and has spend
+    return orders === 0 && clicks > clickThreshold && spend > 0;
+  });
+  
+  const totalWasted = wastedRows.reduce((sum, row) => sum + (row.spend || 0), 0);
+  
+  // Sort by spend descending
+  const sortedBySpend = [...wastedRows].sort((a, b) => (b.spend || 0) - (a.spend || 0));
+  
+  return {
+    total: totalWasted,
+    count: wastedRows.length,
+    terms: sortedBySpend.slice(0, 20).map(row => ({
+      searchTerm: row.searchTerm || row.targeting || row.sku || 'Unknown',
+      spend: row.spend,
+      clicks: row.clicks,
+      impressions: row.impressions,
+      ctr: row.ctr,
+      cpc: row.cpc
+    })),
+    clickThreshold
+  };
+};
+
+export const parseUploadedData = (rawData, reportType = 'auto') => {
   if (!rawData || !Array.isArray(rawData) || rawData.length === 0) {
     return { 
       rows: [], 
       summary: null, 
       asins: [], 
       searchTerms: [],
+      wastedSpend: { total: 0, terms: [] },
       availableMetrics: [],
-      missingMetrics: []
+      missingMetrics: [],
+      reportType: 'unknown',
+      detectedColumns: []
     };
   }
 
-  // Detect available metrics
-  const firstRow = rawData[0];
+  // Filter out empty rows
+  const filteredData = rawData.filter(row => {
+    if (!row) return false;
+    const values = Object.values(row);
+    return values.some(v => v !== null && v !== undefined && v !== '');
+  });
+
+  if (filteredData.length === 0) {
+    console.warn('All rows were empty after filtering');
+    return { 
+      rows: [], 
+      summary: null, 
+      asins: [], 
+      searchTerms: [],
+      wastedSpend: { total: 0, terms: [] },
+      availableMetrics: [],
+      missingMetrics: [],
+      reportType: 'unknown',
+      detectedColumns: []
+    };
+  }
+
+  // Detect report type if auto
+  const firstRow = filteredData[0];
+  const detectedType = reportType === 'auto' ? detectReportType(firstRow) : reportType;
   const allColumns = Object.keys(firstRow);
   
+  console.log('Detected report type:', detectedType, 'Columns:', allColumns.slice(0, 8));
+
+  // Use the new COLUMN_MAPPINGS for metric checks
   const metricChecks = {
-    asin: ['asin', 'ASIN', 'parent_asin', 'child_asin'],
-    sku: ['sku', 'SKU', 'seller_sku'],
-    searchTerm: ['search_term', 'customer_search_term', 'keyword', 'query'],
+    asin: COLUMN_MAPPINGS.asin,
+    sku: COLUMN_MAPPINGS.sku,
+    searchTerm: COLUMN_MAPPINGS.searchTerm,
+    targeting: COLUMN_MAPPINGS.targeting,
     sessions: ['sessions', 'Sessions'],
     pageViews: ['page_views', 'pageViews', 'Page Views'],
-    impressions: ['impressions', 'Impressions'],
-    clicks: ['clicks', 'Clicks'],
-    sales: ['ordered_product_sales', 'sales', 'Sales', '7_day_total_sales'],
-    units: ['units_ordered', 'units', 'Units'],
-    spend: ['spend', 'Spend', 'cost'],
-    orders: ['total_order_items', 'orders', 'Orders'],
-    conversionRate: ['unit_session_percentage', 'conversion_rate'],
+    impressions: COLUMN_MAPPINGS.impressions,
+    clicks: COLUMN_MAPPINGS.clicks,
+    sales: COLUMN_MAPPINGS.sales,
+    units: COLUMN_MAPPINGS.units,
+    spend: COLUMN_MAPPINGS.spend,
+    orders: COLUMN_MAPPINGS.orders,
+    conversionRate: COLUMN_MAPPINGS.conversionRate,
+    ctr: COLUMN_MAPPINGS.ctr,
+    acos: COLUMN_MAPPINGS.acos,
+    cpc: COLUMN_MAPPINGS.cpc,
     buyBoxPct: ['buy_box_percentage', 'Buy Box Percentage'],
     refundReason: ['return_reason', 'refund_reason', 'Return Reason'],
     orderTime: ['order_time', 'purchase_time', 'Order Time', 'Hour'],
     organicRank: ['organic_rank', 'Organic Rank', 'rank'],
-    date: ['date', 'Date', 'report_date']
+    date: ['date', 'Date', 'report_date', 'Start Date'],
+    campaignName: COLUMN_MAPPINGS.campaignName,
+    adGroupName: COLUMN_MAPPINGS.adGroupName,
+    matchType: COLUMN_MAPPINGS.matchType
   };
 
   const availableMetrics = [];
   const missingMetrics = [];
 
   Object.entries(metricChecks).forEach(([metric, possibleNames]) => {
-    if (fieldExists(rawData, possibleNames)) {
+    if (fieldExists(filteredData, possibleNames)) {
       availableMetrics.push(metric);
     } else {
       missingMetrics.push(metric);
     }
   });
 
-  // Parse rows
-  const rows = rawData.map((row, index) => {
+  console.log('Available metrics:', availableMetrics.length, availableMetrics);
+
+  // Parse rows with cleaned values
+  const rows = filteredData.map((row, index) => {
+    // Get primary identifier based on report type
+    let primaryKey = `ROW-${index}`;
+    if (detectedType === 'search_term') {
+      primaryKey = getField(row, COLUMN_MAPPINGS.searchTerm) || primaryKey;
+    } else if (detectedType === 'targeting') {
+      primaryKey = getField(row, COLUMN_MAPPINGS.targeting) || primaryKey;
+    } else if (detectedType === 'advertised_product') {
+      primaryKey = getField(row, COLUMN_MAPPINGS.advertisedSku) || getField(row, COLUMN_MAPPINGS.asin) || primaryKey;
+    }
+
     const parsed = {
       _index: index,
       _raw: row,
+      _reportType: detectedType,
       
       // Identifiers
-      asin: getField(row, metricChecks.asin) || `ROW-${index}`,
-      sku: getField(row, metricChecks.sku),
-      date: getField(row, metricChecks.date),
+      asin: getField(row, metricChecks.asin) || null,
+      sku: getField(row, metricChecks.sku) || null,
+      date: getField(row, metricChecks.date) || null,
       
-      // Search Term fields
-      searchTerm: getField(row, metricChecks.searchTerm),
-      campaignName: getField(row, ['campaign_name', 'campaign', 'Campaign Name']),
-      adGroupName: getField(row, ['ad_group_name', 'ad_group']),
-      matchType: getField(row, ['match_type', 'targeting_type', 'Match Type']),
+      // Search Term / Targeting fields
+      searchTerm: getField(row, metricChecks.searchTerm) || null,
+      targeting: getField(row, metricChecks.targeting) || null,
+      campaignName: getField(row, metricChecks.campaignName) || null,
+      adGroupName: getField(row, metricChecks.adGroupName) || null,
+      matchType: getField(row, metricChecks.matchType) || null,
       
-      // Traffic
+      // Traffic - use cleanValue for proper parsing
       sessions: safeInt(getField(row, metricChecks.sessions)),
       pageViews: safeInt(getField(row, metricChecks.pageViews)),
       impressions: safeInt(getField(row, metricChecks.impressions)),
       clicks: safeInt(getField(row, metricChecks.clicks)),
       
-      // Sales
-      sales: safeNumber(getField(row, metricChecks.sales)),
+      // Sales - cleanValue handles € and $ symbols
+      sales: cleanValue(getField(row, metricChecks.sales)),
       units: safeInt(getField(row, metricChecks.units)),
       orders: safeInt(getField(row, metricChecks.orders)),
       
-      // PPC
-      spend: safeNumber(getField(row, metricChecks.spend)),
+      // PPC - cleanValue handles € symbols
+      spend: cleanValue(getField(row, metricChecks.spend)),
+      
+      // Pre-calculated metrics from report (with % handling)
+      ctrFromReport: cleanValue(getField(row, metricChecks.ctr)),
+      acosFromReport: cleanValue(getField(row, metricChecks.acos)),
+      cpcFromReport: cleanValue(getField(row, metricChecks.cpc)),
+      conversionRateFromReport: cleanValue(getField(row, metricChecks.conversionRate)),
       
       // Conversion & Buy Box
-      conversionRate: safeNumber(getField(row, metricChecks.conversionRate)),
-      buyBoxPct: safeNumber(getField(row, metricChecks.buyBoxPct)),
+      conversionRate: cleanValue(getField(row, metricChecks.conversionRate)),
+      buyBoxPct: cleanValue(getField(row, metricChecks.buyBoxPct)),
       
       // Additional (may not exist)
       refundReason: getField(row, metricChecks.refundReason),
       orderTime: getField(row, metricChecks.orderTime),
       organicRank: safeInt(getField(row, metricChecks.organicRank)),
-      cost: safeNumber(getField(row, ['cost', 'cogs', 'Cost', 'product_cost'])),
-      price: safeNumber(getField(row, ['price', 'Price', 'selling_price']))
+      cost: cleanValue(getField(row, ['cost', 'cogs', 'Cost', 'product_cost'])),
+      price: cleanValue(getField(row, ['price', 'Price', 'selling_price']))
     };
 
     // Calculated metrics (only if source data exists)
-    parsed.ctr = parsed.impressions > 0 ? (parsed.clicks / parsed.impressions * 100) : null;
-    parsed.cpc = parsed.clicks > 0 ? (parsed.spend / parsed.clicks) : null;
-    parsed.acos = parsed.sales > 0 ? (parsed.spend / parsed.sales * 100) : (parsed.spend > 0 ? Infinity : null);
+    // Use report values if available, otherwise calculate
+    parsed.ctr = parsed.ctrFromReport || (parsed.impressions > 0 ? (parsed.clicks / parsed.impressions * 100) : null);
+    parsed.cpc = parsed.cpcFromReport || (parsed.clicks > 0 ? (parsed.spend / parsed.clicks) : null);
+    parsed.acos = parsed.acosFromReport || (parsed.sales > 0 ? (parsed.spend / parsed.sales * 100) : (parsed.spend > 0 ? Infinity : null));
     parsed.roas = parsed.spend > 0 ? (parsed.sales / parsed.spend) : null;
     
-    // Use provided conversion rate or calculate
+    // Fallback for orders: if orders column doesn't exist but sales does
+    // "If 7 Day Total Orders (#) is missing, fallback to checking 7 Day Total Sales == 0"
+    if (!parsed.orders && parsed.sales === 0) {
+      parsed.orders = 0;
+    }
+    
+    // Use provided conversion rate or calculate from sessions
     if (!parsed.conversionRate && parsed.sessions > 0) {
       parsed.conversionRate = (parsed.units / parsed.sessions * 100);
     }
