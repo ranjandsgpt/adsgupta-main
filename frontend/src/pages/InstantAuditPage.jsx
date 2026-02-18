@@ -134,7 +134,6 @@ const AuditDropzone = ({ onFileProcessed }) => {
               setIsProcessing(false);
               alert('Failed to parse CSV file. Please check the file format.');
             }
-            }
           }
         });
       };
