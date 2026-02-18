@@ -539,7 +539,7 @@ const AnalysisPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   const { 
-    uploadedData, fileName, fileType, 
+    uploadedData, fileName, fileType, reportType,
     parsedData, setParsedData, 
     agentResults, setAgentResults, 
     clearData 
