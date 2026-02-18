@@ -19,7 +19,7 @@ import {
 import {
   TrendingUp, TrendingDown, DollarSign, Target, Eye, Package, BarChart3,
   Percent, AlertTriangle, CheckCircle2, Download, FileText, RefreshCw,
-  ChevronRight, Zap, X, Bot, Search, Info, ArrowLeft, Loader2, Filter,
+  ChevronRight, ChevronDown, Zap, X, Bot, Search, Info, ArrowLeft, Loader2, Filter,
   Sparkles, Cpu, FileSpreadsheet
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
