@@ -819,37 +819,85 @@ const AnalysisPage = () => {
     processData();
   }, [uploadedData, parsedData, agentResults, setParsedData, setAgentResults, navigate]);
 
-  // Generate chart data
+  // Generate chart data - enhanced to support multiple data types
   const chartData = useMemo(() => {
-    if (!parsedData?.asins) return { pareto: [], scatter: [] };
+    if (!parsedData) return { pareto: [], scatter: [], spendByKeyword: [], performanceMetrics: [], wastedByKeyword: [] };
 
-    const sortedBySales = [...parsedData.asins]
-      .filter(a => a.totalSales > 0)
-      .sort((a, b) => b.totalSales - a.totalSales);
-    
-    const totalSales = sortedBySales.reduce((s, a) => s + a.totalSales, 0);
-    let cumulative = 0;
-    
-    const pareto = sortedBySales.slice(0, 15).map((a) => {
-      cumulative += a.totalSales;
-      return {
-        asin: a.asin.slice(0, 10),
-        sales: a.totalSales,
-        cumulativePct: Math.round((cumulative / totalSales) * 100)
-      };
-    });
+    // Pareto chart for ASINs
+    let pareto = [];
+    if (parsedData.asins && parsedData.asins.length > 0) {
+      const sortedBySales = [...parsedData.asins]
+        .filter(a => a.totalSales > 0)
+        .sort((a, b) => b.totalSales - a.totalSales);
+      
+      const totalSales = sortedBySales.reduce((s, a) => s + a.totalSales, 0);
+      let cumulative = 0;
+      
+      pareto = sortedBySales.slice(0, 15).map((a) => {
+        cumulative += a.totalSales;
+        return {
+          asin: a.asin?.slice(0, 10) || 'Unknown',
+          sales: a.totalSales,
+          cumulativePct: Math.round((cumulative / totalSales) * 100)
+        };
+      });
+    }
 
-    const scatter = parsedData.asins
-      .filter(a => a.totalSpend > 0 && a.avgConversion !== 'N/A')
-      .map(a => ({
-        asin: a.asin,
-        spend: a.totalSpend,
-        conversion: a.avgConversion,
-        sales: a.totalSales,
-        size: Math.sqrt(a.totalSales) * 2
+    // Scatter chart for spend vs conversion
+    let scatter = [];
+    if (parsedData.asins && parsedData.asins.length > 0) {
+      scatter = parsedData.asins
+        .filter(a => a.totalSpend > 0 && a.avgConversion !== 'N/A')
+        .map(a => ({
+          asin: a.asin,
+          spend: a.totalSpend,
+          conversion: a.avgConversion,
+          sales: a.totalSales,
+          size: Math.sqrt(a.totalSales) * 2
+        }));
+    }
+
+    // Spend by top keywords (for Search Term reports)
+    let spendByKeyword = [];
+    if (parsedData.searchTerms && parsedData.searchTerms.length > 0) {
+      spendByKeyword = parsedData.searchTerms
+        .filter(t => t.totalSpend > 0)
+        .sort((a, b) => b.totalSpend - a.totalSpend)
+        .slice(0, 12)
+        .map(t => ({
+          keyword: (t.searchTerm || 'Unknown').slice(0, 20) + (t.searchTerm?.length > 20 ? '...' : ''),
+          spend: Math.round(t.totalSpend * 100) / 100,
+          sales: Math.round(t.totalSales * 100) / 100,
+          clicks: t.totalClicks || 0,
+          acos: t.totalSales > 0 ? Math.round((t.totalSpend / t.totalSales * 100) * 10) / 10 : 0
+        }));
+    }
+
+    // Wasted spend by keyword
+    let wastedByKeyword = [];
+    if (parsedData.wastedSpend?.terms && parsedData.wastedSpend.terms.length > 0) {
+      wastedByKeyword = parsedData.wastedSpend.terms.slice(0, 10).map(t => ({
+        keyword: (t.searchTerm || t.term || 'Unknown').slice(0, 18) + ((t.searchTerm || t.term)?.length > 18 ? '...' : ''),
+        spend: Math.round((t.spend || 0) * 100) / 100,
+        clicks: t.clicks || 0
       }));
+    }
 
-    return { pareto, scatter };
+    // Performance metrics over time (if we have rows with data)
+    let performanceMetrics = [];
+    if (parsedData.summary) {
+      const s = parsedData.summary;
+      performanceMetrics = [
+        { name: 'Sales', value: Math.round(s.totalSales || 0), color: '#10B981' },
+        { name: 'Spend', value: Math.round(s.totalSpend || 0), color: '#EF4444' },
+        { name: 'Units', value: s.totalUnits || 0, color: '#3B82F6' },
+        { name: 'Orders', value: s.totalOrders || 0, color: '#8B5CF6' },
+        { name: 'Clicks', value: s.totalClicks || 0, color: '#F59E0B' },
+        { name: 'Impressions', value: Math.round((s.totalImpressions || 0) / 1000), color: '#06B6D4' }
+      ].filter(m => m.value > 0);
+    }
+
+    return { pareto, scatter, spendByKeyword, performanceMetrics, wastedByKeyword };
   }, [parsedData]);
 
   // PDF Export - Multi-page with all sections
