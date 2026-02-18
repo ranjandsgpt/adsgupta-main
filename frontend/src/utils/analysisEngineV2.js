@@ -127,7 +127,36 @@ const COLUMN_MAPPINGS = {
     'clicks'
   ],
   
-  // Financial columns (with currency symbols)
+  // Sessions (from Business Reports)
+  sessions: [
+    'Sessions – Total',
+    'Sessions',
+    'sessions',
+    'Total Sessions'
+  ],
+  
+  pageViews: [
+    'Page views – Total',
+    'Page Views',
+    'page_views',
+    'pageViews'
+  ],
+  
+  buyBoxPct: [
+    'Featured Offer (Buy Box) percentage',
+    'Buy Box Percentage',
+    'buy_box_percentage',
+    'Featured Offer %'
+  ],
+  
+  unitSessionPct: [
+    'Unit Session Percentage',
+    'Unit session percentage',
+    'unit_session_percentage',
+    'Conversion Rate'
+  ],
+  
+  // Financial columns (with currency symbols € £ $)
   spend: [
     'Spend',
     'spend',
@@ -144,7 +173,33 @@ const COLUMN_MAPPINGS = {
     'Sales',
     'sales',
     'Total Sales',
-    'Ordered Product Sales'
+    'Ordered Product Sales',
+    'Ordered product sales'  // Business Report format
+  ],
+  
+  // Other SKU metrics (for halo effect analysis)
+  advertisedSkuSales: [
+    '7 Day Advertised SKU Sales',
+    '7 Day Advertised SKU Sales ',
+    'Advertised SKU Sales'
+  ],
+  
+  otherSkuSales: [
+    '7 Day Other SKU Sales',
+    '7 Day Other SKU Sales ',
+    'Other SKU Sales'
+  ],
+  
+  advertisedSkuUnits: [
+    '7 Day Advertised SKU Units (#)',
+    '7 Day Advertised SKU Units',
+    'Advertised SKU Units'
+  ],
+  
+  otherSkuUnits: [
+    '7 Day Other SKU Units (#)',
+    '7 Day Other SKU Units',
+    'Other SKU Units'
   ],
   
   // Conversion columns
@@ -153,6 +208,12 @@ const COLUMN_MAPPINGS = {
     '7 Day Total Orders',
     '7_day_total_orders',
     '14 Day Total Orders (#)',
+    '14 Day Total Orders',
+    'Orders',
+    'orders',
+    'Total Orders',
+    'Total order items'  // Business Report format
+  ],
     '14 Day Total Orders',
     'Orders',
     'orders',
