@@ -85,9 +85,25 @@ export const formatPercent = (val) => {
 // COLUMN MAPPING FOR AMAZON REPORTS
 // ============================================
 
-// Mandatory column mappings for different report types
+/**
+ * Normalize column names for flexible matching
+ * Handles: en-dash (–), em-dash (—), hyphens (-), special chars, case
+ */
+const normalizeColumnName = (name) => {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .replace(/[\u2013\u2014]/g, '-')  // Replace en-dash and em-dash with hyphen
+    .replace(/[^a-z0-9]/g, '')        // Remove all non-alphanumeric
+    .trim();
+};
+
+// Comprehensive column mappings for all Amazon report types
+// Each field has multiple possible column names to match
 const COLUMN_MAPPINGS = {
-  // Search Term Report columns
+  // ============== IDENTIFIERS ==============
+  
+  // Search Term Report - Customer search query
   searchTerm: [
     'Customer Search Term', 
     'customer_search_term',
@@ -97,173 +113,61 @@ const COLUMN_MAPPINGS = {
     'Keyword'
   ],
   
-  // Targeting Report columns  
+  // Targeting Report - Target keyword/ASIN
   targeting: [
     'Targeting',
     'targeting',
     'Keyword',
     'keyword',
-    'Target'
+    'Target',
+    'Keyword or Product Targeting'
   ],
   
-  // Advertised Product Report columns
-  advertisedSku: [
-    'Advertised SKU',
-    'advertised_sku',
+  // Product identifiers
+  asin: [
+    'ASIN',
+    'asin',
+    '(Child) ASIN',     // Business Report format
+    '(Parent) ASIN',    // Business Report format
+    'Child ASIN',
+    'Parent ASIN',
+    'Advertised ASIN',
+    'advertised_asin',
+    'child_asin',
+    'parent_asin'
+  ],
+  
+  parentAsin: [
+    '(Parent) ASIN',
+    'Parent ASIN',
+    'parent_asin'
+  ],
+  
+  childAsin: [
+    '(Child) ASIN',
+    'Child ASIN',
+    'child_asin',
+    'ASIN'
+  ],
+  
+  sku: [
     'SKU',
     'sku',
-    'Advertised ASIN',
-    'advertised_asin'
+    'Seller SKU',
+    'Advertised SKU',
+    'advertised_sku'
   ],
   
-  // Common engagement columns
-  impressions: [
-    'Impressions',
-    'impressions'
+  title: [
+    'Title',
+    'title',
+    'Product Name',
+    'product_name',
+    'Product Title'
   ],
   
-  clicks: [
-    'Clicks',
-    'clicks'
-  ],
+  // ============== CAMPAIGN IDENTIFIERS ==============
   
-  // Sessions (from Business Reports)
-  sessions: [
-    'Sessions – Total',
-    'Sessions',
-    'sessions',
-    'Total Sessions'
-  ],
-  
-  pageViews: [
-    'Page views – Total',
-    'Page Views',
-    'page_views',
-    'pageViews'
-  ],
-  
-  buyBoxPct: [
-    'Featured Offer (Buy Box) percentage',
-    'Buy Box Percentage',
-    'buy_box_percentage',
-    'Featured Offer %'
-  ],
-  
-  unitSessionPct: [
-    'Unit Session Percentage',
-    'Unit session percentage',
-    'unit_session_percentage',
-    'Conversion Rate'
-  ],
-  
-  // Financial columns (with currency symbols € £ $)
-  spend: [
-    'Spend',
-    'spend',
-    'Cost',
-    'cost',
-    'Total Spend'
-  ],
-  
-  sales: [
-    '7 Day Total Sales',
-    '7 Day Total Sales ',  // Sometimes has trailing space
-    '7_day_total_sales',
-    '14 Day Total Sales',
-    'Sales',
-    'sales',
-    'Total Sales',
-    'Ordered Product Sales',
-    'Ordered product sales'  // Business Report format
-  ],
-  
-  // Other SKU metrics (for halo effect analysis)
-  advertisedSkuSales: [
-    '7 Day Advertised SKU Sales',
-    '7 Day Advertised SKU Sales ',
-    'Advertised SKU Sales'
-  ],
-  
-  otherSkuSales: [
-    '7 Day Other SKU Sales',
-    '7 Day Other SKU Sales ',
-    'Other SKU Sales'
-  ],
-  
-  advertisedSkuUnits: [
-    '7 Day Advertised SKU Units (#)',
-    '7 Day Advertised SKU Units',
-    'Advertised SKU Units'
-  ],
-  
-  otherSkuUnits: [
-    '7 Day Other SKU Units (#)',
-    '7 Day Other SKU Units',
-    'Other SKU Units'
-  ],
-  
-  // Conversion columns
-  orders: [
-    '7 Day Total Orders (#)',
-    '7 Day Total Orders',
-    '7_day_total_orders',
-    '14 Day Total Orders (#)',
-    '14 Day Total Orders',
-    'Orders',
-    'orders',
-    'Total Orders',
-    'Total order items'  // Business Report format
-  ],
-  
-  units: [
-    '7 Day Total Units (#)',
-    '7 Day Total Units',
-    '7_day_total_units',
-    '14 Day Total Units (#)',
-    'Units',
-    'units',
-    'Units Ordered',
-    'Units ordered'  // Business Report format
-  ],
-  
-  // Performance metrics (with % symbol)
-  ctr: [
-    'Click-Thru Rate (CTR)',
-    'CTR',
-    'ctr',
-    'Click Through Rate'
-  ],
-  
-  conversionRate: [
-    '7 Day Conversion Rate',
-    'Conversion Rate',
-    'conversion_rate',
-    'Conv. Rate'
-  ],
-  
-  acos: [
-    'Total Advertising Cost of Sales (ACOS)',
-    'Total Advertising Cost of Sales (ACOS) ', // With trailing space
-    'ACOS',
-    'acos',
-    'ACoS'
-  ],
-  
-  roas: [
-    'Total Return on Advertising Spend (ROAS)',
-    'ROAS',
-    'roas',
-    'Return on Ad Spend'
-  ],
-  
-  cpc: [
-    'Cost Per Click (CPC)',
-    'CPC',
-    'cpc',
-    'Avg. CPC'
-  ],
-  
-  // Campaign identifiers
   campaignName: [
     'Campaign Name',
     'campaign_name',
@@ -293,29 +197,19 @@ const COLUMN_MAPPINGS = {
     'currency'
   ],
   
-  // Additional identifiers
-  asin: [
-    'ASIN',
-    'asin',
-    'Parent ASIN',
-    'Child ASIN',
-    'Advertised ASIN'
+  portfolio: [
+    'Portfolio name',
+    'Portfolio',
+    'portfolio'
   ],
   
-  sku: [
-    'SKU',
-    'sku',
-    'Seller SKU',
-    'Advertised SKU',
-    '7 Day Advertised SKU Units (#)',
-    '7 Day Advertised SKU Sales'
-  ],
+  // ============== DATE FIELDS ==============
   
-  // Date columns
   startDate: [
     'Start Date',
     'start_date',
-    'Date'
+    'Date',
+    'Report Date'
   ],
   
   endDate: [
@@ -323,10 +217,244 @@ const COLUMN_MAPPINGS = {
     'end_date'
   ],
   
-  portfolio: [
-    'Portfolio name',
-    'Portfolio',
-    'portfolio'
+  // ============== TRAFFIC METRICS (Business Report) ==============
+  
+  // Sessions - handles en-dash (–) in "Sessions – Total"
+  sessions: [
+    'Sessions – Total',       // With en-dash
+    'Sessions - Total',       // With hyphen
+    'Sessions – Total – B2B',
+    'Sessions - Total - B2B',
+    'Sessions',
+    'sessions',
+    'Total Sessions',
+    'sessions_total'
+  ],
+  
+  sessionsB2B: [
+    'Sessions – Total – B2B',
+    'Sessions - Total - B2B',
+    'Sessions B2B',
+    'sessions_b2b'
+  ],
+  
+  // Page Views - handles en-dash (–) in "Page views – Total"
+  pageViews: [
+    'Page views – Total',     // With en-dash
+    'Page views - Total',     // With hyphen
+    'Page Views – Total',
+    'Page Views - Total',
+    'Page Views',
+    'page_views',
+    'pageViews',
+    'Total Page Views',
+    'page_views_total'
+  ],
+  
+  pageViewsB2B: [
+    'Page views – Total – B2B',
+    'Page views - Total - B2B',
+    'Page Views B2B',
+    'page_views_b2b'
+  ],
+  
+  sessionPercentage: [
+    'Session percentage – Total',
+    'Session percentage - Total',
+    'Session Percentage',
+    'session_percentage'
+  ],
+  
+  pageViewPercentage: [
+    'Page views percentage – Total',
+    'Page views percentage - Total',
+    'Page View Percentage',
+    'page_view_percentage'
+  ],
+  
+  // ============== BUY BOX / FEATURED OFFER ==============
+  
+  buyBoxPct: [
+    'Featured Offer (Buy Box) percentage',
+    'Featured Offer (Buy Box) percentage – B2B',
+    'Featured Offer (Buy Box) Percentage',
+    'Buy Box Percentage',
+    'buy_box_percentage',
+    'Featured Offer %',
+    'FeaturedOffer'
+  ],
+  
+  // ============== CONVERSION METRICS ==============
+  
+  unitSessionPct: [
+    'Unit Session Percentage',
+    'Unit session percentage',
+    'Unit session percentage – B2B',
+    'Unit Session Percentage – B2B',
+    'unit_session_percentage',
+    'Conversion Rate',
+    'Session Conversion Rate'
+  ],
+  
+  conversionRate: [
+    '7 Day Conversion Rate',
+    'Conversion Rate',
+    'conversion_rate',
+    'Conv. Rate',
+    '7DayConversionRate'
+  ],
+  
+  // ============== AD ENGAGEMENT METRICS ==============
+  
+  impressions: [
+    'Impressions',
+    'impressions',
+    'Total Impressions'
+  ],
+  
+  clicks: [
+    'Clicks',
+    'clicks',
+    'Total Clicks'
+  ],
+  
+  ctr: [
+    'Click-Thru Rate (CTR)',
+    'Click-Through Rate (CTR)',
+    'CTR',
+    'ctr',
+    'Click Through Rate'
+  ],
+  
+  cpc: [
+    'Cost Per Click (CPC)',
+    'CPC',
+    'cpc',
+    'Avg. CPC',
+    'Average CPC'
+  ],
+  
+  // ============== FINANCIAL METRICS ==============
+  
+  spend: [
+    'Spend',
+    'spend',
+    'Cost',
+    'cost',
+    'Total Spend',
+    'Ad Spend'
+  ],
+  
+  // Sales - handles various formats including Business Report
+  sales: [
+    '7 Day Total Sales',
+    '7 Day Total Sales ',     // Trailing space
+    '7_day_total_sales',
+    '14 Day Total Sales',
+    'Sales',
+    'sales',
+    'Total Sales',
+    'Ordered Product Sales',  // Business Report
+    'Ordered product sales',  // Business Report lowercase
+    'ordered_product_sales',
+    'Revenue'
+  ],
+  
+  salesB2B: [
+    'Ordered product sales – B2B',
+    'Ordered product sales - B2B',
+    'Ordered Product Sales B2B',
+    'ordered_product_sales_b2b'
+  ],
+  
+  acos: [
+    'Total Advertising Cost of Sales (ACOS)',
+    'Total Advertising Cost of Sales (ACOS) ',  // Trailing space
+    'ACOS',
+    'acos',
+    'ACoS',
+    'Advertising Cost of Sales'
+  ],
+  
+  roas: [
+    'Total Return on Advertising Spend (ROAS)',
+    'ROAS',
+    'roas',
+    'Return on Ad Spend'
+  ],
+  
+  // ============== ORDER METRICS ==============
+  
+  // Orders - handles various formats
+  orders: [
+    '7 Day Total Orders (#)',
+    '7 Day Total Orders',
+    '7_day_total_orders',
+    '14 Day Total Orders (#)',
+    '14 Day Total Orders',
+    'Orders',
+    'orders',
+    'Total Orders',
+    'Total order items',      // Business Report
+    'Total order items – B2B',
+    'total_order_items'
+  ],
+  
+  ordersB2B: [
+    'Total order items – B2B',
+    'Total order items - B2B',
+    'Orders B2B',
+    'total_order_items_b2b'
+  ],
+  
+  // Units - handles various formats
+  units: [
+    '7 Day Total Units (#)',
+    '7 Day Total Units',
+    '7_day_total_units',
+    '14 Day Total Units (#)',
+    'Units',
+    'units',
+    'Units Ordered',
+    'Units ordered',          // Business Report
+    'units_ordered'
+  ],
+  
+  unitsB2B: [
+    'Units ordered – B2B',
+    'Units ordered - B2B',
+    'Units Ordered B2B',
+    'units_ordered_b2b'
+  ],
+  
+  // ============== SKU-LEVEL METRICS (Halo Effect) ==============
+  
+  advertisedSkuSales: [
+    '7 Day Advertised SKU Sales',
+    '7 Day Advertised SKU Sales ',
+    'Advertised SKU Sales',
+    'advertised_sku_sales'
+  ],
+  
+  otherSkuSales: [
+    '7 Day Other SKU Sales',
+    '7 Day Other SKU Sales ',
+    'Other SKU Sales',
+    'other_sku_sales'
+  ],
+  
+  advertisedSkuUnits: [
+    '7 Day Advertised SKU Units (#)',
+    '7 Day Advertised SKU Units',
+    'Advertised SKU Units',
+    'advertised_sku_units'
+  ],
+  
+  otherSkuUnits: [
+    '7 Day Other SKU Units (#)',
+    '7 Day Other SKU Units',
+    'Other SKU Units',
+    'other_sku_units'
   ]
 };
 
