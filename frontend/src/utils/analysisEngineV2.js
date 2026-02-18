@@ -700,7 +700,10 @@ export const parseUploadedData = (rawData, reportType = 'auto') => {
       
       // Identifiers
       asin: getField(row, metricChecks.asin) || null,
+      parentAsin: getField(row, metricChecks.parentAsin) || null,
+      childAsin: getField(row, metricChecks.childAsin) || null,
       sku: getField(row, metricChecks.sku) || null,
+      title: getField(row, metricChecks.title) || null,
       date: getField(row, metricChecks.date) || null,
       
       // Search Term / Targeting fields
@@ -727,11 +730,14 @@ export const parseUploadedData = (rawData, reportType = 'auto') => {
       // Pre-calculated metrics from report (with % handling)
       ctrFromReport: cleanValue(getField(row, metricChecks.ctr)),
       acosFromReport: cleanValue(getField(row, metricChecks.acos)),
+      roasFromReport: cleanValue(getField(row, metricChecks.roas)),
       cpcFromReport: cleanValue(getField(row, metricChecks.cpc)),
       conversionRateFromReport: cleanValue(getField(row, metricChecks.conversionRate)),
+      unitSessionPctFromReport: cleanValue(getField(row, metricChecks.unitSessionPct)),
       
       // Conversion & Buy Box
       conversionRate: cleanValue(getField(row, metricChecks.conversionRate)),
+      unitSessionPct: cleanValue(getField(row, metricChecks.unitSessionPct)),
       buyBoxPct: cleanValue(getField(row, metricChecks.buyBoxPct)),
       
       // Additional (may not exist)
