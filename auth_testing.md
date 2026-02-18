@@ -30,14 +30,14 @@ print('User ID: ' + userId);
 
 ```bash
 # Test auth endpoint
-curl -X GET "https://talentos-demo-build.preview.emergentagent.com/api/auth/me" \
+curl -X GET "https://audit-master-26.preview.emergentagent.com/api/auth/me" \
   -H "Authorization: Bearer YOUR_SESSION_TOKEN"
 
 # Test protected endpoints
-curl -X GET "https://talentos-demo-build.preview.emergentagent.com/api/dashboard/kpis" \
+curl -X GET "https://audit-master-26.preview.emergentagent.com/api/dashboard/kpis" \
   -H "Authorization: Bearer YOUR_SESSION_TOKEN"
 
-curl -X GET "https://talentos-demo-build.preview.emergentagent.com/api/amazon/status" \
+curl -X GET "https://audit-master-26.preview.emergentagent.com/api/amazon/status" \
   -H "Authorization: Bearer YOUR_SESSION_TOKEN"
 ```
 
@@ -54,7 +54,7 @@ await page.context.add_cookies([{
     "secure": True,
     "sameSite": "None"
 }])
-await page.goto("https://talentos-demo-build.preview.emergentagent.com/tools")
+await page.goto("https://audit-master-26.preview.emergentagent.com/tools")
 ```
 
 ## Quick Debug
