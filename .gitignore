@@ -25,8 +25,8 @@ pnpm-debug.log*
 .vscode/
 
 # Legacy / tool metadata (do not commit)
-apps/main/legacy/.gitconfig
-apps/main/legacy/.emergent/
+apps/main/.gitconfig
+apps/main/.emergent/
 apps/talentos/.gitconfig
 apps/talentos/.emergent/
 apps/demoai/.gitconfig
