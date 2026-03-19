@@ -27,6 +27,8 @@ pnpm-debug.log*
 # Legacy / tool metadata (do not commit)
 apps/main/legacy/.gitconfig
 apps/main/legacy/.emergent/
+apps/talentos/.gitconfig
+apps/talentos/.emergent/
 
 # Vercel
 .vercel
