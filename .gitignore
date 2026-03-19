@@ -29,6 +29,8 @@ apps/main/legacy/.gitconfig
 apps/main/legacy/.emergent/
 apps/talentos/.gitconfig
 apps/talentos/.emergent/
+apps/demoai/.gitconfig
+apps/demoai/.emergent/
 
 # Vercel
 .vercel
