@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import MarketplaceContextSwitcher, { MARKETPLACES, ProtocolDevelopmentState } from '../components/MarketplaceContextSwitcher';
 import useDataStore from '../store/dataStore';
 

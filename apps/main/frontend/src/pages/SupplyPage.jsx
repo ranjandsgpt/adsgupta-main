@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Server, Tv, Smartphone, Globe, Cpu, Shield, ArrowUpRight, CheckCircle, Zap, Radio } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import { ChatBot } from '../components/ChatBot';
 
 const SupplyPage = () => {

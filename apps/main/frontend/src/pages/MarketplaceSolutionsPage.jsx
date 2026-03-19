@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, Search, Zap, BarChart3, Package, TrendingUp, ArrowUpRight, CheckCircle, Store, Truck, LayoutDashboard, LineChart, Sparkles, AlertTriangle, FileSpreadsheet } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import { ChatBot } from '../components/ChatBot';
 
 const MarketplaceSolutionsPage = () => {

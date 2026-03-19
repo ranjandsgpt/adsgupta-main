@@ -1,5 +1,6 @@
 import * as React from "react";
 import { brand } from "@adsgupta/config";
+import { Footer } from "./components/Footer";
 
 export function Header({ title }: { title: string }) {
   return (
@@ -35,18 +36,5 @@ export function Nav() {
   );
 }
 
-export function Footer() {
-  return (
-    <footer
-      style={{
-        padding: "18px 20px",
-        borderTop: `1px solid ${brand.colors.border}`,
-        color: brand.colors.muted,
-        fontSize: 13
-      }}
-    >
-      © {new Date().getFullYear()} adsgupta.com
-    </footer>
-  );
-}
+export { Footer };
 

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import { AIAgentSidebar } from '../components/AIAgentSidebar';
 
 // Generate mock data for 1,400+ data points

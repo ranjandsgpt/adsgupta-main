@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import { ChatBot } from '../components/ChatBot';
 
 const TermsPage = () => {

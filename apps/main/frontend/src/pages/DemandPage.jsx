@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Monitor, Users, Target, Layers, Bot, BarChart3, ArrowUpRight, CheckCircle, Zap, Network } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import { ChatBot } from '../components/ChatBot';
 
 const DemandPage = () => {

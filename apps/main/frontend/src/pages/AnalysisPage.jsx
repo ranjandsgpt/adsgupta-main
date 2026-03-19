@@ -26,7 +26,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import OmniNav from '../components/OmniNav';
 import PersistentSLMChat from '../components/PersistentSLMChat';
 import useDataStore from '../store/dataStore';

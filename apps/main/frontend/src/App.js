@@ -11,7 +11,7 @@ import { HubSection } from "./components/HubSection";
 import { MarketplaceSection } from "./components/MarketplaceSection";
 import { NetworkSection } from "./components/NetworkSection";
 import { BlogPreview } from "./components/BlogPreview";
-import { Footer } from "./components/Footer";
+import { Footer } from "@adsgupta/ui";
 import { ChatBot } from "./components/ChatBot";
 
 // Pages

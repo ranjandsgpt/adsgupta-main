@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shield, Cpu, Eye, Lock, Server, Globe, ChevronRight } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import PersistentSLMChat from '../components/PersistentSLMChat';
 
 const PrivacyPage = () => {

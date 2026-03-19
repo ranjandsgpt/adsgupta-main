@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import DashboardSidebar from '../components/DashboardSidebar';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;

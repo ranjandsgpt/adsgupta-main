@@ -4,14 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.tsx"
+    ".": "./src/index.ts"
   },
   "peerDependencies": {
     "react": "^19",
     "react-dom": "^19"
   },
   "dependencies": {
-    "@adsgupta/config": "^0.0.0"
+    "@adsgupta/config": "^0.0.0",
+    "framer-motion": "^12.34.0",
+    "lucide-react": "^0.507.0",
+    "react-router-dom": "^7.5.1"
   }
 }
 

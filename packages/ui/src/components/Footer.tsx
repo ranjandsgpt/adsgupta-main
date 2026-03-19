@@ -1,51 +1,59 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Linkedin, Twitter } from 'lucide-react';
+import * as React from "react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { ArrowRight, Linkedin, Twitter } from "lucide-react";
 
 export const Footer = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (email) {
       setIsSubscribed(true);
-      setEmail('');
+      setEmail("");
       setTimeout(() => setIsSubscribed(false), 3000);
     }
   };
 
-  const footerLinks = [
+  const footerLinks: Array<{
+    title: string;
+    links: Array<{ label: string; href: string; external?: boolean }>;
+  }> = [
     {
-      title: 'Platform',
+      title: "Platform",
       links: [
-        { label: 'AI Sandbox', href: 'https://demoai.adsgupta.com', external: true },
-        { label: 'Features', href: '/#features' },
-        { label: 'Pricing', href: '#' },
+        {
+          label: "AI Sandbox",
+          href: "https://demoai.adsgupta.com",
+          external: true,
+        },
+        { label: "Features", href: "/#features" },
+        { label: "Pricing", href: "#" },
       ],
     },
     {
-      title: 'Resources',
+      title: "Resources",
       links: [
-        { label: 'Blog', href: '/blog' },
-        { label: 'Documentation', href: '#' },
-        { label: 'API', href: '#' },
+        { label: "Blog", href: "/blog" },
+        { label: "Documentation", href: "#" },
+        { label: "API", href: "#" },
       ],
     },
     {
-      title: 'Company',
+      title: "Company",
       links: [
-        { label: 'About', href: '/aboutme' },
-        { label: 'Contact', href: '/contact' },
-        { label: 'Careers', href: '#' },
+        { label: "About", href: "/aboutme" },
+        { label: "Contact", href: "/contact" },
+        { label: "Careers", href: "#" },
       ],
     },
     {
-      title: 'Legal',
+      title: "Legal",
       links: [
-        { label: 'Privacy Policy', href: '/privacy' },
-        { label: 'Terms of Service', href: '/terms' },
+        { label: "Privacy Policy", href: "/privacy" },
+        { label: "Terms of Service", href: "/terms" },
       ],
     },
   ];
@@ -65,13 +73,18 @@ export const Footer = () => {
             transition={{ duration: 0.6 }}
           >
             <h3 className="text-3xl md:text-4xl font-bold text-white font-['Space_Grotesk'] mb-4 tracking-tight">
-              Stay Ahead of<br />the Curve
+              Stay Ahead of
+              <br />
+              the Curve
             </h3>
             <p className="text-zinc-400 text-lg mb-8 max-w-md">
               Get exclusive insights on AI advertising, delivered to your inbox.
             </p>
 
-            <form onSubmit={handleSubmit} className="flex gap-3">
+            <form
+              onSubmit={handleSubmit}
+              className="flex gap-3"
+            >
               <input
                 type="email"
                 value={email}
@@ -130,7 +143,7 @@ export const Footer = () => {
                         >
                           {link.label}
                         </a>
-                      ) : link.href.startsWith('/#') ? (
+                      ) : link.href.startsWith("/#") ? (
                         <a
                           href={link.href}
                           data-hoverable="true"
@@ -158,8 +171,12 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-2xl font-bold text-white font-['Space_Grotesk']">
-              ADS<span className="text-cyan-400">GUPTA</span>
+            <Link
+              to="/"
+              className="text-2xl font-bold text-white font-['Space_Grotesk']"
+            >
+              ADS
+              <span className="text-cyan-400">GUPTA</span>
             </Link>
             <span className="text-zinc-600 text-sm">
               © 2025 Ads Gupta. All rights reserved.
@@ -193,3 +210,4 @@ export const Footer = () => {
 };
 
 export default Footer;
+

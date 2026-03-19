@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Navigation } from '../components/Navigation';
 import { MobileNav } from '../components/MobileNav';
-import { Footer } from '../components/Footer';
+import { Footer } from '@adsgupta/ui';
 import useMultiFileStore from '../store/multiFileStore';
 import {
   mergeFiles,
