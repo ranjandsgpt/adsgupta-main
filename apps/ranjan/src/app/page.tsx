@@ -1,5 +1,4 @@
 import { brand } from "@adsgupta/config";
-import { Footer, Header } from "@adsgupta/ui";
 
 export default function Home() {
   return (
@@ -13,13 +12,11 @@ export default function Home() {
         flexDirection: "column"
       }}
     >
-      <Header title="ranjan.adsgupta.com" />
       <main style={{ flex: 1, display: "grid", placeItems: "center", padding: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 44, letterSpacing: "-0.03em" }}>
+        <h1 style={{ margin: 0, fontSize: 44, letterSpacing: "-0.03em", textAlign: "center" }}>
           Coming Soon — ranjan.adsgupta.com
         </h1>
       </main>
-      <Footer />
     </div>
   );
 }
