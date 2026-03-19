@@ -1,26 +1,48 @@
 {
-  "name": "pousali",
+  "name": "pousali-adsgupta-portfolio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate-docs": "tsx scripts/updateDocs.ts"
   },
   "dependencies": {
-    "@adsgupta/config": "^0.0.0",
-    "@adsgupta/ui": "^0.0.0",
-    "next": "16.2.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "@google/genai": "^1.44.0",
+    "@supabase/supabase-js": "^2.99.1",
+    "@tanstack/react-virtual": "^3.13.19",
+    "@types/uuid": "^10.0.0",
+    "docx": "^8.5.0",
+    "framer-motion": "^11.11.17",
+    "fuse.js": "^7.0.0",
+    "jspdf": "^2.5.2",
+    "lucide-react": "^0.460.0",
+    "next": "14.2.18",
+    "papaparse": "^5.4.1",
+    "pptxgenjs": "^3.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "recharts": "^2.13.3",
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.0",
-    "typescript": "^5"
+    "@types/node": "^22.9.0",
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.18",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.18"
   }
 }
