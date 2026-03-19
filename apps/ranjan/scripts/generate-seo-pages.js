@@ -1,0 +1,201 @@
+#!/usr/bin/env node
+/**
+ * Generate SEO pages from JSON data.
+ * Usage: node scripts/generate-seo-pages.js <path-to-pages.json>
+ * Output: writes <slug>/index.html for each page in the project root.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const BASE = 'https://ranjan.adsgupta.com';
+const ROOT = path.resolve(__dirname, '..');
+
+const NAV = `  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta →</a>
+      <div class="site-theme-toggle" aria-label="Theme">
+        <button type="button" class="site-theme-btn light" id="themeLight" aria-label="Light mode"></button>
+        <button type="button" class="site-theme-btn dark" id="themeDark" aria-label="Dark mode"></button>
+      </div>
+      <button type="button" class="site-nav-menu-btn" id="navMenuBtn" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>`;
+
+const FOOTER = fs.readFileSync(path.join(ROOT, 'footer-canonical.html'), 'utf8') + `
+
+  <script>
+    (function () {
+      var STORAGE_THEME = 'theme';
+      function setTheme(val) {
+        document.documentElement.setAttribute('data-theme', val === 'light' ? 'light' : 'dark');
+        try { localStorage.setItem(STORAGE_THEME, val === 'light' ? 'light' : 'dark'); } catch (e) {}
+      }
+      var lightBtn = document.getElementById('themeLight');
+      var darkBtn = document.getElementById('themeDark');
+      if (lightBtn) lightBtn.addEventListener('click', function () { setTheme('light'); });
+      if (darkBtn) darkBtn.addEventListener('click', function () { setTheme('dark'); });
+      var menuBtn = document.getElementById('navMenuBtn');
+      var siteNav = document.getElementById('siteNav');
+      if (menuBtn && siteNav) menuBtn.addEventListener('click', function () { siteNav.classList.toggle('open'); });
+      var form = document.getElementById('footerNewsletterForm');
+      if (form) form.addEventListener('submit', function (e) { e.preventDefault(); });
+    })();
+  </script>
+</body>
+</html>`;
+
+/** Pick one landing page URL based on keywords in content (plain text). */
+function pickLandingFromContent(content) {
+  if (!content) return '/programmatic-advertising';
+  const c = content.toLowerCase();
+  if (/\bexchange(s)?\b|exchange-level|exchange architecture/.test(c)) return '/exchange-architecture';
+  if (/\bctv\b|connected tv|ad pod/.test(c)) return '/ctv-monetization';
+  if (/header bidding|header-bidding|prebid/.test(c)) return '/header-bidding';
+  if (/\byield\b|yield optimization|eCPM/.test(c)) return '/yield-optimization';
+  if (/\bprogrammatic\b|real-time bidding|rtb/.test(c)) return '/programmatic-advertising';
+  if (/supply path|spo\b|supply-path/.test(c)) return '/supply-path-optimization';
+  if (/\bai\b|agentic|machine learning/.test(c)) return '/ai-in-advertising';
+  return '/programmatic-advertising';
+}
+
+/** Normalize master-format entry (slug, title, category, content) to full page shape. */
+function normalizeMasterPage(entry) {
+  const content = entry.content || '';
+  const plain = content.replace(/\n/g, ' ').trim();
+  const description = plain.length > 155 ? plain.slice(0, 152) + '...' : plain;
+  const paragraphs = content.split(/\n/).map(line => line.trim()).filter(Boolean);
+  const bodyHtml = paragraphs.map(p => '<p>' + escapeHtml(p) + '</p>').join('\n      ');
+  const landing = pickLandingFromContent(content);
+  const relatedLinks = [
+    { href: '/about', label: 'About' },
+    { href: '/work', label: 'Work' },
+    { href: landing, label: landing === '/exchange-architecture' ? 'Exchange Architecture' : landing === '/ctv-monetization' ? 'CTV Monetization' : landing === '/header-bidding' ? 'Header Bidding' : landing === '/yield-optimization' ? 'Yield Optimization' : landing === '/programmatic-advertising' ? 'Programmatic' : landing === '/supply-path-optimization' ? 'Supply Path' : 'AI in Advertising' }
+  ];
+  return {
+    slug: entry.slug,
+    title: (entry.title || entry.slug) + ' — Ranjan Dasgupta',
+    description,
+    breadcrumbName: entry.title || entry.slug,
+    category: entry.category || 'SEO',
+    h1: entry.title || entry.slug,
+    content: bodyHtml,
+    relatedLinks: []
+  };
+}
+
+function isMasterFormat(pages) {
+  if (!Array.isArray(pages) || !pages.length) return false;
+  const first = pages[0];
+  return first && 'number' in first && first.slug && first.title && first.content != null && first.h1 === undefined;
+}
+
+function buildHead(page) {
+  const url = `${BASE}/${page.slug}`;
+  const breadcrumb = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: BASE + '/' },
+      { '@type': 'ListItem', position: 2, name: page.breadcrumbName, item: url }
+    ]
+  });
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>(function(){var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t||'dark');})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050508">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <title>${escapeHtml(page.title)}</title>
+  <meta name="description" content="${escapeHtml(page.description)}">
+  <link rel="canonical" href="${url}">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <meta property="og:title" content="${escapeHtml(page.ogTitle || page.title)}">
+  <meta property="og:description" content="${escapeHtml(page.ogDescription || page.description)}">
+  <meta property="og:image" content="${BASE}/og-image.png">
+  <meta property="og:url" content="${url}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtml(page.ogTitle || page.title)}">
+  <meta name="twitter:description" content="${escapeHtml((page.ogDescription || page.description).slice(0, 160))}">
+  <meta name="twitter:image" content="${BASE}/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Exo+2:ital,wght@0,400;0,500;0,600;0,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
+  <script type="application/ld+json">${breadcrumb}</script>
+  <style>
+    :root{--font-display:'Exo 2',sans-serif;}
+    .page-wrap{padding-top:5rem;}
+    .seo-page-wrap{max-width:720px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+    .seo-category-tag{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:0.5rem;}
+    .seo-page-wrap h1{font-family:var(--font-display);font-size:1.75rem;font-weight:700;line-height:1.25;margin-bottom:1rem;color:var(--text-primary);}
+    @media(min-width:640px){.seo-page-wrap h1{font-size:2rem;}}
+    .seo-page-wrap h2{font-size:1.2rem;font-weight:600;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--text-primary);}
+    .seo-page-wrap p,.seo-page-wrap li{color:var(--text-secondary);margin-bottom:0.875rem;line-height:1.65;}
+    .seo-page-wrap a{color:var(--accent);text-decoration:none;}
+    .seo-page-wrap a:hover{text-decoration:underline;}
+    .seo-related{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+    .seo-related h3{font-size:0.8125rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:0.75rem;}
+    .seo-related-links{display:flex;flex-wrap:wrap;gap:0.5rem 1.25rem;}
+    .seo-related-links a{color:var(--accent);text-decoration:none;font-size:0.9375rem;}
+    .skip-link{position:absolute;left:-9999px;z-index:9999;padding:0.75rem 1rem;background:var(--accent);color:#050508;font-weight:600;text-decoration:none;border-radius:0.5rem;}
+    .skip-link:focus{left:1rem;top:1rem;}
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+${NAV}
+  <div class="page-wrap">
+    <main id="main-content" class="seo-page-wrap">`;
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function buildPage(page) {
+  return buildHead(page) + '\n      <p class="seo-category-tag">' + escapeHtml(page.category) + '</p>\n      <h1>' + escapeHtml(page.h1) + '</h1>\n      ' + page.content + '\n    </main>\n  </div>\n' + FOOTER;
+}
+
+function main() {
+  const dataPath = process.argv[2] || path.join(__dirname, 'seo-pages', 'batch1.json');
+  const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+  let pages = Array.isArray(data) ? data : data.pages;
+  if (isMasterFormat(pages)) {
+    pages = pages.map(normalizeMasterPage);
+  }
+  for (const page of pages) {
+    const dir = path.join(ROOT, page.slug);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const html = buildPage(page);
+    fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf8');
+    console.log('Wrote', page.slug + '/index.html');
+  }
+  console.log('Done. Generated', pages.length, 'pages.');
+}
+
+main();

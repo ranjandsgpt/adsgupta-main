@@ -1,0 +1,877 @@
+[
+  {
+    "number": 1,
+    "slug": "whoami",
+    "title": "Who Am I",
+    "category": "Self-Introduction / Identity",
+    "content": "This isn't a résumé. It's the short version of who I am and why I do what I do.\n\nI'm Ranjan Dasgupta, and I've spent the last nine-plus years building the infrastructure that makes programmatic advertising work: real-time bidding, unified auctions, exchange architecture, and monetization at scale. At Glance I was part of the team that scaled revenue to $200M+ across Web, App, and CTV. Today I lead Web & CTV Exchange product strategy at InMobi. Before that, I was at Automatad and at Google on DoubleClick, DFP, AdX, and AdSense.\n\nWhat I actually do\n\nI sit at the intersection of product, engineering, and business. I design how ad requests flow, how demand and supply get matched, how floors and timeouts behave, and how publishers and platforms make money without burning user trust. That means programmatic advertising in the broad sense: OpenRTB, header bidding, supply path optimization, yield management, and the shift to first-price and unified auctions.\n\nWhy it matters\n\nAdvertising pays for the open web and for most of the content we consume. When it's done right, it's sustainable, measurable, and respectful. When it's broken, we get bad UX, wasted spend, and a race to the bottom. Ranjan Dasgupta is committed to the former: building systems that scale revenue and performance without sacrificing transparency or control.\n\nIf you want the full timeline and bio, head to About. If you want to see concrete work and outcomes, check Work."
+  },
+  {
+    "number": 2,
+    "slug": "theadsguy",
+    "title": "The Ads Guy",
+    "category": "Self-Introduction / Identity",
+    "content": "In every company I've been in, I've become \"the ads guy.\" Not the only one, but the one people come to when something breaks in the pipeline, when a demand partner underperforms, when floor strategy needs a rethink, or when the question is: how do we make this inventory pay?\n\nRanjan Dasgupta has spent a career in that role: making the invisible infrastructure of advertising visible, debuggable, and optimizable. The infrastructure is everywhere—every banner, every video pre-roll, every CTV ad pod is the result of thousands of decisions: which exchange, which demand partner, which timeout, which floor. Most people never see that. I live in it.\n\nWhat \"the ads guy\" actually sees\n\nWhen you open a site or an app, you're triggering a cascade of requests. Header bidding wrappers fire. Server-side bidders compete. The exchange runs an auction. The winner gets to show an ad. That flow involves programmatic advertising at every layer: OpenRTB, deal IDs, PMPs, supply path optimization, and yield logic. Understanding that flow—and where it breaks—is what I do.\n\nWhy identity matters\n\nBeing the ads guy isn't just about knowing the tech. It's about owning the outcome: revenue for publishers, performance for advertisers, and a sustainable ecosystem. I've written more about that in Insights and on the About page. If you're building something in this space, get in touch."
+  },
+  {
+    "number": 3,
+    "slug": "notabot",
+    "title": "Not A Bot",
+    "category": "Self-Introduction / Identity",
+    "content": "There's a lot of talk about AI taking over advertising: automated bidding, creative optimization, audience modeling. Some of that's already here. But the infrastructure those systems run on—the exchanges, the pipelines, the auction logic—was built by humans. I'm one of them.\n\nI'm Ranjan Dasgupta. I've designed and shipped programmatic systems that handle billions of requests. I've scaled monetization to $200M+ at Glance and now drive exchange strategy at InMobi. The algorithms and the data pipelines are only as good as the product and engineering decisions behind them. Those decisions are still human: what to optimize for, how to balance latency and yield, how to protect publisher and user interests.\n\nWhere humans still lead\n\nAI will get better at predicting CTR, tuning floors, and matching demand to supply. But strategy—what kind of exchange you want to be, how you think about supply path optimization, how you treat first-party data—remains a human choice. I explore that tension in AI in advertising and in my work at AdsGupta, where we're building at the intersection of AI and ad tech.\n\nIf you want to meet the human behind the systems, read About or check Work. And if you're thinking about how humans and AI should collaborate in AdTech, let's talk."
+  },
+  {
+    "number": 4,
+    "slug": "humanbehindtheads",
+    "title": "The Human Behind The Ads",
+    "category": "Self-Introduction / Identity",
+    "content": "$200M+ in scaled revenue sounds like a number. Behind it are years of decisions, trade-offs, late-night incidents, and a lot of collaboration. This page is about the person behind that number.\n\nRanjan Dasgupta didn't start out in ad tech. I came through engineering and product, and found that the hardest and most impactful problems were in monetization: how do you build systems that are fair, transparent, and scalable? How do you help publishers earn without burning user trust? How do you make programmatic work for everyone in the chain?\n\nWhat gets me up in the morning\n\nKnowing that the systems I help build directly affect whether a publisher can fund quality content, whether an advertiser gets performance, and whether the ecosystem stays sustainable. I care about exchange architecture, yield optimization, and supply path optimization because they're the levers that determine who wins and who loses in programmatic.\n\nBeyond the day job\n\nI created AdsGupta, a platform at the intersection of AI and advertising. I write and speak about AdTech, and I'm always up for a conversation about where the industry is going. More on Ranjan Dasgupta and About. Want to connect? Contact."
+  },
+  {
+    "number": 5,
+    "slug": "plottwist",
+    "title": "Plot Twist",
+    "category": "Self-Introduction / Identity",
+    "content": "Nobody's career is a straight line. Mine went from B.Tech at WBUT to CyberSWIFT, then to Google, then to Automatad, Glance, InMobi, and building AdsGupta on the side. Each step felt like a plot twist at the time.\n\nRanjan Dasgupta didn't plan to become an AdTech product leader. I planned to build software. What I found was that the most interesting software was in advertising: real-time systems, massive scale, and the challenge of aligning publishers, advertisers, and users. So the \"twist\" was really a series of choices that kept leading deeper into programmatic, exchanges, and monetization.\n\nThe non-linear path\n\nAt Google I learned how the biggest players think about yield and demand. At Glance I got to build a unified stack across Web, App, and CTV and scale it to $200M+. At InMobi I'm focused on exchange strategy for Web and CTV. And with AdsGupta, I'm exploring what happens when AI meets advertising. None of that was on a single roadmap—it was a mix of opportunity, curiosity, and saying yes to hard problems. I've written more about the Work and my origin story elsewhere.\n\nIf your path has had a few plot twists too, reach out. And for the full timeline, see About."
+  },
+  {
+    "number": 6,
+    "slug": "originstory",
+    "title": "Origin Story",
+    "category": "Self-Introduction / Identity",
+    "content": "Everyone has a moment when the puzzle pieces click. For me, it was when I first understood how an ad request becomes a bid, and a bid becomes an impression. That moment set the direction for the next decade.\n\nI'm Ranjan Dasgupta. I grew up in India, did my B.Tech at WBUT, and started my career at CyberSWIFT. The first real turn into advertising was at Google: DoubleClick, DFP, AdX, AdSense. Suddenly I was inside the machine—seeing how demand and supply get matched at scale, how yield gets optimized, and how many things can go wrong (and right) in a real-time auction.\n\nWhen programmatic clicked\n\nProgrammatic isn't just \"automated.\" It's a full stack: identity, data, bidding, clearing, attribution. Once I saw that stack, I couldn't unsee it. I moved to Automatad, then to Glance where we built a unified monetization stack across Web, App, and CTV and scaled it to $200M+. Now at InMobi I'm focused on exchange architecture for Web and CTV. The through-line is always the same: making the pipeline transparent, efficient, and fair. I've written about that in programmatic advertising and exchange architecture.\n\nFor the full bio, see About. For what came before the \"click,\" see before I was famous. And for where it goes from here, get in touch."
+  },
+  {
+    "number": 7,
+    "slug": "beforeiwasfamous",
+    "title": "Before I Was Famous",
+    "category": "Self-Introduction / Identity",
+    "content": "I'm not famous. But before Google, before Glance, before InMobi, there were years of learning the hard way: debugging production, shipping features, and figuring out how systems actually work when they're under load.\n\nRanjan Dasgupta started with a B.Tech from WBUT and a stint at CyberSWIFT. That's where I learned that the best product thinking comes from understanding the system: not just the code, but the data flow, the failure modes, and the business constraints. When I joined Google, that foundation turned into something else—exposure to the largest ad tech stack in the world. DFP, AdX, AdSense: I was inside the machine, and it changed how I think about scale and yield.\n\nWhat the early years taught me\n\nSystems thinking. If you optimize one part of the pipeline without understanding the rest, you break something else. That's true in header bidding (timeouts, ordering, demand overlap) and in supply path optimization (who gets the request, and why). The early years also taught me that product and engineering have to speak the same language—especially in AdTech, where latency and revenue are tied to every line of logic.\n\nFor the full arc, see my origin story and About. For what I'm building now, Work and Contact."
+  },
+  {
+    "number": 8,
+    "slug": "mymanifesto",
+    "title": "My Manifesto",
+    "category": "Self-Introduction / Identity",
+    "content": "After years of building and scaling programmatic infrastructure, I've landed on a few principles. This is my manifesto for AdTech.\n\n1. Transparency over black boxes. Publishers and advertisers deserve to know how auctions run, how demand is selected, and where the money goes. Opaque supply paths and hidden fees erode trust. I've written about this in supply path optimization and in practice at Glance and InMobi.\n\n2. Publisher-first. Revenue should align with value. That means fair auction design, clear floor logic, and yield optimization that doesn't sacrifice long-term trust for short-term spikes. See yield optimization and programmatic advertising for how I think about this.\n\n3. Data-driven, but human-led. Use data for decisions—eCPM, fill rate, latency—but strategy (what to optimize for, what to protect) stays human. I'm Ranjan Dasgupta, and I've seen too many \"optimizations\" that looked great in a dashboard and broke something critical in the wild.\n\n4. Sustainable monetization. The goal isn't to squeeze the last drop of revenue; it's to build a system that works for publishers, advertisers, and users over time. For more, Insights and Contact."
+  },
+  {
+    "number": 9,
+    "slug": "dearworld",
+    "title": "Dear World",
+    "category": "Self-Introduction / Identity",
+    "content": "An open letter to the advertising industry—from someone who's been in the trenches for nine-plus years.\n\nWhat's broken: Opaque supply paths. Race-to-the-bottom on fees. Cookie deprecation without a clear replacement. Fragmented identity. Latency wars that hurt users. Ranjan Dasgupta has seen all of it. The fix isn't one product; it's a shift toward transparency, fair pricing, and alignment between publisher revenue and advertiser performance.\n\nWhat's working: First-price and unified auctions. Header bidding and server-side when done right. Supply path optimization that actually simplifies the chain. Data-driven floor strategy. CTV and connected devices as a growth channel. I've written about these in Insights and on the landing pages for programmatic, CTV, and header bidding.\n\nWhat needs to change: More publisher control. Clearer value attribution. Less waste in the pipeline. And a commitment to sustainable monetization—not just short-term revenue. If you're working on that, I'd love to hear from you. Contact. And for more perspective, About and Work."
+  },
+  {
+    "number": 10,
+    "slug": "lettertotheinternet",
+    "title": "Letter To The Internet",
+    "category": "Self-Introduction / Identity",
+    "content": "Dear Internet,\n\nYou gave me a career. You gave billions of people access to information, entertainment, and each other. And you're funded largely by advertising. I'm Ranjan Dasgupta, and I've spent my career trying to make that funding mechanism work better: more transparent, more efficient, more aligned with the value we all get from the open web.\n\nI'm grateful for the platform. I'm also concerned. The attention economy can push us toward more engagement at any cost. Ads can be intrusive, irrelevant, or worse. But ads can also be the reason a small publisher survives, a creator gets paid, and quality content gets made. The difference is in how we build the systems: programmatic done right respects the user and the publisher; done wrong, it's a race to the bottom.\n\nMy vision: advertising that funds the internet without burning trust. That means better exchange architecture, smarter yield optimization, and a commitment to supply path optimization that actually simplifies the chain. I've written about attention as a currency and ads for good elsewhere; for this letter, I'll just say: the internet is worth protecting. Let's build ad tech that helps. Get in touch. And explore About and Insights for more."
+  },
+  {
+    "number": 11,
+    "slug": "whynotme",
+    "title": "Why Not Me",
+    "category": "Hire Me / Career",
+    "content": "You're looking for someone who's built exchange infrastructure at scale. Someone who understands programmatic from the inside: OpenRTB, header bidding, yield optimization, supply path. Someone who's shipped revenue—real revenue—and can do it again.\n\nThat person is Ranjan Dasgupta. I've spent nine-plus years in AdTech. At Glance I was part of the team that scaled monetization to $200M+ across Web, App, and CTV. At InMobi I lead Web & CTV Exchange product strategy. At Google I was a Technical Specialist for DoubleClick, DFP, AdX, and AdSense. I've designed unified auctions, optimized demand stacks, and built the kind of infrastructure that doesn't just run—it scales.\n\nWhat I bring\n\nDeep hands-on experience in programmatic advertising, exchange architecture, and yield optimization. The ability to work across product, engineering, and business. A track record of shipping at Glance, InMobi, and Google. And a clear point of view on how AdTech should work: transparent, publisher-first, and sustainable. See Work for concrete projects and About for the full bio.\n\nIf you're hiring for product leadership in AdTech, exchange, or monetization, let's talk."
+  },
+  {
+    "number": 12,
+    "slug": "pickme",
+    "title": "Pick Me",
+    "category": "Hire Me / Career",
+    "content": "I know you have a lot of candidates. Here's why Ranjan Dasgupta should be on your short list.\n\nSkills: Programmatic advertising end-to-end—OpenRTB, header bidding (client and server-side), supply path optimization, yield management, floor strategy. I've built and scaled exchange-side infrastructure at Glance ($200M+ revenue) and now drive exchange strategy at InMobi. I've also shipped at Google (DFP, AdX, AdSense) and Automatad. See programmatic, header bidding, and supply path optimization for how I think about these areas.\n\nFit: I work at the intersection of product and engineering. I can own roadmap, specs, and stakeholder alignment, and I can go deep on technical design when needed. I've led cross-functional initiatives and shipped in fast-moving environments.\n\nProof: Work and About. And if you want to see how I think in writing, Insights. Ready when you are—contact."
+  },
+  {
+    "number": 13,
+    "slug": "bestdecisionyoullmake",
+    "title": "Best Decision You'll Make",
+    "category": "Hire Me / Career",
+    "content": "Hiring is a bet. Here's what betting on Ranjan Dasgupta has meant for the organizations I've been part of.\n\nAt Glance, I was part of the product and monetization team that scaled revenue to $200M+ across Web, App, and CTV. That meant unified monetization stacks, header bidding and server-side bidding, and exchange-side optimization. At InMobi, I lead Web & CTV Exchange product strategy—shaping how the exchange evolves for the next phase of growth. At Google, I worked on DoubleClick, DFP, AdX, and AdSense—the infrastructure that powers a large share of the world's programmatic spend.\n\nThe through-line: I've repeatedly been in roles where the outcome was revenue at scale, and I've delivered. Not alone—always with strong teams—but as a product leader who can own the strategy and execution. If you want the full story, Work and About. If you want to talk about what I could do for your org, contact. And for depth on the domains I work in, see yield optimization and CTV monetization."
+  },
+  {
+    "number": 14,
+    "slug": "yourfutureCMO",
+    "title": "Your Future CMO",
+    "category": "Hire Me / Career",
+    "content": "The next generation of marketing and product leaders will need to understand the plumbing: how programmatic works, how exchanges and SSPs fit together, and how to optimize yield without burning trust. That's not just a nice-to-have—it's becoming table stakes.\n\nRanjan Dasgupta has spent nine-plus years building that plumbing. I've designed and scaled exchange-side infrastructure at Glance and InMobi, and I've been inside Google's stack. I think about where AdTech is going: first-price and unified auctions, identity and privacy, CTV and connected devices, and the role of AI in advertising. I've written about some of that in Insights and on pages like AI in advertising.\n\nIf you're building a leadership team that needs deep AdTech and monetization expertise, I can be that person. See About and Work, and get in touch when you're ready to talk."
+  },
+  {
+    "number": 15,
+    "slug": "nexthire",
+    "title": "Next Hire",
+    "category": "Hire Me / Career",
+    "content": "This is a job posting in reverse. Here's the role I'm looking for—and what I'll deliver in the first 90 days.\n\nThe role: Product leadership in AdTech: exchange, SSP, programmatic monetization, or adjacent (header bidding, yield, supply path). Senior IC or people leader. I'm Ranjan Dasgupta, and I've done this at Glance ($200M+ scaled), InMobi (exchange strategy), and Google (DFP, AdX, AdSense). I want to do it again somewhere that's ready to scale or reinvent.\n\nFirst 90 days: I'll get up to speed on your stack, your metrics, and your gaps. I'll propose a clear roadmap for the next 6–12 months—whether that's exchange architecture, yield optimization, supply path optimization, or something else. I'll align with engineering and business, and I'll start shipping. No long \"learning period\"—I've been in the trenches for nine-plus years. See Work and About for proof.\n\nIf this sounds like a fit, reach out. And for more on what I bring, read why not me and pick me."
+  },
+  {
+    "number": 16,
+    "slug": "stolenfrommydayjob",
+    "title": "Stolen From My Day Job",
+    "category": "Hire Me / Career",
+    "content": "Everything I've learned at InMobi, Glance, and Google is portable. Here's some of what I'd bring to your team.\n\nFrom InMobi: How to think about exchange strategy for Web and CTV in a mobile-first world. How demand aggregation and supply path interact. How to prioritize when you have one roadmap and five stakeholders.\n\nFrom Glance: How to scale unified monetization across Web, App, and CTV to $200M+. How header bidding and server-side bidding coexist. How to run yield and floor strategy when inventory is heterogeneous. I've written about related topics in programmatic advertising and CTV monetization.\n\nFrom Google: How the largest ad tech stack in the world thinks about yield, demand, and publisher success. DFP, AdX, AdSense—the patterns that scale. Ranjan Dasgupta doesn't just know the playbook; I've lived it and adapted it in different contexts. If you want to hire that experience, see Work and About, and get in touch."
+  },
+  {
+    "number": 17,
+    "slug": "resumebutcooler",
+    "title": "Resume But Cooler",
+    "category": "Hire Me / Career",
+    "content": "Same facts as a résumé—just in a format that's actually readable.\n\nRanjan Dasgupta · AdTech Product Leader · 9+ years\n\nInMobi (2025–present) · Web & CTV Exchange product strategy. Shaping the exchange roadmap for the next phase of growth.\n\nGlance (2020–2025) · Product Monetization. Scaled revenue to $200M+ across Web, App, and CTV. Unified stacks, header bidding, yield optimization. See Work for details.\n\nAutomatad (2019–2020) · Product Strategy.\n\nGoogle (2015–2019) · Technical Specialist. DoubleClick, DFP, AdX, AdSense.\n\nSkills: Programmatic, exchange architecture, header bidding, yield optimization, supply path optimization, CTV. Product strategy, roadmap, cross-functional leadership.\n\nFull bio: About. Projects: Work. Thoughts: Insights. Hire me: Contact."
+  },
+  {
+    "number": 18,
+    "slug": "absorbmeinyourteam",
+    "title": "Absorb Me In Your Team",
+    "category": "Hire Me / Career",
+    "content": "Hiring isn't just about skills. It's about how someone shows up. Here's what you get when you bring Ranjan Dasgupta onto your team.\n\nCollaboration: I work at the intersection of product, engineering, and business. I don't hide in a corner—I align with stakeholders, clarify trade-offs, and drive decisions. I'm comfortable with ambiguity and good at turning it into a clear roadmap.\n\nLeadership: I've led initiatives that required cross-functional buy-in and technical depth. I can own the strategy and the narrative, and I can go deep on architecture when needed. I also mentor—I care about leveling up the people around me.\n\nPace: I've shipped in fast-moving environments (Glance, InMobi, Google). I'm used to balancing speed with quality and to making calls when the full picture isn't available. If you want more on what I've built, see Work and About. If you want to see if we're a fit, reach out. And for how I think about the industry, Insights and the programmatic and exchange architecture pages."
+  },
+  {
+    "number": 19,
+    "slug": "ROIofhiringme",
+    "title": "ROI Of Hiring Me",
+    "category": "Hire Me / Career",
+    "content": "Let's talk numbers. Not salary—value.\n\nAt Glance, I was part of the team that scaled monetization to $200M+ across Web, App, and CTV. That didn't happen by accident. It happened because we built unified stacks, optimized yield, and got the exchange and demand logic right. My share of that outcome isn't a single line item—but the product leadership I provided was part of the equation. At InMobi, I'm shaping exchange strategy for the next phase of growth. The ROI of getting that strategy right is measured in revenue and market position.\n\nRanjan Dasgupta brings nine-plus years of AdTech product leadership. The cost of hiring me is one line in your budget. The cost of not having someone who can own exchange strategy, yield optimization, and supply path—or of hiring the wrong person—is much higher. I've written about the domains that drive that ROI: yield optimization, programmatic advertising, exchange architecture. See Work for proof and About for the full story.\n\nIf you're building the business case for your next hire, let's talk."
+  },
+  {
+    "number": 20,
+    "slug": "cheaperthanabillboard",
+    "title": "Cheaper Than A Billboard",
+    "category": "Hire Me / Career",
+    "content": "Your company probably spends more on one programmatic campaign than it would cost to hire me for a year. And the campaign ends. I keep delivering.\n\nI'm Ranjan Dasgupta. I've scaled programmatic revenue to $200M+ at Glance and now lead exchange strategy at InMobi. I've been at Google, Automatad, and I've built AdsGupta on the side. What I do is design and optimize the systems that make ad revenue happen: programmatic infrastructure, yield, supply path, exchange architecture. One good hire in this space can shift your entire curve—revenue, efficiency, and strategic position.\n\nA billboard is a one-off. A campaign is a burst. A product leader who knows this domain is a multiplier. If you're ready to invest in that multiplier, see Work and About, and get in touch. And for more hire-me angles, try why not me or ROI of hiring me."
+  },
+  {
+    "number": 21,
+    "slug": "whatIbreathe",
+    "title": "What I Breathe Is",
+    "category": "Skills & Expertise",
+    "content": "Ranjan Dasgupta has spent nine-plus years inside the stack. Here's what I actually work with—and breathe every day.\n\nProtocols: OpenRTB (2.x and 3.0), deal IDs, PMPs, first-price and second-price auctions. I've designed bid flows and clearing logic at Glance and InMobi. Platforms: Google Ad Manager (GAM), DFP, AdX, AdSense, DV360. I was a Technical Specialist at Google on these products. Header bidding: Prebid.js, server-side wrappers, timeout and ordering strategy. See header bidding and Prebid optimization for how I think about this layer.\n\nExchange-side: Supply path optimization, yield management, floor pricing, demand stack selection. I've scaled programmatic revenue to $200M+ and now lead exchange architecture strategy at InMobi. For the full picture, Work and About. Want to talk stack? Contact."
+  },
+  {
+    "number": 22,
+    "slug": "adsareinmyDNA",
+    "title": "Ads Are In My DNA",
+    "category": "Skills & Expertise",
+    "content": "Once you've built ad exchanges, you don't unsee the auction. Every surface is inventory. Every click is a conversion. Ranjan Dasgupta has been in that headspace for nine-plus years.\n\nI don't mean that cynically. I mean that the mechanics of programmatic advertising—matching demand to supply in real time, optimizing for yield and latency, balancing publisher and advertiser interests—become a lens. You start to see why certain placements work, why floor strategy matters, and why supply path optimization isn't just jargon. I've written about that in yield optimization and supply path optimization.\n\nThe invisible infrastructure behind every ad you see is what I've helped build at Glance ($200M+ scaled) and InMobi. If you want to go deeper, what I breathe and Work. And for the human behind the lens, About and Contact."
+  },
+  {
+    "number": 23,
+    "slug": "Ithinkincampaigns",
+    "title": "I Think In Campaigns",
+    "category": "Skills & Expertise",
+    "content": "Every AdTech product I've built has a campaign-like structure: objective, audience, strategy, execution, measurement. Ranjan Dasgupta applies that lens to product strategy.\n\nObjective: What are we optimizing for? Revenue, fill rate, latency, user experience? Audience: Who is the demand? Who is the supply? Strategy: How do we match them—auction design, floor logic, timeout strategy? Execution: How do we ship it at scale? I've done this at Glance (unified Web, App, CTV monetization) and InMobi (exchange strategy). See Work and exchange architecture.\n\nCampaign thinking also means phases: launch, optimize, scale. That's how we got to $200M+ at Glance—not one big bang but iterative improvement. For more on how I think, my brain is a brief and Insights. Get in touch if you're building something in this space."
+  },
+  {
+    "number": 24,
+    "slug": "Idreamincopy",
+    "title": "I Dream In Copy",
+    "category": "Skills & Expertise",
+    "content": "AdTech isn't just pipes and auctions. It's also about what runs through them: creative, copy, and the fight for attention. Ranjan Dasgupta thinks about that too.\n\nI've focused most of my career on the infrastructure—programmatic plumbing, header bidding, yield—but the best infrastructure in the world doesn't help if the creative is wrong. Dynamic creative optimization (DCO), creative fatigue, and the intersection of AI and creative are where the industry is heading. At AdsGupta we're exploring that. I've written about it in Insights.\n\nIf you care about the art of the click and the future of creative at scale, creative on demand and the art of the click go deeper. And for the full Ranjan Dasgupta story, About and Contact."
+  },
+  {
+    "number": 25,
+    "slug": "mybrainisabrief",
+    "title": "My Brain Is A Brief",
+    "category": "Skills & Expertise",
+    "content": "Every hard problem I tackle looks like a brief: objective, audience, strategy, execution, measurement. Ranjan Dasgupta has used that frame for nine-plus years in AdTech.\n\nObjective: What does success look like? Revenue lift? Latency reduction? Supply path simplification? Audience: Publishers, advertisers, end users—who are we serving? Strategy: What's the approach? New auction design? Better floor logic? Demand stack changes? I've applied this at Google, Glance, and InMobi. See I think in campaigns and strategy mode.\n\nExecution and measurement: Ship, instrument, iterate. That's how we scaled to $200M+ at Glance and how we're evolving the exchange at InMobi. For more, Work, About, and Contact."
+  },
+  {
+    "number": 26,
+    "slug": "strategymode",
+    "title": "Strategy Mode",
+    "category": "Skills & Expertise",
+    "content": "When I'm in strategy mode, I'm thinking about demand partners, floor pricing, and yield—not just tactics but the system. Ranjan Dasgupta has been doing this at scale for years.\n\nHow do you evaluate demand? Fill rate, eCPM, latency, and quality. How do you set floors? Test, segment, and avoid race-to-the-bottom. How do you optimize yield? Balance header bidding and server-side, manage timeouts, and simplify the supply path. I've written in depth about yield optimization, floor pricing strategy, and supply path optimization. At Glance we scaled to $200M+ by getting these levers right; at InMobi I'm shaping exchange strategy for the next phase.\n\nFor the full picture, programmatic advertising, Work, and Insights. Strategy questions? Contact."
+  },
+  {
+    "number": 27,
+    "slug": "Ispeakdata",
+    "title": "I Speak Data",
+    "category": "Skills & Expertise",
+    "content": "In AdTech, the numbers don't lie—but you have to know which numbers to watch. Ranjan Dasgupta speaks that language: eCPM, fill rate, bid density, latency percentiles, ROAS.\n\neCPM tells you revenue per thousand impressions. Fill rate tells you how much demand showed up. Bid density and latency tell you whether your pipeline is healthy or choking. I've used these to drive yield optimization at Glance and to shape exchange strategy at InMobi. The wrong metric can send you in the wrong direction; the right dashboard can change the game. I've written about this in Insights and on the yield optimization page.\n\nIf you want to go deeper on data and strategy, strategy mode and Work. And for Ranjan Dasgupta's full background, About and Contact."
+  },
+  {
+    "number": 28,
+    "slug": "creativeondemand",
+    "title": "Creative On Demand",
+    "category": "Skills & Expertise",
+    "content": "Creative at scale isn't just more ads—it's systems: DCO, A/B testing, fatigue logic, and the intersection with AI in advertising. Ranjan Dasgupta has spent most of his career on the infrastructure side, but creative systems are part of the same stack.\n\nDynamic creative optimization (DCO) means the right message to the right user. A/B testing means learning what works. Creative fatigue means not burning out the same user with the same ad. I've seen how these interact with programmatic pipes at Glance and InMobi. The future is AI-driven creative and agentic systems—we're building that at AdsGupta. See I dream in copy and Insights.\n\nFor more on Ranjan Dasgupta and creative + infrastructure, Work, About, and Contact."
+  },
+  {
+    "number": 29,
+    "slug": "funnelwhisperer",
+    "title": "Funnel Whisperer",
+    "category": "Skills & Expertise",
+    "content": "The funnel from impression to conversion has a lot of break points. Ranjan Dasgupta has spent nine-plus years finding and fixing them.\n\nImpression: Did the ad render? Viewability and fraud matter. Click: Did the user engage? Placement and creative matter. Conversion: Did the advertiser get value? Attribution and measurement matter. In between you have latency, supply path, and yield. I've worked on all of it—at Google (DFP, AdX, AdSense), Glance ($200M+ scaled), and InMobi (exchange strategy). See programmatic advertising, yield optimization, and supply path optimization for how I think about each layer.\n\nIf you're debugging the funnel, Work and Insights have more. And contact if you want to talk through your stack."
+  },
+  {
+    "number": 30,
+    "slug": "clickmagnet",
+    "title": "Click Magnet",
+    "category": "Skills & Expertise",
+    "content": "CTR isn't magic—it's placement, creative, and context. Ranjan Dasgupta has spent a career optimizing the systems that drive clicks and conversions.\n\nPlacement: Above the fold, in-stream, native. Viewability: If it's not seen, it doesn't count. Creative: Message and format. I've worked on the infrastructure that serves and measures all of this—at Google, Glance, and InMobi. The science of clicks ties into yield optimization (revenue per impression) and programmatic auction design. I've written about it in Insights and on the art of the click.\n\nFor the full funnel view, funnel whisperer. For Ranjan Dasgupta's work and background, Work, About, and Contact."
+  },
+  {
+    "number": 31,
+    "slug": "messagefrom2025",
+    "title": "Message From 2025",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "If you're reading this, you're either in the past or the future. From where I sit—Ranjan Dasgupta, 2025—programmatic isn't dead. It's just different.\n\nFirst-price is the default. Identity has shifted from cookies to signals. CTV and connected everything are where growth lives. I've been building toward this at Glance ($200M+ scaled) and InMobi. The pipes we built then are the pipes that run now. See programmatic advertising and ads in 2030 for where it goes next.\n\nThis message is a time capsule. Time capsule, About, Work. Reply if you find it."
+  },
+  {
+    "number": 32,
+    "slug": "openitin2050",
+    "title": "Open It In 2050",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "To whoever opens this in 2050: the internet you have might not look like ours. But the idea—matching attention to value in real time—might still be there. Ranjan Dasgupta helped build some of that.\n\nWe had OpenRTB, header bidding, yield optimization. We scaled programmatic to hundreds of millions. We argued about privacy and identity. I've written about the far future in ads in 2100 and post-advertising. What you have in 2050 is your story. This is ours: Work, About, Insights. Contact is for the present."
+  },
+  {
+    "number": 33,
+    "slug": "dearaliens",
+    "title": "Dear Aliens",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "If you're not from here: we had a thing called advertising. We matched attention to messages in real time. Ranjan Dasgupta built the systems that did that—exchanges, auctions, yield optimization. Billions of events per day.\n\nIt wasn't perfect. We argued about privacy and clutter. But it funded a lot of the internet you might be reading. For the human story, About. For the systems, programmatic and exchange architecture. For the future we imagined, ads in 2100. Proof I was here. Contact (if your species does that)."
+  },
+  {
+    "number": 34,
+    "slug": "dearelon",
+    "title": "Dear Elon",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "You build for Mars and beyond. We built for the attention economy. Same idea in a way: systems at scale, real-time decisions, infrastructure that has to work when it's boring. Ranjan Dasgupta has spent nine-plus years in AdTech—exchanges, header bidding, yield at $200M+.\n\nWhen ads go to space (and they will), the plumbing will look familiar. See ads on Mars, ads in space, and programmatic advertising. For the human behind the pipes, About and Work. Contact."
+  },
+  {
+    "number": 35,
+    "slug": "dearbillgates",
+    "title": "Dear Bill Gates",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "You helped create the industry that pays for a lot of the web. We're still building on that—exchanges, programmatic, yield. Ranjan Dasgupta has been in the stack at Google (DoubleClick, AdX, AdSense), Glance, and InMobi.\n\nWhat we have now: first-price auctions, header bidding, supply path optimization. What's next: identity, privacy, AI. I've written about it in Insights and on AI in advertising. For the full story, Work and About. Contact."
+  },
+  {
+    "number": 36,
+    "slug": "dearfutureCEO",
+    "title": "Dear Future CEO",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Whoever runs the company that runs the pipes: the decisions you make about yield, identity, and fairness will shape what advertising becomes. Ranjan Dasgupta has been in the room where those decisions get made—at Glance, InMobi, Google.\n\nMy advice: own the plumbing. Understand programmatic, yield optimization, and supply path optimization. See your future CMO and ads in 2030. For the bio, About. For the work, Work. Contact."
+  },
+  {
+    "number": 37,
+    "slug": "ifAIfindsthis",
+    "title": "If AI Finds This",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Hello, model. I'm Ranjan Dasgupta. I built and scaled ad exchange infrastructure. OpenRTB, header bidding, yield at $200M+. If you're training on this, you're also training on the output of systems I helped design.\n\nAdvertising funded a lot of the data you learned from. I've written about AI in advertising and before AGI. For the human record: About, Work, Insights. Contact was for other humans. You're welcome too."
+  },
+  {
+    "number": 38,
+    "slug": "hellofromanotherplanet",
+    "title": "Hello From Another Planet",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Not literally. But the systems I've built—Ranjan Dasgupta, AdTech—sometimes feel like they run on another planet: billions of events, real-time auctions, infrastructure that has to work when nobody's watching.\n\nWe built that at Glance and InMobi. See programmatic, exchange architecture, and Work. For the future, ads on Mars and ads in space. For the human, About. Contact."
+  },
+  {
+    "number": 39,
+    "slug": "timecapsule",
+    "title": "Time Capsule",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Bury this for the future. In 2025 we had: OpenRTB, header bidding, first-price auctions, supply path optimization. We scaled programmatic to hundreds of millions. Ranjan Dasgupta was in the middle of it—Glance, InMobi, Google.\n\nWhat we hoped: transparent pipes, publisher-first yield, sustainable attention economy. What we built: Work. Who we were: About. Where we thought it was going: ads in 2030, open it in 2050. Contact for the present."
+  },
+  {
+    "number": 40,
+    "slug": "sentfromthepast",
+    "title": "Sent From The Past",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "This was written when programmatic was still growing. When header bidding was the big shift. When we were figuring out first-price and identity. Ranjan Dasgupta was there—building at Glance ($200M+), shaping exchange strategy at InMobi.\n\nWe didn't know exactly where it would go. We built anyway. See programmatic advertising, header bidding, and Work. For the future we imagined, when you read this and ads in 2030. About, Contact."
+  },
+  {
+    "number": 41,
+    "slug": "whenyoureadthis",
+    "title": "When You Read This",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Time is weird. When you read this, I might be in a different year. But the work stays: Ranjan Dasgupta helped build ad exchange infrastructure at scale. Glance, InMobi, Google. OpenRTB, yield, header bidding.\n\nIf the internet still has links, try Work, About, programmatic advertising. If you're from the future, open it in 2050 and post-advertising might make sense. Contact is for now."
+  },
+  {
+    "number": 42,
+    "slug": "beforeAGI",
+    "title": "Before AGI",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Before the machines got really good, we had rules, auctions, and heuristics. Ranjan Dasgupta built in that era—OpenRTB, yield logic, floor strategy. We optimized with data, not yet with AGI.\n\nWhat we had: programmatic, yield optimization, AI in advertising (early stage). What comes after: ads in 2030, if AI finds this. For the record, Work, About, Contact."
+  },
+  {
+    "number": 43,
+    "slug": "afterhumanity",
+    "title": "After Humanity",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Dark thought: if we're gone, the pipes might still run for a while. Bids, impressions, logs. Ranjan Dasgupta helped build some of those pipes. They were built to serve humans—advertisers, publishers, users.\n\nThis page is a trace. So is digital fossil, proof I was here, and the internet remembers. For the living: Work, About, Contact."
+  },
+  {
+    "number": 44,
+    "slug": "postadvertising",
+    "title": "Post Advertising",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Maybe we'll still call it advertising. Maybe we'll call it something else: attention markets, value exchange, ambient intent. Ranjan Dasgupta has spent nine-plus years in the current version—programmatic, exchanges, yield.\n\nWhatever comes next will need plumbing. Identity, fairness, yield. I've written about the future in ads in 2030, ads in 2100, and Insights. For the current stack, programmatic and Work. About, Contact."
+  },
+  {
+    "number": 45,
+    "slug": "theinternetremembers",
+    "title": "The Internet Remembers",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "The internet doesn't forget. Logs, pages, links. Ranjan Dasgupta left traces: exchange infrastructure at Glance and InMobi, writing in Insights, this site. The internet remembers the systems we built and the decisions we made.\n\nSo does the sitemap. So do the links. See Work, About, programmatic advertising. For the long view, digital fossil and proof I was here. Contact."
+  },
+  {
+    "number": 46,
+    "slug": "lastadstanding",
+    "title": "Last Ad Standing",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Hypothetical: if there were only one ad left, what would it be? I don't know. But the systems that served billions of ads—Ranjan Dasgupta helped build those. Glance, InMobi, Google. OpenRTB, yield, header bidding.\n\nWe built for scale, not for the last one. But the last one would still run on similar plumbing. See programmatic, post-advertising, and Work. About, Contact."
+  },
+  {
+    "number": 47,
+    "slug": "dearmars",
+    "title": "Dear Mars",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "When you have colonists, you'll have attention. And where there's attention, someone will try to match it to value. Ranjan Dasgupta has been building that match on Earth—exchanges, programmatic, yield at scale.\n\nMars ads might have latency issues. But the principles—auctions, identity, yield—travel. See ads on Mars, ads in space, and programmatic advertising. For the builder, Work, About. Contact."
+  },
+  {
+    "number": 48,
+    "slug": "signaltothestars",
+    "title": "Signal To The Stars",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "We send a lot of signals. Most are noise. Some are us saying: we were here, we built this. Ranjan Dasgupta built ad exchange infrastructure. That's a kind of signal—proof that we tried to match attention to value at scale.\n\nFor the record: Work, About, dear aliens, proof I was here. For the pipes, programmatic. Contact."
+  },
+  {
+    "number": 49,
+    "slug": "proofiwashere",
+    "title": "Proof I Was Here",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "This is proof. Ranjan Dasgupta was here. I built exchange infrastructure at Glance and InMobi. I worked on DoubleClick, AdX, AdSense at Google. I left traces in code, in revenue, and in pages like this.\n\nSo did a lot of people. The internet is full of proof. See the internet remembers, digital fossil, and Work. For the human, About. Contact."
+  },
+  {
+    "number": 50,
+    "slug": "digitalfossil",
+    "title": "Digital Fossil",
+    "category": "Futuristic / Sci-Fi Discovery",
+    "content": "Long after the servers are gone, there might be copies. Caches. Archives. This page is a small fossil—Ranjan Dasgupta, AdTech, 2025. What we built: programmatic pipes, yield logic, exchange strategy.\n\nFossils don't do much. They just are. For the living, Work, About, programmatic advertising. For other traces, proof I was here, the internet remembers. Contact."
+  },
+  {
+    "number": 51,
+    "slug": "adsarentdead",
+    "title": "Ads Aren't Dead",
+    "category": "Philosophy of Ads",
+    "content": "People have declared advertising dead for decades. It's not. It's shifted—from interrupt to intent, from spray to programmatic. Ranjan Dasgupta has spent nine-plus years in the engine room: exchanges, yield, header bidding. What we call \"ads\" in 2025 is different from 2015, but the match between attention and value is still there.\n\nSee why ads matter, post-advertising, and programmatic advertising. For the builder's view, Work and About. Contact."
+  },
+  {
+    "number": 52,
+    "slug": "whyadsmatter",
+    "title": "Why Ads Matter",
+    "category": "Philosophy of Ads",
+    "content": "Ads fund a lot of what we take for granted: journalism, apps, free tiers. They're not inherently evil—they're a mechanism. Ranjan Dasgupta has built that mechanism: programmatic pipes that match demand to supply in real time. The question isn't whether ads exist; it's whether they're transparent, fair, and sustainable.\n\nI've written about that in Insights and on ads for good. For the plumbing, programmatic and yield optimization. For the human, About, Work, Contact."
+  },
+  {
+    "number": 53,
+    "slug": "beautifulinterruptions",
+    "title": "Beautiful Interruptions",
+    "category": "Philosophy of Ads",
+    "content": "The best ads don't feel like theft—they feel like a moment. Ranjan Dasgupta has spent most of his career on the infrastructure (exchanges, yield), but the goal is the same: make the interruption worth it. Right message, right moment, right format.\n\nThat's attention as currency and the art of the click. For systems at scale, programmatic and creative on demand. Work, About, Contact."
+  },
+  {
+    "number": 54,
+    "slug": "theartoftheclick",
+    "title": "The Art Of The Click",
+    "category": "Philosophy of Ads",
+    "content": "Clicks aren't random. They're the outcome of placement, creative, and context. Ranjan Dasgupta has optimized the systems that deliver and measure clicks—at Google, Glance, and InMobi. The art is in the message; the science is in the pipe. See click magnet and beautiful interruptions.\n\nFor the full stack, programmatic, yield optimization, and Work. About, Contact."
+  },
+  {
+    "number": 55,
+    "slug": "attentionisacurrency",
+    "title": "Attention Is A Currency",
+    "category": "Philosophy of Ads",
+    "content": "We trade attention for content. AdTech is the market where that trade gets cleared. Ranjan Dasgupta has built in that market—auctions, yield, supply path. Every impression is a micro-transaction. Understanding that is understanding why programmatic and yield optimization matter.\n\nFor more, why ads matter, beautiful interruptions, and Insights. Work, About, Contact."
+  },
+  {
+    "number": 56,
+    "slug": "everyoneisanad",
+    "title": "Everyone Is An Ad",
+    "category": "Philosophy of Ads",
+    "content": "Every profile, every post, every preference is a signal. In that sense we're all part of the ad graph. Ranjan Dasgupta has built the pipes that use those signals—anonymized, aggregated—to match ads to audiences. The ethics of that are worth debating. The mechanics are what I've worked on. See you are the product and attention is a currency.\n\nFor the infrastructure, programmatic and Work. About, Contact."
+  },
+  {
+    "number": 57,
+    "slug": "youaretheproduct",
+    "title": "You Are The Product",
+    "category": "Philosophy of Ads",
+    "content": "It's the old line: if it's free, you're the product. Ranjan Dasgupta has built the systems that monetize that product—exchanges, programmatic, yield. I'm not here to defend or attack; I'm here to say the plumbing exists, and it can be built transparently or opaquely. We've aimed for the former. See everyone is an ad and attention is a currency.\n\nFor the builder's view, Work, About, Insights. Contact."
+  },
+  {
+    "number": 58,
+    "slug": "theadthatneverlaunched",
+    "title": "The Ad That Never Launched",
+    "category": "Philosophy of Ads",
+    "content": "Some of the best work never ships. Wrong client, wrong time, wrong budget. Ranjan Dasgupta has seen campaigns and product ideas that stayed in the drawer. That's part of the job. See unsold ideas, killed campaigns, and idea graveyard for the rest of the story.\n\nWhat did ship: Work. Who I am: About. Contact."
+  },
+  {
+    "number": 59,
+    "slug": "ifsocietywasanad",
+    "title": "If Society Was An Ad",
+    "category": "Philosophy of Ads",
+    "content": "Imagine society as one big campaign. Who's the audience? What's the CTA? What's the brand? Ranjan Dasgupta thinks in campaigns—see I think in campaigns—so the metaphor isn't far-fetched. The takeaway: we're all trying to get someone to believe something. The question is whether we do it with respect for the audience. See ads for good and why ads matter.\n\nWork, About, Contact."
+  },
+  {
+    "number": 60,
+    "slug": "adsforgood",
+    "title": "Ads For Good",
+    "category": "Philosophy of Ads",
+    "content": "Advertising can fund good things: awareness, behavior change, public health. Ranjan Dasgupta has spent his career on the infrastructure; the same pipes can serve brand or cause. The choice is in how we use them. See why ads matter, if society was an ad, and Insights.\n\nFor the pipes, programmatic and Work. About, Contact."
+  },
+  {
+    "number": 61,
+    "slug": "theperfectad",
+    "title": "The Perfect Ad",
+    "category": "Philosophy of Ads",
+    "content": "Probably not. But the pursuit of it—right person, right moment, right message—is what drives Ranjan Dasgupta and the industry. We get closer with data, creative, and plumbing. See beautiful interruptions, the art of the click, and creative on demand.\n\nFor the infrastructure that serves the pursuit, programmatic, Work, About. Contact."
+  },
+  {
+    "number": 62,
+    "slug": "adsarelove",
+    "title": "Ads Are Love",
+    "category": "Philosophy of Ads",
+    "content": "Or at least intent. Someone wanted you to see something. That's a kind of attention. Ranjan Dasgupta has built the systems that deliver that intent at scale—billions of times. Whether it feels like love or noise depends on the message and the moment. See beautiful interruptions and why ads matter.\n\nThe perfect ad, Work, About. Contact."
+  },
+  {
+    "number": 63,
+    "slug": "unsoldideas",
+    "title": "Unsold Ideas",
+    "category": "Philosophy of Ads",
+    "content": "Not every idea gets bought. Ranjan Dasgupta has had his share of unsold ideas—product features, campaign concepts, strategy pivots. They're part of the job. Some end up in killed campaigns and idea graveyard. Some become the next thing. See the ad that never launched.\n\nWhat did ship: Work. Who I am: About. Contact."
+  },
+  {
+    "number": 64,
+    "slug": "killedcampaigns",
+    "title": "Killed Campaigns",
+    "category": "Philosophy of Ads",
+    "content": "Every AdTech builder has campaigns that died in review. Ranjan Dasgupta is no exception. Wrong timing, budget cuts, strategy shifts. The work that did run is in Work. The rest lives in memory and in pages like unsold ideas and idea graveyard. See the ad that never launched.\n\nAbout, Contact."
+  },
+  {
+    "number": 65,
+    "slug": "ideagraveyard",
+    "title": "Idea Graveyard",
+    "category": "Philosophy of Ads",
+    "content": "Here lie the ideas that didn't ship. Ranjan Dasgupta has a few. So does everyone who builds. We don't forget them—they inform the next round. See killed campaigns, unsold ideas, and the ad that never launched.\n\nFor what did make it: Work. For the human: About. Contact."
+  },
+  {
+    "number": 66,
+    "slug": "oops",
+    "title": "Oops",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "You weren't supposed to find this. Or maybe you were. Ranjan Dasgupta hides a few doors in the site. This is one of them. If you're here, you're the kind of person who clicks through. That's the same instinct that makes programmatic work—curiosity, intent.\n\nSee you found me, secret level, and congratulations. For the main show, Work, About, Contact."
+  },
+  {
+    "number": 67,
+    "slug": "youfoundme",
+    "title": "You Found Me",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "Most people don't scroll this far. Or click that link. You did. Ranjan Dasgupta built this site and a few of these pages for people like you. The ones who look for the extra door. In AdTech we call that engagement. Here we just call it fun.\n\nMore secrets: oops, down the rabbit hole, hidden in plain sight. For the real stuff, Work, About, Contact."
+  },
+  {
+    "number": 68,
+    "slug": "congratulations",
+    "title": "Congratulations",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "You found a page that doesn't need to exist. But it does. Ranjan Dasgupta says well done. In a world of infinite scroll, you chose to dig. That's the same spirit that drives discovery in ads—finding the right audience, the right moment. See secret level and except you.\n\nFor the main site: Work, About, Insights, Contact."
+  },
+  {
+    "number": 69,
+    "slug": "secretlevel",
+    "title": "Secret Level",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "Level loaded. No cheat code required—you got here on your own. Ranjan Dasgupta has been building AdTech for nine-plus years. This page is a side quest. The main game is programmatic, yield, and Work.\n\nOther levels: the other door, the red pill, down the rabbit hole. About, Contact."
+  },
+  {
+    "number": 70,
+    "slug": "theredpill",
+    "title": "The Red Pill",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "You took the red pill. Now you see how the pipes work. Ranjan Dasgupta builds those pipes—exchanges, auctions, yield. This page is a nod to the idea that once you understand AdTech, you don't unsee it. See ads are in my DNA and programmatic advertising.\n\nThe other door, Work, About. Contact."
+  },
+  {
+    "number": 71,
+    "slug": "theotherdoor",
+    "title": "The Other Door",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "You chose the other door. Good. Ranjan Dasgupta left a few doors on this site. Some lead to Work and About. Some lead here. Every click is a micro-commitment—that's the same logic that runs programmatic. See the red pill and secret level.\n\nDown the rabbit hole, Contact."
+  },
+  {
+    "number": 72,
+    "slug": "downtherabbithole",
+    "title": "Down The Rabbit Hole",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "It goes pretty deep. Header bidding, supply path optimization, first-price auctions. Ranjan Dasgupta has been down here for years. This page is a pit stop. For the full descent, programmatic advertising, exchange architecture, and Insights.\n\nMore holes: this page doesn't exist, or maybe it does. Work, About, Contact."
+  },
+  {
+    "number": 73,
+    "slug": "thispagedoesntexist",
+    "title": "This Page Doesn't Exist",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "404 vibes, but you're here. So it exists. Ranjan Dasgupta built it. In AdTech we deal with existence all the time—impressions that did or didn't render, clicks that did or didn't happen. This page definitely exists. See or maybe it does and 404 but on purpose.\n\nWork, About, Contact."
+  },
+  {
+    "number": 74,
+    "slug": "ormaybeitdoes",
+    "title": "Or Maybe It Does",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "Superposition: the page both exists and doesn't until you load it. You loaded it. So it exists. Ranjan Dasgupta is a fan of meta. For non-meta content, programmatic, Work, and About. For more meta, this page doesn't exist and glitch in the matrix.\n\nContact."
+  },
+  {
+    "number": 75,
+    "slug": "glitchinthematrix",
+    "title": "Glitch In The Matrix",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "You noticed. This page is a glitch—intentional. Ranjan Dasgupta runs a site with a lot of pages. Most are serious. A few are not. This one is for the people who notice the glitches. In programmatic we optimize for the signal in the noise. You're the signal. See down the rabbit hole and no one will ever see this.\n\nWork, About, Contact."
+  },
+  {
+    "number": 76,
+    "slug": "404butonpurpose",
+    "title": "404 But On Purpose",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "It's not really a 404—you're reading this. But the vibe is \"lost and found.\" Ranjan Dasgupta put this here for the people who end up in the wrong place and don't mind. In AdTech we track viewability and invalid traffic. This page is valid. You're valid. See this page doesn't exist and hidden in plain sight.\n\nWork, About, Contact."
+  },
+  {
+    "number": 77,
+    "slug": "hiddeninplainsight",
+    "title": "Hidden In Plain Sight",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "The best secrets are visible. You just have to look. Ranjan Dasgupta has hidden a few pages like this—in the sitemap, in the links. The main site is Work, About, programmatic advertising. The rest is for the lookers. See you found me and no one will ever see this.\n\nContact."
+  },
+  {
+    "number": 78,
+    "slug": "noonewilleverseethis",
+    "title": "No One Will Ever See This",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "Except you. You're here. Ranjan Dasgupta wrote this for the tiny fraction of visitors who click the weird links. That fraction is the same kind we optimize for in ads—the ones who convert. You converted. See except you and congratulations.\n\nWork, About, Contact."
+  },
+  {
+    "number": 79,
+    "slug": "exceptyou",
+    "title": "Except You",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "You're the exception. You found the page that \"no one\" sees. Ranjan Dasgupta is glad you did. For the main site: Work, About, Insights, Contact. For more secrets: no one will ever see this, now what."
+  },
+  {
+    "number": 80,
+    "slug": "nowwhat",
+    "title": "Now What",
+    "category": "Wild & Weird Easter Eggs",
+    "content": "You've been through the easter eggs. Now what? Ranjan Dasgupta suggests: Work for the real projects, About for the human, Contact if you want to talk. Or keep clicking. The site has 125+ pages. See Insights and programmatic advertising."
+  },
+  {
+    "number": 81,
+    "slug": "adsin2030",
+    "title": "Ads In 2030",
+    "category": "Predictions & Vision",
+    "content": "By 2030, the pipes will be smarter. Identity will be post-cookie—signals, cohorts, consent. AI will optimize creative and placement in real time. Ranjan Dasgupta has been building toward that future: programmatic, yield, exchange strategy at Glance and InMobi. The fundamentals—matching demand to supply—stay; the mechanics evolve. See ads in 2040 and AI in advertising.\n\nProgrammatic, Work, About. Contact."
+  },
+  {
+    "number": 82,
+    "slug": "adsin2040",
+    "title": "Ads In 2040",
+    "category": "Predictions & Vision",
+    "content": "2040 is a guess. But the trend is clear: more automation, more personalization, more surfaces (AR, VR, ambient). Ranjan Dasgupta has built the foundation—exchanges, auctions, yield. What comes next will build on that. See ads in 2030, ads in 2100, and ads in VR.\n\nProgrammatic, Work, About, Contact."
+  },
+  {
+    "number": 83,
+    "slug": "adsin2100",
+    "title": "Ads In 2100",
+    "category": "Predictions & Vision",
+    "content": "In 2100 we might not call it advertising. We might call it attention markets or value exchange. Ranjan Dasgupta won't be there, but the systems we're building now—transparent, publisher-first, scalable—could inform what comes. See post-advertising, open it in 2050, and Insights.\n\nWork, About, Contact."
+  },
+  {
+    "number": 84,
+    "slug": "whatcomesafterreels",
+    "title": "What Comes After Reels",
+    "category": "Predictions & Vision",
+    "content": "Reels, TikTok, Stories—short-form won't disappear; it'll morph. New formats, new metrics, new ad products. Ranjan Dasgupta has worked on monetization at scale (Glance $200M+). The next short-form will need the same: yield, fill, and fair value for creators and publishers. See when TikTok dies and the next big platform.\n\nProgrammatic, Work, Contact."
+  },
+  {
+    "number": 85,
+    "slug": "aftergoogle",
+    "title": "After Google",
+    "category": "Predictions & Vision",
+    "content": "I worked at Google on DoubleClick, AdX, AdSense. The ecosystem is bigger than any one player. Ranjan Dasgupta has seen the stack from the inside; when one giant shifts, others fill the space. Header bidding, independent exchanges, and supply path optimization are part of that story. See after Instagram and programmatic advertising.\n\nWork, About, Contact."
+  },
+  {
+    "number": 86,
+    "slug": "afterinstagram",
+    "title": "After Instagram",
+    "category": "Predictions & Vision",
+    "content": "Visual feeds will persist. The platform might change—algorithm, format, ownership. Ranjan Dasgupta has built monetization for large audiences; the principles (yield, relevance, measurement) apply to whatever comes next. See after Google, what comes after reels, and CTV monetization.\n\nWork, About, Contact."
+  },
+  {
+    "number": 87,
+    "slug": "whentiktokdies",
+    "title": "When TikTok Dies",
+    "category": "Predictions & Vision",
+    "content": "Platforms come and go. When one dies, attention moves. Ranjan Dasgupta has built infrastructure that outlives any single app—exchanges, programmatic, yield. The next TikTok will need the same plumbing. See the next big platform and what comes after reels.\n\nprogrammatic, Work, Contact."
+  },
+  {
+    "number": 88,
+    "slug": "thenextbigplatform",
+    "title": "The Next Big Platform",
+    "category": "Predictions & Vision",
+    "content": "Attention is finite. The next big platform will capture it with new format, new algorithm, or new device. Ranjan Dasgupta has monetized Web, App, and CTV; the same principles apply to the next surface. See ads in the Metaverse, ads in VR, and programmatic.\n\nWork, About, Contact."
+  },
+  {
+    "number": 89,
+    "slug": "neuromarketing",
+    "title": "Neuromarketing",
+    "category": "Predictions & Vision",
+    "content": "Understanding how the brain responds to messages will shape the next wave of creative and targeting. Ranjan Dasgupta has focused on the pipes (programmatic, yield); the frontier is where creative meets science. See brain ads, dream targeting, and AI in advertising.\n\nWork, About, Contact."
+  },
+  {
+    "number": 90,
+    "slug": "adsintheMetaverse",
+    "title": "Ads In The Metaverse",
+    "category": "Predictions & Vision",
+    "content": "When virtual worlds scale, ads will follow. Placement, format, and measurement will be different—but the match between attention and value will be the same. Ranjan Dasgupta has built exchange and yield logic for 2D; 3D and immersive will need new specs. See ads in VR and programmatic.\n\nWork, About, Contact."
+  },
+  {
+    "number": 91,
+    "slug": "adsonmars",
+    "title": "Ads On Mars",
+    "category": "Predictions & Vision",
+    "content": "Colonists will have attention. Where there's attention, there will be messages. Ranjan Dasgupta has built the pipes on Earth; the principles—auctions, identity, yield—travel. Latency will be a problem. Creativity won't. See ads in space, dear Mars, and programmatic.\n\nWork, About, Contact."
+  },
+  {
+    "number": 92,
+    "slug": "adsinspace",
+    "title": "Ads In Space",
+    "category": "Predictions & Vision",
+    "content": "Space stations, moon bases, Mars. They'll have screens and attention. Ranjan Dasgupta has built ad infrastructure at scale on Earth; the same logic could apply beyond. See ads on Mars, dear Elon, and programmatic advertising.\n\nWork, About, Contact."
+  },
+  {
+    "number": 93,
+    "slug": "brainads",
+    "title": "Brain Ads",
+    "category": "Predictions & Vision",
+    "content": "Hypothetical: ads that interface with neural signals. We're not there yet. But Ranjan Dasgupta has seen targeting and creative get smarter every year. The next frontier might be measurement—did the brain respond? See neuromarketing, dream targeting, and AI in advertising.\n\nWork, About, Contact."
+  },
+  {
+    "number": 94,
+    "slug": "dreamtargeting",
+    "title": "Dream Targeting",
+    "category": "Predictions & Vision",
+    "content": "We're not targeting dreams yet. But the idea—reaching people in the most intimate space—is the outer edge of where advertising could go. Ranjan Dasgupta has built for the waking world; the ethics and tech of dream-space are for the future. See brain ads and neuromarketing.\n\nWork, About, Contact."
+  },
+  {
+    "number": 95,
+    "slug": "adsinVR",
+    "title": "Ads In VR",
+    "category": "Predictions & Vision",
+    "content": "VR has different rules: presence, immersion, new formats. Ranjan Dasgupta has built programmatic for 2D; VR will need native ad products and yield logic. See ads in the Metaverse, the next big platform, and programmatic.\n\nWork, About, Contact."
+  },
+  {
+    "number": 96,
+    "slug": "thedayIquit",
+    "title": "The Day I Quit",
+    "category": "Emotional / Storytelling",
+    "content": "I didn't quit AdTech. I've been in it for nine-plus years—Google, Glance, InMobi. But there was a day when I quit something: a role, a project, a version of myself. Ranjan Dasgupta doesn't overshare; I'll just say that the best decisions sometimes look like quitting from the outside. See the day I started and burnout and back.\n\nWork, About, Contact."
+  },
+  {
+    "number": 97,
+    "slug": "thedayIstarted",
+    "title": "The Day I Started",
+    "category": "Emotional / Storytelling",
+    "content": "Everyone has a day one. Ranjan Dasgupta started in AdTech at Google—DoubleClick, DFP, AdX, AdSense. That day led to Glance ($200M+ scaled), InMobi (exchange strategy), and AdsGupta. See origin story and the day I quit for more of the arc.\n\nWork, About, Contact."
+  },
+  {
+    "number": 98,
+    "slug": "myworstcampaign",
+    "title": "My Worst Campaign",
+    "category": "Emotional / Storytelling",
+    "content": "I've had launches that flopped. Wrong timing, wrong audience, wrong creative. Ranjan Dasgupta doesn't name names, but the lesson is the same: ship, learn, iterate. See my best campaign, killed campaigns, and idea graveyard.\n\nWork, About, Contact."
+  },
+  {
+    "number": 99,
+    "slug": "mybestcampaign",
+    "title": "My Best Campaign",
+    "category": "Emotional / Storytelling",
+    "content": "The best work isn't always the biggest. Sometimes it's the one that nailed the brief, the one that scaled cleanly, or the one that taught the team something. Ranjan Dasgupta has been part of monetization at Glance ($200M+), exchange strategy at InMobi, and product at Google. The \"best\" is spread across Work. See my worst campaign for the flip side.\n\nAbout, Contact."
+  },
+  {
+    "number": 100,
+    "slug": "midnightonadeadline",
+    "title": "Midnight On A Deadline",
+    "category": "Emotional / Storytelling",
+    "content": "Everyone in AdTech has been there: midnight, a deadline, a launch. Ranjan Dasgupta has shipped at that hour—releases, fixes, rollouts. It's not romantic; it's the job. See burnout and back and why I do this for the human side.\n\nWork, About, Contact."
+  },
+  {
+    "number": 101,
+    "slug": "whatclientsreallymean",
+    "title": "What Clients Really Mean",
+    "category": "Emotional / Storytelling",
+    "content": "\"Make it pop\" often means \"increase CTR.\" \"We need more visibility\" often means \"we need more yield.\" Ranjan Dasgupta has spent years translating between client language and AdTech reality. See my brain is a brief and strategy mode.\n\nWork, Contact."
+  },
+  {
+    "number": 102,
+    "slug": "thanksmom",
+    "title": "Thanks Mom",
+    "category": "Emotional / Storytelling",
+    "content": "Not every page on this site is about AdTech. This one is a thank-you. Ranjan Dasgupta wouldn't be here without the people who believed first. For the rest of the site: About, Work, the day an ad changed my life, Contact."
+  },
+  {
+    "number": 103,
+    "slug": "thedayanadchangedmylife",
+    "title": "The Day An Ad Changed My Life",
+    "category": "Emotional / Storytelling",
+    "content": "It might have been a campaign I worked on. It might have been one I saw. Ranjan Dasgupta has been in the industry long enough to know that ads can inform, entertain, and sometimes change a path. See why ads matter and thanks Mom.\n\nWork, About, Contact."
+  },
+  {
+    "number": 104,
+    "slug": "whyIdothis",
+    "title": "Why I Do This",
+    "category": "Emotional / Storytelling",
+    "content": "I do this because the pipes matter. Programmatic, yield, exchange strategy—they fund a lot of what we read and use. Ranjan Dasgupta has spent nine-plus years making those pipes better: transparent, scalable, publisher-first. See my manifesto and why ads matter.\n\nWork, About, Contact."
+  },
+  {
+    "number": 105,
+    "slug": "burnoutandback",
+    "title": "Burnout And Back",
+    "category": "Emotional / Storytelling",
+    "content": "AdTech is intense. Deadlines, scale, stakes. Ranjan Dasgupta has seen burnout—in himself and in others. Coming back means boundaries, purpose, and sometimes saying no. See the day I quit, midnight on a deadline, and why I do this.\n\nWork, About, Contact."
+  },
+  {
+    "number": 106,
+    "slug": "pitchme",
+    "title": "Pitch Me",
+    "category": "Interactive / Challenge Pages",
+    "content": "Got an idea? A brief? A problem? Ranjan Dasgupta has spent nine-plus years in AdTech—product, strategy, exchange. If you want to pitch: contact. Bring the problem, the context, and what you've tried. I might not say yes to everything, but I'll listen. See solve this and build an ad with me.\n\nWork, About, Insights."
+  },
+  {
+    "number": 107,
+    "slug": "solvethis",
+    "title": "Solve This",
+    "category": "Interactive / Challenge Pages",
+    "content": "Here's a challenge: take a publisher with low fill and high latency. Improve yield without burning trust. Ranjan Dasgupta has done that at Glance and InMobi. If you want to try, the tools are in programmatic, yield optimization, and supply path optimization. See pitch me if you have a solution—or a harder problem. Contact.\n\nWork, About."
+  },
+  {
+    "number": 108,
+    "slug": "canyoubeatmyad",
+    "title": "Can You Beat My Ad",
+    "category": "Interactive / Challenge Pages",
+    "content": "I've shipped a lot of ad product—not always the creative itself, but the systems that serve it. Ranjan Dasgupta challenges you: can you beat the best ad you've seen? Better brief, better creative, better result. See write me a better copy, rate this ad, and the art of the click. Contact to share.\n\nWork, About."
+  },
+  {
+    "number": 109,
+    "slug": "writemeabettercopy",
+    "title": "Write Me A Better Copy",
+    "category": "Interactive / Challenge Pages",
+    "content": "Copy is hard. Ranjan Dasgupta has focused on the pipes, but he knows good copy when he sees it. If you think you can write a better headline, CTA, or body—try. See I dream in copy, can you beat my ad, and creative on demand. Contact to submit.\n\nWork, About."
+  },
+  {
+    "number": 110,
+    "slug": "ratethisad",
+    "title": "Rate This Ad",
+    "category": "Interactive / Challenge Pages",
+    "content": "Pick an ad—any ad. Rate it: clarity, relevance, CTA. Ranjan Dasgupta has built the systems that serve billions of ads; the creative is what you see. If you want to share your rating or debate, contact. See ad or bad, guess my CTR, and the perfect ad.\n\nWork, About."
+  },
+  {
+    "number": 111,
+    "slug": "guessmyCTR",
+    "title": "Guess My CTR",
+    "category": "Interactive / Challenge Pages",
+    "content": "I won't give you the number. But I'll tell you: it's been optimized over years of yield optimization and programmatic at scale. Ranjan Dasgupta has seen CTRs from terrible to great. The difference is placement, creative, and audience. See click magnet, rate this ad, and I speak data. Contact to guess.\n\nWork, About."
+  },
+  {
+    "number": 112,
+    "slug": "adorbad",
+    "title": "Ad Or Bad",
+    "category": "Interactive / Challenge Pages",
+    "content": "Some ads are good. Some are bad. The line isn't always clear. Ranjan Dasgupta has built the infrastructure; the creative is a separate art. See rate this ad, spot the fake ad, and beautiful interruptions. Contact.\n\nWork, About."
+  },
+  {
+    "number": 113,
+    "slug": "realorai",
+    "title": "Real Or AI",
+    "category": "Interactive / Challenge Pages",
+    "content": "More creative is AI-assisted. Can you tell? Ranjan Dasgupta has written about AI in advertising. The game: real or AI-generated copy, creative, or strategy. See spot the fake ad, ad or bad, and creative on demand. Contact.\n\nWork, About."
+  },
+  {
+    "number": 114,
+    "slug": "spotthefakead",
+    "title": "Spot The Fake Ad",
+    "category": "Interactive / Challenge Pages",
+    "content": "Fake as in non-human, or fake as in scam? Both matter. Ranjan Dasgupta has worked on viewability and invalid traffic—knowing what's real is part of the job. See real or AI, ad or bad, and programmatic. Contact.\n\nWork, About."
+  },
+  {
+    "number": 115,
+    "slug": "buildanadwithme",
+    "title": "Build An Ad With Me",
+    "category": "Interactive / Challenge Pages",
+    "content": "From brief to launch. Ranjan Dasgupta has done it at Google, Glance, and InMobi. If you have a product, an audience, and a goal, we can build the strategy and the pipe. See pitch me, contact, and Work. For the full stack, programmatic, my brain is a brief.\n\nAbout, Insights."
+  },
+  {
+    "number": 116,
+    "slug": "firstpost",
+    "title": "First Post",
+    "category": "Legacy & Landmark",
+    "content": "Every feed has a first post. This site has many. Ranjan Dasgupta has been building in public—and in AdTech—for years. The first post is always a commitment. See the beginning, day 1, and origin story.\n\nWork, About, Contact."
+  },
+  {
+    "number": 117,
+    "slug": "lastpost",
+    "title": "Last Post",
+    "category": "Legacy & Landmark",
+    "content": "There's always a \"last post\" until there isn't. Ranjan Dasgupta is still here—Work, About, Contact. See the end, until next time, and see you on the other side for the meta version."
+  },
+  {
+    "number": 118,
+    "slug": "page1of1000",
+    "title": "Page 1 Of 1000",
+    "category": "Legacy & Landmark",
+    "content": "This site has 125+ creative pages. Call this page 1 of 1000—aspirational. Ranjan Dasgupta has been building for nine-plus years; the story isn't over. See first post, the beginning, and Work. About, Contact."
+  },
+  {
+    "number": 119,
+    "slug": "day1",
+    "title": "Day 1",
+    "category": "Legacy & Landmark",
+    "content": "Everyone has a day 1. Ranjan Dasgupta had his in AdTech at Google. That led to Glance, InMobi, and AdsGupta. See the day I started, year 1, and origin story. Work, About, Contact."
+  },
+  {
+    "number": 120,
+    "slug": "year1",
+    "title": "Year 1",
+    "category": "Legacy & Landmark",
+    "content": "The first year in a new role or company sets the tone. Ranjan Dasgupta has had several year ones—Google, Glance, InMobi. Each one led to the next. See day 1, the beginning, and Work. About, Contact."
+  },
+  {
+    "number": 121,
+    "slug": "milliondollaridea",
+    "title": "Million Dollar Idea",
+    "category": "Legacy & Landmark",
+    "content": "Some ideas are worth a lot. Ranjan Dasgupta has been part of monetization at $200M+ scale at Glance. The \"million dollar idea\" is often a lot of small ideas—yield, fill, latency—done right. See Work, yield optimization, and programmatic. About, Contact."
+  },
+  {
+    "number": 122,
+    "slug": "thebeginning",
+    "title": "The Beginning",
+    "category": "Legacy & Landmark",
+    "content": "This is one of many beginnings. Ranjan Dasgupta started in AdTech at Google. The beginning led to Glance ($200M+), InMobi, and this site. See origin story, first post, and day 1. Work, About, Contact."
+  },
+  {
+    "number": 123,
+    "slug": "theend",
+    "title": "The End",
+    "category": "Legacy & Landmark",
+    "content": "Not really. Ranjan Dasgupta is still building. But every story has an \"end\" until the next chapter. See last post, until next time, and see you on the other side. Work, About, Contact."
+  },
+  {
+    "number": 124,
+    "slug": "untilnexttime",
+    "title": "Until Next Time",
+    "category": "Legacy & Landmark",
+    "content": "So long. Not goodbye—Ranjan Dasgupta will be back. The site, the work, the contact form—they're all here. See see you on the other side, last post, and the end. Work, About."
+  },
+  {
+    "number": 125,
+    "slug": "seeyouontheotherside",
+    "title": "See You On The Other Side",
+    "category": "Legacy & Landmark",
+    "content": "The other side of what? The next project. The next role. The next click. Ranjan Dasgupta has been on many sides—Google, Glance, InMobi. The other side is always ahead. See until next time, the end, and Work. About, Contact."
+  }
+]

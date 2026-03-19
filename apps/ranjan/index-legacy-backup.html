@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="Ranjan Dasgupta is an AdTech product leader with $200M+ scale experience in programmatic advertising, CTV monetization, header bidding, and exchange strategy at InMobi.">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/">
+  <title>Ranjan Dasgupta | AdTech Product Leader — Programmatic, CTV & Web Monetization</title>
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Ranjan Dasgupta | AdTech Product Leader — Programmatic, CTV & Web Monetization">
+  <meta property="og:description" content="Ranjan Dasgupta is an AdTech product leader with $200M+ scale experience in programmatic advertising, CTV monetization, header bidding, and exchange strategy at InMobi.">
+  <meta property="og:image" content="https://ranjan.adsgupta.com/og-image.png">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ranjan Dasgupta | AdTech Product Leader — Programmatic, CTV & Web Monetization">
+  <meta name="twitter:description" content="Ranjan Dasgupta is an AdTech product leader with $200M+ scale experience in programmatic advertising, CTV monetization, header bidding, and exchange strategy at InMobi.">
+  <meta name="twitter:image" content="https://ranjan.adsgupta.com/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Exo+2:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050505;
+      --bg-elevated: #0a0a0a;
+      --text: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.6);
+      --accent: #3b82f6;
+      --primary: #00f2ff;
+      --secondary: #7000ff;
+      --neon: #00f2ff;
+      --neon-pink: #f72585;
+      --neon-violet: #7b2cbf;
+      --border: rgba(255, 255, 255, 0.08);
+      --font-sans: 'Space Grotesk', system-ui, sans-serif;
+      --font-display: 'Exo 2', 'Space Grotesk', sans-serif;
+      --font-mono: 'Orbitron', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Nav */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: rgba(5, 5, 5, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .nav-brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .nav-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid rgba(0, 242, 255, 0.4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-icon svg { width: 20px; height: 20px; color: var(--primary); }
+    .nav-brand {
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-brand .nav-name {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .nav-brand .nav-tagline {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: rgba(0, 242, 255, 0.85);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.1rem;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+    .nav-links a:hover { color: var(--primary); text-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: transparent;
+      color: var(--primary);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      transition: box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .nav-cta:hover { box-shadow: 0 0 24px rgba(0, 242, 255, 0.25); background: rgba(0, 242, 255, 0.08); border-color: var(--primary); }
+    .nav-devtools {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-terminal {
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-terminal:hover {
+      background: rgba(0, 242, 255, 0.2);
+      border-color: rgba(0, 242, 255, 0.5);
+      color: var(--primary);
+    }
+    .btn-terminal svg { width: 20px; height: 20px; }
+    .dev-trigger-fixed {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+      width: 44px;
+      height: 44px;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .dev-trigger-fixed:hover {
+      background: rgba(0, 242, 255, 0.2);
+      border-color: rgba(0, 242, 255, 0.5);
+      color: var(--primary);
+    }
+    .dev-trigger-fixed svg { width: 20px; height: 20px; }
+
+    /* Neural particle canvas (rotating universe) */
+    .neural-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    /* Signal Space Hero - 2030 explorable */
+    .signal-hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 1rem 4rem;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .signal-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 20%, rgba(112, 0, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0, 242, 255, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .signal-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.6; } 50% { opacity: 1; }
+    }
+    .signal-title-wrap {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .signal-badge {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.5em;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    .signal-hero-name {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: clamp(4rem, 18vw, 12rem);
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      color: #fff;
+      text-shadow: 0 0 60px rgba(0, 242, 255, 0.15);
+      margin: 0 auto 1.5rem;
+      transition: font-weight 0.3s ease, opacity 0.4s ease;
+      animation: heroNameFadeIn 1.5s ease-out forwards;
+    }
+    .signal-hero-name.is-scrolled { opacity: 0.15; }
+    @keyframes heroNameFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .signal-hero-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .signal-hero-divider .line {
+      width: 48px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .signal-hero-divider .text {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+    }
+    .signal-title {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: clamp(1.75rem, 5vw, 3rem);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      color: #fff;
+      text-shadow: 0 0 40px rgba(0, 242, 255, 0.2);
+      max-width: 18ch;
+      margin: 0 auto 0.75rem;
+    }
+    .signal-sub {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      max-width: 36ch;
+      margin: 0 auto;
+    }
+    .signal-theme {
+      margin-top: 1rem;
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .signal-theme span {
+      color: var(--neon);
+      cursor: pointer;
+      transition: text-shadow 0.2s, color 0.2s;
+    }
+    .signal-theme span:hover {
+      text-shadow: 0 0 16px rgba(0, 242, 255, 0.6);
+    }
+    body[data-storyline="product"] .signal-grid { background-image: linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px); }
+    body[data-storyline="ads"] .signal-grid { background-image: linear-gradient(rgba(247, 37, 133, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(247, 37, 133, 0.06) 1px, transparent 1px); }
+    body[data-storyline="tech"] .signal-grid { background-image: linear-gradient(rgba(0, 242, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.06) 1px, transparent 1px); }
+    body[data-storyline="ai"] .signal-grid { background-image: linear-gradient(rgba(123, 44, 191, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(123, 44, 191, 0.08) 1px, transparent 1px); }
+    .orbit-wrap {
+      position: relative;
+      width: min(90vw, 720px);
+      height: min(70vh, 520px);
+      margin: 2rem auto;
+    }
+    .orbit-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(0, 245, 212, 0.25), rgba(123, 44, 191, 0.2));
+      border: 1px solid rgba(0, 245, 212, 0.4);
+      box-shadow: 0 0 60px rgba(0, 245, 212, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--neon);
+    }
+    .orbit-node {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.02em;
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(15, 15, 25, 0.85);
+      backdrop-filter: blur(8px);
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      z-index: 5;
+    }
+    .orbit-node:hover {
+      transform: scale(1.12);
+      box-shadow: 0 0 30px rgba(0, 245, 212, 0.35);
+      border-color: var(--neon);
+    }
+    .orbit-node.exp {
+      top: 8%; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(123, 44, 191, 0.4), rgba(0, 245, 212, 0.2));
+    }
+    .orbit-node.exp:hover { top: 8%; left: 50%; transform: translateX(-50%) scale(1.12); }
+    .orbit-node.focus {
+      top: 25%; right: 12%;
+      background: linear-gradient(135deg, rgba(247, 37, 133, 0.3), rgba(123, 44, 191, 0.2));
+    }
+    .orbit-node.adsgupta {
+      bottom: 25%; right: 12%;
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.3), rgba(59, 130, 246, 0.2));
+    }
+    .orbit-node.subdomains {
+      bottom: 8%; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(0, 245, 212, 0.2));
+    }
+    .orbit-node.subdomains:hover { bottom: 8%; left: 50%; transform: translateX(-50%) scale(1.12); }
+    .orbit-node.linkedin {
+      top: 25%; left: 12%;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(123, 44, 191, 0.2));
+    }
+    .orbit-node.audit {
+      bottom: 25%; left: 12%;
+      background: linear-gradient(135deg, rgba(247, 37, 133, 0.25), rgba(0, 245, 212, 0.15));
+    }
+    .signal-cta {
+      position: relative;
+      z-index: 2;
+      margin-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .signal-cta strong { color: var(--neon); }
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      z-index: 2;
+    }
+    .scroll-hint-line {
+      width: 1px;
+      height: 4rem;
+      background: linear-gradient(to bottom, var(--primary), transparent);
+    }
+    .scroll-hint-text {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+
+    /* Page timeline (experience list – Gemini style) */
+    .page-timeline {
+      position: relative;
+      z-index: 1;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 6rem 1.5rem 8rem;
+    }
+    .page-timeline-item {
+      position: relative;
+      padding-left: 3rem;
+      padding-bottom: 4rem;
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .page-timeline-item:last-child { padding-bottom: 0; }
+    .page-timeline-dot {
+      position: absolute;
+      left: -5px;
+      top: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    }
+    .page-timeline-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .page-timeline-role {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .page-timeline-desc {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .page-timeline-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .page-timeline-link:hover { color: var(--primary); }
+    .page-timeline-link svg { width: 12px; height: 12px; }
+
+    /* Expandable story panel (replaces traditional sections) */
+    .story-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 5rem 1.5rem 2rem;
+      overflow-y: auto;
+      transform: translateY(100%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.4s ease, opacity 0.3s, visibility 0.3s;
+    }
+    .story-panel.is-open {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+    .story-panel-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .story-panel-close:hover {
+      border-color: var(--neon);
+      background: rgba(0, 245, 212, 0.1);
+    }
+    .story-panel h2 {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--neon);
+    }
+    .story-panel p, .story-panel li {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+      margin-bottom: 0.75rem;
+    }
+    .story-panel a {
+      color: var(--neon);
+      text-decoration: none;
+    }
+    .story-panel a:hover { text-decoration: underline; }
+
+    /* Footer – AdsGupta clone (https://www.adsgupta.com) */
+    .footer-adsgupta {
+      position: relative;
+      z-index: 2;
+      padding: 4rem 0 4rem;
+      background: #0A0A0A;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta { padding: 6rem 0 4rem; }
+    }
+    .footer-adsgupta-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-inner { padding: 0 3rem; }
+    }
+    .footer-adsgupta-top {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+    @media (min-width: 1024px) {
+      .footer-adsgupta-top {
+        grid-template-columns: 1fr 1fr;
+        gap: 5rem;
+      }
+    }
+    .footer-adsgupta-heading {
+      font-family: var(--font-sans);
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-heading { font-size: 2.25rem; }
+    }
+    .footer-adsgupta-desc {
+      font-size: 1.125rem;
+      color: #a1a1aa;
+      margin-bottom: 2rem;
+      max-width: 28rem;
+    }
+    .footer-adsgupta-form {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .footer-adsgupta-input {
+      flex: 1;
+      padding: 1rem 1.25rem;
+      border-radius: 9999px;
+      color: #fff;
+      font-weight: 500;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: inherit;
+    }
+    .footer-adsgupta-input::placeholder { color: #71717a; }
+    .footer-adsgupta-input:focus {
+      outline: none;
+      border-color: rgba(34, 211, 238, 0.5);
+    }
+    .footer-adsgupta-submit {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 9999px;
+      background: #22d3ee;
+      color: #000;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .footer-adsgupta-submit:hover { background: #67e8f9; }
+    .footer-adsgupta-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-links { grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+    }
+    .footer-adsgupta-col-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 1rem;
+      letter-spacing: 0.025em;
+    }
+    .footer-adsgupta-ul {
+      list-style: none;
+    }
+    .footer-adsgupta-ul li { margin-bottom: 0.75rem; }
+    .footer-adsgupta-ul a {
+      font-size: 0.875rem;
+      color: #71717a;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-adsgupta-ul a:hover { color: #fff; }
+    .footer-adsgupta-bottom {
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+    .footer-adsgupta-brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-adsgupta-logo {
+      font-family: var(--font-sans);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+    }
+    .footer-adsgupta-logo-cyan { color: #22d3ee; }
+    .footer-adsgupta-copy {
+      font-size: 0.875rem;
+      color: #52525b;
+    }
+    .footer-adsgupta-social {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .footer-adsgupta-social-btn {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #a1a1aa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s, background 0.3s;
+    }
+    .footer-adsgupta-social-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .orbit-wrap { height: 380px; }
+      .orbit-node { width: 48px; height: 48px; font-size: 0.55rem; }
+    }
+
+    /* Dev console */
+    .dev-console {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .dev-console.is-open { display: flex; }
+    .dev-console-panel {
+      width: 100%;
+      max-width: 1000px;
+      max-height: 92vh;
+      background: linear-gradient(180deg, #0c0f14 0%, #0a0d12 100%);
+      border: 1px solid rgba(0, 245, 212, 0.25);
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .dev-console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .dev-console-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.02em;
+      color: #f1f5f9;
+    }
+    .dev-console-subtitle {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #38bdf8;
+      margin-top: 0.15rem;
+    }
+    .dev-console-close {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.7);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dev-console-close:hover {
+      background: rgba(248, 113, 113, 0.2);
+      color: #f87171;
+    }
+    .dev-console-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.3);
+    }
+    .dev-console-tab {
+      padding: 0.875rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .dev-console-tab:hover { color: rgba(255, 255, 255, 0.8); }
+    .dev-console-tab.is-active {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+    }
+    .dev-console-body {
+      flex: 1;
+      overflow: auto;
+      padding: 1.25rem;
+    }
+    .dev-tab-pane { display: none; }
+    .dev-tab-pane.is-active { display: block; }
+    .dev-url-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .dev-url-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+    .dev-url-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+    .dev-url-input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+    .dev-btn {
+      padding: 0.75rem 1.25rem;
+      background: #38bdf8;
+      color: #0c0f14;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .dev-btn:hover { opacity: 0.9; }
+    .dev-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+    .dev-preview-frame-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #000;
+      min-height: 420px;
+    }
+    .dev-preview-frame {
+      width: 100%;
+      height: 420px;
+      border: none;
+      display: block;
+    }
+    .dev-tag-form {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .dev-tag-form label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 0.35rem;
+    }
+    .dev-tag-form input, .dev-tag-form select {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+    }
+    .dev-tag-form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .dev-tag-output-wrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #0a0d12;
+    }
+    .dev-tag-output {
+      width: 100%;
+      min-height: 320px;
+      padding: 1rem;
+      font-family: ui-monospace, 'SF Mono', Monaco, monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #94a3b8;
+      background: transparent;
+      border: none;
+      resize: vertical;
+    }
+    .dev-tag-output:focus { outline: none; }
+    .dev-copy-wrap {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+    .dev-copy-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dev-copy-btn:hover {
+      background: #38bdf8;
+      color: #0c0f14;
+    }
+    .dev-copy-btn.copied {
+      background: #22c55e;
+      color: #0c0f14;
+      border-color: #22c55e;
+    }
+
+    /* Demo view: single space for summary + prompt + ads (no new window) */
+    .dev-demo-view {
+      min-height: 380px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #080a0e;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .dev-demo-view .demo-toolbar {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(15, 23, 42, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      flex-wrap: wrap;
+    }
+    .dev-demo-view .demo-toolbar a {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.75rem;
+      color: #38bdf8;
+      text-decoration: none;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.1);
+      transition: background 0.2s;
+    }
+    .dev-demo-view .demo-toolbar a:hover {
+      background: rgba(56, 189, 248, 0.2);
+    }
+    .dev-demo-view .demo-content {
+      flex: 1;
+      padding: 1rem 1.25rem;
+      overflow-y: auto;
+      max-height: 340px;
+    }
+    .dev-demo-view .demo-content .summary-block {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: rgba(0, 245, 212, 0.06);
+      border-left: 3px solid #00f5d4;
+      border-radius: 0 8px 8px 0;
+    }
+    .dev-demo-view .demo-content .summary-block h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #00f5d4;
+      margin-bottom: 0.35rem;
+    }
+    .dev-demo-view .demo-content .prompt-block {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: rgba(123, 44, 191, 0.1);
+      border-left: 3px solid #7b2cbf;
+      border-radius: 0 8px 8px 0;
+    }
+    .dev-demo-view .demo-content .prompt-block h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #a78bfa;
+      margin-bottom: 0.35rem;
+    }
+    .dev-demo-view .demo-content .ads-block {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.75rem;
+    }
+    .dev-demo-view .demo-content .article-preview p {
+      margin-bottom: 0.6rem;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .dev-demo-view .demo-content .article-preview .demo-hyperlink {
+      color: #38bdf8;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .dev-demo-view .demo-content .article-preview .demo-hyperlink:hover {
+      color: #00f5d4;
+    }
+    .dev-demo-view .recommended-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .dev-demo-view .recommended-section h4 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.5rem;
+    }
+    .dev-demo-view .recommended-section .rec-item {
+      padding: 0.5rem 0;
+      font-size: 0.8125rem;
+      color: #38bdf8;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+    .dev-demo-view .recommended-section .rec-item:hover {
+      color: #00f5d4;
+    }
+
+    /* Prototype tab: iframe + overlay controls */
+    .dev-prototype-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .dev-prototype-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .dev-prototype-controls input[type="url"] {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.6rem 0.75rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+    }
+    .dev-prototype-overlays {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .dev-prototype-overlays label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+    }
+    .dev-prototype-main {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .dev-prototype-frame-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      min-height: 400px;
+      background: #000;
+    }
+    .dev-prototype-frame {
+      width: 100%;
+      height: 420px;
+      border: none;
+      display: block;
+    }
+    .proto-overlay {
+      position: absolute;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px dashed rgba(0, 245, 212, 0.4);
+    }
+    .proto-overlay.header-sticky { top: 0; left: 0; right: 0; height: 50px; }
+    .proto-overlay.infeed { left: 50%; transform: translateX(-50%); width: 300px; height: 250px; top: 30%; }
+    .proto-overlay.footer-sticky { bottom: 0; left: 0; right: 0; height: 60px; }
+    .proto-overlay.proto-summarizer { top: 60px; right: 1rem; width: 140px; height: 80px; }
+    .proto-overlay.proto-prompt { top: 60px; left: 1rem; width: 140px; height: 80px; }
+
+    /* Unified widget (summarizer + prompts + ads + chat) */
+    .unified-widget {
+      width: 360px;
+      max-width: calc(100% - 2rem);
+      max-height: 70vh;
+      background: linear-gradient(180deg, #0f172a 0%, #0c0f14 100%);
+      border: 1px solid rgba(0, 245, 212, 0.25);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .unified-widget.is-open { display: flex; }
+    .unified-widget--inside-console {
+      position: absolute;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 80;
+    }
+    .unified-widget-header {
+      padding: 0.75rem 1rem;
+      background: rgba(0, 245, 212, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .unified-widget-header h3 {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: #00f5d4;
+    }
+    .unified-widget-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .unified-widget-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .unified-widget .widget-summary,
+    .unified-widget .widget-prompts,
+    .unified-widget .widget-ads {
+      margin-bottom: 1rem;
+    }
+    .unified-widget .widget-summary h4,
+    .unified-widget .widget-prompts h4,
+    .unified-widget .widget-ads h4 {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 0.4rem;
+    }
+    .unified-widget .widget-ads-placeholder {
+      min-height: 80px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .unified-widget-chat {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.75rem;
+    }
+    .unified-widget-chat input {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.8125rem;
+    }
+    .unified-widget-chat input::placeholder { color: rgba(255, 255, 255, 0.35); }
+
+    /* Prototype tab: vertical video module */
+    .proto-video-module {
+      position: relative;
+      width: 120px;
+      height: 180px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 242, 255, 0.4);
+      background: #000;
+      margin-top: 1rem;
+      flex-shrink: 0;
+    }
+    .proto-video-close {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 2;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .proto-video-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #1a0a2e 0%, #0d0d1a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.65rem;
+      text-align: center;
+      padding: 0.5rem;
+    }
+
+    /* Login & Admin */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 400;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.is-open { display: flex; }
+    .modal-box {
+      background: #0c0f14;
+      border: 1px solid rgba(0, 242, 255, 0.25);
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 400px;
+      width: 100%;
+    }
+    .modal-box h3 {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    .modal-box label {
+      display: block;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.35rem;
+    }
+    .modal-box input[type="email"],
+    .modal-box input[type="password"],
+    .modal-box input[type="text"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .modal-box .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .modal-box .modal-actions button {
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .modal-box .btn-primary {
+      background: var(--primary);
+      color: #000;
+    }
+    .modal-box .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #e2e8f0;
+    }
+    .admin-bar {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .admin-bar.is-visible { display: flex; }
+    .admin-bar .upload-resume-btn, .admin-bar .logout-btn {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+    }
+    .admin-bar .upload-resume-btn { background: rgba(0, 242, 255, 0.2); color: var(--primary); }
+    .admin-bar .logout-btn { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+    .download-pdf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #000;
+      background: #22d3ee;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .download-pdf-btn:hover { background: #67e8f9; }
+    .resume-upload-input { display: none; }
+
+    /* Crawler tab – Hyper-Intelligence (Gemini-style) */
+    .crawler-wrap { display: flex; flex-direction: column; gap: 1rem; min-height: 420px; }
+    .crawler-input-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
+    .crawler-input-wrap { flex: 1; min-width: 200px; }
+    .crawler-input-wrap label { display: block; font-size: 0.65rem; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); margin-bottom: 0.35rem; }
+    .crawler-input-wrap input { width: 100%; padding: 0.6rem 0.75rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 0.8125rem; font-family: var(--font-mono); }
+    .crawler-input-wrap input:focus { outline: none; border-color: rgba(245, 158, 11, 0.5); }
+    .crawler-btn { padding: 0.6rem 1rem; background: #f59e0b; color: #000; border: none; border-radius: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .crawler-btn:hover:not(:disabled) { background: #fbbf24; }
+    .crawler-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .crawler-btn.spin svg { animation: crawlerSpin 0.8s linear infinite; }
+    @keyframes crawlerSpin { to { transform: rotate(360deg); } }
+    .crawler-workspace { display: grid; grid-template-columns: 1fr 2.5fr; gap: 1rem; margin-top: 0.5rem; }
+    @media (max-width: 768px) { .crawler-workspace { grid-template-columns: 1fr; } }
+    .crawler-buckets { display: flex; flex-direction: column; gap: 0.5rem; }
+    .crawler-bucket { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.6); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; text-align: left; }
+    .crawler-bucket:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+    .crawler-bucket.is-active { background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #f59e0b; }
+    .crawler-bucket .label { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .crawler-bucket .count { font-size: 0.6rem; font-family: var(--font-mono); color: inherit; opacity: 0.7; }
+    .crawler-explorer { min-height: 320px; }
+    .crawler-search { margin-bottom: 0.75rem; }
+    .crawler-search input { width: 100%; max-width: 280px; padding: 0.5rem 0.75rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.75rem; }
+    .crawler-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+    .crawler-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0.75rem; }
+    .crawler-card:hover { border-color: rgba(245, 158, 11, 0.3); }
+    .crawler-card h4 { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #f59e0b; margin-bottom: 0.5rem; }
+    .crawler-card .attr { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.35rem; margin-bottom: 0.35rem; }
+    .crawler-card .attr:last-child { border-bottom: none; margin-bottom: 0; }
+    .crawler-card .attr-key { font-size: 0.6rem; font-family: var(--font-mono); color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 0.15rem; }
+    .crawler-card .attr-val { font-size: 0.75rem; color: rgba(255,255,255,0.9); }
+    .crawler-card .attr-val.tags { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .crawler-card .attr-val span { font-size: 0.65rem; background: rgba(255,255,255,0.05); padding: 0.2rem 0.4rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); }
+    .crawler-raw { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 0.75rem; margin-top: 0.75rem; }
+    .crawler-raw h4 { font-size: 0.65rem; font-family: var(--font-mono); color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .crawler-raw pre { font-size: 0.6rem; color: rgba(245, 158, 11, 0.5); max-height: 120px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+    .crawler-empty { min-height: 320px; border: 2px dashed rgba(255,255,255,0.08); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; color: rgba(255,255,255,0.35); }
+    .crawler-empty .icon-wrap { width: 48px; height: 48px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .crawler-empty h3 { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.5rem; color: rgba(255,255,255,0.5); }
+    .crawler-empty p { font-size: 0.7rem; max-width: 280px; line-height: 1.5; }
+    .crawler-dsp-section { margin-top: 1rem; }
+    .crawler-dsp-section h4 { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #f59e0b; margin-bottom: 0.5rem; }
+    .crawler-dsp-table-wrap { overflow-x: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-top: 0.5rem; }
+    .crawler-dsp-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+    .crawler-dsp-table th, .crawler-dsp-table td { padding: 0.4rem 0.5rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .crawler-dsp-table th { background: rgba(0,0,0,0.3); color: rgba(255,255,255,0.5); font-family: var(--font-mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .crawler-dsp-table td { color: rgba(255,255,255,0.85); }
+    .crawler-dsp-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .crawler-dsp-table .dsp-name { color: #f59e0b; font-weight: 600; white-space: nowrap; }
+    .crawler-dsp-table .req { color: #22c55e; }
+    .crawler-dsp-table .rec { color: #eab308; }
+    .crawler-dsp-table .opt { color: rgba(255,255,255,0.45); }
+    .crawler-dsp-table .signal-value { font-family: var(--font-mono); color: rgba(0, 242, 255, 0.9); word-break: break-all; }
+    .crawler-dsp-table .signal-format { font-size: 0.6rem; color: rgba(255,255,255,0.4); }
+    .prebid-gam-embed { display: flex; flex-direction: column; height: 100%; min-height: 420px; }
+    .prebid-gam-embed-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.5rem; }
+    .prebid-gam-embed-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.7); }
+    .prebid-gam-embed-link { font-size: 0.65rem; color: var(--primary); text-decoration: none; }
+    .prebid-gam-embed-link:hover { text-decoration: underline; }
+    .prebid-gam-embed-iframe { flex: 1; width: 100%; min-height: 360px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; background: #fff; }
+    .prebid-gam-embed-hint { font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-top: 0.5rem; }
+    .prebid-gam-embed-hint code { background: rgba(0,0,0,0.3); padding: 0.15rem 0.4rem; border-radius: 4px; }
+    .prebid-gam-embed-placeholder { padding: 1.5rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; min-height: 320px; }
+    .prebid-gam-embed-msg { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin-bottom: 1rem; }
+
+    /* Mode system: base variables and per-mode overrides */
+    :root {
+      --mode-bg: var(--bg);
+      --mode-text: var(--text);
+      --mode-accent: var(--primary);
+      --mode-font-sans: var(--font-sans);
+      --mode-font-mono: var(--font-mono);
+    }
+
+    body {
+      background: var(--mode-bg);
+      color: var(--mode-text);
+      font-family: var(--mode-font-sans);
+    }
+
+    body.mode-terminal {
+      --mode-bg: #020617;
+      --mode-text: #a5f3fc;
+      --mode-accent: #22c55e;
+      --mode-font-sans: 'JetBrains Mono', var(--font-mono), monospace;
+      --mode-font-mono: 'JetBrains Mono', var(--font-mono), monospace;
+    }
+
+    body.mode-exchange {
+      --mode-bg: #020617;
+      --mode-text: #e5e7eb;
+      --mode-accent: #38bdf8;
+      --mode-font-sans: 'Space Grotesk', system-ui, sans-serif;
+      --mode-font-mono: 'JetBrains Mono', var(--font-mono), monospace;
+    }
+
+    body.mode-editorial {
+      --mode-bg: #fafaf5;
+      --mode-text: #1a1a1a;
+      --mode-accent: #111827;
+      --mode-font-sans: 'Newsreader', Georgia, serif;
+      --mode-font-mono: 'JetBrains Mono', var(--font-mono), monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body.mode-editorial {
+        --mode-bg: #111827;
+        --mode-text: #e5e7eb;
+        --mode-accent: #38bdf8;
+      }
+    }
+
+    body.mode-holographic {
+      --mode-bg: radial-gradient(circle at top, #020617 0, #020617 40%, #000000 100%);
+      --mode-text: #e5e7eb;
+      --mode-accent: #22d3ee;
+      --mode-font-sans: 'Exo 2', system-ui, sans-serif;
+    }
+
+    /* Skip to main content - visually hidden until focused */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      z-index: 9999;
+      padding: 0.75rem 1rem;
+      background: var(--primary);
+      color: #000;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 0.5rem;
+    }
+    .skip-link:focus {
+      left: 1rem;
+      top: 1rem;
+    }
+
+    /* SEO main block visibility tweaks for Constellation */
+    body.mode-constellation #main-content {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    body:not(.mode-constellation) #main-content {
+      max-height: none;
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+
+  <!-- Schema.org: Person -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Ranjan Dasgupta",
+    "url": "https://ranjan.adsgupta.com",
+    "jobTitle": "Senior Manager, Web & CTV Exchange",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "InMobi"
+    },
+    "knowsAbout": [
+      "Programmatic Advertising",
+      "CTV Monetization",
+      "Header Bidding",
+      "Supply Path Optimization",
+      "Yield Optimization",
+      "AdTech",
+      "AI in Advertising",
+      "Prebid.js",
+      "Google Ad Manager",
+      "OpenRTB"
+    ],
+    "sameAs": [
+      "https://www.linkedin.com/in/ranjandsgpt/",
+      "https://adsgupta.com"
+    ],
+    "alumniOf": [
+      { "@type": "Organization", "name": "Google" },
+      { "@type": "Organization", "name": "Glance" },
+      { "@type": "Organization", "name": "Automatad" }
+    ],
+    "description": "AdTech product leader specializing in programmatic advertising, CTV monetization, and exchange-side strategy at $200M+ scale."
+  }
+  </script>
+
+  <!-- Schema.org: WebSite -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Ranjan Dasgupta — AdTech Product Leader",
+    "url": "https://ranjan.adsgupta.com",
+    "description": "Personal portfolio and insights from Ranjan Dasgupta on programmatic advertising, CTV monetization, and AdTech strategy.",
+    "author": {
+      "@type": "Person",
+      "name": "Ranjan Dasgupta"
+    }
+  }
+  </script>
+
+  <!-- Schema.org: FAQPage (homepage FAQs) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Who is Ranjan Dasgupta?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ranjan Dasgupta is an AdTech product leader and CTV monetization expert currently at InMobi, where he drives Web & CTV Exchange product strategy. He has over nine years of experience scaling programmatic advertising infrastructure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does Ranjan Dasgupta specialize in?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ranjan Dasgupta specializes in programmatic advertising, CTV monetization, header bidding, supply path optimization (SPO), yield management, and AI-driven advertising products. He has scaled monetization to more than $200M across Web, App, and CTV."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where has Ranjan Dasgupta worked?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ranjan Dasgupta has held product and technical roles at InMobi (Senior Manager, Web & CTV Exchange), Glance (Product Monetization), Automatad (Product Strategy), and Google (Technical Specialist for DoubleClick, DFP, AdX, and AdSense)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How can I work with Ranjan Dasgupta?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can explore his work on the portfolio and expertise pages or reach out via the contact page for consulting, speaking, or collaboration opportunities."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <canvas class="neural-canvas" id="neuralCanvas" aria-hidden="true"></canvas>
+
+  <div class="modal-overlay" id="loginModal" role="dialog" aria-label="Login">
+    <div class="modal-box">
+      <h3>Login</h3>
+      <form id="loginForm">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required placeholder="you@example.com" autocomplete="email">
+        <label for="loginPasscode">Passcode</label>
+        <input type="password" id="loginPasscode" required placeholder="••••••••" autocomplete="current-password">
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Sign in</button>
+          <button type="button" class="btn-secondary" id="loginModalClose">Cancel</button>
+        </div>
+      </form>
+      <p id="loginError" style="margin-top:0.75rem;font-size:0.8rem;color:#f87171;display:none;"></p>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-brand-wrap">
+      <div class="nav-icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><path d="M9 9h6v6H9z"/><path d="M9 4v4M15 4v4M9 16v4M15 16v4M4 9h4M4 15h4M16 9h4M16 15h4"/></svg>
+      </div>
+      <div class="nav-brand">
+        <span class="nav-name">Ranjan Dasgupta</span>
+        <span class="nav-tagline">AdTech Architect // V3.5</span>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/work">Work</a>
+      <a href="/insights">Insights</a>
+      <a href="/contact">Contact</a>
+      <a href="#" data-story="experience">Experience</a>
+      <a href="#" data-story="focus">Focus</a>
+      <a href="https://www.linkedin.com/in/ranjandsgpt/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+    <div class="nav-devtools">
+      <div class="admin-bar" id="adminBar">
+        <button type="button" class="upload-resume-btn" id="uploadResumeBtn">Upload resume</button>
+        <button type="button" class="logout-btn" id="logoutBtn">Logout</button>
+      </div>
+      <a href="#" class="nav-cta" id="loginLink">Login</a>
+      <a href="https://adsgupta.com" class="nav-cta" target="_blank" rel="noopener noreferrer">AdsGupta →</a>
+      <input type="file" id="resumeFileInput" class="resume-upload-input" accept=".pdf,.txt">
+    </div>
+  </nav>
+
+  <header class="signal-hero">
+    <div class="signal-grid" aria-hidden="true"></div>
+    <div class="signal-title-wrap">
+      <p class="signal-badge" id="signalBadge">Building $200M+ Scale</p>
+      <h1 class="signal-hero-name" id="signalHeroName">Ranjan Dasgupta</h1>
+      <div class="signal-hero-divider">
+        <span class="line"></span>
+        <span class="text">Web, App, CTV & Agentic AI</span>
+        <span class="line"></span>
+      </div>
+      <p class="signal-sub">AdTech product leader for programmatic advertising, CTV monetization, and Web &amp; App exchange strategy at $200M+ scale.</p>
+      <p class="signal-theme" id="signalTheme">
+        <span data-theme="product">Product</span> · <span data-theme="ads">Ads</span> · <span data-theme="tech">Tech</span> · <span data-theme="ai">AI</span>
+      </p>
+    </div>
+    <div class="orbit-wrap">
+      <div class="orbit-center">YOU</div>
+      <a href="#" class="orbit-node exp" data-story="experience" title="Experience">EXP</a>
+      <a href="#" class="orbit-node focus" data-story="focus" title="Focus">FOCUS</a>
+      <a href="https://adsgupta.com" class="orbit-node adsgupta" target="_blank" rel="noopener" title="AdsGupta">ADS</a>
+      <a href="#" class="orbit-node subdomains" data-story="subdomains" title="Subdomains">SUBS</a>
+      <a href="https://www.linkedin.com/in/ranjandsgpt/" class="orbit-node linkedin" target="_blank" rel="noopener" title="LinkedIn">IN</a>
+      <a href="https://adsgupta.com/audit" class="orbit-node audit" target="_blank" rel="noopener" title="Audit">AUDIT</a>
+    </div>
+    <p class="signal-cta"><strong>Click any node</strong> to open its story · Dev console bottom right</p>
+    <div class="scroll-hint" aria-hidden="true">
+      <div class="scroll-hint-line"></div>
+      <span class="scroll-hint-text">Scroll to traverse archive</span>
+    </div>
+  </header>
+
+  <main id="main-content">
+  <section class="page-timeline" id="pageTimeline">
+    <header>
+      <h2>Experience</h2>
+      <p>Experience across InMobi, Glance, Automatad, and Google building and scaling programmatic advertising, CTV monetization, and unified monetization stacks.</p>
+    </header>
+    <div class="page-timeline-item">
+      <span class="page-timeline-dot"></span>
+      <span class="page-timeline-meta">2025 - PRES // FUTURE</span>
+      <h3 class="page-timeline-role">InMobi | Senior Manager</h3>
+      <p class="page-timeline-desc">Driving 2030 product strategies for <a href="/ctv-monetization">Web &amp; CTV Exchange</a> in convergence with Agentic AI.</p>
+      <a href="#" class="page-timeline-link">Deployment Document <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+    </div>
+    <div class="page-timeline-item">
+      <span class="page-timeline-dot"></span>
+      <span class="page-timeline-meta">2020 - 2025 // SCALE</span>
+      <h3 class="page-timeline-role">Glance | Product Monetization</h3>
+      <p class="page-timeline-desc">Built and scaled end-to-end <a href="/web-app-monetization">unified monetization stacks</a> across Web, App, and CTV for more than five years, driving programmatic advertising strategy and yield optimization.</p>
+      <a href="#" class="page-timeline-link">Deployment Document <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+    </div>
+    <div class="page-timeline-item">
+      <span class="page-timeline-dot"></span>
+      <span class="page-timeline-meta">2019 - 2020 // STRATEGY</span>
+      <h3 class="page-timeline-role">Automatad | Product Strategy</h3>
+      <p class="page-timeline-desc">Monetization strategy and execution. Omni-channel product strategy.</p>
+      <a href="#" class="page-timeline-link">Deployment Document <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+    </div>
+    <div class="page-timeline-item">
+      <span class="page-timeline-dot"></span>
+      <span class="page-timeline-meta">2015 - 2019 // LEGACY</span>
+      <h3 class="page-timeline-role">Google | Technical Specialist</h3>
+      <p class="page-timeline-desc">Technical expert for <a href="/programmatic-advertising">DoubleClick, DFP, AdX</a>, and AdSense with four years of platform optimization and publisher support.</p>
+      <a href="#" class="page-timeline-link">Deployment Document <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+    </div>
+  </section>
+
+  </main>
+
+  <div id="story-experience" class="story-panel" aria-hidden="true">
+    <button type="button" class="story-panel-close" data-close-panel aria-label="Close">×</button>
+    <h2>Experience</h2>
+    <p><strong>2025 — Present</strong> · Product, <a href="/ctv-monetization">Web &amp; CTV Exchange</a> · InMobi. New initiatives for exchange and convergence.</p>
+    <p><strong>2020 — 2025</strong> · Product Growth, Programmatic · Glance. Scaled programmatic and <a href="/web-app-monetization">monetization</a>.</p>
+    <p><strong>2019 — 2020</strong> · Product Strategy, Omni-Channel · Automatad. Monetization strategy and execution.</p>
+    <p><strong>2015 — 2019</strong> · Technical Specialist · Google. <a href="/programmatic-advertising">DFP, AdX</a>, DV360, SA360 for global publishers.</p>
+  </div>
+  <div id="story-focus" class="story-panel" aria-hidden="true">
+    <button type="button" class="story-panel-close" data-close-panel aria-label="Close">×</button>
+    <h2>Focus</h2>
+    <p><strong>Programmatic & Exchange</strong> · Web, App, and CTV monetization. SPO, yield, and unified stacks. InMobi · Glance.</p>
+    <p><strong>AI & Advertising</strong> · Agentic AI, contextual intelligence, and future-focused ad products. AdsGupta.</p>
+    <p><strong>Scale & Strategy</strong> · 200M+ revenue scale. Product strategy and ecosystem design. Bengaluru.</p>
+  </div>
+  <div id="story-subdomains" class="story-panel" aria-hidden="true">
+    <button type="button" class="story-panel-close" data-close-panel aria-label="Close">×</button>
+    <h2>Subdomains & products</h2>
+    <p><a href="https://talenos.adsgupta.com" target="_blank" rel="noopener">talenos.adsgupta.com</a> · <a href="https://demoai.adsgupta.com" target="_blank" rel="noopener">demoai.adsgupta.com</a> · <a href="https://adsgupta.com/audit" target="_blank" rel="noopener">adsgupta.com/audit</a></p>
+  </div>
+
+  <footer class="footer-adsgupta" data-testid="footer-section">
+    <div class="footer-adsgupta-inner">
+      <div class="footer-adsgupta-top">
+        <div class="footer-adsgupta-cta">
+          <h3 class="footer-adsgupta-heading">Stay Ahead of<br>the Curve</h3>
+          <p class="footer-adsgupta-desc">Get exclusive insights on AI advertising, delivered to your inbox.</p>
+          <form class="footer-adsgupta-form" action="#" method="post" id="footerNewsletterForm">
+            <input type="email" placeholder="Enter your email" class="footer-adsgupta-input" required aria-label="Email for newsletter">
+            <button type="submit" class="footer-adsgupta-submit" aria-label="Subscribe">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </form>
+        </div>
+        <div class="footer-adsgupta-links">
+          <div class="footer-adsgupta-col">
+            <h4 class="footer-adsgupta-col-title">Platform</h4>
+            <ul class="footer-adsgupta-ul">
+              <li><a href="https://demoai.adsgupta.com" target="_blank" rel="noopener noreferrer">AI Sandbox</a></li>
+              <li><a href="https://adsgupta.com/#features" target="_blank" rel="noopener noreferrer">Features</a></li>
+              <li><a href="https://adsgupta.com/">Pricing</a></li>
+            </ul>
+          </div>
+          <div class="footer-adsgupta-col">
+            <h4 class="footer-adsgupta-col-title">Resources</h4>
+            <ul class="footer-adsgupta-ul">
+              <li><a href="https://adsgupta.com/blog">Blog</a></li>
+              <li><a href="https://adsgupta.com/">Documentation</a></li>
+              <li><a href="https://adsgupta.com/">API</a></li>
+            </ul>
+          </div>
+          <div class="footer-adsgupta-col">
+            <h4 class="footer-adsgupta-col-title">Company</h4>
+            <ul class="footer-adsgupta-ul">
+              <li><a href="https://adsgupta.com/aboutme">About</a></li>
+              <li><a href="https://adsgupta.com/contact">Contact</a></li>
+              <li><a href="https://adsgupta.com/">Careers</a></li>
+            </ul>
+          </div>
+          <div class="footer-adsgupta-col">
+            <h4 class="footer-adsgupta-col-title">Legal</h4>
+            <ul class="footer-adsgupta-ul">
+              <li><a href="https://adsgupta.com/privacy">Privacy Policy</a></li>
+              <li><a href="https://adsgupta.com/terms">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-adsgupta-bottom">
+        <div class="footer-adsgupta-brand-wrap">
+          <a href="https://adsgupta.com" class="footer-adsgupta-logo">ADS<span class="footer-adsgupta-logo-cyan">GUPTA</span></a>
+          <span class="footer-adsgupta-copy">© 2025 Ads Gupta. All rights reserved.</span>
+          <button type="button" class="download-pdf-btn" id="downloadPdfBtn">Download portfolio (PDF)</button>
+        </div>
+        <div class="footer-adsgupta-social">
+          <a href="#" class="footer-adsgupta-social-btn" aria-label="Twitter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/in/ranjandsgpt/" target="_blank" rel="noopener noreferrer" class="footer-adsgupta-social-btn" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <button type="button" class="btn-terminal dev-trigger-fixed" id="navDevTrigger" title="Developer console" aria-label="Open developer console">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+  </button>
+
+  <div class="dev-console" id="devConsole" role="dialog" aria-label="Developer console">
+    <div class="dev-console-panel">
+      <header class="dev-console-header">
+        <div>
+          <div class="dev-console-title">AdTech Control Center</div>
+          <div class="dev-console-subtitle">Unified monetization infrastructure</div>
+        </div>
+        <button type="button" class="dev-console-close" id="devConsoleClose" aria-label="Close">×</button>
+      </header>
+      <div class="dev-console-tabs">
+        <button type="button" class="dev-console-tab is-active" data-tab="monetization">[ AI MONETIZATION ]</button>
+        <button type="button" class="dev-console-tab" data-tab="prototype">[ PROTOTYPE ]</button>
+        <button type="button" class="dev-console-tab" data-tab="crawler">[ CRAWLER ]</button>
+        <button type="button" class="dev-console-tab" data-tab="adtag">[ AD TAG ]</button>
+        <button type="button" class="dev-console-tab" data-tab="prebid-gam">[ PREBID GAM API ]</button>
+      </div>
+      <div class="dev-console-body">
+        <div class="dev-tab-pane is-active" id="pane-monetization">
+          <div class="dev-demo-view" id="devDemoView">
+            <div class="demo-toolbar" id="demoToolbar">
+              <a href="#" data-demo-reset>Show article</a>
+              <a href="#" data-demo-topic="programmatic">Programmatic</a>
+              <a href="#" data-demo-topic="header-bidding">Header Bidding</a>
+              <a href="#" data-demo-topic="spo">SPO</a>
+              <a href="#" data-demo-topic="ai-monetization">AI Monetization</a>
+            </div>
+            <div class="demo-content" id="demoContent">
+              <div class="article-preview" id="articlePreview">
+                <p>Ecosystem of <span class="demo-hyperlink" data-demo-topic="programmatic">Programmatic Ad Serving</span>: What's next? Insights on solving invisible problems: <span class="demo-hyperlink" data-demo-topic="header-bidding">auction inefficiencies</span>, identity gaps, and siloed stacks. By integrating <span class="demo-hyperlink" data-demo-topic="spo">SPO &amp; Pricing Callouts</span>, we turn siloed stacks into predictable, revenue-compounding machines. Scale handles over 200M+ Revenue across Web and App.</p>
+              </div>
+              <div class="summary-block" id="demoSummaryBlock" style="display:none;">
+                <h4>Summary</h4>
+                <p id="demoSummaryText"></p>
+              </div>
+              <div class="prompt-block" id="demoPromptBlock" style="display:none;">
+                <h4>Prompt</h4>
+                <p id="demoPromptText"></p>
+              </div>
+              <div class="ads-block" id="demoAdsBlock">Ad slot · 300×250</div>
+              <div class="recommended-section" id="demoRecommended">
+                <h4>Recommended</h4>
+                <a href="#" class="rec-item" data-demo-topic="programmatic">Summarize: Programmatic 101</a>
+                <a href="#" class="rec-item" data-demo-topic="header-bidding">Summarize: Header Bidding Guide</a>
+                <a href="#" class="rec-item" data-demo-topic="ai-monetization">Summarize: AI Monetization</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dev-tab-pane" id="pane-prototype">
+          <div class="dev-prototype-wrap">
+            <div class="dev-prototype-controls">
+              <input type="url" id="prototypeUrl" placeholder="https://example.com" value="">
+              <button type="button" class="dev-btn" id="prototypeLoad">Load</button>
+            </div>
+            <div class="dev-prototype-overlays">
+              <label><input type="checkbox" id="overlayHeaderSticky"> Header sticky</label>
+              <label><input type="checkbox" id="overlayInfeed"> Infeed ad</label>
+              <label><input type="checkbox" id="overlayFooterSticky"> Footer sticky</label>
+              <label><input type="checkbox" id="overlayChatbot"> Chatbot</label>
+              <label><input type="checkbox" id="overlaySummarizer"> Summarizer</label>
+              <label><input type="checkbox" id="overlayPrompt"> Prompt</label>
+            </div>
+            <div class="dev-prototype-main">
+              <div class="dev-prototype-frame-wrap" id="prototypeFrameWrap">
+                <div class="proto-overlay header-sticky" id="protoHeaderSticky" style="display:none;">Header sticky ad</div>
+                <div class="proto-overlay infeed" id="protoInfeed" style="display:none;">Infeed 300×250</div>
+                <div class="proto-overlay footer-sticky" id="protoFooterSticky" style="display:none;">Footer sticky</div>
+                <div class="proto-overlay proto-summarizer" id="protoSummarizer" style="display:none;">Summarizer</div>
+                <div class="proto-overlay proto-prompt" id="protoPrompt" style="display:none;">Prompt</div>
+                <iframe class="dev-prototype-frame" id="prototypeFrame" title="Prototype preview"></iframe>
+              </div>
+              <div class="proto-video-module" id="protoVideoModule">
+                <button type="button" class="proto-video-close" id="mobileVideoClose" aria-label="Close video">×</button>
+                <div class="proto-video-placeholder">Vertical video · Close to open widget</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dev-tab-pane" id="pane-crawler">
+          <div class="crawler-wrap">
+            <div class="crawler-input-row">
+              <div class="crawler-input-wrap">
+                <label for="crawlerUrl">Unified_Target_URL</label>
+                <input type="text" id="crawlerUrl" placeholder="Enter E-Commerce or Content Landing Page..." value="">
+              </div>
+              <button type="button" class="crawler-btn" id="crawlerBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <span id="crawlerBtnText">Initialize Deep Crawl</span>
+              </button>
+            </div>
+            <div class="crawler-workspace">
+              <aside class="crawler-buckets">
+                <span class="crawler-bucket-label" style="font-size:0.6rem;color:rgba(255,255,255,0.4);margin-bottom:0.5rem;display:block;">Intelligence_Buckets</span>
+                <button type="button" class="crawler-bucket is-active" data-bucket="core"><span class="label">Product DNA</span><span class="count">215 Signals</span></button>
+                <button type="button" class="crawler-bucket" data-bucket="audience"><span class="label">Psychographics</span><span class="count">242 Signals</span></button>
+                <button type="button" class="crawler-bucket" data-bucket="creative"><span class="label">Creative Intelligence</span><span class="count">198 Signals</span></button>
+                <button type="button" class="crawler-bucket" data-bucket="competitive"><span class="label">Market Context</span><span class="count">185 Signals</span></button>
+                <button type="button" class="crawler-bucket" data-bucket="technical"><span class="label">AdTech Signals</span><span class="count">210 Signals</span></button>
+              </aside>
+              <div class="crawler-explorer">
+                <div class="crawler-empty" id="crawlerEmpty">
+                  <div class="icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/><path d="M20 12a8 8 0 1 0-16 0 8 8 0 0 0 16 0Z"/></svg></div>
+                  <h3>Awaiting Signal Matrix</h3>
+                  <p>System ready for mass entity extraction. Input URL to populate the 1000+ attribute intelligence grid.</p>
+                </div>
+                <div id="crawlerResults" style="display:none;">
+                  <div class="crawler-search">
+                    <input type="text" id="crawlerSearch" placeholder="Search through extracted signals...">
+                  </div>
+                  <div class="crawler-cards" id="crawlerCards"></div>
+                  <div class="crawler-dsp-section" id="crawlerDspSection" style="display:none;">
+                    <h4>IAB OpenRTB contextual signals – values to pass to DSPs</h4>
+                    <p class="crawler-dsp-intro" style="font-size:0.65rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">Use these object values in your bid request for better eCPM. Accepted by: Google DV360, The Trade Desk, MediaMath, Amazon TAM, Xandr, Criteo, PubMatic, OpenX, Magnite, Index Exchange.</p>
+                    <div class="crawler-dsp-table-wrap">
+                      <table class="crawler-dsp-table" id="crawlerDspTable"></table>
+                    </div>
+                  </div>
+                  <div class="crawler-raw">
+                    <h4>Raw_Signal_Stream_Output</h4>
+                    <pre id="crawlerRaw"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Site owner: set data-prebid-gam-url to your deployed Prebid GAM API app URL so users see Connect GAM + config here. -->
+        <div class="dev-tab-pane" id="pane-prebid-gam" data-prebid-gam-url="">
+          <div class="prebid-gam-embed">
+            <div class="prebid-gam-embed-bar">
+              <span class="prebid-gam-embed-title">Prebid GAM API</span>
+              <a href="#" target="_blank" rel="noopener noreferrer" class="prebid-gam-embed-link" id="prebidGamLink">Open in new tab</a>
+            </div>
+            <div class="prebid-gam-embed-placeholder" id="prebidGamPlaceholder" style="display:none;">
+              <p class="prebid-gam-embed-msg">Prebid GAM API is not configured. Contact the site administrator.</p>
+            </div>
+            <iframe src="" title="Prebid GAM API" class="prebid-gam-embed-iframe" id="prebidGamIframe"></iframe>
+            <p class="prebid-gam-embed-hint" id="prebidGamHint"></p>
+          </div>
+        </div>
+        <div class="dev-tab-pane" id="pane-adtag">
+          <div class="dev-tag-form">
+            <div>
+              <label for="adtagGptPath">GPT Ad unit path (e.g. /12345678/site/slot)</label>
+              <input type="text" id="adtagGptPath" placeholder="/12345678/your-site/your-slot" value="/19968336/header-bid-tag-0">
+            </div>
+            <div class="row2">
+              <div>
+                <label for="adtagDivId">Div / slot element ID</label>
+                <input type="text" id="adtagDivId" placeholder="div-gpt-ad-1234567890-0" value="div-gpt-ad-1460505748561-0">
+              </div>
+              <div>
+                <label for="adtagSizes">Sizes (e.g. 300x250,300x600)</label>
+                <input type="text" id="adtagSizes" placeholder="300x250,300x600" value="300x250,300x600">
+              </div>
+            </div>
+            <div class="row2">
+              <div>
+                <label for="adtagPrebidPlacement">Prebid placement ID (e.g. OpenWrap)</label>
+                <input type="text" id="adtagPrebidPlacement" placeholder="13144370" value="13144370">
+              </div>
+              <div>
+                <label for="adtagAmazonPubId">Amazon TAM publisher ID (optional)</label>
+                <input type="text" id="adtagAmazonPubId" placeholder="1234" value="">
+              </div>
+            </div>
+          </div>
+          <div class="dev-tag-output-wrap">
+            <textarea class="dev-tag-output" id="adtagOutput" readonly></textarea>
+            <div class="dev-copy-wrap">
+              <button type="button" class="dev-copy-btn" id="adtagCopy">Copy tag</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="unified-widget unified-widget--inside-console" id="unifiedWidget">
+        <div class="unified-widget-header">
+          <h3>Summarizer · Prompts · Ads</h3>
+          <button type="button" class="unified-widget-close" id="unifiedWidgetClose" aria-label="Close">×</button>
+        </div>
+        <div class="unified-widget-body">
+          <div class="widget-summary">
+            <h4>Summary</h4>
+            <p id="widgetSummaryText">Click a keyword or prompt to see a personalized summary here.</p>
+          </div>
+          <div class="widget-prompts">
+            <h4>Prompts</h4>
+            <p id="widgetPromptText">e.g. &quot;Summarize another article&quot; — click recommended prompts to load.</p>
+          </div>
+          <div class="widget-ads">
+            <h4>Ads</h4>
+            <div class="widget-ads-placeholder">Ad slot</div>
+          </div>
+        </div>
+        <div class="unified-widget-chat">
+          <input type="text" id="widgetChatInput" placeholder="Chat here…">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script>
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    (function () {
+      var PREBID_TIMEOUT = 1000;
+      var FAILSAFE_TIMEOUT = 3300;
+
+      // Demo-only: use non-sensitive placeholders only. Never put real credentials here—they are visible in page source. For production use server-side auth.
+      var AUTH_EMAIL = 'admin@example.com';
+      var AUTH_PASSCODE = 'demo';
+      var STORAGE_AUTH = 'portfolio_admin';
+      var STORAGE_RESUME = 'portfolio_resume_content';
+
+      function isLoggedIn() {
+        return sessionStorage.getItem(STORAGE_AUTH) === 'true';
+      }
+      function setLoggedIn(ok) {
+        if (ok) sessionStorage.setItem(STORAGE_AUTH, 'true');
+        else sessionStorage.removeItem(STORAGE_AUTH);
+      }
+      function updateAuthUI() {
+        var adminBar = document.getElementById('adminBar');
+        var loginLink = document.getElementById('loginLink');
+        if (isLoggedIn()) {
+          if (adminBar) adminBar.classList.add('is-visible');
+          if (loginLink) loginLink.style.display = 'none';
+        } else {
+          if (adminBar) adminBar.classList.remove('is-visible');
+          if (loginLink) loginLink.style.display = '';
+        }
+      }
+
+      var loginModal = document.getElementById('loginModal');
+      var loginForm = document.getElementById('loginForm');
+      var loginError = document.getElementById('loginError');
+      if (document.getElementById('loginLink')) {
+        document.getElementById('loginLink').addEventListener('click', function (e) {
+          e.preventDefault();
+          if (loginModal) loginModal.classList.add('is-open');
+          if (loginError) { loginError.style.display = 'none'; loginError.textContent = ''; }
+        });
+      }
+      document.getElementById('loginModalClose').addEventListener('click', function () {
+        if (loginModal) loginModal.classList.remove('is-open');
+      });
+      if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var email = document.getElementById('loginEmail').value.trim();
+          var pass = document.getElementById('loginPasscode').value;
+          if (email === AUTH_EMAIL && pass === AUTH_PASSCODE) {
+            setLoggedIn(true);
+            updateAuthUI();
+            if (loginModal) loginModal.classList.remove('is-open');
+            loginForm.reset();
+            if (loginError) { loginError.style.display = 'none'; loginError.textContent = ''; }
+          } else {
+            if (loginError) {
+              loginError.textContent = 'Invalid email or passcode.';
+              loginError.style.display = 'block';
+            }
+          }
+        });
+      }
+      if (document.getElementById('logoutBtn')) {
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+          setLoggedIn(false);
+          updateAuthUI();
+        });
+      }
+      updateAuthUI();
+
+      function applyResumeToTimeline(entries) {
+        var container = document.getElementById('pageTimeline');
+        if (!container || !entries || !entries.length) return;
+        var extLinkSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+        container.innerHTML = entries.map(function (e) {
+          return '<div class="page-timeline-item">' +
+            '<span class="page-timeline-dot"></span>' +
+            '<span class="page-timeline-meta">' + (e.meta || e.yearRange || '') + '</span>' +
+            '<h3 class="page-timeline-role">' + (e.role || '') + '</h3>' +
+            '<p class="page-timeline-desc">' + (e.desc || '') + '</p>' +
+            '<a href="#" class="page-timeline-link">Deployment Document ' + extLinkSvg + '</a></div>';
+        }).join('');
+      }
+      function parseResumeText(text) {
+        var entries = [];
+        var lines = text.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+        var yearRange = /(\d{4})\s*[-–—]\s*(\d{4}|Present|Pres|current)/i;
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          var m = line.match(yearRange);
+          if (m) {
+            var meta = line;
+            var role = (lines[i + 1] || '').trim();
+            var desc = (lines[i + 2] || '').trim();
+            if (role && desc && desc.length > 200) {
+              var shortDesc = desc.slice(0, 180) + '…';
+              desc = shortDesc;
+            }
+            if (role) {
+              entries.push({ meta: meta, role: role, desc: desc || '' });
+              i += 2;
+            }
+          } else if (roleLine(line)) {
+            if (entries.length && !entries[entries.length - 1].role) entries[entries.length - 1].role = line;
+            else if (entries.length) entries[entries.length - 1].desc += (entries[entries.length - 1].desc ? ' ' : '') + line;
+          } else if (entries.length && line.length > 15 && !/^[\d\-–—\s]+$/.test(line)) {
+            entries[entries.length - 1].desc += (entries[entries.length - 1].desc ? ' ' : '') + line;
+          }
+        }
+        function roleLine(l) {
+          return l.indexOf('|') !== -1 || (l.length > 5 && l.length < 80 && !/^\d{4}/.test(l) && !/^•|^\-/.test(l));
+        }
+        if (entries.length === 0 && text.length > 100) {
+          var blocks = text.split(/\n\s*\n/);
+          blocks.forEach(function (block) {
+            var parts = block.split(/\n/).filter(Boolean);
+            var first = parts[0];
+            if (first && (/\d{4}/.test(first) || first.length > 10)) {
+              var role = parts[1] || first;
+              var desc = parts.slice(2).join(' ').trim() || parts.slice(1).join(' ').trim();
+              entries.push({ meta: first, role: role, desc: desc });
+            }
+          });
+        }
+        return entries;
+      }
+      function extractTextFromPdf(file, cb) {
+        if (typeof pdfjsLib === 'undefined') { cb('PDF library not loaded', null); return; }
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          pdfjsLib.getDocument({ data: e.target.result }).promise.then(function (pdf) {
+            var numPages = pdf.numPages;
+            var texts = [];
+            function getPage(n) {
+              if (n > numPages) {
+                cb(null, texts.join('\n'));
+                return;
+              }
+              pdf.getPage(n).then(function (page) {
+                return page.getTextContent();
+              }).then(function (content) {
+                texts.push(content.items.map(function (it) { return it.str; }).join(' '));
+                getPage(n + 1);
+              }).catch(function () { getPage(n + 1); });
+            }
+            getPage(1);
+          }).catch(function (err) { cb(err.message, null); });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+      function onResumeFileSelected(file) {
+        if (!file) return;
+        var isPdf = file.type === 'application/pdf';
+        var isTxt = file.type === 'text/plain' || /\.txt$/i.test(file.name);
+        if (!isPdf && !isTxt) {
+          alert('Please upload a PDF or TXT file.');
+          return;
+        }
+        function processText(text) {
+          try {
+            var entries = parseResumeText(text);
+            if (entries.length) {
+              applyResumeToTimeline(entries);
+              try { localStorage.setItem(STORAGE_RESUME, JSON.stringify(entries)); } catch (e) {}
+              alert('Resume applied. Timeline updated from your upload.');
+            } else {
+              try { localStorage.setItem(STORAGE_RESUME + '_raw', text); } catch (e) {}
+              alert('Uploaded. Could not auto-parse timeline entries; you can paste structured experience blocks next.');
+            }
+          } catch (e) {
+            alert('Error applying resume: ' + e.message);
+          }
+        }
+        if (isTxt) {
+          var r = new FileReader();
+          r.onload = function () { processText(r.result); };
+          r.readAsText(file);
+        } else {
+          extractTextFromPdf(file, function (err, text) {
+            if (err) { alert('PDF error: ' + err); return; }
+            processText(text || '');
+          });
+        }
+      }
+      if (document.getElementById('uploadResumeBtn')) {
+        document.getElementById('uploadResumeBtn').addEventListener('click', function () {
+          document.getElementById('resumeFileInput').click();
+        });
+      }
+      if (document.getElementById('resumeFileInput')) {
+        document.getElementById('resumeFileInput').addEventListener('change', function () {
+          var f = this.files && this.files[0];
+          onResumeFileSelected(f);
+          this.value = '';
+        });
+      }
+      try {
+        var saved = localStorage.getItem(STORAGE_RESUME);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length) applyResumeToTimeline(parsed);
+        }
+      } catch (e) {}
+
+      function getPdfFilename() {
+        var d = new Date();
+        var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        return 'RanjanDasgupta_' + months[d.getMonth()] + '_' + d.getFullYear() + '.pdf';
+      }
+      if (document.getElementById('downloadPdfBtn')) {
+        document.getElementById('downloadPdfBtn').addEventListener('click', function () {
+          if (typeof html2pdf === 'undefined') {
+            alert('PDF export not loaded. Please refresh and try again.');
+            return;
+          }
+          var opt = {
+            margin: 10,
+            filename: getPdfFilename(),
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+          var el = document.body;
+          this.disabled = true;
+          html2pdf().set(opt).from(el).save().then(function () {
+            document.getElementById('downloadPdfBtn').disabled = false;
+          }).catch(function () {
+            document.getElementById('downloadPdfBtn').disabled = false;
+          });
+        });
+      }
+
+      (function neuralCanvas() {
+        var canvas = document.getElementById('neuralCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var mouse = { x: 0, y: 0, active: false };
+        var particles = [];
+        var particleCount = 100;
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        function Particle() {
+          this.reset = function () {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.size = Math.random() * 1.5 + 0.5;
+          };
+          this.reset();
+        }
+        for (var i = 0; i < particleCount; i++) particles.push(new Particle());
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (var i = 0; i < particles.length; i++) {
+            var p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (mouse.active) {
+              var dx = mouse.x - p.x, dy = mouse.y - p.y;
+              var dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 200) {
+                p.vx += dx * 0.0001;
+                p.vy += dy * 0.0001;
+              }
+            }
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            ctx.fillStyle = 'rgba(0, 242, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.strokeStyle = 'rgba(0, 242, 255, 0.05)';
+          ctx.lineWidth = 0.5;
+          for (var i = 0; i < particles.length; i++) {
+            for (var j = i + 1; j < particles.length; j++) {
+              var dx = particles[i].x - particles[j].x;
+              var dy = particles[i].y - particles[j].y;
+              if (dx * dx + dy * dy < 10000) {
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.stroke();
+              }
+            }
+          }
+          requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', resize);
+        document.addEventListener('mousemove', function (e) {
+          mouse.x = e.clientX;
+          mouse.y = e.clientY;
+          mouse.active = true;
+        });
+        document.addEventListener('mouseleave', function () { mouse.active = false; });
+        resize();
+        animate();
+      })();
+
+      var demoTopics = {
+        'programmatic': { summary: 'Programmatic ad serving automates the buying and selling of ad inventory via real-time auctions, reducing friction and increasing yield.', prompt: 'Summarize: Programmatic 101 for publishers' },
+        'header-bidding': { summary: 'Header bidding allows multiple demand partners to compete in a single auction before the ad server call, improving fill and CPM.', prompt: 'Summarize: Header Bidding best practices' },
+        'spo': { summary: 'Supply-path optimization (SPO) and pricing callouts reduce auction inefficiencies and consolidate demand paths for predictable revenue.', prompt: 'Summarize: SPO & Pricing Callouts guide' },
+        'ai-monetization': { summary: 'AI monetization uses agentic AI and contextual intelligence to personalize ad experiences and maximize revenue per user.', prompt: 'Summarize: AI-driven monetization strategies' }
+      };
+
+      function openStoryPanel(id) {
+        document.querySelectorAll('.story-panel').forEach(function (p) {
+          p.classList.remove('is-open');
+          p.setAttribute('aria-hidden', 'true');
+        });
+        var panel = document.getElementById('story-' + id);
+        if (panel) {
+          panel.classList.add('is-open');
+          panel.setAttribute('aria-hidden', 'false');
+        }
+      }
+      function closeStoryPanels() {
+        document.querySelectorAll('.story-panel').forEach(function (p) {
+          p.classList.remove('is-open');
+          p.setAttribute('aria-hidden', 'true');
+        });
+      }
+      document.querySelectorAll('[data-story]').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          if (this.getAttribute('href') === '#') e.preventDefault();
+          openStoryPanel(this.getAttribute('data-story'));
+        });
+      });
+      document.querySelectorAll('[data-close-panel]').forEach(function (btn) {
+        btn.addEventListener('click', closeStoryPanels);
+      });
+
+      var storylineLabels = { product: 'Product & scale', ads: 'Ads & monetization', tech: 'Tech & programmatic', ai: 'AI & advertising' };
+      document.getElementById('signalTheme').addEventListener('click', function (e) {
+        var t = e.target.closest('span[data-theme]');
+        if (!t) return;
+        var theme = t.getAttribute('data-theme');
+        document.body.setAttribute('data-storyline', theme);
+        document.getElementById('signalBadge').textContent = '2030 · ' + (storylineLabels[theme] || 'AdTech · AI · Programmatic');
+      });
+
+      (function scrollWeightAndFade() {
+        var el = document.getElementById('signalHeroName');
+        if (!el) return;
+        function onScroll() {
+          var total = document.documentElement.scrollHeight - window.innerHeight;
+          var progress = total > 0 ? window.pageYOffset / total : 0;
+          var w = Math.round(100 + progress * 8);
+          el.style.fontWeight = Math.min(800, Math.max(100, w));
+          var scrollY = window.pageYOffset;
+          if (scrollY > 120) el.classList.add('is-scrolled');
+          else el.classList.remove('is-scrolled');
+        }
+        window.addEventListener('scroll', onScroll);
+        onScroll();
+      })();
+
+      function refreshDemoView(topic) {
+        var data = demoTopics[topic] || demoTopics['programmatic'];
+        var summaryBlock = document.getElementById('demoSummaryBlock');
+        var promptBlock = document.getElementById('demoPromptBlock');
+        var summaryText = document.getElementById('demoSummaryText');
+        var promptText = document.getElementById('demoPromptText');
+        var articlePreview = document.getElementById('articlePreview');
+        summaryText.textContent = data.summary;
+        promptText.textContent = data.prompt;
+        summaryBlock.style.display = 'block';
+        promptBlock.style.display = 'block';
+        articlePreview.style.display = 'none';
+      }
+      function openUnifiedWidget(topic) {
+        var data = demoTopics[topic] || demoTopics['programmatic'];
+        document.getElementById('widgetSummaryText').textContent = data.summary;
+        document.getElementById('widgetPromptText').textContent = data.prompt;
+        document.getElementById('unifiedWidget').classList.add('is-open');
+      }
+      document.getElementById('demoContent').addEventListener('click', function (e) {
+        var t = e.target.closest('[data-demo-topic]');
+        if (!t) return;
+        e.preventDefault();
+        var topic = t.getAttribute('data-demo-topic');
+        refreshDemoView(topic);
+      });
+      function resetDemoView() {
+        document.getElementById('articlePreview').style.display = 'block';
+        document.getElementById('demoSummaryBlock').style.display = 'none';
+        document.getElementById('demoPromptBlock').style.display = 'none';
+      }
+      document.getElementById('demoToolbar').addEventListener('click', function (e) {
+        var t = e.target.closest('a[data-demo-reset]');
+        if (t) { e.preventDefault(); resetDemoView(); return; }
+        t = e.target.closest('a[data-demo-topic]');
+        if (!t) return;
+        e.preventDefault();
+        refreshDemoView(t.getAttribute('data-demo-topic'));
+      });
+      var widget = document.getElementById('unifiedWidget');
+      document.getElementById('demoRecommended').addEventListener('click', function (e) {
+        var t = e.target.closest('a[data-demo-topic]');
+        if (!t) return;
+        e.preventDefault();
+        var topic = t.getAttribute('data-demo-topic');
+        refreshDemoView(topic);
+        openDevConsole();
+        openUnifiedWidget(topic);
+      });
+
+      document.getElementById('unifiedWidgetClose').addEventListener('click', function () {
+        widget.classList.remove('is-open');
+      });
+
+      var mobileVideoCloseEl = document.getElementById('mobileVideoClose');
+      if (mobileVideoCloseEl) mobileVideoCloseEl.addEventListener('click', function () {
+        openDevConsole();
+        openUnifiedWidget('ai-monetization');
+      });
+
+      document.getElementById('prototypeLoad').addEventListener('click', function () {
+        var url = document.getElementById('prototypeUrl').value.trim();
+        if (!url) return;
+        if (!/^https?:/i.test(url)) url = 'https://' + url;
+        document.getElementById('prototypeFrame').src = url;
+      });
+      function syncPrototypeOverlays() {
+        document.getElementById('protoHeaderSticky').style.display = document.getElementById('overlayHeaderSticky').checked ? 'flex' : 'none';
+        document.getElementById('protoInfeed').style.display = document.getElementById('overlayInfeed').checked ? 'flex' : 'none';
+        document.getElementById('protoFooterSticky').style.display = document.getElementById('overlayFooterSticky').checked ? 'flex' : 'none';
+        if (widget) {
+          if (document.getElementById('overlayChatbot').checked) widget.classList.add('is-open');
+          else widget.classList.remove('is-open');
+        }
+        document.getElementById('protoSummarizer').style.display = document.getElementById('overlaySummarizer').checked ? 'flex' : 'none';
+        document.getElementById('protoPrompt').style.display = document.getElementById('overlayPrompt').checked ? 'flex' : 'none';
+      }
+      ['overlayHeaderSticky', 'overlayInfeed', 'overlayFooterSticky', 'overlayChatbot', 'overlaySummarizer', 'overlayPrompt'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('change', syncPrototypeOverlays);
+      });
+
+      (function crawlerModule() {
+        function generateIntelligencePayload(url) {
+          var parsedUrl = (function (u) { try { var a = document.createElement('a'); a.href = u; return a; } catch (e) { return { hostname: '', href: u }; } })(url || '');
+          return {
+            _url: url || '',
+            _domain: (parsedUrl.hostname || 'www.example.com'),
+            _page: (parsedUrl.href || url || 'https://www.example.com/product'),
+            core: {
+              Primary_Identity: { product_name: 'Kaaya Black Trousers', brand_parent: 'Global Desi', sku_primary: 'F25H39BT_BLACK', category_path: 'Women > All Clothing > Bottoms > Trousers > Formal', product_type: 'Apparel/Bottomwear' },
+              Physical_Attributes: { primary_color: 'Jet Black (#0A0A0A)', fabric_composition: '65% Viscose, 30% Nylon, 5% Elastane', fit_profile: 'Slim-Straight / Regular Rise' },
+              Inventory_Logic: { stock_status: 'In Stock (High Availability)', shipping_lead_time: '24-48 Hours', return_window: '30 Days Non-Hassle' },
+              Lifecycle_Data: { seasonality: 'Year-Round / Essential', release_date: '2024-Q1', lifecycle_stage: 'Growth / Evergreen' }
+            },
+            audience: {
+              Demographic_Anchor: { primary_age: '24-38', gender_skew: '98% Female', income_decile: 'Upper-Middle (7-9)', family_status: 'Single / Young Professional / DINK' },
+              Psychographic_Spectrum: { lifestyle_cluster: 'Urban Corporate / Modern Ethnic', brand_affinity: ['FabIndia', 'Zara', 'W', 'H&M'], value_drivers: ['Sustainable Fashion', 'Versatility', 'Ethical Sourcing'] },
+              Intent_Signals: { purchase_probability: '0.82 (High)', search_path: ['black office pants', 'comfortable formal trousers', 'Global Desi new arrivals'], retention_likelihood: '75% (Brand Loyal)' },
+              Geographic_Clustering: { top_tier_cities: ['Mumbai', 'Bengaluru', 'Delhi NCR', 'Hyderabad'], climate_suitability: 'Arid / Tropical / Subtropical' }
+            },
+            creative: {
+              Visual_Style_Guide: { primary_mood: 'Sophisticated / Professional', color_palette: ['#000000', '#FFFFFF', '#F3F4F6'], typography_vibe: 'Serif / Clean Sans', composition: 'Minimalist / High Contrast' },
+              Messaging_Architecture: { headline_primary: 'The Only Trousers You Need', tagline_variations: ['Desk to Dinner', 'Effortless Elegance'], tonality: 'Empowering / Refined', emotional_hooks: ['Confidence Booster', 'Time Saver', 'Style Anchor'] },
+              Creative_Variations: { email_subject_lines: ['Your 9-to-5 Uniform, Reimagined', 'Back in Black: The Kaaya Restock'], push_notification: 'The perfect fit doesn\'t exist? Think again. Meet Kaaya.' }
+            },
+            competitive: {
+              Market_Positioning: { price_quartile: 'Mid-Premium', competitors: ['Allen Solly Woman', 'Van Heusen', 'Marks & Spencer'], market_share_est: '12% in Category' },
+              Strategic_Advantage: { usp_unique: 'Ethnic Fusion tailoring for Western silhouettes', pricing_strategy: 'Value-based Premium', discount_sensitivity: 'Low' },
+              Sentiment_Analysis: { social_buzz: 'Positive / Trending', review_sentiment_score: '4.8/5.0', top_praised_feature: 'Fabric Comfort / Fit' }
+            },
+            technical: {
+              Taxonomy_Mapping: { iab_v2_category: 'Apparel & Accessories > Clothing > Pants', google_product_category: '204', facebook_pixel_events: ['ViewContent', 'AddToCart'], keywords_contextual: ['formal', 'bottoms', 'black', 'stretch', 'viscose'] },
+              AdTech_Compliance: { ads_txt_status: 'Verified', sellers_json: 'Valid', brand_safety_tier: 'GARM Floor (Safe)', inventory_quality: 'Tier 1 Premium' },
+              Performance_Benchmarks: { est_ctr_baseline: '1.2% - 1.8%', est_cvr_baseline: '2.5%', historical_cpm_range: '$4.50 - $12.00' }
+            }
+          };
+        }
+        var crawlerIntelligence = null;
+        var crawlerActiveBucket = 'core';
+        var crawlerSearchQuery = '';
+        var IAB_DSP_SIGNAL_VALUES = [
+          { signal: 'site.cat', value: 'IAB18-4', format: 'IAB Content Taxonomy array, e.g. IAB18-4 (Apparel & Accessories > Clothing)' },
+          { signal: 'site.domain', value: 'www.example.com', format: 'string, root domain of the site' },
+          { signal: 'site.page', value: 'https://www.example.com/product/123', format: 'string, full URL of the page' },
+          { signal: 'content.cat', value: 'IAB18-4', format: 'IAB category array for the specific content/section' },
+          { signal: 'content.keywords', value: 'formal, trousers, black, office, stretch', format: 'comma-separated or array of keywords' },
+          { signal: 'content.title', value: 'Kaaya Black Trousers | Global Desi', format: 'string, title of the content or product' },
+          { signal: 'user.keywords', value: 'fashion, workwear, sustainable', format: 'comma-separated interests/intent keywords' },
+          { signal: 'device.geo', value: '{"country":"USA","region":"CA","city":"San Francisco"}', format: 'object: country (ISO-3166-1-alpha-2), optional lat, lon, region, city' },
+          { signal: 'device.ua', value: '(from bid request)', format: 'string, user agent from the requesting device' },
+          { signal: 'publisher.id', value: 'pub_12345', format: 'string, your exchange-specific publisher ID' }
+        ];
+        function renderCrawlerResults() {
+          var emptyEl = document.getElementById('crawlerEmpty');
+          var resultsEl = document.getElementById('crawlerResults');
+          var cardsEl = document.getElementById('crawlerCards');
+          var rawEl = document.getElementById('crawlerRaw');
+          var dspSectionEl = document.getElementById('crawlerDspSection');
+          var dspTableEl = document.getElementById('crawlerDspTable');
+          if (!crawlerIntelligence) {
+            if (emptyEl) emptyEl.style.display = 'flex';
+            if (resultsEl) resultsEl.style.display = 'none';
+            if (dspSectionEl) dspSectionEl.style.display = 'none';
+            return;
+          }
+          if (emptyEl) emptyEl.style.display = 'none';
+          if (resultsEl) resultsEl.style.display = 'block';
+          var data = crawlerIntelligence[crawlerActiveBucket] || {};
+          var filtered = {};
+          Object.keys(data).forEach(function (key) {
+            var sectionMatch = key.toLowerCase().indexOf(crawlerSearchQuery.toLowerCase()) !== -1;
+            var contentMatch = JSON.stringify(data[key]).toLowerCase().indexOf(crawlerSearchQuery.toLowerCase()) !== -1;
+            if (!crawlerSearchQuery || sectionMatch || contentMatch) filtered[key] = data[key];
+          });
+          var html = '';
+          Object.keys(filtered).forEach(function (section) {
+            var attrs = filtered[section];
+            var rows = '';
+            Object.keys(attrs).forEach(function (attr) {
+            var val = attrs[attr];
+            var valHtml = Array.isArray(val) ? '<div class="attr-val tags">' + val.map(function (v) { return '<span>' + String(v).replace(/</g, '&lt;') + '</span>'; }).join('') + '</div>' : '<div class="attr-val">' + String(val).replace(/</g, '&lt;') + '</div>';
+            rows += '<div class="attr"><div class="attr-key">' + String(attr).replace(/_/g, ' ') + '</div>' + valHtml + '</div>';
+            });
+            html += '<div class="crawler-card"><h4>' + String(section).replace(/_/g, ' ') + '</h4>' + rows + '</div>';
+          });
+          if (cardsEl) cardsEl.innerHTML = html || '<p style="color:rgba(255,255,255,0.4);font-size:0.75rem;">No matches for search.</p>';
+          if (rawEl) rawEl.textContent = JSON.stringify(crawlerIntelligence[crawlerActiveBucket], null, 2);
+          if (crawlerActiveBucket === 'technical' && dspSectionEl && dspTableEl) {
+            dspSectionEl.style.display = 'block';
+            var signalRows = IAB_DSP_SIGNAL_VALUES.slice();
+            if (crawlerIntelligence) {
+              var tech = crawlerIntelligence.technical || {};
+              var core = crawlerIntelligence.core || {};
+              var taxonomy = (tech.Taxonomy_Mapping || {});
+              var keywords = taxonomy.keywords_contextual;
+              var productName = (core.Primary_Identity || {}).product_name;
+              if (Array.isArray(keywords)) signalRows.forEach(function (r) { if (r.signal === 'content.keywords') r.value = keywords.join(', '); });
+              if (productName) signalRows.forEach(function (r) { if (r.signal === 'content.title') r.value = productName; });
+              if (crawlerIntelligence._domain) signalRows.forEach(function (r) { if (r.signal === 'site.domain') r.value = crawlerIntelligence._domain; });
+              if (crawlerIntelligence._page) signalRows.forEach(function (r) { if (r.signal === 'site.page') r.value = crawlerIntelligence._page; });
+            }
+            var thRow = '<tr><th>OpenRTB object</th><th>Value to pass</th><th>Format / source</th></tr>';
+            var bodyRows = signalRows.map(function (row) {
+              var v = String(row.value).replace(/</g, '&lt;');
+              var f = String(row.format).replace(/</g, '&lt;');
+              return '<tr><td class="dsp-name">' + String(row.signal).replace(/</g, '&lt;') + '</td><td class="signal-value">' + v + '</td><td class="signal-format">' + f + '</td></tr>';
+            });
+            dspTableEl.innerHTML = '<thead>' + thRow + '</thead><tbody>' + bodyRows.join('') + '</tbody>';
+          } else if (dspSectionEl) {
+            dspSectionEl.style.display = 'none';
+          }
+        }
+        var crawlerBtn = document.getElementById('crawlerBtn');
+        var crawlerBtnText = document.getElementById('crawlerBtnText');
+        if (crawlerBtn) {
+          crawlerBtn.addEventListener('click', function () {
+            var urlInput = document.getElementById('crawlerUrl');
+            var url = (urlInput && urlInput.value) ? urlInput.value.trim() : '';
+            if (!url) url = 'https://example.com/product';
+            crawlerBtn.disabled = true;
+            crawlerBtn.classList.add('spin');
+            if (crawlerBtnText) crawlerBtnText.textContent = 'Extracting Intelligence...';
+            setTimeout(function () {
+              crawlerIntelligence = generateIntelligencePayload(url);
+              crawlerBtn.disabled = false;
+              crawlerBtn.classList.remove('spin');
+              if (crawlerBtnText) crawlerBtnText.textContent = 'Initialize Deep Crawl';
+              renderCrawlerResults();
+            }, 2000);
+          });
+        }
+        document.querySelectorAll('.crawler-bucket').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            document.querySelectorAll('.crawler-bucket').forEach(function (b) { b.classList.remove('is-active'); });
+            this.classList.add('is-active');
+            crawlerActiveBucket = this.getAttribute('data-bucket') || 'core';
+            renderCrawlerResults();
+          });
+        });
+        var searchInput = document.getElementById('crawlerSearch');
+        if (searchInput) {
+          searchInput.addEventListener('input', function () {
+            crawlerSearchQuery = this.value.trim();
+            renderCrawlerResults();
+          });
+        }
+      })();
+
+      function getAdTagScript() {
+        var gptPath = document.getElementById('adtagGptPath').value.trim() || '/19968336/header-bid-tag-0';
+        var divId = document.getElementById('adtagDivId').value.trim() || 'div-gpt-ad-1460505748561-0';
+        var sizesStr = document.getElementById('adtagSizes').value.trim() || '300x250,300x600';
+        var prebidPlacement = document.getElementById('adtagPrebidPlacement').value.trim() || '13144370';
+        var amazonPubId = document.getElementById('adtagAmazonPubId').value.trim();
+
+        var sizes = sizesStr.split(/[,\s]+/).map(function (s) {
+          var parts = s.split(/x/i);
+          return parts.length === 2 ? [parseInt(parts[0], 10), parseInt(parts[1], 10)] : null;
+        }).filter(Boolean);
+        var sizesJson = JSON.stringify(sizes);
+        var sizesGpt = sizes.map(function (s) { return '[' + s.join(', ') + ']'; }).join(', ');
+
+        var amazonBlock = '';
+        if (amazonPubId) {
+          amazonBlock = '\n  // Amazon TAM (Transparent Ad Marketplace) – replace with your APS script from Amazon Publisher Services\n' +
+            '  (function(d,z,s){s=d.createElement(\'script\');s.src=\'https://\'+z+\'/sdk/tam.js\';s.async=true;d.getElementsByTagName(\'head\')[0].appendChild(s);})(document,\'aps.amazon.com\');\n' +
+            '  // Configure Amazon slot with your publisher ID: ' + amazonPubId + '\n';
+        }
+
+        var scriptEnd = '</scr' + 'ipt>';
+        return '<!-- GPT + Prebid (OpenWrap) + Amazon TAM. Prebid OpenWrap: https://docs.prebid.org/prebid/openwrap/overview.html -->\n' +
+          '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js">' + scriptEnd + '\n' +
+          '<script async src="https://cdn.jsdelivr.net/npm/prebid.js@latest/dist/prebid.js">' + scriptEnd + '\n' +
+          amazonBlock +
+          '<script>\n' +
+          '  var PREBID_TIMEOUT = ' + PREBID_TIMEOUT + ';\n' +
+          '  var FAILSAFE_TIMEOUT = ' + FAILSAFE_TIMEOUT + ';\n' +
+          '  var adUnits = [{\n' +
+          '    code: \'' + divId + '\',\n' +
+          '    mediaTypes: { banner: { sizes: ' + sizesJson + ' } },\n' +
+          '    bids: [\n' +
+          '      { bidder: \'appnexus\', params: { placementId: ' + prebidPlacement + ' } }\n' +
+          '      // Add more bidders: openwraptag, rubicon, etc. See https://docs.prebid.org/dev-docs/bidders.html\n' +
+          '    ]\n' +
+          '  }];\n' +
+          '  var pbjs = pbjs || {};\n' +
+          '  pbjs.que = pbjs.que || [];\n' +
+          '  var googletag = googletag || {};\n' +
+          '  googletag.cmd = googletag.cmd || [];\n' +
+          '  googletag.cmd.push(function () { googletag.pubads().disableInitialLoad(); });\n' +
+          '  pbjs.que.push(function () {\n' +
+          '    pbjs.addAdUnits(adUnits);\n' +
+          '    pbjs.requestBids({ bidsBackHandler: sendAdserverRequest, timeout: PREBID_TIMEOUT });\n' +
+          '  });\n' +
+          '  function sendAdserverRequest() {\n' +
+          '    if (pbjs.adserverRequestSent) return;\n' +
+          '    pbjs.adserverRequestSent = true;\n' +
+          '    googletag.cmd.push(function () {\n' +
+          '      if (typeof pbjs.setTargetingForGPTAsync === \'function\') {\n' +
+          '        pbjs.setTargetingForGPTAsync();\n' +
+          '      }\n' +
+          '      googletag.pubads().refresh();\n' +
+          '    });\n' +
+          '  }\n' +
+          '  setTimeout(sendAdserverRequest, FAILSAFE_TIMEOUT);\n' +
+          '  googletag.cmd.push(function () {\n' +
+          '    googletag.defineSlot(\'' + gptPath.replace(/'/g, "\\'") + '\', [' + sizesGpt + '], \'' + divId + '\').addService(googletag.pubads());\n' +
+          '    googletag.pubads().enableSingleRequest();\n' +
+          '    googletag.enableServices();\n' +
+          '  });\n' +
+          scriptEnd + '\n' +
+          '<!-- Ad slot div -->\n' +
+          '<div id="' + divId + '"></div>\n' +
+          '<script>\n' +
+          '  googletag.cmd.push(function () { googletag.display(\'' + divId + '\'); });\n' +
+          scriptEnd + '\n';
+      }
+
+      function updateAdTagOutput() {
+        document.getElementById('adtagOutput').value = getAdTagScript();
+      }
+
+      var navDevTrigger = document.getElementById('navDevTrigger');
+      var consoleEl = document.getElementById('devConsole');
+      var closeBtn = document.getElementById('devConsoleClose');
+      var tabs = document.querySelectorAll('.dev-console-tab');
+      var copyBtn = document.getElementById('adtagCopy');
+      var formInputs = document.querySelectorAll('#adtagGptPath, #adtagDivId, #adtagSizes, #adtagPrebidPlacement, #adtagAmazonPubId');
+
+      function openDevConsole() {
+        consoleEl.classList.add('is-open');
+        updateAdTagOutput();
+      }
+      if (navDevTrigger) navDevTrigger.addEventListener('click', openDevConsole);
+
+      closeBtn.addEventListener('click', function () {
+        consoleEl.classList.remove('is-open');
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && consoleEl.classList.contains('is-open')) {
+          consoleEl.classList.remove('is-open');
+        }
+      });
+
+      consoleEl.addEventListener('click', function (e) {
+        if (e.target === consoleEl) consoleEl.classList.remove('is-open');
+      });
+
+      (function () {
+        var pane = document.getElementById('pane-prebid-gam');
+        var iframe = document.getElementById('prebidGamIframe');
+        var link = document.getElementById('prebidGamLink');
+        var hint = document.getElementById('prebidGamHint');
+        var placeholder = document.getElementById('prebidGamPlaceholder');
+        var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        var url = (pane && pane.getAttribute('data-prebid-gam-url')) ? pane.getAttribute('data-prebid-gam-url').trim() : '';
+        if (!url && isLocal) url = 'http://localhost:3001';
+        if (url) {
+          if (iframe) { iframe.src = url; iframe.style.display = 'block'; }
+          if (link) { link.href = url; link.style.display = ''; }
+          if (placeholder) placeholder.style.display = 'none';
+          if (hint) hint.style.display = 'none';
+        } else {
+          if (iframe) iframe.style.display = 'none';
+          if (link) link.style.display = 'none';
+          if (placeholder) placeholder.style.display = 'block';
+          if (hint) hint.style.display = 'none';
+        }
+      })();
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var t = this.getAttribute('data-tab');
+          tabs.forEach(function (x) { x.classList.remove('is-active'); });
+          document.querySelectorAll('.dev-tab-pane').forEach(function (p) { p.classList.remove('is-active'); });
+          this.classList.add('is-active');
+          var pane = document.getElementById('pane-' + t);
+          if (pane) pane.classList.add('is-active');
+        });
+      });
+
+      formInputs.forEach(function (input) {
+        input.addEventListener('input', updateAdTagOutput);
+        input.addEventListener('change', updateAdTagOutput);
+      });
+
+      copyBtn.addEventListener('click', function () {
+        var ta = document.getElementById('adtagOutput');
+        ta.select();
+        ta.setSelectionRange(0, 99999);
+        try {
+          document.execCommand('copy');
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(function () {
+            copyBtn.textContent = 'Copy tag';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          copyBtn.textContent = 'Copy failed';
+          setTimeout(function () { copyBtn.textContent = 'Copy tag'; }, 2000);
+        }
+      });
+
+      updateAdTagOutput();
+
+      var newsletterForm = document.getElementById('footerNewsletterForm');
+      if (newsletterForm) newsletterForm.addEventListener('submit', function (e) { e.preventDefault(); });
+    })();
+  </script>
+</body>
+</html>

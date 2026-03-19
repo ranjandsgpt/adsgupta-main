@@ -1,0 +1,15 @@
+---
+description: Lock canonical site footer snippet (do not modify)
+alwaysApply: true
+---
+
+# Footer is immutable
+
+The footer must remain **exactly** the canonical AdsGupta footer snippet provided by the user.
+
+- Do **not** modify footer markup, links, copy, classes, test IDs, icons, or year formatting unless the user explicitly requests a footer change.
+- If you need to apply the footer across pages, **only** use the existing canonical snippet:
+  - `scripts/generate-seo-pages.js` → `FOOTER` constant
+  - `scripts/update-footer-html.js` → `NEW_FOOTER` constant
+
+If any page has a different footer, normalize it back to the canonical snippet.

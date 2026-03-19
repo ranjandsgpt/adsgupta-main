@@ -1,0 +1,102 @@
+[
+  {
+    "slug": "whoami",
+    "title": "Who Am I — Ranjan Dasgupta | AdTech Product Leader",
+    "description": "I'm Ranjan Dasgupta. I build ad exchanges. First-person intro to the career arc from Google to Glance to InMobi, and what drives building programmatic infrastructure at $200M+ scale.",
+    "breadcrumbName": "Who Am I",
+    "category": "Self-Introduction",
+    "h1": "I'm Ranjan Dasgupta. I build ad exchanges.",
+    "content": "<p>This isn't a résumé. It's the short version of who I am and why I do what I do.</p><p>I'm <strong>Ranjan Dasgupta</strong>, and I've spent the last nine-plus years building the infrastructure that makes programmatic advertising work: real-time bidding, unified auctions, exchange architecture, and monetization at scale. At <a href=\"/work\">Glance</a> I was part of the team that scaled revenue to $200M+ across Web, App, and CTV. Today I lead Web &amp; CTV Exchange product strategy at InMobi. Before that, I was at Automatad and at Google on DoubleClick, DFP, AdX, and AdSense.</p><h2>What I actually do</h2><p>I sit at the intersection of product, engineering, and business. I design how ad requests flow, how demand and supply get matched, how floors and timeouts behave, and how publishers and platforms make money without burning user trust. That means <a href=\"/programmatic-advertising\">programmatic advertising</a> in the broad sense: OpenRTB, header bidding, supply path optimization, yield management, and the shift to first-price and unified auctions.</p><h2>Why it matters</h2><p>Advertising pays for the open web and for most of the content we consume. When it's done right, it's sustainable, measurable, and respectful. When it's broken, we get bad UX, wasted spend, and a race to the bottom. Ranjan Dasgupta is committed to the former: building systems that scale revenue and performance without sacrificing transparency or control.</p><p>If you want the full timeline and bio, head to <a href=\"/about\">About</a>. If you want to see concrete work and outcomes, check <a href=\"/work\">Work</a>.</p>",
+    "relatedLinks": [{"href": "/theadsguy", "label": "The Ads Guy"}, {"href": "/about", "label": "About"}]
+  },
+  {
+    "slug": "theadsguy",
+    "title": "The Ads Guy — Ranjan Dasgupta | Identity in AdTech",
+    "description": "What it means to be the ads guy in every room: the invisible infrastructure behind every ad you see, and a deep dive into exchange mechanics from Ranjan Dasgupta.",
+    "breadcrumbName": "The Ads Guy",
+    "category": "Self-Introduction",
+    "h1": "The ads guy in every room",
+    "content": "<p>In every company I've been in, I've become \"the ads guy.\" Not the only one, but the one people come to when something breaks in the pipeline, when a demand partner underperforms, when floor strategy needs a rethink, or when the question is: how do we make this inventory pay?</p><p><strong>Ranjan Dasgupta</strong> has spent a career in that role: making the invisible infrastructure of advertising visible, debuggable, and optimizable. The infrastructure is everywhere—every banner, every video pre-roll, every CTV ad pod is the result of thousands of decisions: which exchange, which demand partner, which timeout, which floor. Most people never see that. I live in it.</p><h2>What \"the ads guy\" actually sees</h2><p>When you open a site or an app, you're triggering a cascade of requests. Header bidding wrappers fire. Server-side bidders compete. The exchange runs an auction. The winner gets to show an ad. That flow involves <a href=\"/programmatic-advertising\">programmatic advertising</a> at every layer: OpenRTB, deal IDs, PMPs, supply path optimization, and yield logic. Understanding that flow—and where it breaks—is what I do.</p><h2>Why identity matters</h2><p>Being the ads guy isn't just about knowing the tech. It's about owning the outcome: revenue for publishers, performance for advertisers, and a sustainable ecosystem. I've written more about that in <a href=\"/insights\">Insights</a> and on the <a href=\"/about\">About</a> page. If you're building something in this space, <a href=\"/contact\">get in touch</a>.</p>",
+    "relatedLinks": [{"href": "/whoami", "label": "Who Am I"}, {"href": "/programmatic-advertising", "label": "Programmatic Advertising"}]
+  },
+  {
+    "slug": "notabot",
+    "title": "Not a Bot — Ranjan Dasgupta | The Human Behind AdTech Systems",
+    "description": "I'm not an AI. I'm the human who builds the systems that AI will someday run. A look at the human side of AdTech from Ranjan Dasgupta.",
+    "breadcrumbName": "Not a Bot",
+    "category": "Self-Introduction",
+    "h1": "I'm not an AI. I'm the human who builds the systems.",
+    "content": "<p>There's a lot of talk about AI taking over advertising: automated bidding, creative optimization, audience modeling. Some of that's already here. But the infrastructure those systems run on—the exchanges, the pipelines, the auction logic—was built by humans. I'm one of them.</p><p>I'm <strong>Ranjan Dasgupta</strong>. I've designed and shipped programmatic systems that handle billions of requests. I've scaled monetization to $200M+ at Glance and now drive exchange strategy at InMobi. The algorithms and the data pipelines are only as good as the product and engineering decisions behind them. Those decisions are still human: what to optimize for, how to balance latency and yield, how to protect publisher and user interests.</p><h2>Where humans still lead</h2><p>AI will get better at predicting CTR, tuning floors, and matching demand to supply. But strategy—what kind of exchange you want to be, how you think about supply path optimization, how you treat first-party data—remains a human choice. I explore that tension in <a href=\"/ai-in-advertising\">AI in advertising</a> and in my work at AdsGupta, where we're building at the intersection of AI and ad tech.</p><p>If you want to meet the human behind the systems, read <a href=\"/about\">About</a> or check <a href=\"/work\">Work</a>. And if you're thinking about how humans and AI should collaborate in AdTech, <a href=\"/contact\">let's talk</a>.</p>",
+    "relatedLinks": [{"href": "/ai-in-advertising", "label": "AI in Advertising"}, {"href": "/humanbehindtheads", "label": "Human Behind the Ads"}]
+  },
+  {
+    "slug": "humanbehindtheads",
+    "title": "Human Behind the Ads — Ranjan Dasgupta | The Person Behind $200M+ Revenue",
+    "description": "The person behind $200M+ in programmatic revenue: personal stories, motivations, and what gets Ranjan Dasgupta up in the morning.",
+    "breadcrumbName": "Human Behind the Ads",
+    "category": "Self-Introduction",
+    "h1": "The human behind the ads",
+    "content": "<p>$200M+ in scaled revenue sounds like a number. Behind it are years of decisions, trade-offs, late-night incidents, and a lot of collaboration. This page is about the person behind that number.</p><p><strong>Ranjan Dasgupta</strong> didn't start out in ad tech. I came through engineering and product, and found that the hardest and most impactful problems were in monetization: how do you build systems that are fair, transparent, and scalable? How do you help publishers earn without burning user trust? How do you make programmatic work for everyone in the chain?</p><h2>What gets me up in the morning</h2><p>Knowing that the systems I help build directly affect whether a publisher can fund quality content, whether an advertiser gets performance, and whether the ecosystem stays sustainable. I care about exchange architecture, <a href=\"/yield-optimization\">yield optimization</a>, and supply path optimization because they're the levers that determine who wins and who loses in programmatic.</p><h2>Beyond the day job</h2><p>I created <a href=\"https://adsgupta.com\" target=\"_blank\" rel=\"noopener\">AdsGupta</a>, a platform at the intersection of AI and advertising. I write and speak about AdTech, and I'm always up for a conversation about where the industry is going. More on <a href=\"/ranjan-dasgupta\">Ranjan Dasgupta</a> and <a href=\"/about\">About</a>. Want to connect? <a href=\"/contact\">Contact</a>.</p>",
+    "relatedLinks": [{"href": "/ranjan-dasgupta", "label": "Ranjan Dasgupta"}, {"href": "/about", "label": "About"}]
+  },
+  {
+    "slug": "plottwist",
+    "title": "Plot Twist — Ranjan Dasgupta | Career Pivots and Unexpected Turns",
+    "description": "Career pivots and unexpected turns: from CyberSWIFT to Google to building AdsGupta. The non-linear path of Ranjan Dasgupta.",
+    "breadcrumbName": "Plot Twist",
+    "category": "Self-Introduction",
+    "h1": "Plot twist",
+    "content": "<p>Nobody's career is a straight line. Mine went from B.Tech at WBUT to CyberSWIFT, then to Google, then to Automatad, Glance, InMobi, and building AdsGupta on the side. Each step felt like a plot twist at the time.</p><p><strong>Ranjan Dasgupta</strong> didn't plan to become an AdTech product leader. I planned to build software. What I found was that the most interesting software was in advertising: real-time systems, massive scale, and the challenge of aligning publishers, advertisers, and users. So the \"twist\" was really a series of choices that kept leading deeper into programmatic, exchanges, and monetization.</p><h2>The non-linear path</h2><p>At Google I learned how the biggest players think about yield and demand. At Glance I got to build a unified stack across Web, App, and CTV and scale it to $200M+. At InMobi I'm focused on exchange strategy for Web and CTV. And with AdsGupta, I'm exploring what happens when AI meets advertising. None of that was on a single roadmap—it was a mix of opportunity, curiosity, and saying yes to hard problems. I've written more about the <a href=\"/work\">Work</a> and my <a href=\"/originstory\">origin story</a> elsewhere.</p><p>If your path has had a few plot twists too, <a href=\"/contact\">reach out</a>. And for the full timeline, see <a href=\"/about\">About</a>.</p>",
+    "relatedLinks": [{"href": "/work", "label": "Work"}, {"href": "/originstory", "label": "Origin Story"}]
+  },
+  {
+    "slug": "originstory",
+    "title": "Origin Story — Ranjan Dasgupta | How It All Started",
+    "description": "How it all started: first exposure to ads, first technical role, the moment programmatic clicked for Ranjan Dasgupta.",
+    "breadcrumbName": "Origin Story",
+    "category": "Self-Introduction",
+    "h1": "Origin story",
+    "content": "<p>Everyone has a moment when the puzzle pieces click. For me, it was when I first understood how an ad request becomes a bid, and a bid becomes an impression. That moment set the direction for the next decade.</p><p>I'm <strong>Ranjan Dasgupta</strong>. I grew up in India, did my B.Tech at WBUT, and started my career at CyberSWIFT. The first real turn into advertising was at Google: DoubleClick, DFP, AdX, AdSense. Suddenly I was inside the machine—seeing how demand and supply get matched at scale, how yield gets optimized, and how many things can go wrong (and right) in a real-time auction.</p><h2>When programmatic clicked</h2><p>Programmatic isn't just \"automated.\" It's a full stack: identity, data, bidding, clearing, attribution. Once I saw that stack, I couldn't unsee it. I moved to Automatad, then to Glance where we built a unified monetization stack across Web, App, and CTV and scaled it to $200M+. Now at InMobi I'm focused on exchange architecture for Web and CTV. The through-line is always the same: making the pipeline transparent, efficient, and fair. I've written about that in <a href=\"/programmatic-advertising\">programmatic advertising</a> and <a href=\"/exchange-architecture\">exchange architecture</a>.</p><p>For the full bio, see <a href=\"/about\">About</a>. For what came before the \"click,\" see <a href=\"/beforeiwasfamous\">before I was famous</a>. And for where it goes from here, <a href=\"/contact\">get in touch</a>.</p>",
+    "relatedLinks": [{"href": "/about", "label": "About"}, {"href": "/beforeiwasfamous", "label": "Before I Was Famous"}]
+  },
+  {
+    "slug": "beforeiwasfamous",
+    "title": "Before I Was Famous — Ranjan Dasgupta | Early Career and the Hustle",
+    "description": "Early career: B.Tech at WBUT, CyberSWIFT, the hustle before Google. What those early years taught Ranjan Dasgupta about systems thinking.",
+    "breadcrumbName": "Before I Was Famous",
+    "category": "Self-Introduction",
+    "h1": "Before I was famous",
+    "content": "<p>I'm not famous. But before Google, before Glance, before InMobi, there were years of learning the hard way: debugging production, shipping features, and figuring out how systems actually work when they're under load.</p><p><strong>Ranjan Dasgupta</strong> started with a B.Tech from WBUT and a stint at CyberSWIFT. That's where I learned that the best product thinking comes from understanding the system: not just the code, but the data flow, the failure modes, and the business constraints. When I joined Google, that foundation turned into something else—exposure to the largest ad tech stack in the world. DFP, AdX, AdSense: I was inside the machine, and it changed how I think about scale and yield.</p><h2>What the early years taught me</h2><p>Systems thinking. If you optimize one part of the pipeline without understanding the rest, you break something else. That's true in <a href=\"/header-bidding\">header bidding</a> (timeouts, ordering, demand overlap) and in <a href=\"/supply-path-optimization\">supply path optimization</a> (who gets the request, and why). The early years also taught me that product and engineering have to speak the same language—especially in AdTech, where latency and revenue are tied to every line of logic.</p><p>For the full arc, see my <a href=\"/originstory\">origin story</a> and <a href=\"/about\">About</a>. For what I'm building now, <a href=\"/work\">Work</a> and <a href=\"/contact\">Contact</a>.</p>",
+    "relatedLinks": [{"href": "/originstory", "label": "Origin Story"}, {"href": "/about", "label": "About"}]
+  },
+  {
+    "slug": "mymanifesto",
+    "title": "My Manifesto — Ranjan Dasgupta | Principles for Building AdTech",
+    "description": "Ranjan Dasgupta's principles for building AdTech products: transparency, publisher-first, data-driven, sustainable monetization.",
+    "breadcrumbName": "My Manifesto",
+    "category": "Self-Introduction",
+    "h1": "My manifesto",
+    "content": "<p>After years of building and scaling programmatic infrastructure, I've landed on a few principles. This is my manifesto for AdTech.</p><p><strong>1. Transparency over black boxes.</strong> Publishers and advertisers deserve to know how auctions run, how demand is selected, and where the money goes. Opaque supply paths and hidden fees erode trust. I've written about this in <a href=\"/supply-path-optimization\">supply path optimization</a> and in practice at Glance and InMobi.</p><p><strong>2. Publisher-first.</strong> Revenue should align with value. That means fair auction design, clear floor logic, and yield optimization that doesn't sacrifice long-term trust for short-term spikes. See <a href=\"/yield-optimization\">yield optimization</a> and <a href=\"/programmatic-advertising\">programmatic advertising</a> for how I think about this.</p><p><strong>3. Data-driven, but human-led.</strong> Use data for decisions—eCPM, fill rate, latency—but strategy (what to optimize for, what to protect) stays human. I'm <strong>Ranjan Dasgupta</strong>, and I've seen too many \"optimizations\" that looked great in a dashboard and broke something critical in the wild.</p><p><strong>4. Sustainable monetization.</strong> The goal isn't to squeeze the last drop of revenue; it's to build a system that works for publishers, advertisers, and users over time. For more, <a href=\"/insights\">Insights</a> and <a href=\"/contact\">Contact</a>.</p>",
+    "relatedLinks": [{"href": "/programmatic-advertising", "label": "Programmatic"}, {"href": "/yield-optimization", "label": "Yield Optimization"}]
+  },
+  {
+    "slug": "dearworld",
+    "title": "Dear World — Ranjan Dasgupta | An Open Letter to the Advertising Industry",
+    "description": "An open letter from Ranjan Dasgupta to the advertising industry: what's broken, what's working, and what needs to change.",
+    "breadcrumbName": "Dear World",
+    "category": "Self-Introduction",
+    "h1": "Dear world",
+    "content": "<p>An open letter to the advertising industry—from someone who's been in the trenches for nine-plus years.</p><p><strong>What's broken:</strong> Opaque supply paths. Race-to-the-bottom on fees. Cookie deprecation without a clear replacement. Fragmented identity. Latency wars that hurt users. <strong>Ranjan Dasgupta</strong> has seen all of it. The fix isn't one product; it's a shift toward transparency, fair pricing, and alignment between publisher revenue and advertiser performance.</p><p><strong>What's working:</strong> First-price and unified auctions. Header bidding and server-side when done right. Supply path optimization that actually simplifies the chain. Data-driven floor strategy. CTV and connected devices as a growth channel. I've written about these in <a href=\"/insights\">Insights</a> and on the landing pages for <a href=\"/programmatic-advertising\">programmatic</a>, <a href=\"/ctv-monetization\">CTV</a>, and <a href=\"/header-bidding\">header bidding</a>.</p><p><strong>What needs to change:</strong> More publisher control. Clearer value attribution. Less waste in the pipeline. And a commitment to sustainable monetization—not just short-term revenue. If you're working on that, I'd love to hear from you. <a href=\"/contact\">Contact</a>. And for more perspective, <a href=\"/about\">About</a> and <a href=\"/work\">Work</a>.</p>",
+    "relatedLinks": [{"href": "/insights", "label": "Insights"}, {"href": "/whyadsmatter", "label": "Why Ads Matter"}]
+  },
+  {
+    "slug": "lettertotheinternet",
+    "title": "Letter to the Internet — Ranjan Dasgupta | A Message to the Platform",
+    "description": "A message from Ranjan Dasgupta to the internet: gratitude for the platform, concerns about the attention economy, and a vision for what advertising should be.",
+    "breadcrumbName": "Letter to the Internet",
+    "category": "Self-Introduction",
+    "h1": "Letter to the internet",
+    "content": "<p>Dear Internet,</p><p>You gave me a career. You gave billions of people access to information, entertainment, and each other. And you're funded largely by advertising. I'm <strong>Ranjan Dasgupta</strong>, and I've spent my career trying to make that funding mechanism work better: more transparent, more efficient, more aligned with the value we all get from the open web.</p><p>I'm grateful for the platform. I'm also concerned. The attention economy can push us toward more engagement at any cost. Ads can be intrusive, irrelevant, or worse. But ads can also be the reason a small publisher survives, a creator gets paid, and quality content gets made. The difference is in how we build the systems: <a href=\"/programmatic-advertising\">programmatic</a> done right respects the user and the publisher; done wrong, it's a race to the bottom.</p><p>My vision: advertising that funds the internet without burning trust. That means better <a href=\"/exchange-architecture\">exchange architecture</a>, smarter <a href=\"/yield-optimization\">yield optimization</a>, and a commitment to <a href=\"/supply-path-optimization\">supply path optimization</a> that actually simplifies the chain. I've written about attention as a currency and ads for good elsewhere; for this letter, I'll just say: the internet is worth protecting. Let's build ad tech that helps. <a href=\"/contact\">Get in touch</a>. And explore <a href=\"/about\">About</a> and <a href=\"/insights\">Insights</a> for more.</p>",
+    "relatedLinks": [{"href": "/attentionisacurrency", "label": "Attention Is a Currency"}, {"href": "/adsforgood", "label": "Ads for Good"}]
+  }
+]

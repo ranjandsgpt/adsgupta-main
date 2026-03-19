@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GamConnection {
+  id           String   @id @default(cuid())
+  networkCode  String   @unique @map("network_code")
+  accessToken  String   @map("access_token")
+  refreshToken String?  @map("refresh_token")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("gam_connections")
+}
+
+model ExecutionLog {
+  id            String   @id @default(cuid())
+  networkCode   String   @map("network_code")
+  bidderCode    String   @map("bidder_code")
+  dryRun        Boolean  @map("dry_run")
+  success       Boolean
+  advertiserId  String?  @map("advertiser_id")
+  orderId       String?  @map("order_id")
+  lineItemIds   String[] @map("line_item_ids")
+  creativeIds   String[] @map("creative_ids")
+  message       String?  @db.Text
+  configSnapshot Json?   @map("config_snapshot")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("execution_logs")
+}

@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0a;
+  --positive: #00ff88;
+  --alert: #ff4444;
+  --neutral: #4488ff;
+  --muted: #666666;
+}
+
+body {
+  background: var(--bg);
+  color: #e5e7eb;
+}
+
+.font-mono-num {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyExchange — Publisher Ad Platform | Ranjan Dasgupta</title>
+  <meta name="description" content="MyExchange is a publisher ad exchange platform built by Ranjan Dasgupta. Manage inventory, demand partners, yield optimization, ad tags, and reporting — all in one interface.">
+  <meta name="author" content="Ranjan Dasgupta">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/exchange">
+  <meta property="og:title" content="MyExchange — Publisher Ad Platform | Ranjan Dasgupta">
+  <meta property="og:description" content="Full ad exchange management platform with inventory, demand, yield, AI, and tag generation.">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/exchange">
+  <meta property="og:type" content="website">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://ranjan.adsgupta.com"},
+      {"@type": "ListItem", "position": 2, "name": "Exchange", "item": "https://ranjan.adsgupta.com/exchange"}
+    ]
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #050510; overflow: hidden; }
+    #root { width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script type="text/babel" data-type="module">
+const { useState, useMemo, useCallback } = React;
+
+// ─── DATA & CONFIG ───────────────────────────────────────────────────────────
+const genId = () => Math.random().toString(36).substr(2, 9);
+const now = () => new Date().toISOString().slice(0, 16);
+
+const AD_SIZES = [
+  "300x250","728x90","160x600","320x50","300x600","970x250","970x90",
+  "320x100","336x280","250x250","200x200","468x60","120x600","300x1050",
+  "1x1 (Out-of-page)","fluid","Responsive"
+];
+
+const AD_TYPES = ["Display","Video","Audio","Native","Rich Media","Interstitial","Rewarded","CTV"];
+const ENVIRONMENTS = ["Web","Mobile Web","Mobile App (Android)","Mobile App (iOS)","CTV/OTT","DOOH"];
+const LINE_ITEM_TYPES = [
+  { id:"sponsorship", label:"Sponsorship", priority:4, desc:"100% SOV guaranteed" },
+  { id:"standard", label:"Standard", priority:6, desc:"Volume-guaranteed" },
+  { id:"network", label:"Network", priority:12, desc:"Remnant/backfill" },
+  { id:"bulk", label:"Bulk", priority:12, desc:"Bulk remnant" },
+  { id:"price_priority", label:"Price Priority", priority:12, desc:"Highest CPM wins" },
+  { id:"house", label:"House", priority:16, desc:"Self-promotional" },
+  { id:"click_tracking", label:"Click Tracking", priority:16, desc:"Track clicks only" },
+  { id:"adx", label:"Ad Exchange", priority:12, desc:"Programmatic demand" },
+];
+const RATE_TYPES = ["CPM","CPC","CPD","CPA","vCPM","Active View CPM"];
+const DELIVERY_PACING = ["Evenly","Frontloaded","As fast as possible"];
+const CREATIVE_ROTATION = ["Even","Weighted","Optimized (CTR)","Sequential"];
+
+const DSP_CATALOG = [
+  { id:"google_adx", name:"Google Ad Exchange", type:"exchange", status:"active", logo:"G", color:"#4285f4", bidType:"server-to-server" },
+  { id:"openwrap", name:"PubMatic OpenWrap", type:"wrapper", status:"active", logo:"OW", color:"#ff6b35", bidType:"client-side" },
+  { id:"amazon_tam", name:"Amazon TAM/UAM", type:"wrapper", status:"active", logo:"A", color:"#ff9900", bidType:"server-to-server" },
+  { id:"prebid", name:"Prebid.js", type:"wrapper", status:"active", logo:"Pb", color:"#c84a32", bidType:"client-side" },
+  { id:"index_exchange", name:"Index Exchange", type:"dsp", status:"pending", logo:"IX", color:"#0055a4", bidType:"server-to-server" },
+  { id:"magnite", name:"Magnite (Rubicon)", type:"dsp", status:"active", logo:"MG", color:"#e4002b", bidType:"server-to-server" },
+  { id:"appnexus", name:"Xandr / AppNexus", type:"dsp", status:"pending", logo:"XN", color:"#1a1a2e", bidType:"server-to-server" },
+  { id:"tradedesk", name:"The Trade Desk", type:"dsp", status:"inactive", logo:"TTD", color:"#00b140", bidType:"server-to-server" },
+  { id:"mediamath", name:"MediaMath", type:"dsp", status:"inactive", logo:"MM", color:"#6c5ce7", bidType:"server-to-server" },
+  { id:"criteo", name:"Criteo", type:"dsp", status:"pending", logo:"Cr", color:"#f58220", bidType:"server-to-server" },
+  { id:"triplelift", name:"TripleLift", type:"dsp", status:"inactive", logo:"TL", color:"#00c4b3", bidType:"server-to-server" },
+  { id:"sharethrough", name:"Sharethrough", type:"dsp", status:"inactive", logo:"ST", color:"#2d3436", bidType:"server-to-server" },
+  { id:"smart_adserver", name:"Equativ (Smart)", type:"dsp", status:"inactive", logo:"EQ", color:"#ff4757", bidType:"server-to-server" },
+  { id:"sovrn", name:"Sovrn", type:"dsp", status:"inactive", logo:"SV", color:"#6c5ce7", bidType:"server-to-server" },
+  { id:"openx", name:"OpenX", type:"dsp", status:"inactive", logo:"OX", color:"#75c044", bidType:"server-to-server" },
+  { id:"adcp", name:"AdColony (AdCP)", type:"dsp", status:"inactive", logo:"AC", color:"#e74c3c", bidType:"server-to-server" },
+  { id:"demand_manager", name:"Google Demand Manager", type:"wrapper", status:"inactive", logo:"DM", color:"#34a853", bidType:"server-to-server" },
+  { id:"inmobi", name:"InMobi Exchange", type:"exchange", status:"active", logo:"IM", color:"#00b4d8", bidType:"server-to-server" },
+];
+
+const SAMPLE_METRICS = {
+  totalRequests: 847293812, totalImpressions: 623847291, totalClicks: 1247694,
+  totalRevenue: 1847293.42, avgCPM: 2.96, fillRate: 73.6, viewability: 62.4,
+  ctr: 0.20, uniqueUsers: 48293712
+};
+
+// ─── INITIAL STATE ───────────────────────────────────────────────────────────
+const INIT_SITES = [
+  { id:genId(), name:"TechPulse Daily", domain:"techpulse.com", env:"Web", status:"active", adsTxt:true, created:"2025-01-15" },
+  { id:genId(), name:"GameStream App", domain:"com.gamestream.app", env:"Mobile App (Android)", status:"active", adsTxt:true, created:"2025-02-20" },
+  { id:genId(), name:"NewsWire CTV", domain:"newswire.tv", env:"CTV/OTT", status:"active", adsTxt:false, created:"2025-03-10" },
+];
+
+const INIT_AD_UNITS = [
+  { id:genId(), name:"HP_Leaderboard_728x90", siteId:0, sizes:["728x90"], adType:"Display", env:"Web", status:"active", refreshRate:30 },
+  { id:genId(), name:"HP_MPU_300x250", siteId:0, sizes:["300x250","336x280"], adType:"Display", env:"Web", status:"active", refreshRate:0 },
+  { id:genId(), name:"Article_InFeed_Native", siteId:0, sizes:["fluid"], adType:"Native", env:"Web", status:"active", refreshRate:0 },
+  { id:genId(), name:"Sidebar_300x600", siteId:0, sizes:["300x600","160x600"], adType:"Display", env:"Web", status:"active", refreshRate:45 },
+  { id:genId(), name:"Pre-Roll_Video", siteId:2, sizes:["640x480"], adType:"Video", env:"CTV/OTT", status:"active", refreshRate:0 },
+  { id:genId(), name:"App_Banner_320x50", siteId:1, sizes:["320x50","320x100"], adType:"Display", env:"Mobile App (Android)", status:"active", refreshRate:30 },
+  { id:genId(), name:"App_Interstitial", siteId:1, sizes:["1x1 (Out-of-page)"], adType:"Interstitial", env:"Mobile App (Android)", status:"active", refreshRate:0 },
+  { id:genId(), name:"Rewarded_Video", siteId:1, sizes:["1x1 (Out-of-page)"], adType:"Rewarded", env:"Mobile App (Android)", status:"active", refreshRate:0 },
+];
+
+const INIT_ORDERS = [
+  { id:genId(), name:"Q1 2026 — BrandCorp Display", advertiser:"BrandCorp Inc.", status:"delivering", start:"2026-01-01", end:"2026-03-31", lineItems:2, budget:125000 },
+  { id:genId(), name:"Always-On — DirectRetail PG", advertiser:"DirectRetail LLC", status:"delivering", start:"2025-11-01", end:"2026-06-30", lineItems:3, budget:340000 },
+  { id:genId(), name:"Holiday Push — LuxeTravel", advertiser:"LuxeTravel Co.", status:"paused", start:"2025-12-01", end:"2026-01-15", lineItems:1, budget:45000 },
+];
+
+const PRICING_RULES = [
+  { id:genId(), name:"Global Floor — Display", type:"Unified", floor:0.50, target:"All Display", status:"active" },
+  { id:genId(), name:"Premium — Above Fold", type:"Unified", floor:2.00, target:"ATF Ad Units", status:"active" },
+  { id:genId(), name:"Video Floor — CTV", type:"Unified", floor:8.00, target:"CTV Video", status:"active" },
+  { id:genId(), name:"Native — Minimum", type:"First Look", floor:1.20, target:"Native Units", status:"active" },
+];
+
+// ─── STYLES ──────────────────────────────────────────────────────────────────
+const C = {
+  bg:"#0a0e17", bgCard:"#0f1419", bgHover:"#161d27", bgInput:"#0c1018",
+  border:"#1a2332", borderLight:"#243044", borderAccent:"#2a4a6a",
+  text:"#c8d6e5", textMuted:"#5a6d82", textBright:"#e8f0f8",
+  accent:"#00d4aa", accentDim:"#00d4aa22", accentBorder:"#00d4aa55",
+  blue:"#4a9eff", blueDim:"#4a9eff22", orange:"#ff8c42", orangeDim:"#ff8c4222",
+  red:"#ff4757", redDim:"#ff475722", green:"#2ecc71", greenDim:"#2ecc7122",
+  purple:"#a855f7", purpleDim:"#a855f722", yellow:"#ffd32a", yellowDim:"#ffd32a22",
+};
+
+const base = { fontFamily:"'JetBrains Mono','SF Mono','Fira Code',monospace", fontSize:12, color:C.text, lineHeight:1.5 };
+const card = { background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:8, padding:16 };
+const input = { background:C.bgInput, border:`1px solid ${C.border}`, borderRadius:6, color:C.textBright, padding:"8px 12px", fontSize:12, fontFamily:"inherit", width:"100%", outline:"none", boxSizing:"border-box" };
+const btn = (color=C.accent) => ({ background:color+"18", border:`1px solid ${color}55`, borderRadius:6, color, padding:"7px 14px", fontSize:11, fontWeight:700, cursor:"pointer", fontFamily:"inherit", letterSpacing:0.5 });
+const badge = (color) => ({ background:color+"18", border:`1px solid ${color}44`, borderRadius:4, padding:"2px 8px", fontSize:10, fontWeight:600, color, whiteSpace:"nowrap", display:"inline-block" });
+const sectionTitle = { fontSize:11, fontWeight:700, color:C.textMuted, letterSpacing:1.5, textTransform:"uppercase", marginBottom:12 };
+
+// ─── NAV CONFIG ──────────────────────────────────────────────────────────────
+const NAV = [
+  { id:"dash", icon:"◉", label:"Dashboard", color:C.accent },
+  { id:"inv", icon:"▦", label:"Inventory", color:C.blue },
+  { id:"delivery", icon:"▶", label:"Delivery", color:C.orange },
+  { id:"demand", icon:"⚡", label:"Demand Partners", color:C.purple },
+  { id:"yield", icon:"△", label:"Yield & Pricing", color:C.green },
+  { id:"report", icon:"◧", label:"Reporting", color:C.yellow },
+  { id:"ai", icon:"✦", label:"AI Studio", color:"#ff6b9d" },
+  { id:"protect", icon:"◈", label:"Protections", color:C.red },
+  { id:"tags", icon:"⟨/⟩", label:"Tag Generator", color:C.blue },
+  { id:"settings", icon:"⚙", label:"Settings", color:C.textMuted },
+];
+
+// ─── MAIN APP ────────────────────────────────────────────────────────────────
+function App() {
+  const [page, setPage] = useState("dash");
+  const [sideCollapsed, setSideCollapsed] = useState(false);
+  const [sites] = useState(INIT_SITES);
+  const [adUnits, setAdUnits] = useState(INIT_AD_UNITS);
+  const [orders] = useState(INIT_ORDERS);
+  const [dsps, setDsps] = useState(DSP_CATALOG);
+  const [rules] = useState(PRICING_RULES);
+  const [modal, setModal] = useState(null);
+  const [selectedUnit, setSelectedUnit] = useState(null);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiResults, setAiResults] = useState(null);
+  const [tagConfig, setTagConfig] = useState({ siteIdx:0, unitIdx:0, lazyLoad:true, refresh:false, refreshSec:30 });
+
+  // New ad unit form
+  const [newUnit, setNewUnit] = useState({ name:"", siteId:0, sizes:["300x250"], adType:"Display", env:"Web" });
+
+  const toggleDsp = useCallback((id) => {
+    setDsps(d => d.map(x => x.id===id ? {...x, status: x.status==="active"?"inactive":x.status==="inactive"?"pending":"active"} : x));
+  }, []);
+
+  const addAdUnit = useCallback(() => {
+    if (!newUnit.name.trim()) return;
+    setAdUnits(u => [...u, { id:genId(), ...newUnit, status:"active", refreshRate:0 }]);
+    setNewUnit({ name:"", siteId:0, sizes:["300x250"], adType:"Display", env:"Web" });
+    setModal(null);
+  }, [newUnit]);
+
+  const generateTag = useCallback(() => {
+    const site = sites[tagConfig.siteIdx];
+    const unit = adUnits[tagConfig.unitIdx];
+    if (!site || !unit) return "// Select site and ad unit";
+    const activeDsps = dsps.filter(d => d.status === "active");
+    return `<!-- MyExchange (MDE) · ${site.name} · ${unit.name} -->
+<!-- v1.0.0 · AI-First Publisher Exchange · adsgupta.com/myexchange -->
+<script>
+  (function(){
+    var mde = window.mde = window.mde || {};
+    mde.cmd = mde.cmd || [];
+    mde.cmd.push(function(){
+      mde.init({
+        networkCode: "MDE-${site.id.toUpperCase()}",
+        site: "${site.domain}",
+        env: "${site.env}",
+        adsTxt: ${site.adsTxt},
+        gdpr: { enabled: true, cmpId: 300 },
+        usp: { enabled: true },
+        gpp: { enabled: true },
+        schain: {
+          complete: 1,
+          ver: "1.0",
+          nodes: [{
+            asi: "adsgupta.com",
+            sid: "MDE-${site.id.toUpperCase()}",
+            hp: 1
+          }]
+        },
+        demand: {
+          // ── Active Demand Partners ──
+${activeDsps.map(d => `          ${d.id}: { enabled: true, type: "${d.bidType}" },`).join('\n')}
+        },
+        ai: {
+          contextual: true,
+          formatOptimization: true,
+          floorPricing: "dynamic"
+        }
+      });
+
+      // ── Ad Unit: ${unit.name} ──
+      mde.defineSlot({
+        unitPath: "/MDE-${site.id.toUpperCase()}/${unit.name}",
+        sizes: ${JSON.stringify(unit.sizes)},
+        adType: "${unit.adType}",
+        div: "mde-${unit.name.toLowerCase().replace(/[^a-z0-9]/g,'-')}",
+        ${tagConfig.lazyLoad ? 'lazyLoad: { marginPercent: 200, mobileScaling: 1.5 },' : ''}
+        ${tagConfig.refresh ? `refresh: { interval: ${tagConfig.refreshSec}, maxRefreshes: 10, visibleOnly: true },` : ''}
+        targeting: {
+          // Add key-value targeting here
+        }
+      });
+
+      mde.enableServices();
+      mde.display("mde-${unit.name.toLowerCase().replace(/[^a-z0-9]/g,'-')}");
+    });
+  })();
+</' + 'script>
+<' + 'script async src="https://cdn.adsgupta.com/mde/mde.js"></' + 'script>
+
+<!-- Ad Container -->
+<div id="mde-${unit.name.toLowerCase().replace(/[^a-z0-9]/g,'-')}"
+     style="min-width:${unit.sizes[0]?.split('x')[0] || 300}px; min-height:${unit.sizes[0]?.split('x')[1] || 250}px;">
+</div>`;
+  }, [tagConfig, sites, adUnits, dsps]);
+
+  // ─── RENDER ────────────────────────────────────────────────────────────────
+  return (
+    <div style={{ ...base, background:C.bg, minHeight:"100vh", display:"flex" }}>
+      {/* ── SIDEBAR ── */}
+      <div style={{ width: sideCollapsed ? 52 : 220, background:"#080c14", borderRight:`1px solid ${C.border}`, display:"flex", flexDirection:"column", transition:"width 0.2s", flexShrink:0, overflow:"hidden" }}>
+        <div style={{ padding: sideCollapsed ? "14px 8px" : "14px 16px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={()=>setSideCollapsed(!sideCollapsed)}>
+          <a href="https://ranjan.adsgupta.com/" onClick={e=>e.stopPropagation()} style={{ width:28, height:28, borderRadius:6, background:"linear-gradient(135deg,#00d4aa,#4a9eff)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:900, color:"#080c14", flexShrink:0, textDecoration:"none" }}>M</a>
+          {!sideCollapsed && <div><div style={{ fontSize:13, fontWeight:800, color:C.accent, letterSpacing:1 }}>MyExchange</div><div style={{ fontSize:9, color:C.textMuted }}>MDE · Publisher Platform</div></div>}
+        </div>
+        <div style={{ flex:1, padding:"8px 0", overflowY:"auto" }}>
+          {NAV.map(n => (
+            <div key={n.id} onClick={()=>setPage(n.id)}
+              style={{ display:"flex", alignItems:"center", gap:10, padding: sideCollapsed ? "10px 14px" : "9px 16px", cursor:"pointer",
+                background: page===n.id ? n.color+"12" : "transparent",
+                borderLeft: page===n.id ? `2px solid ${n.color}` : "2px solid transparent",
+                color: page===n.id ? n.color : C.textMuted, transition:"all 0.15s",
+              }}>
+              <span style={{ fontSize:15, width:20, textAlign:"center", flexShrink:0 }}>{n.icon}</span>
+              {!sideCollapsed && <span style={{ fontSize:11, fontWeight:600, whiteSpace:"nowrap" }}>{n.label}</span>}
+            </div>
+          ))}
+        </div>
+        {!sideCollapsed && (
+          <div style={{ padding:"12px 16px", borderTop:`1px solid ${C.border}`, fontSize:9, color:C.textMuted }}>
+            <div>adsgupta.com/myexchange</div>
+            <div style={{ marginTop:2 }}>v0.1.0 · Alpha</div>
+          </div>
+        )}
+      </div>
+
+      {/* ── MAIN CONTENT ── */}
+      <div style={{ flex:1, overflow:"auto", minWidth:0 }}>
+        {/* Top bar */}
+        <div style={{ background:"#080c14", borderBottom:`1px solid ${C.border}`, padding:"10px 24px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <div style={{ fontSize:14, fontWeight:700, color:C.textBright }}>{NAV.find(n=>n.id===page)?.icon} {NAV.find(n=>n.id===page)?.label}</div>
+          <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+            <div style={badge(C.green)}>● LIVE</div>
+            <div style={{ ...input, width:200, padding:"5px 10px", fontSize:11 }}>⌘K Search anything...</div>
+            <div style={{ width:28, height:28, borderRadius:"50%", background:C.accent, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:C.bg }}>RD</div>
+          </div>
+        </div>
+
+        <div style={{ padding:24 }}>
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* DASHBOARD                                                      */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "dash" && (
+            <div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+                <div><div style={{ fontSize:20, fontWeight:800, color:C.textBright }}>Exchange Overview</div><div style={{ color:C.textMuted, marginTop:2 }}>Real-time performance · Last 24h</div></div>
+                <div style={{ display:"flex", gap:8 }}>
+                  {["Today","7D","30D","Custom"].map(p=>(
+                    <button key={p} style={btn(p==="Today"?C.accent:C.textMuted)}>{p}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* KPI Cards */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))", gap:12, marginBottom:24 }}>
+                {[
+                  ["Ad Requests","847.3M","+12.4%",C.blue],
+                  ["Impressions","623.8M","+8.7%",C.accent],
+                  ["Fill Rate","73.6%","+2.1pp",C.green],
+                  ["Revenue","$1.85M","+15.2%",C.yellow],
+                  ["Avg eCPM","$2.96","+6.3%",C.orange],
+                  ["Viewability","62.4%","-1.2pp",C.purple],
+                  ["CTR","0.20%","+0.02pp",C.blue],
+                  ["Unique Users","48.3M","+4.8%",C.accent],
+                ].map(([label,value,delta,color])=>(
+                  <div key={label} style={{ ...card, borderLeft:`3px solid ${color}` }}>
+                    <div style={{ fontSize:10, color:C.textMuted, marginBottom:6 }}>{label}</div>
+                    <div style={{ fontSize:20, fontWeight:800, color:C.textBright }}>{value}</div>
+                    <div style={{ fontSize:10, color: delta.startsWith("+") ? C.green : C.red, marginTop:4 }}>{delta} vs prev</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Demand Source Performance */}
+              <div style={sectionTitle}>DEMAND SOURCE PERFORMANCE</div>
+              <div style={{ ...card, marginBottom:20 }}>
+                <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr 1fr", gap:8, padding:"8px 0", borderBottom:`1px solid ${C.border}`, fontSize:10, fontWeight:700, color:C.textMuted }}>
+                  <div>PARTNER</div><div>REQUESTS</div><div>BIDS</div><div>BID RATE</div><div>WIN RATE</div><div>REVENUE</div>
+                </div>
+                {dsps.filter(d=>d.status==="active").map(d => (
+                  <div key={d.id} style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr 1fr", gap:8, padding:"10px 0", borderBottom:`1px solid ${C.border}08`, alignItems:"center" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                      <div style={{ width:26, height:26, borderRadius:5, background:d.color+"22", border:`1px solid ${d.color}55`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:d.color }}>{d.logo}</div>
+                      <div><div style={{ fontSize:11, fontWeight:600, color:C.textBright }}>{d.name}</div><div style={{ fontSize:9, color:C.textMuted }}>{d.bidType}</div></div>
+                    </div>
+                    <div style={{ fontSize:11, color:C.textBright }}>{(Math.random()*200+50).toFixed(1)}M</div>
+                    <div style={{ fontSize:11, color:C.textBright }}>{(Math.random()*80+20).toFixed(1)}M</div>
+                    <div style={{ fontSize:11, color:C.green }}>{(Math.random()*40+20).toFixed(1)}%</div>
+                    <div style={{ fontSize:11, color:C.orange }}>{(Math.random()*25+5).toFixed(1)}%</div>
+                    <div style={{ fontSize:11, fontWeight:700, color:C.yellow }}>${(Math.random()*300+50).toFixed(0)}K</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Actions */}
+              <div style={sectionTitle}>QUICK ACTIONS</div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:10 }}>
+                {[
+                  ["Create Ad Unit","▦","Set up a new placement",C.blue,"inv"],
+                  ["Onboard DSP","⚡","Add demand partner",C.purple,"demand"],
+                  ["Generate Tags","⟨/⟩","Get JS for your site",C.accent,"tags"],
+                  ["New Order","▶","Create advertiser order",C.orange,"delivery"],
+                  ["AI Ad Format","✦","Generate custom format","#ff6b9d","ai"],
+                  ["Run Report","◧","Performance analytics",C.yellow,"report"],
+                ].map(([t,i,d,c,nav])=>(
+                  <div key={t} onClick={()=>setPage(nav)} style={{ ...card, cursor:"pointer", borderColor:c+"33", transition:"all 0.15s" }}
+                    onMouseEnter={e=>e.currentTarget.style.borderColor=c} onMouseLeave={e=>e.currentTarget.style.borderColor=c+"33"}>
+                    <div style={{ fontSize:22, marginBottom:6 }}>{i}</div>
+                    <div style={{ fontSize:12, fontWeight:700, color:c }}>{t}</div>
+                    <div style={{ fontSize:10, color:C.textMuted, marginTop:2 }}>{d}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* INVENTORY                                                      */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "inv" && (
+            <div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+                <div style={{ fontSize:16, fontWeight:800, color:C.textBright }}>Inventory Management</div>
+                <button onClick={()=>setModal("newUnit")} style={btn(C.blue)}>+ New Ad Unit</button>
+              </div>
+
+              {/* Sites */}
+              <div style={sectionTitle}>SITES & APPS ({sites.length})</div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:10, marginBottom:24 }}>
+                {sites.map((s,i) => (
+                  <div key={s.id} style={{ ...card, borderLeft:`3px solid ${s.status==="active"?C.green:C.red}` }}>
+                    <div style={{ display:"flex", justifyContent:"space-between" }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:C.textBright }}>{s.name}</div>
+                      <div style={badge(s.status==="active"?C.green:C.red)}>{s.status}</div>
+                    </div>
+                    <div style={{ fontSize:10, color:C.textMuted, marginTop:4 }}>{s.domain}</div>
+                    <div style={{ display:"flex", gap:8, marginTop:8 }}>
+                      <span style={badge(C.blue)}>{s.env}</span>
+                      {s.adsTxt && <span style={badge(C.green)}>ads.txt ✓</span>}
+                      <span style={badge(C.textMuted)}>{adUnits.filter(u=>u.siteId===i).length} units</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Ad Units */}
+              <div style={sectionTitle}>AD UNITS ({adUnits.length})</div>
+              <div style={{ ...card }}>
+                <div style={{ display:"grid", gridTemplateColumns:"2.5fr 1fr 1fr 1fr 1fr 0.8fr", gap:8, padding:"8px 0", borderBottom:`1px solid ${C.border}`, fontSize:10, fontWeight:700, color:C.textMuted }}>
+                  <div>AD UNIT</div><div>SIZES</div><div>TYPE</div><div>ENV</div><div>REFRESH</div><div>STATUS</div>
+                </div>
+                {adUnits.map((u, i) => (
+                  <div key={u.id} onClick={()=>setSelectedUnit(selectedUnit===i?null:i)} style={{
+                    display:"grid", gridTemplateColumns:"2.5fr 1fr 1fr 1fr 1fr 0.8fr", gap:8, padding:"10px 0",
+                    borderBottom:`1px solid ${C.border}08`, cursor:"pointer", alignItems:"center",
+                    background: selectedUnit===i ? C.blue+"08" : "transparent",
+                  }}>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:600, color:C.textBright, fontFamily:"monospace" }}>{u.name}</div>
+                      <div style={{ fontSize:9, color:C.textMuted }}>{sites[u.siteId]?.name || "—"}</div>
+                    </div>
+                    <div style={{ display:"flex", gap:3, flexWrap:"wrap" }}>
+                      {u.sizes.map(s=><span key={s} style={badge(C.blue)}>{s}</span>)}
+                    </div>
+                    <div style={badge(C.purple)}>{u.adType}</div>
+                    <div style={{ fontSize:10, color:C.textMuted }}>{u.env}</div>
+                    <div style={{ fontSize:10, color: u.refreshRate ? C.orange : C.textMuted }}>{u.refreshRate ? `${u.refreshRate}s` : "Off"}</div>
+                    <div style={badge(u.status==="active"?C.green:C.red)}>{u.status}</div>
+                  </div>
+                ))}
+              </div>
+
+              {selectedUnit !== null && (
+                <div style={{ ...card, marginTop:12, borderColor:C.blue+"55" }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:C.blue, marginBottom:8 }}>Unit Details: {adUnits[selectedUnit]?.name}</div>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, fontSize:11 }}>
+                    <div><span style={{ color:C.textMuted }}>Unit Path:</span> <span style={{ color:C.accent, fontFamily:"monospace" }}>/MDE-{sites[adUnits[selectedUnit]?.siteId]?.id?.toUpperCase()}/{adUnits[selectedUnit]?.name}</span></div>
+                    <div><span style={{ color:C.textMuted }}>Ad Type:</span> <span style={{ color:C.textBright }}>{adUnits[selectedUnit]?.adType}</span></div>
+                    <div><span style={{ color:C.textMuted }}>Environment:</span> <span style={{ color:C.textBright }}>{adUnits[selectedUnit]?.env}</span></div>
+                  </div>
+                  <div style={{ display:"flex", gap:8, marginTop:12 }}>
+                    <button onClick={()=>{ setTagConfig(c=>({...c, unitIdx:selectedUnit})); setPage("tags"); }} style={btn(C.accent)}>⟨/⟩ Generate Tag</button>
+                    <button style={btn(C.orange)}>✎ Edit</button>
+                    <button style={btn(C.red)}>◼ Archive</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* DELIVERY (Orders & Line Items)                                 */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "delivery" && (
+            <div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+                <div style={{ fontSize:16, fontWeight:800, color:C.textBright }}>Delivery · Orders & Line Items</div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button onClick={()=>setModal("newOrder")} style={btn(C.orange)}>+ New Order</button>
+                  <button style={btn(C.textMuted)}>+ New Line Item</button>
+                </div>
+              </div>
+
+              {/* Orders Table */}
+              <div style={sectionTitle}>ACTIVE ORDERS ({orders.length})</div>
+              <div style={{ ...card, marginBottom:20 }}>
+                {orders.map(o => (
+                  <div key={o.id} style={{ padding:"14px 0", borderBottom:`1px solid ${C.border}08` }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:700, color:C.textBright }}>{o.name}</div>
+                        <div style={{ fontSize:10, color:C.textMuted, marginTop:2 }}>Advertiser: {o.advertiser} · {o.lineItems} line items</div>
+                      </div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        <div style={badge(o.status==="delivering"?C.green:o.status==="paused"?C.yellow:C.red)}>{o.status}</div>
+                        <div style={{ fontSize:12, fontWeight:700, color:C.yellow }}>${(o.budget/1000).toFixed(0)}K</div>
+                      </div>
+                    </div>
+                    <div style={{ display:"flex", gap:12, marginTop:8, fontSize:10, color:C.textMuted }}>
+                      <span>Start: {o.start}</span><span>End: {o.end}</span>
+                      <span style={{ color:C.accent }}>Delivery: {(Math.random()*40+50).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Line Item Types Reference */}
+              <div style={sectionTitle}>LINE ITEM TYPES</div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:8 }}>
+                {LINE_ITEM_TYPES.map(t => (
+                  <div key={t.id} style={{ ...card, padding:12 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between" }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:C.orange }}>{t.label}</div>
+                      <div style={badge(C.textMuted)}>P{t.priority}</div>
+                    </div>
+                    <div style={{ fontSize:10, color:C.textMuted, marginTop:4 }}>{t.desc}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Creatives Section */}
+              <div style={{ ...sectionTitle, marginTop:24 }}>CREATIVE LIBRARY</div>
+              <div style={{ ...card }}>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:12 }}>
+                  {AD_TYPES.map(t => <button key={t} style={btn(C.purple)}>{t}</button>)}
+                </div>
+                <div style={{ fontSize:11, color:C.textMuted, padding:20, textAlign:"center", border:`1px dashed ${C.border}`, borderRadius:6 }}>
+                  Drop creatives here or click to upload · Supports HTML5, Image, VAST, VPAID, Native JSON
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* DEMAND PARTNERS                                                */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "demand" && (
+            <div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+                <div>
+                  <div style={{ fontSize:16, fontWeight:800, color:C.textBright }}>Demand Partners & DSP Integration</div>
+                  <div style={{ fontSize:11, color:C.textMuted, marginTop:4 }}>Manage wrappers (Prebid, OpenWrap, TAM) and direct DSP connections. MDE replaces fragmented header bidding with unified exchange-level integration.</div>
+                </div>
+                <button style={btn(C.purple)}>+ Onboard New DSP</button>
+              </div>
+
+              {/* Stats */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:20 }}>
+                {[
+                  ["Active Partners", dsps.filter(d=>d.status==="active").length, C.green],
+                  ["Pending Approval", dsps.filter(d=>d.status==="pending").length, C.yellow],
+                  ["Wrappers", dsps.filter(d=>d.type==="wrapper").length, C.orange],
+                  ["Direct DSPs", dsps.filter(d=>d.type==="dsp").length, C.purple],
+                ].map(([l,v,c]) => (
+                  <div key={l} style={{ ...card, borderTop:`3px solid ${c}` }}>
+                    <div style={{ fontSize:10, color:C.textMuted }}>{l}</div>
+                    <div style={{ fontSize:28, fontWeight:800, color:c }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Migration Path */}
+              <div style={{ ...card, marginBottom:20, background:"linear-gradient(135deg,#0f1419,#0a1628)", borderColor:C.purple+"44" }}>
+                <div style={{ fontSize:12, fontWeight:700, color:C.purple, marginBottom:8 }}>✦ MDE Migration Path</div>
+                <div style={{ display:"flex", gap:0, alignItems:"center" }}>
+                  {[
+                    ["Phase 1","Migrate Prebid / OpenWrap / TAM",C.orange],
+                    ["→","",C.textMuted],
+                    ["Phase 2","Activate direct DSP seats",C.blue],
+                    ["→","",C.textMuted],
+                    ["Phase 3","MDE replaces header bidding entirely",C.accent],
+                  ].map(([t,d,c],i) => t==="→" ? (
+                    <div key={i} style={{ fontSize:18, color:c, padding:"0 8px" }}>→</div>
+                  ) : (
+                    <div key={i} style={{ flex:1, background:c+"10", border:`1px solid ${c}33`, borderRadius:6, padding:10 }}>
+                      <div style={{ fontSize:11, fontWeight:700, color:c }}>{t}</div>
+                      <div style={{ fontSize:9, color:C.textMuted, marginTop:2 }}>{d}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* DSP Grid */}
+              <div style={sectionTitle}>ALL DEMAND PARTNERS ({dsps.length})</div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))", gap:10 }}>
+                {dsps.map(d => (
+                  <div key={d.id} style={{ ...card, borderColor: d.status==="active"?d.color+"55":C.border, opacity: d.status==="inactive"?0.6:1 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                        <div style={{ width:36, height:36, borderRadius:8, background:d.color+"22", border:`1px solid ${d.color}55`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:900, color:d.color }}>{d.logo}</div>
+                        <div>
+                          <div style={{ fontSize:12, fontWeight:700, color:C.textBright }}>{d.name}</div>
+                          <div style={{ fontSize:9, color:C.textMuted }}>{d.type} · {d.bidType}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <div style={badge(d.status==="active"?C.green:d.status==="pending"?C.yellow:C.textMuted)}>
+                        {d.status==="active"?"● Connected":d.status==="pending"?"◌ Pending":"○ Inactive"}
+                      </div>
+                      <button onClick={()=>toggleDsp(d.id)} style={btn(d.status==="active"?C.red:C.green)}>
+                        {d.status==="active"?"Disconnect":d.status==="pending"?"Approve":"Activate"}
+                      </button>
+                    </div>
+                    {d.status==="active" && (
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6, marginTop:10, paddingTop:10, borderTop:`1px solid ${C.border}` }}>
+                        <div><div style={{ fontSize:9, color:C.textMuted }}>Bid Rate</div><div style={{ fontSize:12, fontWeight:700, color:C.green }}>{(Math.random()*40+20).toFixed(1)}%</div></div>
+                        <div><div style={{ fontSize:9, color:C.textMuted }}>Win Rate</div><div style={{ fontSize:12, fontWeight:700, color:C.orange }}>{(Math.random()*20+5).toFixed(1)}%</div></div>
+                        <div><div style={{ fontSize:9, color:C.textMuted }}>eCPM</div><div style={{ fontSize:12, fontWeight:700, color:C.yellow }}>${(Math.random()*4+1).toFixed(2)}</div></div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* YIELD & PRICING                                                */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "yield" && (
+            <div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+                <div style={{ fontSize:16, fontWeight:800, color:C.textBright }}>Yield Optimization & Pricing Rules</div>
+                <button style={btn(C.green)}>+ New Pricing Rule</button>
+              </div>
+
+              {/* Pricing Rules */}
+              <div style={sectionTitle}>UNIFIED PRICING RULES ({rules.length})</div>
+              <div style={{ ...card, marginBottom:20 }}>
+                <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr", gap:8, padding:"8px 0", borderBottom:`1px solid ${C.border}`, fontSize:10, fontWeight:700, color:C.textMuted }}>
+                  <div>RULE NAME</div><div>TYPE</div><div>FLOOR CPM</div><div>TARGET</div><div>STATUS</div>
+                </div>
+                {rules.map(r => (
+                  <div key={r.id} style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr", gap:8, padding:"10px 0", borderBottom:`1px solid ${C.border}08`, alignItems:"center" }}>
+                    <div style={{ fontSize:11, fontWeight:600, color:C.textBright }}>{r.name}</div>
+                    <div style={badge(C.blue)}>{r.type}</div>
+                    <div style={{ fontSize:13, fontWeight:800, color:C.yellow }}>${r.floor.toFixed(2)}</div>
+                    <div style={{ fontSize:10, color:C.textMuted }}>{r.target}</div>
+                    <div style={badge(r.status==="active"?C.green:C.red)}>{r.status}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* AI Dynamic Floors */}
+              <div style={{ ...card, borderColor:"#ff6b9d44", background:"linear-gradient(135deg,#0f1419,#1a0f1f)" }}>
+                <div style={{ fontSize:12, fontWeight:700, color:"#ff6b9d", marginBottom:8 }}>✦ AI Dynamic Floor Pricing</div>
+                <div style={{ fontSize:11, color:C.textMuted, marginBottom:12 }}>MDE uses real-time bidding signals, historical eCPM data, and contextual analysis to dynamically adjust floor prices per impression. This replaces static UPR rules with ML-optimized pricing.</div>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+                  {[["Avg Floor Lift","+34%",C.green],["Revenue Uplift","+18.7%",C.yellow],["Model Confidence","94.2%",C.accent]].map(([l,v,c])=>(
+                    <div key={l} style={{ background:c+"10", border:`1px solid ${c}33`, borderRadius:6, padding:10, textAlign:"center" }}>
+                      <div style={{ fontSize:10, color:C.textMuted }}>{l}</div>
+                      <div style={{ fontSize:18, fontWeight:800, color:c }}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* REPORTING                                                      */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "report" && (
+            <div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+                <div style={{ fontSize:16, fontWeight:800, color:C.textBright }}>Interactive Reports</div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button style={btn(C.yellow)}>+ New Report</button>
+                  <button style={btn(C.textMuted)}>Scheduled Reports</button>
+                </div>
+              </div>
+
+              {/* Report Builder */}
+              <div style={{ ...card, marginBottom:20 }}>
+                <div style={{ fontSize:12, fontWeight:700, color:C.yellow, marginBottom:12 }}>Report Builder</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:12, marginBottom:16 }}>
+                  <div>
+                    <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Report Type</div>
+                    <select style={input}><option>Historical</option><option>Reach</option><option>Ad Speed</option><option>Real-time</option><option>Future Sell-through</option></select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Date Range</div>
+                    <select style={input}><option>Last 7 days</option><option>Last 30 days</option><option>This month</option><option>Last quarter</option><option>Custom</option></select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Dimensions</div>
+                    <select style={input} multiple><option>Date</option><option>Ad Unit</option><option>Order</option><option>Advertiser</option><option>Demand Channel</option><option>Device</option><option>Country</option><option>Creative Size</option></select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Metrics</div>
+                    <select style={input} multiple><option>Impressions</option><option>Clicks</option><option>CTR</option><option>Revenue</option><option>eCPM</option><option>Fill Rate</option><option>Viewability</option><option>Unfilled</option></select>
+                  </div>
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button style={btn(C.yellow)}>▶ Run Report</button>
+                  <button style={btn(C.textMuted)}>⧗ Schedule</button>
+                  <button style={btn(C.textMuted)}>↓ Export CSV</button>
+                </div>
+              </div>
+
+              {/* Sample Report */}
+              <div style={sectionTitle}>SAMPLE: DEMAND CHANNEL BREAKDOWN (Last 7 Days)</div>
+              <div style={{ ...card }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1.5fr 1fr 1fr 1fr 1fr 1fr 1fr", gap:8, padding:"8px 0", borderBottom:`1px solid ${C.border}`, fontSize:10, fontWeight:700, color:C.textMuted }}>
+                  <div>CHANNEL</div><div>IMPS</div><div>CLICKS</div><div>CTR</div><div>REVENUE</div><div>eCPM</div><div>FILL %</div>
+                </div>
+                {["Ad Exchange","Open Bidding","Prebid (MDE)","Direct Sold","Amazon TAM","House"].map(ch => (
+                  <div key={ch} style={{ display:"grid", gridTemplateColumns:"1.5fr 1fr 1fr 1fr 1fr 1fr 1fr", gap:8, padding:"10px 0", borderBottom:`1px solid ${C.border}08`, fontSize:11, alignItems:"center" }}>
+                    <div style={{ fontWeight:600, color:C.textBright }}>{ch}</div>
+                    <div>{(Math.random()*80+10).toFixed(1)}M</div>
+                    <div>{(Math.random()*200+20).toFixed(0)}K</div>
+                    <div style={{ color:C.green }}>{(Math.random()*0.3+0.1).toFixed(2)}%</div>
+                    <div style={{ color:C.yellow, fontWeight:700 }}>${(Math.random()*400+50).toFixed(0)}K</div>
+                    <div style={{ color:C.orange }}>${(Math.random()*4+1).toFixed(2)}</div>
+                    <div>{(Math.random()*30+50).toFixed(1)}%</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* AI STUDIO                                                      */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "ai" && (
+            <div>
+              <div style={{ marginBottom:20 }}>
+                <div style={{ fontSize:16, fontWeight:800, color:C.textBright }}>AI Studio</div>
+                <div style={{ fontSize:11, color:C.textMuted, marginTop:4 }}>Create custom ad formats, optimize layouts, and generate contextual signals — all through natural language.</div>
+              </div>
+
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
+                {/* Prompt Panel */}
+                <div>
+                  <div style={sectionTitle}>AD FORMAT GENERATOR</div>
+                  <div style={{ ...card }}>
+                    <textarea value={aiPrompt} onChange={e=>setAiPrompt(e.target.value)}
+                      placeholder={"Describe your ad format...\n\nExamples:\n• \"Sticky bottom banner that expands to full-screen video on tap, with close button after 5s\"\n• \"In-feed native card with product carousel, AI-generated headline, and dynamic CTA\"\n• \"Rewarded interstitial with gamified scratch card revealing discount code\"\n• \"CTV pause-screen overlay with QR code and companion banner\""}
+                      style={{ ...input, height:180, resize:"vertical", lineHeight:1.6 }} />
+                    <div style={{ display:"flex", gap:8, marginTop:12 }}>
+                      <button onClick={()=>setAiResults({ format:"AI-Generated Sticky Video Expand", html:"<div class='mde-sticky-expand'>...</div>", css:".mde-sticky-expand { ... }", config:{ type:"Rich Media", sizes:["320x50→320x480"], trigger:"tap", close:5 } })} style={btn("#ff6b9d")}>✦ Generate Format</button>
+                      <button style={btn(C.textMuted)}>◧ Preview</button>
+                    </div>
+                  </div>
+
+                  {aiResults && (
+                    <div style={{ ...card, marginTop:12, borderColor:"#ff6b9d44" }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:"#ff6b9d", marginBottom:8 }}>Generated: {aiResults.format}</div>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:8 }}>
+                        <div><span style={{ fontSize:10, color:C.textMuted }}>Type:</span> <span style={{ color:C.textBright }}>{aiResults.config.type}</span></div>
+                        <div><span style={{ fontSize:10, color:C.textMuted }}>Sizes:</span> <span style={{ color:C.textBright }}>{aiResults.config.sizes.join(", ")}</span></div>
+                        <div><span style={{ fontSize:10, color:C.textMuted }}>Trigger:</span> <span style={{ color:C.textBright }}>{aiResults.config.trigger}</span></div>
+                        <div><span style={{ fontSize:10, color:C.textMuted }}>Close After:</span> <span style={{ color:C.textBright }}>{aiResults.config.close}s</span></div>
+                      </div>
+                      <div style={{ background:C.bgInput, borderRadius:6, padding:10, fontFamily:"monospace", fontSize:10, color:C.accent, maxHeight:100, overflow:"auto" }}>
+                        {aiResults.html}
+                      </div>
+                      <div style={{ display:"flex", gap:8, marginTop:8 }}>
+                        <button style={btn(C.accent)}>Deploy to Ad Unit</button>
+                        <button style={btn(C.textMuted)}>Copy Code</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* AI Features */}
+                <div>
+                  <div style={sectionTitle}>AI CAPABILITIES</div>
+                  {[
+                    ["✦ Format Generator","Prompt → Custom ad format (HTML/CSS/JS) with VAST/VPAID compliance","#ff6b9d"],
+                    ["◉ Contextual Signals","AI reads page content, generates IAB taxonomy signals for DSP bid enrichment",C.blue],
+                    ["△ Dynamic Floors","ML-optimized floor pricing per impression based on 200+ signals",C.green],
+                    ["◧ Layout Optimizer","Auto-test ad placements, sizes, and refresh rates for max yield",C.orange],
+                    ["⚡ Creative QA","AI scans creatives for malware, redirects, heavy load, policy violations",C.red],
+                    ["👁 Viewability Predictor","Pre-bid viewability score sent to DSPs via imp.metric",C.purple],
+                    ["🎯 Audience Engine","1P data activation — cohort signals without cookies",C.yellow],
+                    ["📊 Revenue Forecasting","Predict fill rate and eCPM changes before deploying config",C.accent],
+                  ].map(([t,d,c]) => (
+                    <div key={t} style={{ ...card, marginBottom:8, borderLeft:`3px solid ${c}`, padding:12 }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:c }}>{t}</div>
+                      <div style={{ fontSize:10, color:C.textMuted, marginTop:2 }}>{d}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* PROTECTIONS                                                    */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "protect" && (
+            <div>
+              <div style={{ fontSize:16, fontWeight:800, color:C.textBright, marginBottom:20 }}>Protections & Brand Safety</div>
+
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
+                <div>
+                  <div style={sectionTitle}>BLOCKING RULES</div>
+                  {[
+                    ["Advertiser URL Blocking","Block specific advertiser domains","47 domains blocked",C.red],
+                    ["Category Blocking","IAB content categories to block","Gambling, Alcohol, Politics",C.orange],
+                    ["Creative Blocking","Block by creative type or size","Pop-ups, Auto-expand",C.yellow],
+                    ["Ad Technology Blocking","Block specific ad tech providers","3 providers blocked",C.purple],
+                    ["Sensitive Category Blocking","Block Google-defined sensitive cats","Religion, Dating",C.red],
+                  ].map(([t,d,v,c]) => (
+                    <div key={t} style={{ ...card, marginBottom:8, padding:12 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between" }}>
+                        <div style={{ fontSize:12, fontWeight:600, color:c }}>{t}</div>
+                        <div style={badge(C.green)}>Active</div>
+                      </div>
+                      <div style={{ fontSize:10, color:C.textMuted, marginTop:2 }}>{d}</div>
+                      <div style={{ fontSize:10, color:C.textBright, marginTop:4 }}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <div style={sectionTitle}>TRAFFIC QUALITY</div>
+                  {[
+                    ["IVT Detection","GIVT + SIVT filtering (MRC compliant)","Blocked: 3.2%",C.green],
+                    ["Bot Filtering","Known bot/spider filtering + behavioral","Filtered: 847K/day",C.blue],
+                    ["Click Fraud Protection","Invalid click detection and removal","Blocked: 0.8%",C.accent],
+                    ["Ads.txt / App-ads.txt","Supply chain verification","Verified: 3/3 sites",C.green],
+                    ["Supply Chain Validation","schain completeness checking","Complete: 98.4%",C.yellow],
+                  ].map(([t,d,v,c]) => (
+                    <div key={t} style={{ ...card, marginBottom:8, padding:12 }}>
+                      <div style={{ fontSize:12, fontWeight:600, color:c }}>{t}</div>
+                      <div style={{ fontSize:10, color:C.textMuted, marginTop:2 }}>{d}</div>
+                      <div style={{ fontSize:11, fontWeight:700, color:c, marginTop:4 }}>{v}</div>
+                    </div>
+                  ))}
+
+                  <div style={{ ...sectionTitle, marginTop:20 }}>PRIVACY & CONSENT</div>
+                  {[
+                    ["GDPR / TCF 2.2","CMP integration, consent string passthrough",C.blue],
+                    ["US Privacy / CCPA","USP string handling",C.purple],
+                    ["GPP","Global Privacy Platform support",C.accent],
+                    ["COPPA","Child-directed content handling",C.orange],
+                  ].map(([t,d,c]) => (
+                    <div key={t} style={{ ...card, marginBottom:6, padding:10, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <div><div style={{ fontSize:11, fontWeight:600, color:c }}>{t}</div><div style={{ fontSize:9, color:C.textMuted }}>{d}</div></div>
+                      <div style={badge(C.green)}>Enabled</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* TAG GENERATOR                                                  */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "tags" && (
+            <div>
+              <div style={{ fontSize:16, fontWeight:800, color:C.textBright, marginBottom:20 }}>Tag Generator</div>
+
+              <div style={{ display:"grid", gridTemplateColumns:"350px 1fr", gap:20 }}>
+                {/* Config */}
+                <div>
+                  <div style={sectionTitle}>CONFIGURATION</div>
+                  <div style={{ ...card }}>
+                    <div style={{ marginBottom:12 }}>
+                      <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Site / App</div>
+                      <select value={tagConfig.siteIdx} onChange={e=>setTagConfig(c=>({...c,siteIdx:+e.target.value}))} style={input}>
+                        {sites.map((s,i)=><option key={i} value={i}>{s.name} ({s.domain})</option>)}
+                      </select>
+                    </div>
+                    <div style={{ marginBottom:12 }}>
+                      <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Ad Unit</div>
+                      <select value={tagConfig.unitIdx} onChange={e=>setTagConfig(c=>({...c,unitIdx:+e.target.value}))} style={input}>
+                        {adUnits.map((u,i)=><option key={i} value={i}>{u.name} ({u.sizes.join(",")})</option>)}
+                      </select>
+                    </div>
+                    <div style={{ marginBottom:12 }}>
+                      <label style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }}>
+                        <input type="checkbox" checked={tagConfig.lazyLoad} onChange={e=>setTagConfig(c=>({...c,lazyLoad:e.target.checked}))} />
+                        <span style={{ fontSize:11, color:C.textBright }}>Lazy Loading</span>
+                      </label>
+                    </div>
+                    <div style={{ marginBottom:12 }}>
+                      <label style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }}>
+                        <input type="checkbox" checked={tagConfig.refresh} onChange={e=>setTagConfig(c=>({...c,refresh:e.target.checked}))} />
+                        <span style={{ fontSize:11, color:C.textBright }}>Auto Refresh</span>
+                      </label>
+                      {tagConfig.refresh && (
+                        <div style={{ marginTop:6 }}>
+                          <div style={{ fontSize:10, color:C.textMuted, marginBottom:2 }}>Interval (seconds)</div>
+                          <input type="number" value={tagConfig.refreshSec} onChange={e=>setTagConfig(c=>({...c,refreshSec:+e.target.value}))} style={{...input, width:80}} />
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ ...sectionTitle, marginTop:16 }}>ACTIVE DEMAND ({dsps.filter(d=>d.status==="active").length})</div>
+                    <div style={{ display:"flex", gap:4, flexWrap:"wrap" }}>
+                      {dsps.filter(d=>d.status==="active").map(d => (
+                        <span key={d.id} style={badge(d.color)}>{d.logo} {d.name.split(" ")[0]}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Generated Tag */}
+                <div>
+                  <div style={sectionTitle}>GENERATED TAG</div>
+                  <div style={{ ...card, borderColor:C.accent+"33" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
+                      <div style={{ fontSize:11, fontWeight:600, color:C.accent }}>MDE Publisher Tag · JavaScript</div>
+                      <button onClick={()=>navigator.clipboard?.writeText(generateTag())} style={btn(C.accent)}>◫ Copy Tag</button>
+                    </div>
+                    <pre style={{ background:C.bgInput, borderRadius:6, padding:14, fontSize:10, color:C.accent, overflow:"auto", maxHeight:500, lineHeight:1.7, whiteSpace:"pre-wrap", border:`1px solid ${C.border}` }}>
+                      {generateTag()}
+                    </pre>
+                    <div style={{ display:"flex", gap:8, marginTop:12 }}>
+                      <button style={btn(C.blue)}>◧ Test in Preview</button>
+                      <button style={btn(C.textMuted)}>↓ Download</button>
+                      <button style={btn(C.textMuted)}>✉ Email to Dev</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* SETTINGS                                                       */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {page === "settings" && (
+            <div>
+              <div style={{ fontSize:16, fontWeight:800, color:C.textBright, marginBottom:20 }}>Network Settings</div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
+                <div>
+                  <div style={sectionTitle}>GENERAL</div>
+                  <div style={{ ...card }}>
+                    {[
+                      ["Network Name","MyExchange (MDE)"],
+                      ["Network Code","MDE-ADSGUPTA-001"],
+                      ["Time Zone","Asia/Kolkata (IST)"],
+                      ["Currency","USD"],
+                      ["Contact Email","ranjan@adsgupta.com"],
+                    ].map(([l,v]) => (
+                      <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:`1px solid ${C.border}08` }}>
+                        <span style={{ fontSize:11, color:C.textMuted }}>{l}</span>
+                        <span style={{ fontSize:11, color:C.textBright, fontFamily:"monospace" }}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ ...sectionTitle, marginTop:20 }}>API ACCESS</div>
+                  <div style={{ ...card }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+                      <span style={{ fontSize:11, color:C.textMuted }}>API Key</span>
+                      <span style={{ fontSize:10, fontFamily:"monospace", color:C.accent }}>mde_live_sk_••••••••••3f7a</span>
+                    </div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      <button style={btn(C.accent)}>Regenerate</button>
+                      <button style={btn(C.textMuted)}>API Docs</button>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div style={sectionTitle}>USERS & ROLES</div>
+                  <div style={{ ...card }}>
+                    {[
+                      ["Ranjan Dasgupta","Admin","ranjan@adsgupta.com",C.accent],
+                      ["Ad Ops Team","Trafficker","adops@adsgupta.com",C.blue],
+                      ["Analytics","Viewer","analytics@adsgupta.com",C.textMuted],
+                    ].map(([name,role,email,c]) => (
+                      <div key={email} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 0", borderBottom:`1px solid ${C.border}08` }}>
+                        <div><div style={{ fontSize:11, fontWeight:600, color:C.textBright }}>{name}</div><div style={{ fontSize:9, color:C.textMuted }}>{email}</div></div>
+                        <div style={badge(c)}>{role}</div>
+                      </div>
+                    ))}
+                    <button style={{ ...btn(C.textMuted), marginTop:10 }}>+ Invite User</button>
+                  </div>
+
+                  <div style={{ ...sectionTitle, marginTop:20 }}>INTEGRATIONS</div>
+                  <div style={{ ...card }}>
+                    {[
+                      ["Google OAuth","Connected",C.green],
+                      ["Prebid Server","Configured",C.green],
+                      ["Amazon APS","Configured",C.green],
+                      ["Consent Management","Live (TCF 2.2)",C.green],
+                      ["Analytics (GA4)","Connected",C.green],
+                    ].map(([t,s,c]) => (
+                      <div key={t} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:`1px solid ${C.border}08` }}>
+                        <span style={{ fontSize:11, color:C.textBright }}>{t}</span>
+                        <span style={badge(c)}>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── MODAL: New Ad Unit ── */}
+      {modal === "newUnit" && (
+        <div style={{ position:"fixed", inset:0, background:"#000a", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100 }} onClick={()=>setModal(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{ ...card, width:480, borderColor:C.blue+"55" }}>
+            <div style={{ fontSize:14, fontWeight:700, color:C.blue, marginBottom:16 }}>▦ Create New Ad Unit</div>
+            <div style={{ marginBottom:12 }}>
+              <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Ad Unit Name *</div>
+              <input value={newUnit.name} onChange={e=>setNewUnit(u=>({...u,name:e.target.value}))} placeholder="e.g. HP_Leaderboard_728x90" style={input} />
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Site / App</div>
+                <select value={newUnit.siteId} onChange={e=>setNewUnit(u=>({...u,siteId:+e.target.value}))} style={input}>
+                  {sites.map((s,i)=><option key={i} value={i}>{s.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Ad Type</div>
+                <select value={newUnit.adType} onChange={e=>setNewUnit(u=>({...u,adType:e.target.value}))} style={input}>
+                  {AD_TYPES.map(t=><option key={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Sizes</div>
+                <select value={newUnit.sizes[0]} onChange={e=>setNewUnit(u=>({...u,sizes:[e.target.value]}))} style={input}>
+                  {AD_SIZES.map(s=><option key={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Environment</div>
+                <select value={newUnit.env} onChange={e=>setNewUnit(u=>({...u,env:e.target.value}))} style={input}>
+                  {ENVIRONMENTS.map(e=><option key={e}>{e}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:8, marginTop:16 }}>
+              <button onClick={addAdUnit} style={btn(C.blue)}>▦ Create Ad Unit</button>
+              <button onClick={()=>setModal(null)} style={btn(C.textMuted)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: New Order ── */}
+      {modal === "newOrder" && (
+        <div style={{ position:"fixed", inset:0, background:"#000a", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100 }} onClick={()=>setModal(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{ ...card, width:540, borderColor:C.orange+"55" }}>
+            <div style={{ fontSize:14, fontWeight:700, color:C.orange, marginBottom:16 }}>▶ Create New Order</div>
+            <div style={{ marginBottom:12 }}>
+              <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Order Name *</div>
+              <input placeholder="e.g. Q2 2026 — BrandCorp Display" style={input} />
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Advertiser / Buyer</div>
+                <input placeholder="Advertiser name" style={input} />
+              </div>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Trafficker</div>
+                <input placeholder="Assigned trafficker" style={input} />
+              </div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:12 }}>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Start Date</div>
+                <input type="date" style={input} />
+              </div>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>End Date</div>
+                <input type="date" style={input} />
+              </div>
+              <div>
+                <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Budget ($)</div>
+                <input type="number" placeholder="100000" style={input} />
+              </div>
+            </div>
+            <div style={{ marginBottom:12 }}>
+              <div style={{ fontSize:10, color:C.textMuted, marginBottom:4 }}>Labels / Notes</div>
+              <textarea placeholder="Internal notes, PO number, etc." style={{...input, height:60, resize:"vertical"}} />
+            </div>
+            <div style={{ display:"flex", gap:8, marginTop:16 }}>
+              <button onClick={()=>setModal(null)} style={btn(C.orange)}>▶ Save & Add Line Items</button>
+              <button onClick={()=>setModal(null)} style={btn(C.textMuted)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+  </script>
+</body>
+</html>

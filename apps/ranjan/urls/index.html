@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>(function(){var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t||'dark');})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050508">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <title>All Pages — Site Directory | Ranjan Dasgupta</title>
+  <meta name="description" content="Master directory of every page on ranjan.adsgupta.com — core pages, landing pages, demos, essays, experiments, and easter eggs.">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/urls">
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+
+  <meta property="og:title" content="All Pages — Site Directory | Ranjan Dasgupta">
+  <meta property="og:description" content="Browse every page on ranjan.adsgupta.com in a single searchable directory.">
+  <meta property="og:image" content="https://ranjan.adsgupta.com/og-image.png">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/urls">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="All Pages — Site Directory | Ranjan Dasgupta">
+  <meta name="twitter:description" content="Master directory of every URL on ranjan.adsgupta.com.">
+  <meta name="twitter:image" content="https://ranjan.adsgupta.com/og-image.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Exo+2:ital,wght@0,400;0,500;0,600;0,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --font-sans: 'Space Grotesk', system-ui, sans-serif;
+      --font-display: 'Exo 2', sans-serif;
+      --font-mono: 'Orbitron', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .page-wrap { padding-top: 5rem; }
+    .urls-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    .urls-inner h1 {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    .urls-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .urls-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .urls-search-wrap {
+      flex: 1 1 220px;
+      max-width: 320px;
+      position: relative;
+    }
+    .urls-search-wrap input {
+      width: 100%;
+      padding: 0.6rem 0.9rem 0.6rem 2rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+    .urls-search-wrap input::placeholder { color: var(--text-tertiary); }
+    .urls-search-icon {
+      position: absolute;
+      left: 0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    .urls-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .urls-filter-btn {
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.8rem;
+      font-size: 0.8rem;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .urls-filter-btn.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+
+    .urls-summary {
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+      margin-bottom: 0.5rem;
+    }
+
+    .urls-table-wrap {
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+    }
+    table.urls-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .urls-table thead {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .urls-table th,
+    .urls-table td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .urls-table th {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      font-weight: 600;
+    }
+    .urls-table td:nth-child(2),
+    .urls-table td:nth-child(3) {
+      white-space: normal;
+    }
+    .urls-table tr:last-child td {
+      border-bottom: none;
+    }
+    .urls-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.01);
+    }
+    .urls-table tbody tr.hidden-row {
+      display: none;
+    }
+    .urls-url-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .urls-url-link:hover {
+      text-decoration: underline;
+    }
+    .urls-status {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .urls-inner { padding: 1.5rem 1rem 3rem; }
+      .urls-table th:nth-child(1),
+      .urls-table td:nth-child(1) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta →</a>
+      <div class="site-theme-toggle" aria-label="Theme">
+        <button type="button" class="site-theme-btn light" id="themeLight" aria-label="Light mode"></button>
+        <button type="button" class="site-theme-btn dark" id="themeDark" aria-label="Dark mode"></button>
+      </div>
+      <button type="button" class="site-nav-menu-btn" id="navMenuBtn" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+    <main id="main-content" class="urls-inner">
+      <h1>Site Directory</h1>
+      <p class="urls-subtitle">Every page on ranjan.adsgupta.com</p>
+
+      <div class="urls-controls">
+        <div class="urls-search-wrap">
+          <span class="urls-search-icon">⌕</span>
+          <input id="urlsSearch" type="search" placeholder="Search by URL or title">
+        </div>
+        <div class="urls-filters" aria-label="Category filters">
+          <button class="urls-filter-btn active" data-category="all">All</button>
+          <button class="urls-filter-btn" data-category="Core">Core</button>
+          <button class="urls-filter-btn" data-category="Entity">Entity</button>
+          <button class="urls-filter-btn" data-category="Landing Page">Landing</button>
+          <button class="urls-filter-btn" data-category="Demo &amp; Tools">Demo &amp; Tools</button>
+          <button class="urls-filter-btn" data-category="Self-Introduction">Self</button>
+          <button class="urls-filter-btn" data-category="Hire Me">Hire Me</button>
+          <button class="urls-filter-btn" data-category="Skills">Skills</button>
+          <button class="urls-filter-btn" data-category="Futuristic">Futuristic</button>
+          <button class="urls-filter-btn" data-category="Philosophy">Philosophy</button>
+          <button class="urls-filter-btn" data-category="Easter Eggs">Easter Eggs</button>
+          <button class="urls-filter-btn" data-category="Predictions">Predictions</button>
+          <button class="urls-filter-btn" data-category="Storytelling">Storytelling</button>
+          <button class="urls-filter-btn" data-category="Interactive">Interactive</button>
+          <button class="urls-filter-btn" data-category="Legacy">Legacy</button>
+        </div>
+      </div>
+
+      <p class="urls-summary" id="urlsSummary">148 total pages</p>
+
+      <div class="urls-table-wrap">
+        <table class="urls-table" id="urlsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>URL</th>
+              <th>Category</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- CORE (6) -->
+            <tr data-category="Core">
+              <td>1</td><td><a href="/" class="urls-url-link">/</a> — Home</td><td>Core</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Core">
+              <td>2</td><td><a href="/about" class="urls-url-link">/about</a> — About</td><td>Core</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Core">
+              <td>3</td><td><a href="/work" class="urls-url-link">/work</a> — Work &amp; Projects</td><td>Core</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Core">
+              <td>4</td><td><a href="/insights" class="urls-url-link">/insights</a> — Insights</td><td>Core</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Core">
+              <td>5</td><td><a href="/contact" class="urls-url-link">/contact</a> — Contact</td><td>Core</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Core">
+              <td>6</td><td><a href="/urls" class="urls-url-link">/urls</a> — Site Directory</td><td>Core</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- ENTITY (1) -->
+            <tr data-category="Entity">
+              <td>7</td><td><a href="/ranjan-dasgupta" class="urls-url-link">/ranjan-dasgupta</a> — Ranjan Dasgupta</td><td>Entity</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- LANDING PAGES (11) -->
+            <tr data-category="Landing Page">
+              <td>8</td><td><a href="/programmatic-advertising" class="urls-url-link">/programmatic-advertising</a> — Programmatic Advertising</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>9</td><td><a href="/ctv-monetization" class="urls-url-link">/ctv-monetization</a> — CTV Monetization</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>10</td><td><a href="/header-bidding" class="urls-url-link">/header-bidding</a> — Header Bidding</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>11</td><td><a href="/yield-optimization" class="urls-url-link">/yield-optimization</a> — Yield Optimization</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>12</td><td><a href="/supply-path-optimization" class="urls-url-link">/supply-path-optimization</a> — Supply Path Optimization</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>13</td><td><a href="/ai-in-advertising" class="urls-url-link">/ai-in-advertising</a> — AI in Advertising</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>14</td><td><a href="/web-app-monetization" class="urls-url-link">/web-app-monetization</a> — Web &amp; App Monetization</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>15</td><td><a href="/exchange-architecture" class="urls-url-link">/exchange-architecture</a> — Exchange Architecture</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>16</td><td><a href="/prebid-optimization" class="urls-url-link">/prebid-optimization</a> — Prebid Optimization</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>17</td><td><a href="/floor-pricing-strategy" class="urls-url-link">/floor-pricing-strategy</a> — Floor Pricing Strategy</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Landing Page">
+              <td>18</td><td><a href="/monetization-audit" class="urls-url-link">/monetization-audit</a> — Monetization Audit</td><td>Landing Page</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- DEMO & TOOLS (5) -->
+            <tr data-category="Demo &amp; Tools">
+              <td>19</td><td><a href="/demo" class="urls-url-link">/demo</a> — Demos &amp; Tools</td><td>Demo &amp; Tools</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Demo &amp; Tools">
+              <td>20</td><td><a href="/demo/exchange" class="urls-url-link">/demo/exchange</a> — AdsGupta Universe</td><td>Demo &amp; Tools</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Demo &amp; Tools">
+              <td>21</td><td><a href="/exchange" class="urls-url-link">/exchange</a> — MyExchange Platform</td><td>Demo &amp; Tools</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Demo &amp; Tools">
+              <td>22</td><td><a href="/tools" class="urls-url-link">/tools</a> — Tools &amp; Resources</td><td>Demo &amp; Tools</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Demo &amp; Tools">
+              <td>23</td><td><a href="/audit" class="urls-url-link">/audit</a> — Programmatic Audit</td><td>Demo &amp; Tools</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- SELF-INTRODUCTION (10) -->
+            <tr data-category="Self-Introduction">
+              <td>24</td><td><a href="/whoami" class="urls-url-link">/whoami</a> — Who Am I</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>25</td><td><a href="/theadsguy" class="urls-url-link">/theadsguy</a> — The Ads Guy</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>26</td><td><a href="/notabot" class="urls-url-link">/notabot</a> — Not A Bot</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>27</td><td><a href="/humanbehindtheads" class="urls-url-link">/humanbehindtheads</a> — Human Behind The Ads</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>28</td><td><a href="/plottwist" class="urls-url-link">/plottwist</a> — Plot Twist</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>29</td><td><a href="/originstory" class="urls-url-link">/originstory</a> — Origin Story</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>30</td><td><a href="/beforeiwasfamous" class="urls-url-link">/beforeiwasfamous</a> — Before I Was Famous</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>31</td><td><a href="/mymanifesto" class="urls-url-link">/mymanifesto</a> — My Manifesto</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>32</td><td><a href="/dearworld" class="urls-url-link">/dearworld</a> — Dear World</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Self-Introduction">
+              <td>33</td><td><a href="/lettertotheinternet" class="urls-url-link">/lettertotheinternet</a> — Letter To The Internet</td><td>Self-Introduction</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- HIRE ME (10) -->
+            <tr data-category="Hire Me">
+              <td>34</td><td><a href="/whynotme" class="urls-url-link">/whynotme</a> — Why Not Me</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>35</td><td><a href="/pickme" class="urls-url-link">/pickme</a> — Pick Me</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>36</td><td><a href="/bestdecisionyoullmake" class="urls-url-link">/bestdecisionyoullmake</a> — Best Decision You'll Make</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>37</td><td><a href="/yourfutureCMO" class="urls-url-link">/yourfutureCMO</a> — Your Future CMO</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>38</td><td><a href="/nexthire" class="urls-url-link">/nexthire</a> — Next Hire</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>39</td><td><a href="/stolenfrommydayjob" class="urls-url-link">/stolenfrommydayjob</a> — Stolen From My Day Job</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>40</td><td><a href="/resumebutcooler" class="urls-url-link">/resumebutcooler</a> — Resume But Cooler</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>41</td><td><a href="/absorbmeinyourteam" class="urls-url-link">/absorbmeinyourteam</a> — Absorb Me In Your Team</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>42</td><td><a href="/ROIofhiringme" class="urls-url-link">/ROIofhiringme</a> — ROI Of Hiring Me</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Hire Me">
+              <td>43</td><td><a href="/cheaperthanabillboard" class="urls-url-link">/cheaperthanabillboard</a> — Cheaper Than A Billboard</td><td>Hire Me</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- SKILLS (10) -->
+            <tr data-category="Skills">
+              <td>44</td><td><a href="/whatIbreathe" class="urls-url-link">/whatIbreathe</a> — What I Breathe</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>45</td><td><a href="/adsareinmyDNA" class="urls-url-link">/adsareinmyDNA</a> — Ads Are In My DNA</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>46</td><td><a href="/Ithinkincampaigns" class="urls-url-link">/Ithinkincampaigns</a> — I Think In Campaigns</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>47</td><td><a href="/Idreamincopy" class="urls-url-link">/Idreamincopy</a> — I Dream In Copy</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>48</td><td><a href="/mybrainisabrief" class="urls-url-link">/mybrainisabrief</a> — My Brain Is A Brief</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>49</td><td><a href="/strategymode" class="urls-url-link">/strategymode</a> — Strategy Mode</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>50</td><td><a href="/Ispeakdata" class="urls-url-link">/Ispeakdata</a> — I Speak Data</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>51</td><td><a href="/creativeondemand" class="urls-url-link">/creativeondemand</a> — Creative On Demand</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>52</td><td><a href="/funnelwhisperer" class="urls-url-link">/funnelwhisperer</a> — Funnel Whisperer</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Skills">
+              <td>53</td><td><a href="/clickmagnet" class="urls-url-link">/clickmagnet</a> — Click Magnet</td><td>Skills</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- FUTURISTIC (20) -->
+            <tr data-category="Futuristic">
+              <td>54</td><td><a href="/messagefrom2025" class="urls-url-link">/messagefrom2025</a> — Message From 2025</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>55</td><td><a href="/openitin2050" class="urls-url-link">/openitin2050</a> — Open It In 2050</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>56</td><td><a href="/dearaliens" class="urls-url-link">/dearaliens</a> — Dear Aliens</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>57</td><td><a href="/dearelon" class="urls-url-link">/dearelon</a> — Dear Elon</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>58</td><td><a href="/dearbillgates" class="urls-url-link">/dearbillgates</a> — Dear Bill Gates</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>59</td><td><a href="/dearfutureCEO" class="urls-url-link">/dearfutureCEO</a> — Dear Future CEO</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>60</td><td><a href="/ifAIfindsthis" class="urls-url-link">/ifAIfindsthis</a> — If AI Finds This</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>61</td><td><a href="/hellofromanotherplanet" class="urls-url-link">/hellofromanotherplanet</a> — Hello From Another Planet</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>62</td><td><a href="/timecapsule" class="urls-url-link">/timecapsule</a> — Time Capsule</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>63</td><td><a href="/sentfromthepast" class="urls-url-link">/sentfromthepast</a> — Sent From The Past</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>64</td><td><a href="/whenyoureadthis" class="urls-url-link">/whenyoureadthis</a> — When You Read This</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>65</td><td><a href="/beforeAGI" class="urls-url-link">/beforeAGI</a> — Before AGI</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>66</td><td><a href="/afterhumanity" class="urls-url-link">/afterhumanity</a> — After Humanity</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>67</td><td><a href="/postadvertising" class="urls-url-link">/postadvertising</a> — Post Advertising</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>68</td><td><a href="/theinternetremembers" class="urls-url-link">/theinternetremembers</a> — The Internet Remembers</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>69</td><td><a href="/lastadstanding" class="urls-url-link">/lastadstanding</a> — Last Ad Standing</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>70</td><td><a href="/dearmars" class="urls-url-link">/dearmars</a> — Dear Mars</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>71</td><td><a href="/signaltothestars" class="urls-url-link">/signaltothestars</a> — Signal To The Stars</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>72</td><td><a href="/proofiwashere" class="urls-url-link">/proofiwashere</a> — Proof I Was Here</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Futuristic">
+              <td>73</td><td><a href="/digitalfossil" class="urls-url-link">/digitalfossil</a> — Digital Fossil</td><td>Futuristic</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- PHILOSOPHY (15) -->
+            <tr data-category="Philosophy">
+              <td>74</td><td><a href="/adsarentdead" class="urls-url-link">/adsarentdead</a> — Ads Aren't Dead</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>75</td><td><a href="/whyadsmatter" class="urls-url-link">/whyadsmatter</a> — Why Ads Matter</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>76</td><td><a href="/beautifulinterruptions" class="urls-url-link">/beautifulinterruptions</a> — Beautiful Interruptions</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>77</td><td><a href="/theartoftheclick" class="urls-url-link">/theartoftheclick</a> — The Art Of The Click</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>78</td><td><a href="/attentionisacurrency" class="urls-url-link">/attentionisacurrency</a> — Attention Is A Currency</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>79</td><td><a href="/everyoneisanad" class="urls-url-link">/everyoneisanad</a> — Everyone Is An Ad</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>80</td><td><a href="/youaretheproduct" class="urls-url-link">/youaretheproduct</a> — You Are The Product</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>81</td><td><a href="/theadthatneverlaunched" class="urls-url-link">/theadthatneverlaunched</a> — The Ad That Never Launched</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>82</td><td><a href="/ifsocietywasanad" class="urls-url-link">/ifsocietywasanad</a> — If Society Was An Ad</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>83</td><td><a href="/adsforgood" class="urls-url-link">/adsforgood</a> — Ads For Good</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>84</td><td><a href="/theperfectad" class="urls-url-link">/theperfectad</a> — The Perfect Ad</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>85</td><td><a href="/adsarelove" class="urls-url-link">/adsarelove</a> — Ads Are Love</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>86</td><td><a href="/unsoldideas" class="urls-url-link">/unsoldideas</a> — Unsold Ideas</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>87</td><td><a href="/killedcampaigns" class="urls-url-link">/killedcampaigns</a> — Killed Campaigns</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Philosophy">
+              <td>88</td><td><a href="/ideagraveyard" class="urls-url-link">/ideagraveyard</a> — Idea Graveyard</td><td>Philosophy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- EASTER EGGS (15) -->
+            <tr data-category="Easter Eggs">
+              <td>89</td><td><a href="/oops" class="urls-url-link">/oops</a> — Oops</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>90</td><td><a href="/youfoundme" class="urls-url-link">/youfoundme</a> — You Found Me</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>91</td><td><a href="/congratulations" class="urls-url-link">/congratulations</a> — Congratulations</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>92</td><td><a href="/secretlevel" class="urls-url-link">/secretlevel</a> — Secret Level</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>93</td><td><a href="/theredpill" class="urls-url-link">/theredpill</a> — The Red Pill</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>94</td><td><a href="/theotherdoor" class="urls-url-link">/theotherdoor</a> — The Other Door</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>95</td><td><a href="/downtherabbithole" class="urls-url-link">/downtherabbithole</a> — Down The Rabbit Hole</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>96</td><td><a href="/thispagedoesntexist" class="urls-url-link">/thispagedoesntexist</a> — This Page Doesn't Exist</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>97</td><td><a href="/ormaybeitdoes" class="urls-url-link">/ormaybeitdoes</a> — Or Maybe It Does</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>98</td><td><a href="/glitchinthematrix" class="urls-url-link">/glitchinthematrix</a> — Glitch In The Matrix</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>99</td><td><a href="/404butonpurpose" class="urls-url-link">/404butonpurpose</a> — 404 But On Purpose</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>100</td><td><a href="/hiddeninplainsight" class="urls-url-link">/hiddeninplainsight</a> — Hidden In Plain Sight</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>101</td><td><a href="/noonewilleverseethis" class="urls-url-link">/noonewilleverseethis</a> — No One Will Ever See This</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>102</td><td><a href="/exceptyou" class="urls-url-link">/exceptyou</a> — Except You</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Easter Eggs">
+              <td>103</td><td><a href="/nowwhat" class="urls-url-link">/nowwhat</a> — Now What</td><td>Easter Eggs</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- PREDICTIONS (15) -->
+            <tr data-category="Predictions">
+              <td>104</td><td><a href="/adsin2030" class="urls-url-link">/adsin2030</a> — Ads In 2030</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>105</td><td><a href="/adsin2040" class="urls-url-link">/adsin2040</a> — Ads In 2040</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>106</td><td><a href="/adsin2100" class="urls-url-link">/adsin2100</a> — Ads In 2100</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>107</td><td><a href="/whatcomesafterreels" class="urls-url-link">/whatcomesafterreels</a> — What Comes After Reels</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>108</td><td><a href="/aftergoogle" class="urls-url-link">/aftergoogle</a> — After Google</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>109</td><td><a href="/afterinstagram" class="urls-url-link">/afterinstagram</a> — After Instagram</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>110</td><td><a href="/whentiktokdies" class="urls-url-link">/whentiktokdies</a> — When TikTok Dies</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>111</td><td><a href="/thenextbigplatform" class="urls-url-link">/thenextbigplatform</a> — The Next Big Platform</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>112</td><td><a href="/neuromarketing" class="urls-url-link">/neuromarketing</a> — Neuromarketing</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>113</td><td><a href="/adsintheMetaverse" class="urls-url-link">/adsintheMetaverse</a> — Ads In The Metaverse</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>114</td><td><a href="/adsonmars" class="urls-url-link">/adsonmars</a> — Ads On Mars</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>115</td><td><a href="/adsinspace" class="urls-url-link">/adsinspace</a> — Ads In Space</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>116</td><td><a href="/brainads" class="urls-url-link">/brainads</a> — Brain Ads</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>117</td><td><a href="/dreamtargeting" class="urls-url-link">/dreamtargeting</a> — Dream Targeting</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Predictions">
+              <td>118</td><td><a href="/adsinVR" class="urls-url-link">/adsinVR</a> — Ads In VR</td><td>Predictions</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- STORYTELLING (10) -->
+            <tr data-category="Storytelling">
+              <td>119</td><td><a href="/thedayIquit" class="urls-url-link">/thedayIquit</a> — The Day I Quit</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>120</td><td><a href="/thedayIstarted" class="urls-url-link">/thedayIstarted</a> — The Day I Started</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>121</td><td><a href="/myworstcampaign" class="urls-url-link">/myworstcampaign</a> — My Worst Campaign</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>122</td><td><a href="/mybestcampaign" class="urls-url-link">/mybestcampaign</a> — My Best Campaign</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>123</td><td><a href="/midnightonadeadline" class="urls-url-link">/midnightonadeadline</a> — Midnight On A Deadline</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>124</td><td><a href="/whatclientsreallymean" class="urls-url-link">/whatclientsreallymean</a> — What Clients Really Mean</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>125</td><td><a href="/thanksmom" class="urls-url-link">/thanksmom</a> — Thanks Mom</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>126</td><td><a href="/thedayanadchangedmylife" class="urls-url-link">/thedayanadchangedmylife</a> — The Day An Ad Changed My Life</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>127</td><td><a href="/whyIdothis" class="urls-url-link">/whyIdothis</a> — Why I Do This</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Storytelling">
+              <td>128</td><td><a href="/burnoutandback" class="urls-url-link">/burnoutandback</a> — Burnout And Back</td><td>Storytelling</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- INTERACTIVE (10) -->
+            <tr data-category="Interactive">
+              <td>129</td><td><a href="/pitchme" class="urls-url-link">/pitchme</a> — Pitch Me</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>130</td><td><a href="/solvethis" class="urls-url-link">/solvethis</a> — Solve This</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>131</td><td><a href="/canyoubeatmyad" class="urls-url-link">/canyoubeatmyad</a> — Can You Beat My Ad</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>132</td><td><a href="/writemeabettercopy" class="urls-url-link">/writemeabettercopy</a> — Write Me A Better Copy</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>133</td><td><a href="/ratethisad" class="urls-url-link">/ratethisad</a> — Rate This Ad</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>134</td><td><a href="/guessmyCTR" class="urls-url-link">/guessmyCTR</a> — Guess My CTR</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>135</td><td><a href="/adorbad" class="urls-url-link">/adorbad</a> — Ad Or Bad</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>136</td><td><a href="/realorai" class="urls-url-link">/realorai</a> — Real Or AI</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>137</td><td><a href="/spotthefakead" class="urls-url-link">/spotthefakead</a> — Spot The Fake Ad</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Interactive">
+              <td>138</td><td><a href="/buildanadwithme" class="urls-url-link">/buildanadwithme</a> — Build An Ad With Me</td><td>Interactive</td><td><span class="urls-status">Active</span></td>
+            </tr>
+
+            <!-- LEGACY (10) -->
+            <tr data-category="Legacy">
+              <td>139</td><td><a href="/firstpost" class="urls-url-link">/firstpost</a> — First Post</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>140</td><td><a href="/lastpost" class="urls-url-link">/lastpost</a> — Last Post</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>141</td><td><a href="/page1of1000" class="urls-url-link">/page1of1000</a> — Page 1 of 1000</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>142</td><td><a href="/day1" class="urls-url-link">/day1</a> — Day 1</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>143</td><td><a href="/year1" class="urls-url-link">/year1</a> — Year 1</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>144</td><td><a href="/milliondollaridea" class="urls-url-link">/milliondollaridea</a> — Million Dollar Idea</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>145</td><td><a href="/thebeginning" class="urls-url-link">/thebeginning</a> — The Beginning</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>146</td><td><a href="/theend" class="urls-url-link">/theend</a> — The End</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>147</td><td><a href="/untilnexttime" class="urls-url-link">/untilnexttime</a> — Until Next Time</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+            <tr data-category="Legacy">
+              <td>148</td><td><a href="/seeyouontheotherside" class="urls-url-link">/seeyouontheotherside</a> — See You On The Other Side</td><td>Legacy</td><td><span class="urls-status">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <footer data-testid="footer-section" class="relative py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5"><div class="max-w-[1200px] mx-auto px-6 md:px-12"><div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16"><div style="opacity: 1; transform: none;"><h3 class="text-3xl md:text-4xl font-bold text-white font-['Space_Grotesk'] mb-4 tracking-tight">Stay Ahead of<br>the Curve</h3><p class="text-zinc-400 text-lg mb-8 max-w-md">Get exclusive insights on AI advertising, delivered to your inbox.</p><form class="flex gap-3"><input placeholder="Enter your email" data-testid="newsletter-input" class="newsletter-input flex-1 px-5 py-4 rounded-full text-white placeholder-zinc-500 font-medium" required="" type="email" value=""><button type="submit" data-testid="newsletter-submit" data-hoverable="true" class="glow-button w-14 h-14 rounded-full bg-cyan-500 text-black flex items-center justify-center hover:bg-cyan-400" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></button></form></div><div class="grid grid-cols-2 md:grid-cols-4 gap-8" style="opacity: 1; transform: none;"><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Platform</h4><ul class="space-y-3"><li><a href="https://demoai.adsgupta.com" target="_blank" rel="noopener noreferrer" data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm">AI Sandbox</a></li><li><a href="/#features" data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm">Features</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">Pricing</a></li></ul></div><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Resources</h4><ul class="space-y-3"><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/blog" data-discover="true">Blog</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">Documentation</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">API</a></li></ul></div><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Company</h4><ul class="space-y-3"><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/aboutme" data-discover="true">About</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/contact" data-discover="true">Contact</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">Careers</a></li></ul></div><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Legal</h4><ul class="space-y-3"><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/privacy" data-discover="true">Privacy Policy</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/terms" data-discover="true">Terms of Service</a></li></ul></div></div></div><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6"><div class="flex items-center gap-6"><a class="text-2xl font-bold text-white font-['Space_Grotesk']" href="/" data-discover="true">ADS<span class="text-cyan-400">GUPTA</span></a><span class="text-zinc-600 text-sm">© 2025 Ads Gupta. All rights reserved.</span></div><div class="flex items-center gap-4"><a href="#" data-testid="social-twitter" data-hoverable="true" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-twitter" aria-hidden="true"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg></a><a href="#" data-testid="social-linkedin" data-hoverable="true" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-linkedin" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg></a></div></div></div></footer>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    (function () {
+      var STORAGE_THEME = 'theme';
+      function setTheme(val) {
+        document.documentElement.setAttribute('data-theme', val === 'light' ? 'light' : 'dark');
+        try { localStorage.setItem(STORAGE_THEME, val === 'light' ? 'light' : 'dark'); } catch (e) {}
+      }
+      var lightBtn = document.getElementById('themeLight');
+      var darkBtn = document.getElementById('themeDark');
+      if (lightBtn) lightBtn.addEventListener('click', function () { setTheme('light'); });
+      if (darkBtn) darkBtn.addEventListener('click', function () { setTheme('dark'); });
+      var menuBtn = document.getElementById('navMenuBtn');
+      var siteNav = document.getElementById('siteNav');
+      if (menuBtn && siteNav) menuBtn.addEventListener('click', function () { siteNav.classList.toggle('open'); });
+
+      var searchInput = document.getElementById('urlsSearch');
+      var summaryEl = document.getElementById('urlsSummary');
+      var table = document.getElementById('urlsTable');
+      var rows = Array.prototype.slice.call(table.querySelectorAll('tbody tr'));
+      var filterButtons = Array.prototype.slice.call(document.querySelectorAll('.urls-filter-btn'));
+      var activeCategory = 'all';
+
+      function normalize(str) {
+        return (str || '').toLowerCase();
+      }
+
+      function applyFilters() {
+        var q = normalize(searchInput.value);
+        var visible = 0;
+        rows.forEach(function (row) {
+          var category = row.getAttribute('data-category');
+          var text = normalize(row.textContent);
+          var matchesCategory = (activeCategory === 'all') || (category === activeCategory);
+          var matchesSearch = !q || text.indexOf(q) !== -1;
+          var show = matchesCategory && matchesSearch;
+          row.classList.toggle('hidden-row', !show);
+          if (show) visible += 1;
+        });
+        summaryEl.textContent = visible + ' total pages';
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+      }
+      filterButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          filterButtons.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          activeCategory = btn.getAttribute('data-category');
+          applyFilters();
+        });
+      });
+
+      applyFilters();
+    })();
+  </script>
+</body>
+</html>
+

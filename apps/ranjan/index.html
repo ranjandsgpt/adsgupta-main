@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>(function(){var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t||'dark');})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050508">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="Ranjan Dasgupta is an AdTech product leader with $200M+ scale experience in programmatic advertising, CTV monetization, header bidding, and exchange strategy at InMobi.">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/">
+  <title>Ranjan Dasgupta | AdTech Product Leader — Programmatic, CTV & Web Monetization</title>
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Ranjan Dasgupta | AdTech Product Leader — Programmatic, CTV & Web Monetization">
+  <meta property="og:description" content="Ranjan Dasgupta is an AdTech product leader with $200M+ scale experience in programmatic advertising, CTV monetization, header bidding, and exchange strategy at InMobi.">
+  <meta property="og:image" content="https://ranjan.adsgupta.com/og-image.png">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ranjan Dasgupta | AdTech Product Leader — Programmatic, CTV & Web Monetization">
+  <meta name="twitter:description" content="Ranjan Dasgupta is an AdTech product leader with $200M+ scale experience in programmatic advertising, CTV monetization, header bidding, and exchange strategy at InMobi.">
+  <meta name="twitter:image" content="https://ranjan.adsgupta.com/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    html[data-theme="dark"] body {
+      background-image: radial-gradient(circle, rgba(0,212,170,0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      z-index: 9999;
+      padding: 0.75rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 0.5rem;
+    }
+    .skip-link:focus { left: 1rem; top: 1rem; }
+
+    /* Nav */
+    .home-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .home-nav-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-sans);
+    }
+    .home-nav-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .home-nav-name:hover { opacity: 0.85; }
+    .home-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .home-nav-links a {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 400;
+    }
+    .home-nav-links a:hover { color: var(--accent); }
+    .home-nav-audit {
+      display: inline-flex;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .home-nav-audit:hover { opacity: 0.9; }
+    .home-nav-adsgupta {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .home-nav-adsgupta:hover { text-decoration: underline; }
+    .home-nav-right { display: flex; align-items: center; gap: 16px; }
+    .home-nav-menu-btn {
+      display: none;
+      padding: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+    @media (max-width: 767px) {
+      .home-nav-links, .home-nav-audit { display: none; }
+      .home-nav-menu-btn { display: flex; align-items: center; justify-content: center; }
+      .home-nav.open .home-nav-links { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px; gap: 8px; }
+      .home-nav.open .home-nav-audit { display: inline-flex; }
+    }
+
+    /* Hero */
+    .home-hero {
+      text-align: center;
+      padding: 48px 20px 40px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .home-hero-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+    }
+    .home-hero-title {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+    .home-hero-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 24px;
+      line-height: 1.5;
+    }
+    .home-hero-btns {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .home-btn-primary {
+      display: inline-flex;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    .home-btn-primary:hover { opacity: 0.9; }
+    .home-btn-outline {
+      display: inline-flex;
+      padding: 10px 20px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .home-btn-outline:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* Metrics bar */
+    .home-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .home-metric {
+      padding: 14px 16px;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .home-metric:last-child { border-right: none; }
+    .home-metric-value {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+    html[data-theme="dark"] .home-metric-value {
+      text-shadow: 0 0 20px var(--metric-glow);
+    }
+    .home-metric-value.accent { color: var(--accent); }
+    .home-metric-label {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+    @media (max-width: 767px) {
+      .home-metrics { grid-template-columns: repeat(2, 1fr); }
+      .home-metric:nth-child(2) { border-right: none; }
+      .home-metric { border-right: none; border-bottom: 1px solid var(--border); }
+      .home-metric:nth-last-child(-n+2) { border-bottom: none; }
+    }
+
+    /* What I Build */
+    .home-section {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+    .home-section-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+    }
+    .home-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .home-card {
+      background: var(--card-bg);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .home-card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .home-card-desc {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .home-card-link {
+      font-size: 10px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .home-card-link:hover { text-decoration: underline; }
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .home-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 767px) {
+      .home-cards { grid-template-columns: 1fr; }
+    }
+
+    /* Timeline */
+    .home-timeline {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .home-timeline-item {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      border: 0.5px solid var(--border);
+    }
+    .home-timeline-item.highlight {
+      background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    }
+    .home-timeline-date {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+    .home-timeline-item.highlight .home-timeline-date { color: var(--accent); }
+    .home-timeline-company {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .home-timeline-role {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .home-timeline-item a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .home-timeline-item a:hover { opacity: 0.85; }
+    @media (max-width: 767px) {
+      .home-timeline { flex-direction: column; }
+      .home-timeline-item { min-width: auto; }
+    }
+    .home-timeline-item.flex-14 { flex: 1.4; }
+    .home-timeline-item.flex-08 { flex: 0.8; }
+    @media (max-width: 767px) {
+      .home-timeline-item.flex-14, .home-timeline-item.flex-08 { flex: 1; }
+    }
+
+    /* Insights */
+    .home-insights-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .home-insights-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .home-insights-link:hover { text-decoration: underline; }
+    .home-insights-grid {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .home-insight-card {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px;
+      background: var(--card-bg);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+    }
+    .home-insight-cat {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .home-insight-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .home-insight-title a { color: inherit; text-decoration: none; }
+    .home-insight-title a:hover { color: var(--accent); }
+    .home-insight-meta { font-size: 10px; color: var(--text-tertiary); }
+
+    /* Developer console */
+    .btn-terminal {
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .btn-terminal svg { width: 20px; height: 20px; }
+    .btn-terminal:hover {
+      background: rgba(34, 211, 238, 0.18);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .dev-trigger-fixed {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 120;
+      width: 44px;
+      height: 44px;
+    }
+    .dev-console {
+      position: fixed;
+      inset: 0;
+      z-index: 130;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .dev-console.is-open { display: flex; }
+    .dev-console-panel {
+      width: 100%;
+      max-width: 1000px;
+      max-height: 92vh;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      font-family: var(--font-mono);
+    }
+    .dev-console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .dev-console-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+    .dev-console-subtitle {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      margin-top: 0.15rem;
+    }
+    .dev-console-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.15rem;
+      line-height: 1;
+      transition: background 0.2s, color 0.2s, transform 0.1s;
+    }
+    .dev-console-close:hover {
+      background: rgba(248, 113, 113, 0.18);
+      color: #fca5a5;
+      transform: translateY(-1px);
+    }
+    .dev-console-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .dev-console-tab {
+      padding: 0.8rem 1.1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+      font-family: var(--font-mono);
+    }
+    .dev-console-tab:hover {
+      color: var(--text-primary);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .dev-console-tab.is-active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .dev-console-body {
+      flex: 1;
+      overflow: auto;
+      padding: 1.1rem;
+      background: var(--surface);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+    }
+    .dev-tab-pane { display: none; }
+    .dev-tab-pane.is-active { display: block; }
+    .dev-url-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .dev-url-input {
+      flex: 1;
+      padding: 0.7rem 0.9rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+    }
+    .dev-url-input::placeholder { color: var(--text-tertiary); }
+    .dev-url-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.5);
+    }
+    .dev-btn {
+      padding: 0.65rem 1.1rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      font-family: var(--font-mono);
+    }
+    .dev-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-0.5px);
+    }
+    .dev-btn.secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .dev-demo-view {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 55%), radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.12), transparent 60%);
+      padding: 1rem;
+    }
+    .demo-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.8rem;
+      font-size: 0.72rem;
+    }
+    .demo-toolbar a {
+      color: var(--accent);
+      text-decoration: none;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 0.25rem 0.55rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+    }
+    .demo-toolbar a:hover { text-decoration: underline; }
+    .demo-content {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 10px;
+      padding: 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-secondary);
+    }
+    .demo-content p { margin-bottom: 0.5rem; }
+    .demo-hyperlink {
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .summary-block,
+    .prompt-block {
+      margin-top: 0.6rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border);
+    }
+    .summary-block h4,
+    .prompt-block h4 {
+      font-size: 0.78rem;
+      margin-bottom: 0.25rem;
+      color: var(--text-primary);
+    }
+    .ads-block {
+      margin-top: 0.6rem;
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      border-radius: 6px;
+      border: 1px dashed var(--border);
+      padding: 0.35rem 0.5rem;
+      text-align: center;
+    }
+    .recommended-section {
+      margin-top: 0.6rem;
+      font-size: 0.72rem;
+    }
+    .recommended-section h4 {
+      margin-bottom: 0.25rem;
+      color: var(--text-primary);
+    }
+    .recommended-section .rec-item {
+      display: inline-block;
+      margin-right: 0.5rem;
+      margin-bottom: 0.25rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .recommended-section .rec-item:hover { text-decoration: underline; }
+
+    .dev-prototype-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      gap: 1rem;
+    }
+    .dev-prototype-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .dev-prototype-controls input[type="url"] {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+    }
+    .dev-prototype-controls input[type="url"]::placeholder { color: var(--text-tertiary); }
+    .dev-prototype-overlays {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.75rem;
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+    }
+    .dev-prototype-main {
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 0.75rem;
+    }
+    .dev-prototype-frame {
+      width: 100%;
+      min-height: 260px;
+      border: none;
+      border-radius: 8px;
+      background: #020617;
+    }
+    .dev-prototype-frame-wrap {
+      position: relative;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    .proto-overlay {
+      position: absolute;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px dashed rgba(34, 197, 94, 0.8);
+      color: #bbf7d0;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.4rem;
+    }
+    .proto-overlay.header-sticky { top: 0.5rem; left: 50%; transform: translateX(-50%); }
+    .proto-overlay.infeed { top: 45%; left: 50%; transform: translate(-50%, -50%); }
+    .proto-overlay.footer-sticky { bottom: 0.5rem; left: 50%; transform: translateX(-50%); }
+    .proto-overlay.proto-summarizer { right: 0.5rem; top: 1.5rem; }
+    .proto-overlay.proto-prompt { right: 0.5rem; bottom: 1.5rem; }
+    .proto-video-module {
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+      padding: 0.5rem 0.6rem;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      position: relative;
+    }
+    .proto-video-close {
+      position: absolute;
+      top: 0.35rem;
+      right: 0.4rem;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+
+    .dev-prototype-log {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #020617;
+      padding: 0.75rem;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    @media (max-width: 900px) {
+      .dev-prototype-wrap {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .dev-console {
+        padding: 1.25rem;
+      }
+      .dev-console-panel {
+        max-width: 100%;
+        max-height: 100vh;
+      }
+      .dev-console-body {
+        padding: 0.9rem;
+      }
+    }
+    @media (max-width: 767px) {
+      .home-insights-grid { flex-direction: column; }
+    }
+
+    /* Theme toggle in nav (site-wide) */
+    .site-theme-toggle { display: flex; align-items: center; gap: 6px; }
+    .site-theme-btn {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.5px solid var(--border); background: transparent;
+      cursor: pointer; padding: 0;
+    }
+    .site-theme-btn.dark { background: var(--text-primary); border-color: var(--text-primary); }
+    html[data-theme="light"] .site-theme-btn.light { background: var(--text-primary); border-color: var(--text-primary); }
+    html[data-theme="dark"] .site-theme-btn.dark { background: var(--text-primary); border-color: var(--text-primary); }
+    html[data-theme="dark"] .site-theme-btn.light { background: transparent; }
+  </style>
+  <!-- Footer: keep existing styles unchanged so footer looks the same -->
+  <style>
+    .footer-adsgupta {
+      position: relative;
+      z-index: 2;
+      padding: 4rem 0 4rem;
+      background: #0A0A0A;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta { padding: 6rem 0 4rem; }
+    }
+    .footer-adsgupta-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-inner { padding: 0 3rem; }
+    }
+    .footer-adsgupta-top {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+    @media (min-width: 1024px) {
+      .footer-adsgupta-top { grid-template-columns: 1fr 1fr; gap: 5rem; }
+    }
+    .footer-adsgupta-heading {
+      font-family: var(--font-sans);
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-heading { font-size: 2.25rem; }
+    }
+    .footer-adsgupta-desc {
+      font-size: 1.125rem;
+      color: #a1a1aa;
+      margin-bottom: 2rem;
+      max-width: 28rem;
+    }
+    .footer-adsgupta-form { display: flex; gap: 0.75rem; }
+    .footer-adsgupta-input {
+      flex: 1;
+      padding: 1rem 1.25rem;
+      border-radius: 9999px;
+      color: #fff;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .footer-adsgupta-input::placeholder { color: #71717a; }
+    .footer-adsgupta-input:focus {
+      outline: none;
+      border-color: rgba(34, 211, 238, 0.5);
+    }
+    .footer-adsgupta-submit {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 9999px;
+      background: #22d3ee;
+      color: #000;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer-adsgupta-submit:hover { background: #67e8f9; }
+    .footer-adsgupta-links {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-links { grid-template-columns: repeat(4, 1fr); }
+    }
+    .footer-adsgupta-col-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+    .footer-adsgupta-ul { list-style: none; }
+    .footer-adsgupta-ul li { margin-bottom: 0.75rem; }
+    .footer-adsgupta-ul a {
+      font-size: 0.875rem;
+      color: #71717a;
+      text-decoration: none;
+    }
+    .footer-adsgupta-ul a:hover { color: #fff; }
+    .footer-adsgupta-bottom {
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .footer-adsgupta-bottom { flex-direction: row; justify-content: space-between; }
+    }
+    .footer-adsgupta-brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-adsgupta-logo {
+      font-family: var(--font-sans);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+    }
+    .footer-adsgupta-logo-cyan { color: #22d3ee; }
+    .footer-adsgupta-copy { font-size: 0.875rem; color: #52525b; }
+    .footer-adsgupta-social { display: flex; gap: 1rem; }
+    .footer-adsgupta-social-btn {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #a1a1aa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer-adsgupta-social-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+
+  <!-- Schema.org: Person -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Ranjan Dasgupta",
+    "url": "https://ranjan.adsgupta.com",
+    "jobTitle": "Senior Manager, Web & CTV Exchange",
+    "worksFor": { "@type": "Organization", "name": "InMobi" },
+    "knowsAbout": ["Programmatic Advertising", "CTV Monetization", "Header Bidding", "Supply Path Optimization", "Yield Optimization", "AdTech", "AI in Advertising", "Prebid.js", "Google Ad Manager", "OpenRTB"],
+    "sameAs": ["https://www.linkedin.com/in/ranjandsgpt/", "https://adsgupta.com"],
+    "alumniOf": [
+      { "@type": "Organization", "name": "Google" },
+      { "@type": "Organization", "name": "Glance" },
+      { "@type": "Organization", "name": "Automatad" }
+    ],
+    "description": "AdTech product leader specializing in programmatic advertising, CTV monetization, and exchange-side strategy at $200M+ scale."
+  }
+  </script>
+  <!-- Schema.org: WebSite -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Ranjan Dasgupta — AdTech Product Leader",
+    "url": "https://ranjan.adsgupta.com",
+    "description": "Personal portfolio and insights from Ranjan Dasgupta on programmatic advertising, CTV monetization, and AdTech strategy.",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta" }
+  }
+  </script>
+  <!-- Schema.org: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Who is Ranjan Dasgupta?", "acceptedAnswer": { "@type": "Answer", "text": "Ranjan Dasgupta is an AdTech product leader and CTV monetization expert currently at InMobi, where he drives Web & CTV Exchange product strategy. He has over nine years of experience scaling programmatic advertising infrastructure." } },
+      { "@type": "Question", "name": "What does Ranjan Dasgupta specialize in?", "acceptedAnswer": { "@type": "Answer", "text": "Ranjan Dasgupta specializes in programmatic advertising, CTV monetization, header bidding, supply path optimization (SPO), yield management, and AI-driven advertising products. He has scaled monetization to more than $200M across Web, App, and CTV." } },
+      { "@type": "Question", "name": "Where has Ranjan Dasgupta worked?", "acceptedAnswer": { "@type": "Answer", "text": "Ranjan Dasgupta has held product and technical roles at InMobi (Senior Manager, Web & CTV Exchange), Glance (Product Monetization), Automatad (Product Strategy), and Google (Technical Specialist for DoubleClick, DFP, AdX, and AdSense)." } },
+      { "@type": "Question", "name": "How can I work with Ranjan Dasgupta?", "acceptedAnswer": { "@type": "Answer", "text": "You can explore his work on the portfolio and expertise pages or reach out via the contact page for consulting, speaking, or collaboration opportunities." } }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta →</a>
+      <div class="site-theme-toggle" aria-label="Theme">
+        <button type="button" class="site-theme-btn light" id="themeLight" aria-label="Light mode"></button>
+        <button type="button" class="site-theme-btn dark" id="themeDark" aria-label="Dark mode"></button>
+      </div>
+      <button type="button" class="site-nav-menu-btn" id="navMenuBtn" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <section class="home-hero" aria-labelledby="hero-heading">
+      <p class="home-hero-label">ADTECH PRODUCT LEADER · $200M+ SCALE</p>
+      <h1 class="home-hero-title" id="hero-heading">Building exchange infrastructure<br>for the programmable ad economy</h1>
+      <p class="home-hero-desc">Programmatic advertising, CTV monetization, and unified auction architecture across Web, App, and Connected TV at InMobi.</p>
+      <div class="home-hero-btns">
+        <a href="/work" class="home-btn-primary">View work</a>
+        <a href="/demo/exchange" class="home-btn-outline">Live exchange demo</a>
+      </div>
+    </section>
+
+    <section class="home-metrics" aria-label="Key metrics">
+      <div class="home-metric">
+        <div class="home-metric-value">$200M+</div>
+        <div class="home-metric-label">Revenue scaled</div>
+      </div>
+      <div class="home-metric">
+        <div class="home-metric-value">9+</div>
+        <div class="home-metric-label">Years in AdTech</div>
+      </div>
+      <div class="home-metric">
+        <div class="home-metric-value">3</div>
+        <div class="home-metric-label">Platforms unified</div>
+      </div>
+      <div class="home-metric">
+        <div class="home-metric-value accent">Web · App · CTV</div>
+        <div class="home-metric-label">Exchange coverage</div>
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="build-heading">
+      <h2 id="build-heading" class="home-section-label">WHAT I BUILD</h2>
+      <div class="home-cards">
+        <article class="home-card">
+          <h3 class="home-card-title">Exchange architecture</h3>
+          <p class="home-card-desc">OpenRTB, unified auctions, bid flow optimization, demand stack management.</p>
+          <a href="/exchange-architecture" class="home-card-link">InMobi · Glance →</a>
+          <a href="/exchange" class="home-card-link" style="margin-left:0.5rem;font-size:0.8em;opacity:0.9">Try MyExchange →</a>
+        </article>
+        <article class="home-card">
+          <h3 class="home-card-title">CTV monetization</h3>
+          <p class="home-card-desc">Connected TV exchange, SSAI/CSAI, ad podding, measurement.</p>
+          <a href="/ctv-monetization" class="home-card-link">InMobi Exchange →</a>
+        </article>
+        <article class="home-card">
+          <h3 class="home-card-title">Header bidding</h3>
+          <p class="home-card-desc">Prebid.js, server-side bidding, wrapper optimization, timeout tuning.</p>
+          <a href="/header-bidding" class="home-card-link">Glance · Automatad →</a>
+        </article>
+        <article class="home-card">
+          <h3 class="home-card-title">Yield optimization</h3>
+          <p class="home-card-desc">Floor pricing, bid shading, demand partner selection, A/B testing.</p>
+          <a href="/yield-optimization" class="home-card-link">$200M+ scaled →</a>
+        </article>
+        <article class="home-card">
+          <h3 class="home-card-title">Supply path optimization</h3>
+          <p class="home-card-desc">Bid deduplication, sellers.json, ads.txt, auction efficiency.</p>
+          <a href="/supply-path-optimization" class="home-card-link">Exchange-side SPO →</a>
+        </article>
+        <article class="home-card">
+          <h3 class="home-card-title">AI in advertising</h3>
+          <p class="home-card-desc">Agentic AI, contextual intelligence, AI-driven decisioning.</p>
+          <a href="/ai-in-advertising" class="home-card-link">AdsGupta platform →</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading" class="home-section-label">TIMELINE</h2>
+      <div class="home-timeline">
+        <a href="/work" class="home-timeline-item highlight flex-1">
+          <div class="home-timeline-date">2025 – present</div>
+          <div class="home-timeline-company">InMobi</div>
+          <div class="home-timeline-role">Web & CTV Exchange</div>
+        </a>
+        <a href="/work" class="home-timeline-item flex-14">
+          <div class="home-timeline-date">2020 – 2025</div>
+          <div class="home-timeline-company">Glance</div>
+          <div class="home-timeline-role">Product Monetization · $200M+</div>
+        </a>
+        <a href="/work" class="home-timeline-item flex-08">
+          <div class="home-timeline-date">2019 – 2020</div>
+          <div class="home-timeline-company">Automatad</div>
+          <div class="home-timeline-role">Product Strategy</div>
+        </a>
+        <a href="/work" class="home-timeline-item flex-1">
+          <div class="home-timeline-date">2015 – 2019</div>
+          <div class="home-timeline-company">Google</div>
+          <div class="home-timeline-role">DFP · AdX · AdSense</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="insights-heading">
+      <div class="home-insights-header">
+        <h2 id="insights-heading" class="home-section-label">LATEST INSIGHTS</h2>
+        <a href="/insights" class="home-insights-link">View all →</a>
+      </div>
+      <div class="home-insights-grid">
+        <article class="home-insight-card">
+          <span class="home-insight-cat">Programmatic</span>
+          <h3 class="home-insight-title"><a href="/insights#programmatic-advertising-101">Programmatic advertising in 2025: what product leaders need to know</a></h3>
+          <p class="home-insight-meta">6 min read</p>
+        </article>
+        <article class="home-insight-card">
+          <span class="home-insight-cat">CTV</span>
+          <h3 class="home-insight-title"><a href="/insights#ctv-monetization-guide">CTV monetization: building revenue at the convergence of TV and digital</a></h3>
+          <p class="home-insight-meta">7 min read</p>
+        </article>
+        <article class="home-insight-card">
+          <span class="home-insight-cat">Header bidding</span>
+          <h3 class="home-insight-title"><a href="/insights#header-bidding-optimization">Header bidding optimization: beyond the basics</a></h3>
+          <p class="home-insight-meta">5 min read</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <button type="button" class="btn-terminal dev-trigger-fixed" id="navDevTrigger" title="Developer console" aria-label="Open developer console">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+  </button>
+
+  <div class="dev-console" id="devConsole" role="dialog" aria-label="Developer console">
+    <div class="dev-console-panel">
+      <header class="dev-console-header">
+        <div>
+          <div class="dev-console-title">AdTech Control Center</div>
+          <div class="dev-console-subtitle">Unified monetization infrastructure</div>
+        </div>
+        <button type="button" class="dev-console-close" id="devConsoleClose" aria-label="Close">×</button>
+      </header>
+      <div class="dev-console-tabs">
+        <button type="button" class="dev-console-tab is-active" data-tab="monetization">[ AI MONETIZATION ]</button>
+        <button type="button" class="dev-console-tab" data-tab="prototype">[ PROTOTYPE ]</button>
+        <button type="button" class="dev-console-tab" data-tab="crawler">[ CRAWLER ]</button>
+        <button type="button" class="dev-console-tab" data-tab="adtag">[ AD TAG ]</button>
+        <button type="button" class="dev-console-tab" data-tab="prebid-gam">[ PREBID GAM API ]</button>
+      </div>
+      <div class="dev-console-body">
+        <div class="dev-tab-pane is-active" id="pane-monetization">
+          <div class="dev-demo-view" id="devDemoView">
+            <div class="demo-toolbar" id="demoToolbar">
+              <a href="#" data-demo-reset>Show article</a>
+              <a href="#" data-demo-topic="programmatic">Programmatic</a>
+              <a href="#" data-demo-topic="header-bidding">Header Bidding</a>
+              <a href="#" data-demo-topic="spo">SPO</a>
+              <a href="#" data-demo-topic="ai-monetization">AI Monetization</a>
+            </div>
+            <div class="demo-content" id="demoContent">
+              <div class="article-preview" id="articlePreview">
+                <p>Ecosystem of <span class="demo-hyperlink" data-demo-topic="programmatic">Programmatic Ad Serving</span>: What's next? Insights on solving invisible problems: <span class="demo-hyperlink" data-demo-topic="header-bidding">auction inefficiencies</span>, identity gaps, and siloed stacks. By integrating <span class="demo-hyperlink" data-demo-topic="spo">SPO &amp; Pricing Callouts</span>, we turn siloed stacks into predictable, revenue-compounding machines. Scale handles over 200M+ Revenue across Web and App.</p>
+              </div>
+              <div class="summary-block" id="demoSummaryBlock" style="display:none;">
+                <h4>Summary</h4>
+                <p id="demoSummaryText"></p>
+              </div>
+              <div class="prompt-block" id="demoPromptBlock" style="display:none;">
+                <h4>Prompt</h4>
+                <p id="demoPromptText"></p>
+              </div>
+              <div class="ads-block" id="demoAdsBlock">Ad slot · 300×250</div>
+              <div class="recommended-section" id="demoRecommended">
+                <h4>Recommended</h4>
+                <a href="#" class="rec-item" data-demo-topic="programmatic">Summarize: Programmatic 101</a>
+                <a href="#" class="rec-item" data-demo-topic="header-bidding">Summarize: Header Bidding Guide</a>
+                <a href="#" class="rec-item" data-demo-topic="ai-monetization">Summarize: AI Monetization</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dev-tab-pane" id="pane-prototype">
+          <div class="dev-prototype-wrap">
+            <div class="dev-prototype-controls">
+              <input type="url" id="prototypeUrl" placeholder="https://example.com" value="">
+              <button type="button" class="dev-btn" id="prototypeLoad">Load</button>
+            </div>
+            <div class="dev-prototype-overlays">
+              <label><input type="checkbox" id="overlayHeaderSticky"> Header sticky</label>
+              <label><input type="checkbox" id="overlayInfeed"> Infeed ad</label>
+              <label><input type="checkbox" id="overlayFooterSticky"> Footer sticky</label>
+              <label><input type="checkbox" id="overlayChatbot"> Chatbot</label>
+              <label><input type="checkbox" id="overlaySummarizer"> Summarizer</label>
+              <label><input type="checkbox" id="overlayPrompt"> Prompt</label>
+            </div>
+            <div class="dev-prototype-main">
+              <div class="dev-prototype-frame-wrap" id="prototypeFrameWrap">
+                <div class="proto-overlay header-sticky" id="protoHeaderSticky" style="display:none;">Header sticky ad</div>
+                <div class="proto-overlay infeed" id="protoInfeed" style="display:none;">Infeed 300×250</div>
+                <div class="proto-overlay footer-sticky" id="protoFooterSticky" style="display:none;">Footer sticky</div>
+                <div class="proto-overlay proto-summarizer" id="protoSummarizer" style="display:none;">Summarizer</div>
+                <div class="proto-overlay proto-prompt" id="protoPrompt" style="display:none;">Prompt</div>
+                <iframe class="dev-prototype-frame" id="prototypeFrame" title="Prototype preview"></iframe>
+              </div>
+              <div class="proto-video-module" id="protoVideoModule">
+                <button type="button" class="proto-video-close" id="mobileVideoClose" aria-label="Close video">×</button>
+                <div class="proto-video-placeholder">Vertical video · Close to open widget</div>
+              </div>
+            </div>
+            <div class="dev-prototype-log" id="prototypeLog">
+              <p>$ prototype logs will appear here…</p>
+            </div>
+          </div>
+        </div>
+        <div class="dev-tab-pane" id="pane-crawler">
+          <p>// Placeholder: crawler / audit pipeline UI from legacy console.</p>
+        </div>
+        <div class="dev-tab-pane" id="pane-adtag">
+          <div class="dev-url-row">
+            <input type="text" class="dev-url-input" id="adtagGptPath" placeholder="/1234567/example.com/home" value="">
+            <button type="button" class="dev-btn secondary" id="adtagCopy">Copy Tag</button>
+          </div>
+          <div class="dev-url-row">
+            <input type="text" class="dev-url-input" id="adtagDivId" placeholder="div-gpt-ad-123456789-0" value="">
+          </div>
+          <div class="dev-url-row">
+            <input type="text" class="dev-url-input" id="adtagSizes" placeholder="[[300,250],[320,50]]" value="">
+          </div>
+          <div class="dev-url-row">
+            <input type="text" class="dev-url-input" id="adtagPrebidPlacement" placeholder="prebid_placement_code" value="">
+          </div>
+          <div class="dev-url-row">
+            <input type="text" class="dev-url-input" id="adtagAmazonPubId" placeholder="pub-1234567890" value="">
+          </div>
+          <textarea class="dev-url-input" id="adtagOutput" rows="8" readonly placeholder="// Generated GPT / Prebid tag will appear here"></textarea>
+        </div>
+        <div class="dev-tab-pane" id="pane-prebid-gam">
+          <p>// Placeholder: Prebid + GAM API utilities from legacy console.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer data-testid="footer-section" class="relative py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5"><div class="max-w-[1200px] mx-auto px-6 md:px-12"><div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16"><div style="opacity: 1; transform: none;"><h3 class="text-3xl md:text-4xl font-bold text-white font-['Space_Grotesk'] mb-4 tracking-tight">Stay Ahead of<br>the Curve</h3><p class="text-zinc-400 text-lg mb-8 max-w-md">Get exclusive insights on AI advertising, delivered to your inbox.</p><form class="flex gap-3"><input placeholder="Enter your email" data-testid="newsletter-input" class="newsletter-input flex-1 px-5 py-4 rounded-full text-white placeholder-zinc-500 font-medium" required="" type="email" value=""><button type="submit" data-testid="newsletter-submit" data-hoverable="true" class="glow-button w-14 h-14 rounded-full bg-cyan-500 text-black flex items-center justify-center hover:bg-cyan-400" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></button></form></div><div class="grid grid-cols-2 md:grid-cols-4 gap-8" style="opacity: 1; transform: none;"><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Platform</h4><ul class="space-y-3"><li><a href="https://demoai.adsgupta.com" target="_blank" rel="noopener noreferrer" data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm">AI Sandbox</a></li><li><a href="/#features" data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm">Features</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">Pricing</a></li></ul></div><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Resources</h4><ul class="space-y-3"><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/blog" data-discover="true">Blog</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">Documentation</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">API</a></li></ul></div><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Company</h4><ul class="space-y-3"><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/aboutme" data-discover="true">About</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/contact" data-discover="true">Contact</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/" data-discover="true">Careers</a></li></ul></div><div><h4 class="text-white font-semibold mb-4 text-sm tracking-wide">Legal</h4><ul class="space-y-3"><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/privacy" data-discover="true">Privacy Policy</a></li><li><a data-hoverable="true" class="text-zinc-500 hover:text-white transition-colors duration-300 text-sm" href="/terms" data-discover="true">Terms of Service</a></li></ul></div></div></div><div class="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6"><div class="flex items-center gap-6"><a class="text-2xl font-bold text-white font-['Space_Grotesk']" href="/" data-discover="true">ADS<span class="text-cyan-400">GUPTA</span></a><span class="text-zinc-600 text-sm">© 2025 Ads Gupta. All rights reserved.</span></div><div class="flex items-center gap-4"><a href="#" data-testid="social-twitter" data-hoverable="true" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-twitter" aria-hidden="true"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg></a><a href="#" data-testid="social-linkedin" data-hoverable="true" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-linkedin" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg></a></div></div></div></footer>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    (function () {
+      var STORAGE_THEME = 'theme';
+      function setTheme(val) {
+        document.documentElement.setAttribute('data-theme', val === 'light' ? 'light' : 'dark');
+        try { localStorage.setItem(STORAGE_THEME, val === 'light' ? 'light' : 'dark'); } catch (e) {}
+      }
+      var lightBtn = document.getElementById('themeLight');
+      var darkBtn = document.getElementById('themeDark');
+      if (lightBtn) lightBtn.addEventListener('click', function () { setTheme('light'); });
+      if (darkBtn) darkBtn.addEventListener('click', function () { setTheme('dark'); });
+
+      var menuBtn = document.getElementById('navMenuBtn');
+      var siteNav = document.getElementById('siteNav');
+      if (menuBtn && siteNav) {
+        menuBtn.addEventListener('click', function () {
+          siteNav.classList.toggle('open');
+        });
+      }
+
+      var f = document.getElementById('footerNewsletterForm');
+      if (f) f.addEventListener('submit', function (e) { e.preventDefault(); });
+
+      var navDevTrigger = document.getElementById('navDevTrigger');
+      var consoleEl = document.getElementById('devConsole');
+      var closeBtn = document.getElementById('devConsoleClose');
+      var tabs = document.querySelectorAll('.dev-console-tab');
+      var copyBtn = document.getElementById('adtagCopy');
+      var formInputs = document.querySelectorAll('#adtagGptPath, #adtagDivId, #adtagSizes, #adtagPrebidPlacement, #adtagAmazonPubId');
+
+      function getAdTagScript() {
+        var path = document.getElementById('adtagGptPath').value || '/1234567/example.com/home';
+        var divId = document.getElementById('adtagDivId').value || 'div-gpt-ad-123456789-0';
+        var sizes = document.getElementById('adtagSizes').value || '[[300,250],[320,50]]';
+        var placement = document.getElementById('adtagPrebidPlacement').value || 'prebid_placement_code';
+        var pubId = document.getElementById('adtagAmazonPubId').value || 'pub-1234567890';
+        return [
+          "<script>",
+          "  var googletag = window.googletag || { cmd: [] };",
+          "  googletag.cmd.push(function() {",
+          "    var slot = googletag.defineSlot('" + path + "', " + sizes + ", '" + divId + "').addService(googletag.pubads());",
+          "    slot.setTargeting('hb_pb', '0.50');",
+          "    googletag.enableServices();",
+          "    googletag.display('" + divId + "');",
+          "  });",
+          "<\\/script>",
+          "",
+          "<div id=\"" + divId + "\"></div>",
+          "",
+          "<!-- Prebid / Amazon placeholders -->",
+          "// prebid placement: " + placement,
+          "// amazon pub id: " + pubId
+        ].join("\\n");
+      }
+
+      function updateAdTagOutput() {
+        var out = document.getElementById('adtagOutput');
+        if (out) out.value = getAdTagScript();
+      }
+
+      function openDevConsole() {
+        if (!consoleEl) return;
+        consoleEl.classList.add('is-open');
+        updateAdTagOutput();
+      }
+      if (navDevTrigger) navDevTrigger.addEventListener('click', openDevConsole);
+
+      if (closeBtn && consoleEl) {
+        closeBtn.addEventListener('click', function () {
+          consoleEl.classList.remove('is-open');
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && consoleEl.classList.contains('is-open')) {
+            consoleEl.classList.remove('is-open');
+          }
+        });
+        consoleEl.addEventListener('click', function (e) {
+          if (e.target === consoleEl) consoleEl.classList.remove('is-open');
+        });
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var target = tab.getAttribute('data-tab');
+          tabs.forEach(function (t) { t.classList.remove('is-active'); });
+          tab.classList.add('is-active');
+          var panes = document.querySelectorAll('.dev-tab-pane');
+          panes.forEach(function (pane) {
+            pane.classList.toggle('is-active', pane.id === 'pane-' + target);
+          });
+        });
+      });
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+          var out = document.getElementById('adtagOutput');
+          if (!out) return;
+          out.select();
+          try { document.execCommand('copy'); } catch (e) {}
+        });
+      }
+
+      if (formInputs && formInputs.length) {
+        formInputs.forEach(function (el) {
+          el.addEventListener('input', updateAdTagOutput);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

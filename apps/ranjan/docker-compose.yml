@@ -1,0 +1,64 @@
+# AdsGupta Micro-Exchange — local / single-server deploy
+# Usage: docker compose up -d
+# Exchange: http://localhost:3001  Dashboard: http://localhost:3000  Test bidder: :3002
+
+services:
+  exchange:
+    build:
+      context: ./exchange
+      dockerfile: Dockerfile
+    ports: ["3001:3001"]
+    environment:
+      PORT: 3001
+      TEST_BIDDER_ENDPOINT: http://test-bidder:3002/bid
+      DATABASE_URL: postgresql://exchange:${DB_PASSWORD:-exchange}@postgres:5432/exchange
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+      - test-bidder
+    restart: unless-stopped
+
+  dashboard:
+    build: ./dashboard
+    ports: ["3000:3000"]
+    environment:
+      # Browser calls exchange; use host when same machine (e.g. localhost:3001)
+      NEXT_PUBLIC_EXCHANGE_API_URL: ${NEXT_PUBLIC_EXCHANGE_API_URL:-http://localhost:3001}
+    depends_on: [exchange]
+    restart: unless-stopped
+
+  test-bidder:
+    build:
+      context: ./exchange
+      dockerfile: Dockerfile.test-bidder
+    ports: ["3002:3002"]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    environment:
+      POSTGRES_DB: exchange
+      POSTGRES_USER: exchange
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-exchange}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exchange"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes: ["redisdata:/data"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
+  redisdata:
