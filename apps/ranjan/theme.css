@@ -581,3 +581,73 @@ html[data-theme='light'] [style*='background:#0a0d13'] { background: #ffffff !im
 /* Links */
 html[data-theme='light'] a { color: #0d7377; }
 html[data-theme='light'] a:hover { color: #0a5c60; }
+
+/* Footer is ALWAYS dark — never affected by theme */
+.footer-adsgupta,
+.adsg-footer,
+#site-footer,
+#site-footer * {
+  color-scheme: dark;
+}
+.footer-adsgupta { background: #0A0A0A !important; }
+
+/* Page background and base text */
+html[data-theme='light'] html { background: #fafaf9 !important; }
+html[data-theme='light'] main { background: #fafaf9 !important; color: #1a1a1a !important; }
+
+/* All text elements */
+html[data-theme='light'] p { color: #374151 !important; }
+html[data-theme='light'] h1 { color: #111827 !important; }
+html[data-theme='light'] h2 { color: #1f2937 !important; }
+html[data-theme='light'] h3 { color: #1f2937 !important; }
+html[data-theme='light'] h4 { color: #374151 !important; }
+
+/* Site nav */
+html[data-theme='light'] .site-nav { background: rgba(250,250,249,0.95) !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
+
+/* Hero section */
+html[data-theme='light'] .home-hero { background: transparent !important; }
+html[data-theme='light'] .home-hero-label { color: #6b7280 !important; }
+html[data-theme='light'] .home-hero-title { color: #111827 !important; }
+html[data-theme='light'] .home-hero-desc { color: #4b5563 !important; }
+html[data-theme='light'] .home-btn-outline { color: #374151 !important; border-color: rgba(0,0,0,0.15) !important; }
+
+/* Metrics bar */
+html[data-theme='light'] .home-metrics { background: #fafaf9 !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .home-metric { border-color: rgba(0,0,0,0.08) !important; background: #fafaf9 !important; }
+html[data-theme='light'] .home-metric-value { color: #111827 !important; text-shadow: none !important; }
+html[data-theme='light'] .home-metric-label { color: #6b7280 !important; }
+
+/* Cards */
+html[data-theme='light'] .home-card { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important; }
+html[data-theme='light'] .home-card-title { color: #111827 !important; }
+html[data-theme='light'] .home-card-desc { color: #6b7280 !important; }
+
+/* Timeline */
+html[data-theme='light'] .home-timeline-item { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .home-timeline-item.highlight { background: rgba(13,115,119,0.06) !important; }
+html[data-theme='light'] .home-timeline-company { color: #111827 !important; }
+html[data-theme='light'] .home-timeline-role { color: #6b7280 !important; }
+html[data-theme='light'] .home-timeline-date { color: #9ca3af !important; }
+
+/* Insight cards */
+html[data-theme='light'] .home-insight-card { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .home-insight-title { color: #111827 !important; }
+html[data-theme='light'] .home-insight-meta { color: #9ca3af !important; }
+
+/* Section labels */
+html[data-theme='light'] .home-section-label { color: #6b7280 !important; }
+html[data-theme='light'] .home-insights-header .home-section-label { color: #6b7280 !important; }
+
+/* About, Work, Insights, Contact pages */
+html[data-theme='light'] .site-content { background: #fafaf9 !important; color: #1a1a1a !important; }
+html[data-theme='light'] .page-header { background: #fafaf9 !important; }
+html[data-theme='light'] .page-header h1 { color: #111827 !important; }
+html[data-theme='light'] .page-header p { color: #4b5563 !important; }
+
+/* Dev console trigger button */
+html[data-theme='light'] .btn-terminal { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; color: #374151 !important; }
+
+/* Explicit background fix for sections that use surface vars */
+html[data-theme='light'] section { background: transparent !important; }
+html[data-theme='light'] .home-section { background: transparent !important; }
