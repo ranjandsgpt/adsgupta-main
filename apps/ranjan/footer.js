@@ -171,7 +171,7 @@
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1.5"
+                stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 aria-hidden="true"
@@ -195,7 +195,7 @@
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1.5"
+                stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 aria-hidden="true"
@@ -211,7 +211,7 @@
     </footer>
   `;
 
-  const CSS = `
+  const CSS_RAW = `
     .adsg-footer{
       background:#0A0A0A;
       border-top:1px solid rgba(255,255,255,0.05);
@@ -232,7 +232,8 @@
     .adsg-footer__main{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:60px;
+      gap:80px;
+      margin-bottom:64px !important;
     }
 
     .adsg-footer__title{
@@ -245,9 +246,9 @@
     }
 
     .adsg-footer__subtitle{
-      color:#a1a1aa;
+      color:#a1a1aa !important;
       font-size:18px;
-      margin:0 0 32px 0;
+      margin:0 0 32px 0 !important;
       max-width:400px;
     }
 
@@ -307,11 +308,11 @@
     }
 
     .adsg-footer__heading{
-      color:#a1a1aa;
-      font-size:13px;
-      font-weight:500;
-      letter-spacing:0.05em;
-      margin:0 0 16px 0;
+      color:#ffffff !important;
+      font-size:14px !important;
+      font-weight:600 !important;
+      letter-spacing:0.025em !important;
+      margin:0 0 16px 0 !important;
       font-family:'Space Grotesk', sans-serif;
       text-transform:none;
     }
@@ -323,19 +324,19 @@
     }
 
     .adsg-footer__link{
-      color:#71717a;
-      font-size:14px;
-      text-decoration:none;
-      display:block;
-      margin-bottom:10px;
-      white-space:nowrap;
-      transition:color 0.3s;
+      color:#71717a !important;
+      font-size:14px !important;
+      text-decoration:none !important;
+      display:block !important;
+      margin-bottom:12px !important;
+      transition: color 0.3s !important;
+      white-space:nowrap !important;
       font-family:'Space Grotesk', sans-serif;
     }
 
     .adsg-footer__list li:last-child .adsg-footer__link{margin-bottom:0;}
 
-    .adsg-footer__link:hover{color:#ffffff;}
+    .adsg-footer__link:hover{color:#ffffff !important;}
 
     .adsg-footer__bottom{
       display:flex;
@@ -344,7 +345,7 @@
       padding-top:32px;
       border-top:1px solid rgba(255,255,255,0.05);
       flex-wrap:wrap;
-      gap:16px;
+      gap:24px;
     }
 
     .adsg-footer__brand{
@@ -401,7 +402,7 @@
 
       .adsg-footer__main{
         grid-template-columns:1fr;
-        gap:40px;
+        gap:48px;
       }
 
       .adsg-footer__title{font-size:32px;}
@@ -414,7 +415,7 @@
       .adsg-footer__bottom{
         flex-direction:column;
         align-items:center;
-        gap:16px;
+        gap:24px;
         text-align:center;
       }
 
@@ -430,6 +431,22 @@
       }
     }
   `;
+
+  function applyImportantToFooterCSS(css) {
+    // Add !important to the most commonly overridden properties so footer styling stays stable.
+    // NOTE: This only modifies declarations, not selectors.
+    return String(css).replace(
+      /\b(color|font-weight|font-size|background|border|padding|margin)(-[a-z-]+)*\s*:\s*([^;]+);/gi,
+      (match, prop, suffix, value) => {
+        const fullProp = `${prop}${suffix || ""}`;
+        const v = String(value).trim();
+        if (/!important\s*$/i.test(v)) return match;
+        return `${fullProp}: ${v} !important;`;
+      }
+    );
+  }
+
+  const CSS = applyImportantToFooterCSS(CSS_RAW);
 
   function ensureFontAndStyles() {
     // Inject the Space Grotesk font link only if it doesn't already exist.
