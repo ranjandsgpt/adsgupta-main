@@ -2,6 +2,20 @@
   const FONT_CDN_URL =
     "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap";
 
+  // Exclude the /exchange route from the unified footer.
+  // Even if a page accidentally includes /footer.js, we won't inject styles/markup there.
+  const SKIP_EXCHANGE = (() => {
+    try {
+      if (typeof window === "undefined" || !window.location) return false;
+      const p = window.location.pathname || "";
+      return p === "/exchange" || p.startsWith("/exchange/");
+    } catch (_) {
+      return false;
+    }
+  })();
+
+  if (SKIP_EXCHANGE) return;
+
   const MASTER_FOOTER_HTML = `
     <footer class="adsg-footer" data-testid="footer-section" role="contentinfo">
       <div class="adsg-footer__container">
