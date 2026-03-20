@@ -224,8 +224,15 @@
       color-scheme: dark !important;
     }
     footer[data-testid="footer-section"] a{
-      color:inherit !important;
+      /* Pin link color explicitly so browser :visited doesn't override it. */
+      color:#6f6f70 !important;
       text-decoration:none !important;
+    }
+    footer[data-testid="footer-section"] a:visited{
+      color:#6f6f70 !important;
+    }
+    footer[data-testid="footer-section"] a:active{
+      color:#6f6f70 !important;
     }
     footer[data-testid="footer-section"] a:hover{
       color:#ffffff !important;
