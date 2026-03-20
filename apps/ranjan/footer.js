@@ -239,7 +239,7 @@
     .adsg-footer__title{
       font-size:40px;
       font-weight:700;
-      color:#ffffff;
+      color:#ffffff !important;
       line-height:1.2;
       margin:0 0 16px 0;
       font-family:'Space Grotesk', sans-serif;
