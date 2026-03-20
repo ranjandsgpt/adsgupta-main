@@ -47,7 +47,9 @@
     .lp-inner .scale-cta{margin-top:2rem;padding:1.5rem;background:rgba(0,242,255,0.06);border:1px solid rgba(0,242,255,0.2);border-radius:12px;}
     .lp-inner .related-list{list-style:none;padding:0;}
     .lp-inner .related-list li{margin-bottom:0.5rem;}
-    header, main, footer { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+    /* Scope layout sizing to page header/main only.
+       Do NOT style the injected unified footer element. */
+    header, main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
     header { padding-top: 2.5rem; }
     .hero { padding: 2rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.3); }
     .hero h1 { font-size: 2.25rem; margin-bottom: 0.5rem; color: #f9fafb; }
