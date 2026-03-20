@@ -212,11 +212,38 @@
   `;
 
   const CSS_RAW = `
+    /* Prevent apps/ranjan/theme.css from ever re-coloring the injected footer.
+       theme.css targets footer[data-testid="footer-section"] with normal specificity,
+       so we pin the same selectors here with !important. */
+    footer[data-testid="footer-section"]{
+      background:#0A0A0A !important;
+      border-top:1px solid rgba(255,255,255,0.05) !important;
+      padding:64px 0 !important;
+      color:#e5e7eb !important;
+      font-family:'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      color-scheme: dark !important;
+    }
+    footer[data-testid="footer-section"] a{
+      color:inherit !important;
+      text-decoration:none !important;
+    }
+    footer[data-testid="footer-section"] a:hover{
+      color:#ffffff !important;
+    }
+    footer[data-testid="footer-section"] h3,
+    footer[data-testid="footer-section"] h4{
+      color:#ffffff !important;
+    }
+    footer[data-testid="footer-section"] p{
+      color:rgba(161,161,170,1) !important;
+    }
+
     .adsg-footer{
       background:#0A0A0A;
       border-top:1px solid rgba(255,255,255,0.05);
       padding:64px 0;
       font-family:'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      color:#e5e7eb !important;
     }
 
     .adsg-footer, .adsg-footer *{
@@ -264,13 +291,13 @@
       border:1px solid rgba(255,255,255,0.08);
       border-radius:9999px;
       padding:16px 20px;
-      color:#ffffff;
+      color:#ffffff !important;
       font-size:15px;
       font-family:'Space Grotesk', sans-serif;
       outline:none;
     }
 
-    .adsg-footer__input::placeholder{color:#71717a;}
+    .adsg-footer__input::placeholder{color:#71717a !important;}
 
     .adsg-footer__input:focus{
       border-color:rgba(6,182,212,0.5);
@@ -282,7 +309,7 @@
       height:56px;
       min-width:56px;
       border-radius:50%;
-      background:#06b6d4;
+      background:#06b6d4 !important;
       border:none;
       cursor:pointer;
       display:flex;
@@ -291,10 +318,10 @@
       flex-shrink:0;
     }
 
-    .adsg-footer__submit:hover{background:#22d3ee;}
+    .adsg-footer__submit:hover{background:#22d3ee !important;}
 
     .adsg-footer__success{
-      color:#22d3ee;
+      color:#22d3ee !important;
       font-size:14px;
       margin-top:12px;
       display:none;
@@ -343,7 +370,7 @@
       justify-content:space-between;
       align-items:center;
       padding-top:32px;
-      border-top:1px solid rgba(255,255,255,0.05);
+      border-top:1px solid rgba(255,255,255,0.05) !important;
       flex-wrap:wrap;
       gap:24px;
     }
@@ -355,17 +382,17 @@
     }
 
     .adsg-footer__brand-link{
-      color:#ffffff;
+      color:#ffffff !important;
       font-family:'Space Grotesk', sans-serif;
       font-size:24px;
       font-weight:700;
       text-decoration:none;
     }
 
-    .adsg-footer__brand-accent{color:#22d3ee;}
+    .adsg-footer__brand-accent{color:#22d3ee !important;}
 
     .adsg-footer__copyright{
-      color:#52525b;
+      color:#52525b !important;
       font-size:14px;
       margin-left:24px;
     }
@@ -386,14 +413,25 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      color:#a1a1aa;
+      color:#a1a1aa !important;
       text-decoration:none;
       transition:all 0.3s;
     }
 
     .adsg-footer__icon:hover{
       background:rgba(255,255,255,0.1);
-      color:#ffffff;
+      color:#ffffff !important;
+    }
+
+    /* Force SVG colors to track our pinned color, even if theme.css tweaks inherited values. */
+    .adsg-footer__icon svg{
+      fill:none !important;
+      stroke:currentColor !important;
+    }
+    /* Newsletter submit arrow is currently a hard-coded dark stroke; pin it. */
+    .adsg-footer__submit svg{
+      fill:none !important;
+      stroke:#000000 !important;
     }
 
     @media (max-width: 768px){
