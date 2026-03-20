@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/theme.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Creative Scanning in Exchanges: Malware Brand Safety and Policy | Ranjan Dasgupta</title>
@@ -16,9 +15,6 @@
   <meta property="og:site_name" content="Ranjan Dasgupta">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://ranjan.adsgupta.com/blog/creative-scanning-exchanges">
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/footer.js"></script>
-  <script src="/seo.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,8 +27,11 @@
     "url": "https://ranjan.adsgupta.com/blog/creative-scanning-exchanges"
   }
   </script>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/blog.css">
 </head>
 <body>
+  <div class='reading-progress' id='reading-progress'></div>
   <nav class="site-nav" id="siteNav" aria-label="Primary">
     <div class="site-nav-brand">
       <div class="site-nav-avatar" aria-hidden="true">RD</div>
@@ -51,26 +50,22 @@
       <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
     </div>
   </nav>
-  <main id="main-content" class="blog-post">
-    <article>
-      <header class="blog-post-header">
-        <div class="blog-post-meta">
-          <span class="blog-post-category">Programmatic Advertising</span>
-          <span class="blog-post-read-time">7 min read</span>
-        </div>
-        <h1>Creative Scanning in Exchanges: Malware Brand Safety and Policy</h1>
-        <p class="blog-post-subtitle">Protecting publishers from bad ads.</p>
-        <div class="blog-post-author">
-          <div class="author-avatar">RD</div>
-          <div>
-            <strong>Ranjan Dasgupta</strong>
-            <span>AdTech Product Leader &middot; InMobi</span>
-          </div>
+  <main id="main-content" class="flex-1">
+    <div class="shell post-layout">
+      <header class="post-header">
+        <p class="hero-kicker">The Archives · Programmatic Advertising</p>
+        <h1 class="post-title">Creative Scanning in Exchanges: Malware Brand Safety and Policy</h1>
+        <p class="hero-description" style="margin-top: 1.25rem;">How exchanges scan and filter ad creatives</p>
+        <div class="post-meta-row">
+          <span class="meta-pill">By Ranjan Dasgupta</span>
+          <span class="chip chip-muted">Programmatic Advertising</span>
+          <span class="meta-pill">7 min read</span>
+          <span class="chip chip-source chip-source-adsgupta"><span style="opacity: 0.8;">Source</span>&nbsp;·&nbsp;AdsGupta Neural Engine</span>
+          <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <div class="blog-post-content">
-
-        <p>As someone who has spent over a decade building advertising technology products — from Google's DFP and AdX platform through unified monetization at Glance to exchange architecture at InMobi — I bring a product-first perspective to creative scanning in exchanges that goes beyond surface-level explanations. This is the guide I wish existed when I started building in this space.</p>
+      <article class="prose">
+<p>As someone who has spent over a decade building advertising technology products — from Google's DFP and AdX platform through unified monetization at Glance to exchange architecture at InMobi — I bring a product-first perspective to creative scanning in exchanges that goes beyond surface-level explanations. This is the guide I wish existed when I started building in this space.</p>
         <h2>Why This Matters</h2>
         <p>Understanding creative scanning exchanges is fundamental to building effective programmatic advertising products. At InMobi, where I lead Web and CTV Exchange product strategy, every decision we make about exchange architecture, auction design, and signal quality connects back to these fundamentals. The publishers generating $200M+ in programmatic revenue — the kind of scale I helped build at Glance — understand these concepts at a deep technical level. They do not treat them as abstractions; they treat them as product levers.</p>
         <h2>The Technical Reality</h2>
@@ -84,21 +79,33 @@
         <p>Header bidding through Prebid.js and Prebid Server has transformed how these fundamentals are applied in practice. The shift from waterfall to parallel auctions, from client-side to server-side processing, and from static to dynamic optimization represents an ongoing architectural evolution. At AdsGupta.com, I am building AI-powered tools that help publishers and advertisers navigate this complexity with intelligence and precision. The fundamentals covered on this page are the foundation everything else is built upon.</p>
         <h2>My Perspective</h2>
         <p>Having worked across every layer of the ad tech stack — Google's ad server, independent SSP strategy at Automatad, unified monetization at Glance, exchange design at InMobi — I can tell you that mastering creative scanning exchanges is not optional for anyone building in programmatic advertising. It is the difference between ad products that generate incremental value and ad products that transform publisher economics. I build for transformation, and I start with fundamentals.</p>
-      </div>
-      <footer class="blog-post-footer">
-        <div class="blog-related">
-          <h3>Related</h3>
-          <a href="/blog/what-is-real-time-bidding">RTB Guide</a>
-          <a href="/blog/openrtb-protocol-explained">OpenRTB</a>
-          <a href="/blog/header-bidding-complete-guide">Header Bidding</a>
-          <a href="/blog">All Articles</a>
-        </div>
-      </footer>
-    </article>
+      </article>
+      <section class="ad-slot ad-slot-inline"><p class="ad-slot-label">Reserved: Inline article placement for high-signal creative.</p></section>
+      <div class="cta-block"><div class="cta-inner"><p class="cta-kicker">Monetization Protocol</p><h2 class="cta-title">Run an Ad Audit with the Neural Engine</h2><p class="cta-description">Benchmark your creative, auctions, and marketplace structure against AdsGupta's neural models. See exactly where you are leaving performance on the table.</p><a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-accent">Run your audit on DemoAI</a> <a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-muted cta-secondary">Run your Amazon audit with AdsGupta AI</a></div></div>
+      <section class="ad-slot ad-slot-footer"><p class="ad-slot-label">Reserved: Footer placement for marketplace or tooling partners.</p></section>
+    </div>
   </main>
   <div id="site-footer"></div>
+  <script>
+(function () {
+  var progressEl = document.getElementById('reading-progress');
+  if (!progressEl) return;
+
+  function updateProgress() {
+    var doc = document.documentElement;
+    var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+    var max = Math.max((doc.scrollHeight || 0) - window.innerHeight, 1);
+    var pct = Math.min(100, Math.max(0, (scrollTop / max) * 100));
+    progressEl.style.width = pct + '%';
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+})();
+</script>
 <script src='/navbar.js'></script>
-<script src='/footer.js'></script>
-<script src='/seo.js'></script>
+  <script src='/footer.js'></script>
+  <script src='/seo.js'></script>
 </body>
 </html>

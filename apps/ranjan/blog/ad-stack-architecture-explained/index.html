@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/theme.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ad Stack Architecture Explained: How the Entire System Fits Together | Ranjan Dasgupta</title>
@@ -16,9 +15,6 @@
   <meta property="og:site_name" content="Ranjan Dasgupta">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://ranjan.adsgupta.com/blog/ad-stack-architecture-explained">
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/footer.js"></script>
-  <script src="/seo.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,8 +27,11 @@
     "url": "https://ranjan.adsgupta.com/blog/ad-stack-architecture-explained"
   }
   </script>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/blog.css">
 </head>
 <body>
+  <div class='reading-progress' id='reading-progress'></div>
   <nav class="site-nav" id="siteNav" aria-label="Primary">
     <div class="site-nav-brand">
       <div class="site-nav-avatar" aria-hidden="true">RD</div>
@@ -51,26 +50,22 @@
       <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
     </div>
   </nav>
-  <main id="main-content" class="blog-post">
-    <article>
-      <header class="blog-post-header">
-        <div class="blog-post-meta">
-          <span class="blog-post-category">Programmatic Advertising</span>
-          <span class="blog-post-read-time">9 min read</span>
-        </div>
-        <h1>Ad Stack Architecture Explained: How the Entire System Fits Together</h1>
-        <p class="blog-post-subtitle">The architectural blueprint of the digital advertising ecosystem.</p>
-        <div class="blog-post-author">
-          <div class="author-avatar">RD</div>
-          <div>
-            <strong>Ranjan Dasgupta</strong>
-            <span>AdTech Product Leader &middot; InMobi</span>
-          </div>
+  <main id="main-content" class="flex-1">
+    <div class="shell post-layout">
+      <header class="post-header">
+        <p class="hero-kicker">The Archives · Programmatic Advertising</p>
+        <h1 class="post-title">Ad Stack Architecture Explained: How the Entire System Fits Together</h1>
+        <p class="hero-description" style="margin-top: 1.25rem;">A complete guide to digital advertising stack architecture from ad server to exchange to DSP</p>
+        <div class="post-meta-row">
+          <span class="meta-pill">By Ranjan Dasgupta</span>
+          <span class="chip chip-muted">Programmatic Advertising</span>
+          <span class="meta-pill">7 min read</span>
+          <span class="chip chip-source chip-source-adsgupta"><span style="opacity: 0.8;">Source</span>&nbsp;·&nbsp;AdsGupta Neural Engine</span>
+          <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <div class="blog-post-content">
-
-        <p>The ad stack is the most sophisticated distributed system most people have never heard of. It processes more transactions per second than most stock exchanges, makes decisions in under 100 milliseconds, and operates across every digital surface. Having worked at every layer — from Google ad server to exchange infrastructure at InMobi — I can give you the architectural overview most explanations miss.</p>
+      <article class="prose">
+<p>The ad stack is the most sophisticated distributed system most people have never heard of. It processes more transactions per second than most stock exchanges, makes decisions in under 100 milliseconds, and operates across every digital surface. Having worked at every layer — from Google ad server to exchange infrastructure at InMobi — I can give you the architectural overview most explanations miss.</p>
         <h2>The Publisher Layer</h2>
         <p>Everything starts with the publisher. The key technology is the ad server — Google Ad Manager dominates for web and app, FreeWheel for CTV and broadcast. The ad server manages inventory, traffics direct campaigns, and coordinates with programmatic demand. At Google, I spent years understanding DFP priority systems determining how demand sources are evaluated. On top sits the header bidding layer — Prebid.js for client-side or Prebid Server for server-side — soliciting parallel bids from multiple SSPs.</p>
         <h2>The Exchange Layer</h2>
@@ -85,21 +80,33 @@
         <h2>Practical Implications for Builders</h2>
         <p>Understanding the ad stack at this architectural level is not academic — it is the foundation of every product decision in digital advertising. When I evaluate a new monetization opportunity at InMobi, I trace the full path: how does the ad request originate, what signals does it carry, which exchanges process it, which DSPs evaluate it, and how does the creative render? Each node in this chain is an optimization opportunity. At Glance, I optimized each layer independently and then as a system, compounding improvements that drove the monetization stack to $200M+ in annual revenue. The publishers and exchanges that understand their stack architecturally — rather than treating it as a collection of vendor integrations — consistently outperform those that do not.</p>
         <p>For anyone building in adtech, my advice is straightforward: learn every layer. Spend time with the ad server configuration, understand the header bidding wrapper mechanics, study the exchange auction logic, analyze DSP bidding patterns, and trace creative delivery end-to-end. This cross-layer understanding is rare and extraordinarily valuable. It is what I bring from my journey across Google, Automatad, Glance, and InMobi — and it is what I am building into the tools at adsgupta.com.</p>
-      </div>
-      <footer class="blog-post-footer">
-        <div class="blog-related">
-          <h3>Related</h3>
-          <a href="/blog/ad-stack-architecture-explained">Ad Stack</a>
-          <a href="/blog/waterfall-vs-header-bidding">Waterfall vs HB</a>
-          <a href="/blog/programmatic-supply-chain">Supply Chain</a>
-          <a href="/blog">All Articles</a>
-        </div>
-      </footer>
-    </article>
+      </article>
+      <section class="ad-slot ad-slot-inline"><p class="ad-slot-label">Reserved: Inline article placement for high-signal creative.</p></section>
+      <div class="cta-block"><div class="cta-inner"><p class="cta-kicker">Monetization Protocol</p><h2 class="cta-title">Run an Ad Audit with the Neural Engine</h2><p class="cta-description">Benchmark your creative, auctions, and marketplace structure against AdsGupta's neural models. See exactly where you are leaving performance on the table.</p><a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-accent">Run your audit on DemoAI</a> <a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-muted cta-secondary">Run your Amazon audit with AdsGupta AI</a></div></div>
+      <section class="ad-slot ad-slot-footer"><p class="ad-slot-label">Reserved: Footer placement for marketplace or tooling partners.</p></section>
+    </div>
   </main>
   <div id="site-footer"></div>
+  <script>
+(function () {
+  var progressEl = document.getElementById('reading-progress');
+  if (!progressEl) return;
+
+  function updateProgress() {
+    var doc = document.documentElement;
+    var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+    var max = Math.max((doc.scrollHeight || 0) - window.innerHeight, 1);
+    var pct = Math.min(100, Math.max(0, (scrollTop / max) * 100));
+    progressEl.style.width = pct + '%';
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+})();
+</script>
 <script src='/navbar.js'></script>
-<script src='/footer.js'></script>
-<script src='/seo.js'></script>
+  <script src='/footer.js'></script>
+  <script src='/seo.js'></script>
 </body>
 </html>

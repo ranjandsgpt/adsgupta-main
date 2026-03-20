@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/theme.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bid Shading Explained: How DSPs Optimize in First-Price Auctions | Ranjan Dasgupta</title>
@@ -16,9 +15,6 @@
   <meta property="og:site_name" content="Ranjan Dasgupta">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://ranjan.adsgupta.com/blog/bid-shading-explained">
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/footer.js"></script>
-  <script src="/seo.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,8 +27,11 @@
     "url": "https://ranjan.adsgupta.com/blog/bid-shading-explained"
   }
   </script>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/blog.css">
 </head>
 <body>
+  <div class='reading-progress' id='reading-progress'></div>
   <nav class="site-nav" id="siteNav" aria-label="Primary">
     <div class="site-nav-brand">
       <div class="site-nav-avatar" aria-hidden="true">RD</div>
@@ -51,26 +50,22 @@
       <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
     </div>
   </nav>
-  <main id="main-content" class="blog-post">
-    <article>
-      <header class="blog-post-header">
-        <div class="blog-post-meta">
-          <span class="blog-post-category">Programmatic Advertising</span>
-          <span class="blog-post-read-time">7 min read</span>
-        </div>
-        <h1>Bid Shading Explained: How DSPs Optimize in First-Price Auctions</h1>
-        <p class="blog-post-subtitle">The DSP strategy that reshaped programmatic buying economics.</p>
-        <div class="blog-post-author">
-          <div class="author-avatar">RD</div>
-          <div>
-            <strong>Ranjan Dasgupta</strong>
-            <span>AdTech Product Leader &middot; InMobi</span>
-          </div>
+  <main id="main-content" class="flex-1">
+    <div class="shell post-layout">
+      <header class="post-header">
+        <p class="hero-kicker">The Archives · Programmatic Advertising</p>
+        <h1 class="post-title">Bid Shading Explained: How DSPs Optimize in First-Price Auctions</h1>
+        <p class="hero-description" style="margin-top: 1.25rem;">How bid shading algorithms work in first-price programmatic auctions from an exchange product leader</p>
+        <div class="post-meta-row">
+          <span class="meta-pill">By Ranjan Dasgupta</span>
+          <span class="chip chip-muted">Programmatic Advertising</span>
+          <span class="meta-pill">7 min read</span>
+          <span class="chip chip-source chip-source-adsgupta"><span style="opacity: 0.8;">Source</span>&nbsp;·&nbsp;AdsGupta Neural Engine</span>
+          <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <div class="blog-post-content">
-
-        <p>Bid shading is the most important algorithmic development in programmatic buying since RTB itself. When the industry moved to first-price auctions, DSPs needed to avoid systematically overpaying. The answer was ML models predicting minimum winning bids. From the exchange side at InMobi, I watch bid shading affect every auction we run.</p>
+      <article class="prose">
+<p>Bid shading is the most important algorithmic development in programmatic buying since RTB itself. When the industry moved to first-price auctions, DSPs needed to avoid systematically overpaying. The answer was ML models predicting minimum winning bids. From the exchange side at InMobi, I watch bid shading affect every auction we run.</p>
         <h2>Why Bid Shading Exists</h2>
         <p>In second-price, you bid true valuation and pay the second price plus a penny. In first-price, you pay exactly what you bid. If a DSP values an impression at $5.00 but the next-highest bid is $2.50, paying $5.00 wastes $2.50 per impression. Multiply across billions of daily transactions and waste becomes staggering. The Trade Desk, DV360, Xandr, Amazon DSP, and Criteo all run proprietary shading models asking: what is the floor, what is the competitive landscape, what minimum do I need to bid?</p>
         <h2>How Algorithms Work</h2>
@@ -85,21 +80,33 @@
         <h2>What This Means for Exchange Product Design</h2>
         <p>At InMobi, understanding bid shading dynamics is essential to our exchange product strategy. We design our auction mechanics knowing that every DSP is running shading algorithms against our floor signals. This means our floor optimization must be sophisticated enough to maintain yield while remaining predictable enough that DSP algorithms can calibrate effectively. Erratic floor behavior causes DSPs to increase uncertainty premiums in their shading, which paradoxically reduces bid values. Consistent, data-driven floors build algorithmic trust.</p>
         <p>We also invest in signal quality because richer bid requests help DSPs value impressions more accurately, which reduces the uncertainty that drives aggressive shading. When a DSP can precisely value an impression at $5.00 based on rich contextual, audience, and quality signals, it shades less than when it has to guess the value from sparse data. Signal enrichment at the exchange level is therefore an anti-shading strategy — one of the most powerful levers we have for maintaining publisher yield in the first-price era.</p>
-      </div>
-      <footer class="blog-post-footer">
-        <div class="blog-related">
-          <h3>Related</h3>
-          <a href="/blog/first-price-vs-second-price-auctions">Auction Types</a>
-          <a href="/blog/bid-shading-explained">Bid Shading</a>
-          <a href="/blog/dynamic-floor-pricing">Dynamic Floors</a>
-          <a href="/blog">All Articles</a>
-        </div>
-      </footer>
-    </article>
+      </article>
+      <section class="ad-slot ad-slot-inline"><p class="ad-slot-label">Reserved: Inline article placement for high-signal creative.</p></section>
+      <div class="cta-block"><div class="cta-inner"><p class="cta-kicker">Monetization Protocol</p><h2 class="cta-title">Run an Ad Audit with the Neural Engine</h2><p class="cta-description">Benchmark your creative, auctions, and marketplace structure against AdsGupta's neural models. See exactly where you are leaving performance on the table.</p><a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-accent">Run your audit on DemoAI</a> <a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-muted cta-secondary">Run your Amazon audit with AdsGupta AI</a></div></div>
+      <section class="ad-slot ad-slot-footer"><p class="ad-slot-label">Reserved: Footer placement for marketplace or tooling partners.</p></section>
+    </div>
   </main>
   <div id="site-footer"></div>
+  <script>
+(function () {
+  var progressEl = document.getElementById('reading-progress');
+  if (!progressEl) return;
+
+  function updateProgress() {
+    var doc = document.documentElement;
+    var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+    var max = Math.max((doc.scrollHeight || 0) - window.innerHeight, 1);
+    var pct = Math.min(100, Math.max(0, (scrollTop / max) * 100));
+    progressEl.style.width = pct + '%';
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+})();
+</script>
 <script src='/navbar.js'></script>
-<script src='/footer.js'></script>
-<script src='/seo.js'></script>
+  <script src='/footer.js'></script>
+  <script src='/seo.js'></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/theme.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>What Is Real-Time Bidding (RTB) and How Does It Actually Work | Ranjan Dasgupta</title>
@@ -16,9 +15,6 @@
   <meta property="og:site_name" content="Ranjan Dasgupta">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://ranjan.adsgupta.com/blog/what-is-real-time-bidding">
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/footer.js"></script>
-  <script src="/seo.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,8 +27,11 @@
     "url": "https://ranjan.adsgupta.com/blog/what-is-real-time-bidding"
   }
   </script>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/blog.css">
 </head>
 <body>
+  <div class='reading-progress' id='reading-progress'></div>
   <nav class="site-nav" id="siteNav" aria-label="Primary">
     <div class="site-nav-brand">
       <div class="site-nav-avatar" aria-hidden="true">RD</div>
@@ -51,26 +50,22 @@
       <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
     </div>
   </nav>
-  <main id="main-content" class="blog-post">
-    <article>
-      <header class="blog-post-header">
-        <div class="blog-post-meta">
-          <span class="blog-post-category">Programmatic Advertising</span>
-          <span class="blog-post-read-time">8 min read</span>
-        </div>
-        <h1>What Is Real-Time Bidding (RTB) and How Does It Actually Work</h1>
-        <p class="blog-post-subtitle">The definitive technical guide to RTB from inside the exchange.</p>
-        <div class="blog-post-author">
-          <div class="author-avatar">RD</div>
-          <div>
-            <strong>Ranjan Dasgupta</strong>
-            <span>AdTech Product Leader &middot; InMobi</span>
-          </div>
+  <main id="main-content" class="flex-1">
+    <div class="shell post-layout">
+      <header class="post-header">
+        <p class="hero-kicker">The Archives · Programmatic Advertising</p>
+        <h1 class="post-title">What Is Real-Time Bidding (RTB) and How Does It Actually Work</h1>
+        <p class="hero-description" style="margin-top: 1.25rem;">Expert breakdown of real-time bidding from someone who has built exchange infrastructure at Google and InMobi</p>
+        <div class="post-meta-row">
+          <span class="meta-pill">By Ranjan Dasgupta</span>
+          <span class="chip chip-muted">Programmatic Advertising</span>
+          <span class="meta-pill">7 min read</span>
+          <span class="chip chip-source chip-source-adsgupta"><span style="opacity: 0.8;">Source</span>&nbsp;·&nbsp;AdsGupta Neural Engine</span>
+          <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <div class="blog-post-content">
-
-        <p>Real-time bidding is the backbone of programmatic advertising, yet most explanations barely scratch the surface. Having spent four years at Google working with DFP and AdX, and now leading Web and CTV Exchange product at InMobi, I want to give you the version of RTB that actually matters — the one from inside the exchange.</p>
+      <article class="prose">
+<p>Real-time bidding is the backbone of programmatic advertising, yet most explanations barely scratch the surface. Having spent four years at Google working with DFP and AdX, and now leading Web and CTV Exchange product at InMobi, I want to give you the version of RTB that actually matters — the one from inside the exchange.</p>
         <h2>The RTB Transaction in Under 100 Milliseconds</h2>
         <p>When a user loads a webpage, the publisher's ad server — typically Google Ad Manager — generates an ad request. If the publisher uses header bidding via Prebid.js or a server-side solution like Amazon TAM, the request first fans out to multiple SSPs simultaneously. Each SSP — whether Magnite, PubMatic, Index Exchange, OpenX, or InMobi Exchange — translates this into an OpenRTB bid request and sends it to connected DSPs. The bid request contains structured signals: device type, geo, content category, ad format, consent status, publisher domain, app bundle, and dozens of extension fields. At InMobi, we invest heavily in enriching these signals because richer bid requests attract higher bids from DSPs like The Trade Desk, DV360, Amazon DSP, Xandr, and Criteo.</p>
         <h2>How the Auction Clears</h2>
@@ -81,21 +76,33 @@
         <p>RTB is the open auction — anyone can bid. But programmatic also includes Private Marketplaces where select buyers get priority access at negotiated floors, and Programmatic Guaranteed with fixed price and volume. Each method has different implications for exchange architecture. PMPs require deal ID management and priority logic. PG requires forecasting and reservation systems. The exchange must handle all three simultaneously without adding latency.</p>
         <h2>Where RTB Is Headed</h2>
         <p>By 2030, RTB will evolve significantly. AI agents will participate as autonomous buyers. Attention-based signals will supplement viewability as bidding currency. Server-side processing will dominate. And exchanges will consolidate — the market cannot sustain 30+ SSPs. The survivors will have the best product: richest signals, fairest auctions, fastest execution. That is exactly what I am building at InMobi.</p>
-      </div>
-      <footer class="blog-post-footer">
-        <div class="blog-related">
-          <h3>Related</h3>
-          <a href="/blog/what-is-real-time-bidding">RTB Guide</a>
-          <a href="/blog/openrtb-protocol-explained">OpenRTB</a>
-          <a href="/blog/header-bidding-complete-guide">Header Bidding</a>
-          <a href="/blog">All Articles</a>
-        </div>
-      </footer>
-    </article>
+      </article>
+      <section class="ad-slot ad-slot-inline"><p class="ad-slot-label">Reserved: Inline article placement for high-signal creative.</p></section>
+      <div class="cta-block"><div class="cta-inner"><p class="cta-kicker">Monetization Protocol</p><h2 class="cta-title">Run an Ad Audit with the Neural Engine</h2><p class="cta-description">Benchmark your creative, auctions, and marketplace structure against AdsGupta's neural models. See exactly where you are leaving performance on the table.</p><a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-accent">Run your audit on DemoAI</a> <a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-muted cta-secondary">Run your Amazon audit with AdsGupta AI</a></div></div>
+      <section class="ad-slot ad-slot-footer"><p class="ad-slot-label">Reserved: Footer placement for marketplace or tooling partners.</p></section>
+    </div>
   </main>
   <div id="site-footer"></div>
+  <script>
+(function () {
+  var progressEl = document.getElementById('reading-progress');
+  if (!progressEl) return;
+
+  function updateProgress() {
+    var doc = document.documentElement;
+    var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+    var max = Math.max((doc.scrollHeight || 0) - window.innerHeight, 1);
+    var pct = Math.min(100, Math.max(0, (scrollTop / max) * 100));
+    progressEl.style.width = pct + '%';
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+})();
+</script>
 <script src='/navbar.js'></script>
-<script src='/footer.js'></script>
-<script src='/seo.js'></script>
+  <script src='/footer.js'></script>
+  <script src='/seo.js'></script>
 </body>
 </html>

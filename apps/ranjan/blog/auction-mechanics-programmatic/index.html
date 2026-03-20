@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/theme.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Auction Mechanics in Programmatic: Beyond First and Second Price | Ranjan Dasgupta</title>
@@ -16,9 +15,6 @@
   <meta property="og:site_name" content="Ranjan Dasgupta">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://ranjan.adsgupta.com/blog/auction-mechanics-programmatic">
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/footer.js"></script>
-  <script src="/seo.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,8 +27,11 @@
     "url": "https://ranjan.adsgupta.com/blog/auction-mechanics-programmatic"
   }
   </script>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/blog.css">
 </head>
 <body>
+  <div class='reading-progress' id='reading-progress'></div>
   <nav class="site-nav" id="siteNav" aria-label="Primary">
     <div class="site-nav-brand">
       <div class="site-nav-avatar" aria-hidden="true">RD</div>
@@ -51,26 +50,22 @@
       <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
     </div>
   </nav>
-  <main id="main-content" class="blog-post">
-    <article>
-      <header class="blog-post-header">
-        <div class="blog-post-meta">
-          <span class="blog-post-category">Programmatic Advertising</span>
-          <span class="blog-post-read-time">8 min read</span>
-        </div>
-        <h1>Auction Mechanics in Programmatic: Beyond First and Second Price</h1>
-        <p class="blog-post-subtitle">Product decisions inside every auction that determine winners.</p>
-        <div class="blog-post-author">
-          <div class="author-avatar">RD</div>
-          <div>
-            <strong>Ranjan Dasgupta</strong>
-            <span>AdTech Product Leader &middot; InMobi</span>
-          </div>
+  <main id="main-content" class="flex-1">
+    <div class="shell post-layout">
+      <header class="post-header">
+        <p class="hero-kicker">The Archives · Programmatic Advertising</p>
+        <h1 class="post-title">Auction Mechanics in Programmatic: Beyond First and Second Price</h1>
+        <p class="hero-description" style="margin-top: 1.25rem;">Deep dive into programmatic auction mechanics including multi-bid, deal overlays, and exchange optimization</p>
+        <div class="post-meta-row">
+          <span class="meta-pill">By Ranjan Dasgupta</span>
+          <span class="chip chip-muted">Programmatic Advertising</span>
+          <span class="meta-pill">7 min read</span>
+          <span class="chip chip-source chip-source-adsgupta"><span style="opacity: 0.8;">Source</span>&nbsp;·&nbsp;AdsGupta Neural Engine</span>
+          <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <div class="blog-post-content">
-
-        <p>Most conversations about programmatic auctions stop at first-price vs second-price. The actual mechanics inside a modern exchange are far more nuanced. As someone designing auction logic at InMobi Exchange, the real product decisions happen in spaces between textbook models.</p>
+      <article class="prose">
+<p>Most conversations about programmatic auctions stop at first-price vs second-price. The actual mechanics inside a modern exchange are far more nuanced. As someone designing auction logic at InMobi Exchange, the real product decisions happen in spaces between textbook models.</p>
         <h2>Multi-Layer Auctions</h2>
         <p>A modern transaction involves cascading auctions. Each SSP runs its own auction against connected DSPs. Winners compete in the publisher ad server (Google Ad Manager typically). Within the ad server, header bidding winners compete against AdX demand, direct campaigns, and PG deals. Each layer introduces product decisions about floor application, deal priority, and multi-bid handling.</p>
         <h2>Multi-Bid Responses</h2>
@@ -86,21 +81,33 @@
         <p>By 2030, some auction participants will be AI agents rather than traditional DSP bidders. These agents will have different communication patterns — potentially negotiating deal terms in real-time, adjusting strategies mid-auction, or making multi-impression commitments. Auction mechanics will evolve to accommodate these participants, and the exchanges building agent-aware infrastructure now will have significant advantages.</p>
         <p>At InMobi, I am thinking about what agent-compatible auction design looks like. The current OpenRTB request-response model assumes a simple ask-and-answer pattern. Agent-mediated buying might require richer negotiation protocols, multi-turn interactions, or bundled impression commitments. These are speculative but grounded in the trajectory I see from AI development in the DSP space. The exchanges that prototype these capabilities early — even before agent buyers are common — will be the preferred partners when the shift happens. This is exactly the kind of forward-looking product thinking I bring to exchange design at InMobi.</p>
       <p>This depth of understanding — built across Google, Automatad, Glance, and InMobi over a decade — is what I bring to every product decision at InMobi Exchange and every tool I build at adsgupta.com.</p>
-      </div>
-      <footer class="blog-post-footer">
-        <div class="blog-related">
-          <h3>Related</h3>
-          <a href="/blog/first-price-vs-second-price-auctions">Auction Types</a>
-          <a href="/blog/bid-shading-explained">Bid Shading</a>
-          <a href="/blog/dynamic-floor-pricing">Dynamic Floors</a>
-          <a href="/blog">All Articles</a>
-        </div>
-      </footer>
-    </article>
+      </article>
+      <section class="ad-slot ad-slot-inline"><p class="ad-slot-label">Reserved: Inline article placement for high-signal creative.</p></section>
+      <div class="cta-block"><div class="cta-inner"><p class="cta-kicker">Monetization Protocol</p><h2 class="cta-title">Run an Ad Audit with the Neural Engine</h2><p class="cta-description">Benchmark your creative, auctions, and marketplace structure against AdsGupta's neural models. See exactly where you are leaving performance on the table.</p><a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-accent">Run your audit on DemoAI</a> <a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-muted cta-secondary">Run your Amazon audit with AdsGupta AI</a></div></div>
+      <section class="ad-slot ad-slot-footer"><p class="ad-slot-label">Reserved: Footer placement for marketplace or tooling partners.</p></section>
+    </div>
   </main>
   <div id="site-footer"></div>
+  <script>
+(function () {
+  var progressEl = document.getElementById('reading-progress');
+  if (!progressEl) return;
+
+  function updateProgress() {
+    var doc = document.documentElement;
+    var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+    var max = Math.max((doc.scrollHeight || 0) - window.innerHeight, 1);
+    var pct = Math.min(100, Math.max(0, (scrollTop / max) * 100));
+    progressEl.style.width = pct + '%';
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+})();
+</script>
 <script src='/navbar.js'></script>
-<script src='/footer.js'></script>
-<script src='/seo.js'></script>
+  <script src='/footer.js'></script>
+  <script src='/seo.js'></script>
 </body>
 </html>

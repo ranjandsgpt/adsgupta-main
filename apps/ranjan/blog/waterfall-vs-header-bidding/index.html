@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/theme.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Waterfall vs Header Bidding: Why the Industry Moved and What Comes Next | Ranjan Dasgupta</title>
@@ -16,9 +15,6 @@
   <meta property="og:site_name" content="Ranjan Dasgupta">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://ranjan.adsgupta.com/blog/waterfall-vs-header-bidding">
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/footer.js"></script>
-  <script src="/seo.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,8 +27,11 @@
     "url": "https://ranjan.adsgupta.com/blog/waterfall-vs-header-bidding"
   }
   </script>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/blog.css">
 </head>
 <body>
+  <div class='reading-progress' id='reading-progress'></div>
   <nav class="site-nav" id="siteNav" aria-label="Primary">
     <div class="site-nav-brand">
       <div class="site-nav-avatar" aria-hidden="true">RD</div>
@@ -51,26 +50,22 @@
       <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
     </div>
   </nav>
-  <main id="main-content" class="blog-post">
-    <article>
-      <header class="blog-post-header">
-        <div class="blog-post-meta">
-          <span class="blog-post-category">Programmatic Advertising</span>
-          <span class="blog-post-read-time">9 min read</span>
-        </div>
-        <h1>Waterfall vs Header Bidding: Why the Industry Moved and What Comes Next</h1>
-        <p class="blog-post-subtitle">The architectural shift that transformed publisher monetization.</p>
-        <div class="blog-post-author">
-          <div class="author-avatar">RD</div>
-          <div>
-            <strong>Ranjan Dasgupta</strong>
-            <span>AdTech Product Leader &middot; InMobi</span>
-          </div>
+  <main id="main-content" class="flex-1">
+    <div class="shell post-layout">
+      <header class="post-header">
+        <p class="hero-kicker">The Archives · Programmatic Advertising</p>
+        <h1 class="post-title">Waterfall vs Header Bidding: Why the Industry Moved and What Comes Next</h1>
+        <p class="hero-description" style="margin-top: 1.25rem;">The complete technical comparison of waterfall and header bidding from an exchange architect</p>
+        <div class="post-meta-row">
+          <span class="meta-pill">By Ranjan Dasgupta</span>
+          <span class="chip chip-muted">Programmatic Advertising</span>
+          <span class="meta-pill">7 min read</span>
+          <span class="chip chip-source chip-source-adsgupta"><span style="opacity: 0.8;">Source</span>&nbsp;·&nbsp;AdsGupta Neural Engine</span>
+          <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <div class="blog-post-content">
-
-        <p>The transition from waterfall to header bidding was the most important architectural change in publisher monetization. I have worked on both sides: at Google where the ad server sat at the center of the waterfall, and at Glance and InMobi where I built unified auction systems leveraging header bidding.</p>
+      <article class="prose">
+<p>The transition from waterfall to header bidding was the most important architectural change in publisher monetization. I have worked on both sides: at Google where the ad server sat at the center of the waterfall, and at Glance and InMobi where I built unified auction systems leveraging header bidding.</p>
         <h2>How the Waterfall Worked</h2>
         <p>The publisher ad server called demand sources sequentially in priority order. Direct campaigns first, then highest-priority partner (say AdX at $3.00 floor), then next (Magnite at $2.00), then next (PubMatic at $1.50). The fundamental problem: a demand partner lower in the waterfall might pay $4.00 but never gets the chance because a higher-priority partner already filled at $3.00. Waterfall optimized fill rate at each level but not total revenue.</p>
         <h2>How Header Bidding Fixed It</h2>
@@ -86,21 +81,33 @@
         <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
         <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
         <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
-      </div>
-      <footer class="blog-post-footer">
-        <div class="blog-related">
-          <h3>Related</h3>
-          <a href="/blog/what-is-real-time-bidding">RTB Guide</a>
-          <a href="/blog/openrtb-protocol-explained">OpenRTB</a>
-          <a href="/blog/header-bidding-complete-guide">Header Bidding</a>
-          <a href="/blog">All Articles</a>
-        </div>
-      </footer>
-    </article>
+      </article>
+      <section class="ad-slot ad-slot-inline"><p class="ad-slot-label">Reserved: Inline article placement for high-signal creative.</p></section>
+      <div class="cta-block"><div class="cta-inner"><p class="cta-kicker">Monetization Protocol</p><h2 class="cta-title">Run an Ad Audit with the Neural Engine</h2><p class="cta-description">Benchmark your creative, auctions, and marketplace structure against AdsGupta's neural models. See exactly where you are leaving performance on the table.</p><a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-accent">Run your audit on DemoAI</a> <a href="https://demoai.adsgupta.com" target="_blank" rel="noreferrer" class="chip chip-muted cta-secondary">Run your Amazon audit with AdsGupta AI</a></div></div>
+      <section class="ad-slot ad-slot-footer"><p class="ad-slot-label">Reserved: Footer placement for marketplace or tooling partners.</p></section>
+    </div>
   </main>
   <div id="site-footer"></div>
+  <script>
+(function () {
+  var progressEl = document.getElementById('reading-progress');
+  if (!progressEl) return;
+
+  function updateProgress() {
+    var doc = document.documentElement;
+    var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+    var max = Math.max((doc.scrollHeight || 0) - window.innerHeight, 1);
+    var pct = Math.min(100, Math.max(0, (scrollTop / max) * 100));
+    progressEl.style.width = pct + '%';
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+})();
+</script>
 <script src='/navbar.js'></script>
-<script src='/footer.js'></script>
-<script src='/seo.js'></script>
+  <script src='/footer.js'></script>
+  <script src='/seo.js'></script>
 </body>
 </html>

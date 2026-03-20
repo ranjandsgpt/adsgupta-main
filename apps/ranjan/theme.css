@@ -8,6 +8,8 @@
   --text-tertiary: #4a5568;
   --accent: #00d4aa;
   --accent-secondary: #6366f1;
+  --accent-bg: rgba(0, 212, 170, 0.12);
+  --accent-border: rgba(0, 212, 170, 0.45);
   --border: rgba(100, 220, 180, 0.08);
   --card-bg: #0a0d13;
   --metric-glow: rgba(0, 212, 170, 0.15);
@@ -22,6 +24,8 @@ html[data-theme="light"] {
   --text-tertiary: #9a9a9a;
   --accent: #0d7377;
   --accent-secondary: #4f46e5;
+  --accent-bg: rgba(13, 115, 119, 0.12);
+  --accent-border: rgba(13, 115, 119, 0.5);
   --border: rgba(0,0,0,0.08);
   --card-bg: #ffffff;
   --metric-glow: transparent;

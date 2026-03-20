@@ -11,28 +11,26 @@
   <meta name="description" content="Ranjan Dasgupta blog articles on programmatic advertising, exchange architecture, and monetization.">
   <link rel="canonical" href="https://ranjan.adsgupta.com/blog">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
-  <link rel="stylesheet" href="/theme.css">
   <style>
 
-    :root{--font-sans:'Space Grotesk',system-ui,sans-serif;--accent:#0d7377;}
+    :root{--font-sans:'Space Grotesk',system-ui,sans-serif;}
     body{font-family:var(--font-sans);}
     .blog-index-wrap{padding-top:5rem;}
     .blog-index-inner{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem;}
     .blog-index-inner h1{font-size:2.25rem;font-weight:800;color:#fff;margin:0 0 1.5rem;}
     .cat-details{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:12px;margin:0.75rem 0;overflow:hidden;}
-    .cat-details summary{cursor:pointer;list-style:none;padding:0.9rem 1rem;font-weight:700;color:#fff;}
+    .cat-details summary{cursor:pointer;list-style:none;padding:0.9rem 1rem;font-weight:700;color:var(--text-primary);}
     .cat-details summary::-webkit-details-marker{display:none;}
     .cat-list{margin:0;padding:0 1rem 1rem 1rem;display:grid;grid-template-columns:1fr;gap:0.5rem;}
     @media(min-width:768px){.cat-list{grid-template-columns:repeat(2,1fr);}}
-    .cat-link{color:#6f6f70;text-decoration:none;font-size:0.95rem;line-height:1.4;}
-    .cat-link:hover{color:#fff;text-decoration:underline;}
+    .cat-link{color:var(--text-secondary);text-decoration:none;font-size:0.95rem;line-height:1.4;}
+    .cat-link:hover{color:var(--text-primary);text-decoration:underline;}
 
   </style>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/blog.css">
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-
   <nav class="site-nav" id="siteNav" aria-label="Primary">
     <div class="site-nav-brand">
       <div class="site-nav-avatar" aria-hidden="true">RD</div>
@@ -48,20 +46,17 @@
         <a href="/contact">Contact</a>
       </div>
       <a href="/audit" class="site-nav-audit">Audit Tool</a>
-      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta →</a>
-      <div class="site-theme-toggle" aria-label="Theme">
-        <button type="button" class="site-theme-btn light" id="themeLight" aria-label="Light mode"></button>
-        <button type="button" class="site-theme-btn dark" id="themeDark" aria-label="Dark mode"></button>
-      </div>
-      <button type="button" class="site-nav-menu-btn" id="navMenuBtn" aria-label="Menu">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
     </div>
   </nav>
-
-  <div class="blog-index-wrap">
-    <div class="blog-index-inner">
-      <h1>Blog</h1>
+  <main id="main-content" class="flex-1">
+    <div class="shell post-layout">
+      <header class="post-header">
+        <p class="hero-kicker">The Archives · All Categories</p>
+        <h1 class="post-title">Blog</h1>
+        <p class="hero-description" style="margin-top: 1.25rem;">Every article on ranjan.adsgupta.com/blog grouped by category.</p>
+      </header>
+      <section class="prose">
       <details class="cat-details">
         <summary>AI &amp; Future of AdTech (50)</summary>
         <div class="cat-list">
@@ -612,8 +607,9 @@
           <a class="cat-link" href="/blog/yield-web-strategy-2025">Yield and Monetization: Web Strategy 2025</a>
         </div>
       </details>
+      </section>
     </div>
-  </div>
+  </main>
   <div id="site-footer"></div>
   <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
