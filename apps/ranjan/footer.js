@@ -351,7 +351,7 @@
     }
 
     .adsg-footer__link{
-      color:#71717a !important;
+      color:#6f6f70 !important;
       font-size:14px !important;
       text-decoration:none !important;
       display:block !important;
