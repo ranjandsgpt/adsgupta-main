@@ -473,3 +473,111 @@ footer[data-testid="footer-section"] .text-cyan-400 {
     gap: 5rem;
   }
 }
+
+/* ============================================
+   LIGHT THEME OVERRIDES
+   Fix hardcoded dark colors across all pages
+   ============================================ */
+
+html[data-theme='light'] body {
+  background: #fafaf9 !important;
+  color: #1a1a1a !important;
+  background-image: none !important;
+}
+
+/* Headings */
+html[data-theme='light'] h1,
+html[data-theme='light'] h2,
+html[data-theme='light'] h3,
+html[data-theme='light'] h4,
+html[data-theme='light'] h5,
+html[data-theme='light'] h6 {
+  color: #111827 !important;
+}
+
+/* Body text */
+html[data-theme='light'] p,
+html[data-theme='light'] li,
+html[data-theme='light'] span,
+html[data-theme='light'] div {
+  color: inherit;
+}
+
+/* Hero section */
+html[data-theme='light'] .home-hero-label { color: #6b7280 !important; }
+html[data-theme='light'] .home-hero-title { color: #111827 !important; }
+html[data-theme='light'] .home-hero-desc { color: #4b5563 !important; }
+
+/* Metrics */
+html[data-theme='light'] .home-metric-value { color: #111827 !important; text-shadow: none !important; }
+html[data-theme='light'] .home-metric-value.accent { color: #0d7377 !important; }
+html[data-theme='light'] .home-metric-label { color: #6b7280 !important; }
+html[data-theme='light'] .home-metrics { border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .home-metric { border-color: rgba(0,0,0,0.08) !important; }
+
+/* Cards */
+html[data-theme='light'] .home-card { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .home-card-title { color: #111827 !important; }
+html[data-theme='light'] .home-card-desc { color: #6b7280 !important; }
+html[data-theme='light'] .home-card-link { color: #0d7377 !important; }
+
+/* Timeline */
+html[data-theme='light'] .home-timeline-item { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .home-timeline-item.highlight { background: rgba(13,115,119,0.08) !important; }
+html[data-theme='light'] .home-timeline-company { color: #111827 !important; }
+html[data-theme='light'] .home-timeline-role { color: #6b7280 !important; }
+html[data-theme='light'] .home-timeline-date { color: #9ca3af !important; }
+html[data-theme='light'] .home-timeline-item.highlight .home-timeline-date { color: #0d7377 !important; }
+
+/* Sections */
+html[data-theme='light'] .home-section-label { color: #6b7280 !important; }
+html[data-theme='light'] .home-insights-link { color: #0d7377 !important; }
+html[data-theme='light'] .home-insight-card { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .home-insight-cat { color: #0d7377 !important; }
+html[data-theme='light'] .home-insight-title { color: #111827 !important; }
+html[data-theme='light'] .home-insight-meta { color: #9ca3af !important; }
+
+/* About page */
+html[data-theme='light'] .about-hero h1,
+html[data-theme='light'] .about-section h2,
+html[data-theme='light'] .about-section h3 { color: #111827 !important; }
+html[data-theme='light'] .about-section p,
+html[data-theme='light'] .about-section li { color: #4b5563 !important; }
+
+/* Work page */
+html[data-theme='light'] .work-inner h1,
+html[data-theme='light'] .work-inner h2 { color: #111827 !important; }
+html[data-theme='light'] .work-inner p { color: #4b5563 !important; }
+
+/* Insights page */
+html[data-theme='light'] .insights-hero h1 { color: #111827 !important; }
+html[data-theme='light'] .insights-card { background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+
+/* Site nav */
+html[data-theme='light'] .site-nav { background: #fafaf9 !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .site-nav-name { color: #111827 !important; }
+html[data-theme='light'] .site-nav-links a { color: #6b7280 !important; }
+html[data-theme='light'] .site-nav-links a:hover { color: #0d7377 !important; }
+
+/* Developer console */
+html[data-theme='light'] .dev-trigger-fixed .btn-terminal { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.12) !important; color: #111827 !important; }
+
+/* Generic text color fixes for hardcoded values */
+html[data-theme='light'] [style*='color: #e2e8f0'],
+html[data-theme='light'] [style*='color:#e2e8f0'] { color: #111827 !important; }
+html[data-theme='light'] [style*='color: #8892a4'],
+html[data-theme='light'] [style*='color:#8892a4'] { color: #4b5563 !important; }
+html[data-theme='light'] [style*='color: #4a5568'],
+html[data-theme='light'] [style*='color:#4a5568'] { color: #6b7280 !important; }
+html[data-theme='light'] [style*='background: #050508'],
+html[data-theme='light'] [style*='background:#050508'],
+html[data-theme='light'] [style*='background-color: #050508'],
+html[data-theme='light'] [style*='background-color:#050508'] { background: #fafaf9 !important; }
+html[data-theme='light'] [style*='background: #0c0e14'],
+html[data-theme='light'] [style*='background:#0c0e14'],
+html[data-theme='light'] [style*='background: #0a0d13'],
+html[data-theme='light'] [style*='background:#0a0d13'] { background: #ffffff !important; }
+
+/* Links */
+html[data-theme='light'] a { color: #0d7377; }
+html[data-theme='light'] a:hover { color: #0a5c60; }
