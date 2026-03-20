@@ -579,8 +579,6 @@ html[data-theme='light'] [style*='background: #0a0d13'],
 html[data-theme='light'] [style*='background:#0a0d13'] { background: #ffffff !important; }
 
 /* Links */
-html[data-theme='light'] a { color: #0d7377; }
-html[data-theme='light'] a:hover { color: #0a5c60; }
 
 /* Footer is ALWAYS dark — never affected by theme */
 .footer-adsgupta,
@@ -651,3 +649,20 @@ html[data-theme='light'] .btn-terminal { background: rgba(0,0,0,0.04) !important
 /* Explicit background fix for sections that use surface vars */
 html[data-theme='light'] section { background: transparent !important; }
 html[data-theme='light'] .home-section { background: transparent !important; }
+
+/* Dev console light theme fixes */
+html[data-theme='light'] .dev-console { background: rgba(0,0,0,0.5) !important; }
+html[data-theme='light'] .dev-console-panel { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; }
+html[data-theme='light'] .dev-console-header { background: #f3f4f6 !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .dev-console-title { color: #111827 !important; }
+html[data-theme='light'] .dev-console-tabs { background: #f9fafb !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .dev-console-tab { color: #6b7280 !important; }
+html[data-theme='light'] .dev-console-tab.is-active { color: #0d7377 !important; border-bottom-color: #0d7377 !important; }
+html[data-theme='light'] .dev-console-body { background: #ffffff !important; color: #1a1a1a !important; }
+html[data-theme='light'] .dev-demo-view { background: #f9fafb !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .demo-content { background: #f3f4f6 !important; border-color: rgba(0,0,0,0.1) !important; color: #374151 !important; }
+html[data-theme='light'] .dev-prototype-main { background: #f3f4f6 !important; border-color: rgba(0,0,0,0.08) !important; }
+html[data-theme='light'] .dev-prototype-log { background: #f3f4f6 !important; border-color: rgba(0,0,0,0.08) !important; color: #374151 !important; }
+html[data-theme='light'] .demo-toolbar a { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; color: #0d7377 !important; }
+html[data-theme='light'] .dev-prototype-frame { background: #e5e7eb !important; }
+html[data-theme='light'] .btn-terminal { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.12) !important; color: #374151 !important; }
