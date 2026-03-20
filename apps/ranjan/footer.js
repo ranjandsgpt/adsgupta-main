@@ -212,12 +212,8 @@
   `;
 
   const CSS_RAW = `
-    #site-footer, #site-footer * { all: revert-layer; }
-    .adsg-footer, .adsg-footer * { color-scheme: dark !important; }
-
     .adsg-footer{
-      background:#0A0A0A !important;
-      color-scheme: dark !important;
+      background:#0A0A0A;
       border-top:1px solid rgba(255,255,255,0.05);
       padding:64px 0;
       font-family:'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -243,10 +239,10 @@
     .adsg-footer__title{
       font-size:40px;
       font-weight:700;
-      color:#ffffff !important;
+      color:#ffffff;
       line-height:1.2;
       margin:0 0 16px 0;
-      font-family:'Space Grotesk', sans-serif !important;
+      font-family:'Space Grotesk', sans-serif;
     }
 
     .adsg-footer__subtitle{
@@ -264,11 +260,11 @@
 
     .adsg-footer__input{
       flex:1;
-      background:#18181b !important;
+      background:#18181b;
       border:1px solid rgba(255,255,255,0.08);
       border-radius:9999px;
       padding:16px 20px;
-      color:#ffffff !important;
+      color:#ffffff;
       font-size:15px;
       font-family:'Space Grotesk', sans-serif;
       outline:none;
@@ -286,7 +282,7 @@
       height:56px;
       min-width:56px;
       border-radius:50%;
-      background:#06b6d4 !important;
+      background:#06b6d4;
       border:none;
       cursor:pointer;
       display:flex;
@@ -359,17 +355,17 @@
     }
 
     .adsg-footer__brand-link{
-      color:#ffffff !important;
+      color:#ffffff;
       font-family:'Space Grotesk', sans-serif;
       font-size:24px;
       font-weight:700;
       text-decoration:none;
     }
 
-    .adsg-footer__brand-accent{color:#22d3ee !important;}
+    .adsg-footer__brand-accent{color:#22d3ee;}
 
     .adsg-footer__copyright{
-      color:#52525b !important;
+      color:#52525b;
       font-size:14px;
       margin-left:24px;
     }
@@ -390,7 +386,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      color:#a1a1aa !important;
+      color:#a1a1aa;
       text-decoration:none;
       transition:all 0.3s;
     }
