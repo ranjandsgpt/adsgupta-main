@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Floor Pricing: The ML-Powered Revenue Engine | Ranjan Dasgupta</title>
+  <meta name="description" content="How dynamic floor pricing works using machine learning from an exchange architect">
+  <meta name="keywords" content="dynamic floors, floor optimization, ML pricing, yield optimization, bid landscape, eCPM, revenue optimization, exchange pricing">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Dynamic Floor Pricing: The ML-Powered Revenue Engine">
+  <meta property="og:description" content="How dynamic floor pricing works using machine learning from an exchange architect">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/dynamic-floor-pricing">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/dynamic-floor-pricing">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Dynamic Floor Pricing: The ML-Powered Revenue Engine",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "How dynamic floor pricing works using machine learning from an exchange architect",
+    "url": "https://ranjan.adsgupta.com/blog/dynamic-floor-pricing"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">7 min read</span>
+        </div>
+        <h1>Dynamic Floor Pricing: The ML-Powered Revenue Engine</h1>
+        <p class="blog-post-subtitle">Machine learning transforms the most important pricing lever.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Dynamic floor pricing is where machine learning meets programmatic revenue optimization. Instead of static floors remaining fixed across all impressions, dynamic floors use real-time signals to calculate optimal price per auction. Having built floor optimization at Glance and now at InMobi, I consider this the most impactful monetization product.</p>
+        <h2>Why Static Floors Fail</h2>
+        <p>A static $2.00 CPM floor might be perfect for US desktop during business hours but absurdly high for Indian mobile at midnight. Static floors cannot account for dozens of variables: geo, device, time, content category, format, demand density, seasonal patterns. At Glance, switching from static to dynamic increased eCPM 18% while fill rate improved 3%.</p>
+        <h2>ML Architecture</h2>
+        <p>Three components: data pipeline ingesting real-time bid landscape data per impression; prediction model (gradient-boosted tree or neural network) taking impression features and predicting full bid probability distribution; optimization engine calculating floor maximizing expected revenue. The key: optimal floor is not expected winning bid — it is the price maximizing P(fill) times E[clearing_price given fill]. At InMobi, floor prediction runs under 5ms per impression.</p>
+        <h2>Feature Engineering</h2>
+        <p>Highest-impact features: historical bid distribution for publisher-geo-device-format combination; demand density signals (active DSP count in past hour); time-based features with cyclical encoding; content vertical; competition signals. At InMobi, we also incorporate which DSPs are actively spending, major campaigns in flight, and seasonal demand patterns.</p>
+        <h2>The Feedback Loop</h2>
+        <p>Dynamic floors and bid shading are in feedback loops. Rising floors cause DSPs to bid higher. Dropping floors trigger more aggressive shading. Floor optimization must be adaptive — accounting for how DSPs respond to changes, not just current bidding patterns. At Glance, conservative adjustments with dampening prevented shocking DSP bidders into pausing altogether.</p>
+        <h2>Measuring Impact</h2>
+        <p>The right metric is total revenue — not eCPM or fill rate alone. Dynamic floors increasing eCPM 30% while cutting fill rate 25% produce net revenue decrease. At InMobi, we run continuous A/B tests measuring total revenue across treatment and control groups at publisher level. This rigorous framework separates effective optimization from floor manipulation.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/first-price-vs-second-price-auctions">Auction Types</a>
+          <a href="/blog/bid-shading-explained">Bid Shading</a>
+          <a href="/blog/dynamic-floor-pricing">Dynamic Floors</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

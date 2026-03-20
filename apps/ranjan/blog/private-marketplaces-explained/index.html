@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Marketplaces (PMPs): How Premium Programmatic Deals Actually Work | Ranjan Dasgupta</title>
+  <meta name="description" content="Learn how Private Marketplaces work from an exchange product leader at InMobi">
+  <meta name="keywords" content="private marketplace, PMP, deal ID, programmatic deals, preferred deals, programmatic guaranteed, premium inventory, exchange deals, SSP deals">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Private Marketplaces (PMPs): How Premium Programmatic Deals Actually Work">
+  <meta property="og:description" content="Learn how Private Marketplaces work from an exchange product leader at InMobi">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/private-marketplaces-explained">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/private-marketplaces-explained">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Private Marketplaces (PMPs): How Premium Programmatic Deals Actually Work",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Learn how Private Marketplaces work from an exchange product leader at InMobi",
+    "url": "https://ranjan.adsgupta.com/blog/private-marketplaces-explained"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">8 min read</span>
+        </div>
+        <h1>Private Marketplaces (PMPs): How Premium Programmatic Deals Actually Work</h1>
+        <p class="blog-post-subtitle">The product architecture behind premium programmatic deals.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Private Marketplaces sit at the intersection of programmatic efficiency and premium relationships. Having built deal infrastructure at Glance and now designing PMP products at InMobi Exchange, I have seen how PMPs work from the exchange architecture side.</p>
+        <h2>What a PMP Actually Is</h2>
+        <p>A PMP is a programmatic deal between a publisher or group of publishers and select buyers, executed through an exchange at a negotiated minimum price. The deal is identified by a deal ID — a string that travels with the bid request telling the DSP this impression is available at these terms. The key difference from open auction: PMPs provide access control and price guarantees. The publisher controls which buyers participate, and the floor is typically higher than open market rates in exchange for premium inventory access.</p>
+        <h2>How Deal IDs Flow</h2>
+        <p>When a PMP-eligible impression becomes available, the exchange includes the deal ID in the bid request <code>imp.pmp</code> object with floor price and auction type. The DSP — The Trade Desk, DV360, Amazon DSP, or Xandr — checks its deal configurations, matches the ID, and bids accordingly. At InMobi, we implement priority logic where PMP bids above the deal floor are evaluated first. If a PMP bid wins, the impression goes to the deal. If no PMP bid clears, the impression falls to open auction.</p>
+        <h2>PMP vs Preferred Deals vs PG</h2>
+        <p>A PMP is an invitation-only auction — multiple buyers compete at or above a negotiated floor. A Preferred Deal is one-to-one: a single buyer gets first-look at fixed price before any auction. Programmatic Guaranteed is reserved — fixed volume, fixed price, guaranteed delivery. Each has different exchange architecture requirements. Supporting all three simultaneously — which we do at InMobi — is a significant product and engineering challenge.</p>
+        <h2>Common PMP Failures</h2>
+        <p>PMPs fail predictably. Floor prices set too high relative to open market. Inventory pools too narrow. Targeting mismatches between buyer campaigns and publisher offering. Reporting gaps preventing performance assessment. The exchange role is preventing these failures through intelligent deal monitoring, automated floor recommendations, and transparent reporting. At InMobi, we are building deal health dashboards that flag underperforming PMPs before they are abandoned.</p>
+        <h2>The Future: Curated Marketplaces</h2>
+        <p>PMPs will evolve toward curation. Instead of simple publisher-buyer deals, exchanges will package premium inventory with verified audience data, brand safety guarantees, and attention metrics into deal packages. This is emerging through Magnite ClearLine and PubMatic curated deals. At InMobi, we are investing in curated marketplace capabilities because the future of premium programmatic is packaged quality, not just access control.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/private-marketplaces-explained">PMPs</a>
+          <a href="/blog/programmatic-guaranteed-guide">PG Guide</a>
+          <a href="/blog/how-programmatic-advertising-works">How Programmatic Works</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deal IDs in Programmatic: How They Work and Why They Break | Ranjan Dasgupta</title>
+  <meta name="description" content="Guide to deal ID management in programmatic from an exchange product leader at InMobi">
+  <meta name="keywords" content="deal ID, programmatic deals, PMP, deal troubleshooting, OpenRTB deals, SSP deals, DSP deal setup, deal matching">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Deal IDs in Programmatic: How They Work and Why They Break">
+  <meta property="og:description" content="Guide to deal ID management in programmatic from an exchange product leader at InMobi">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/deal-id-management">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/deal-id-management">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Deal IDs in Programmatic: How They Work and Why They Break",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Guide to deal ID management in programmatic from an exchange product leader at InMobi",
+    "url": "https://ranjan.adsgupta.com/blog/deal-id-management"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">7 min read</span>
+        </div>
+        <h1>Deal IDs in Programmatic: How They Work and Why They Break</h1>
+        <p class="blog-post-subtitle">The most under-documented piece of programmatic infrastructure.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Deal IDs are the connective tissue of premium programmatic — identifiers linking business agreements to technical transactions in the exchange. Having built deal infrastructure at Glance and InMobi Exchange, I have debugged thousands of deal issues.</p>
+        <h2>What Deal IDs Are</h2>
+        <p>A deal ID is a unique string representing a buying arrangement. When publisher and advertiser agree to a PMP, Preferred Deal, or PG through an SSP, the exchange generates a deal ID included in every eligible bid request in the <code>imp.pmp.deals</code> array. The DSP matches it and bids at or above the deal floor. The deal ID carries floor price, auction type, authorized buyer seats, and creative restrictions.</p>
+        <h2>How They Flow Through the Stack</h2>
+        <p>The publisher request reaches the exchange. The exchange evaluates whether the impression matches active deals based on geo, device, format, content category targeting. For matches, the deal ID is included in the bid request. The DSP receives it, checks local configuration, submits a deal-specific bid. The exchange evaluates against deal priority rules and open auction competition. Each handoff is a potential failure point — at Glance, approximately 20% of new deals had configuration mismatches between SSP and DSP side.</p>
+        <h2>Top Five Failure Modes</h2>
+        <p>Floor mismatch: SSP floor $5.00 but DSP configured at $4.50 — DSP bids $4.75, clears its floor but fails the SSP. Buyer seat mismatch: deal authorized for one seat but DSP sends from another. Targeting gap: deal targets US desktop but eligible inventory is only 5% of traffic. Creative rejection: deal allows 300x250 but buyer sends 320x50. Timeout: DSP takes too long responding to deal bid requests. At InMobi, we are building deal validation at setup, real-time monitoring dashboards, and recommendation engines suggesting optimal parameters.</p>
+        <h2>CTV Deal Complexity</h2>
+        <p>CTV adds unique challenges. Ad pod deals require pod-aware logic specifying position preference, competitive separation, and frequency limits. Inventory fragmentation across apps, FAST channels, and devices makes targeting complex. At InMobi, our CTV exchange handles these through pod-level deal objects.</p>
+        <h2>The Future of Deal Management</h2>
+        <p>The future is automated. AI systems will negotiate deal terms, optimize parameters in real time, and resolve mismatches without human intervention. But today, fundamentals matter: clear communication, validated configurations, proactive monitoring. The exchange making deals easiest to set up, manage, and optimize wins premium programmatic business.</p>
+
+        <h2>Scaling Deal Management</h2>
+        <p>As programmatic deals grow in volume and complexity, manual deal management becomes unsustainable. At InMobi, we are building automated deal lifecycle management — from creation and validation through monitoring and optimization to renewal or termination. The system automatically validates configuration parameters between SSP and DSP at deal creation, monitors deal health metrics in real time, flags issues before they impact delivery, and suggests optimization actions based on historical performance data.</p>
+        <p>The vision is fully automated deal management where the exchange AI negotiates terms, sets optimal floors, monitors performance, and adjusts parameters continuously — all while maintaining the relationship context that makes deals valuable. This is still aspirational, but the building blocks are in place. The publishers and buyers who adopt automated deal management first will have significant advantages in deal velocity and performance optimization over those still managing deals manually through spreadsheets and email threads.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/private-marketplaces-explained">PMPs</a>
+          <a href="/blog/programmatic-guaranteed-guide">PG Guide</a>
+          <a href="/blog/how-programmatic-advertising-works">How Programmatic Works</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

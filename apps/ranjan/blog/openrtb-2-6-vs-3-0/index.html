@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenRTB 2.6 vs 3.0: Why the Industry Has Not Migrated | Ranjan Dasgupta</title>
+  <meta name="description" content="Practical comparison of OpenRTB 2.6 and 3.0 from an exchange product leader">
+  <meta name="keywords" content="OpenRTB 2.6, OpenRTB 3.0, AdCOM, IAB Tech Lab, bid request protocol, programmatic standards">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="OpenRTB 2.6 vs 3.0: Why the Industry Has Not Migrated">
+  <meta property="og:description" content="Practical comparison of OpenRTB 2.6 and 3.0 from an exchange product leader">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/openrtb-2-6-vs-3-0">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/openrtb-2-6-vs-3-0">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "OpenRTB 2.6 vs 3.0: Why the Industry Has Not Migrated",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Practical comparison of OpenRTB 2.6 and 3.0 from an exchange product leader",
+    "url": "https://ranjan.adsgupta.com/blog/openrtb-2-6-vs-3-0"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">8 min read</span>
+        </div>
+        <h1>OpenRTB 2.6 vs 3.0: Why the Industry Has Not Migrated</h1>
+        <p class="blog-post-subtitle">The protocol migration that never happened — and what that tells us.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>OpenRTB 3.0 was released in 2018 as a complete reimagining of the programmatic protocol. Technically superior in almost every way. Yet years later, the overwhelming majority of exchanges — InMobi included — still run on 2.5 or 2.6. Understanding why tells you about how adtech actually works.</p>
+        <h2>What 3.0 Proposed</h2>
+        <p>A layered architecture: transaction layer (OpenRTB 3.0) for auction mechanics, ad object layer (AdCOM) for creative and format descriptions, regulatory layer for privacy and consent — all separated. This is elegant. In 2.x, everything is mashed into one monolithic protocol. OpenRTB 3.0 also introduced better emerging format support, cleaner device/media enumerations, and a more extensible architecture. On paper, the clear winner.</p>
+        <h2>Why Migration Has Not Happened</h2>
+        <p>Coordination, not technology. Hundreds of SSPs and DSPs need to interoperate. For an exchange to adopt 3.0, its DSP partners need to accept 3.0 requests. For DSPs to accept 3.0, exchanges need to send them. Classic chicken-and-egg. At InMobi, we have evaluated 3.0 migration multiple times — cost of dual protocol support, engineering to rebuild bid request generation, risk of demand loss from non-adopting DSPs always outweighs benefits. Product leaders at Magnite, PubMatic, and Index Exchange reach similar conclusions.</p>
+        <h2>The Extension Field Reality</h2>
+        <p>Innovation happens through <code>ext</code> fields. Exchanges pass proprietary signals — contextual enrichment, attention predictions, quality scores — through extensions. DSPs have their own. The <code>ext</code> field is an escape valve allowing protocol evolution without formal spec changes. Not standardized, but far more agile than waiting for committee approvals. At InMobi, our exchange uses extensive extensions for signal enrichment.</p>
+        <h2>What Will Actually Happen</h2>
+        <p>OpenRTB 2.x will remain dominant through at least 2028. When a major shift occurs, it will not be migration to current 3.0 — it will be a new protocol for an AI-agent-driven ecosystem where buyers are autonomous systems with different communication requirements. The lesson: backward compatibility and incremental evolution beat clean-slate redesigns. Build for the protocol the market actually uses.</p>
+        <h2>Practical Advice</h2>
+        <p>Build on OpenRTB 2.6 with extensive extension field support. Design architecture to be protocol-agnostic where possible — abstract bid request generation so future migration does not require rewriting core auction logic. Invest in your extension taxonomy: richer and more consistent extensions help demand partners optimize better. This is what we do at InMobi.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/what-is-real-time-bidding">RTB Guide</a>
+          <a href="/blog/openrtb-protocol-explained">OpenRTB</a>
+          <a href="/blog/header-bidding-complete-guide">Header Bidding</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

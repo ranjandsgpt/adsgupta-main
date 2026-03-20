@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programmatic Buying Models: CPM CPC CPA and Beyond | Ranjan Dasgupta</title>
+  <meta name="description" content="Comparison of programmatic pricing and buying models">
+  <meta name="keywords" content="CPM, CPC, CPA, buying models, pricing models, programmatic pricing">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Programmatic Buying Models: CPM CPC CPA and Beyond">
+  <meta property="og:description" content="Comparison of programmatic pricing and buying models">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/programmatic-buying-models">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/programmatic-buying-models">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Programmatic Buying Models: CPM CPC CPA and Beyond",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Comparison of programmatic pricing and buying models",
+    "url": "https://ranjan.adsgupta.com/blog/programmatic-buying-models"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">7 min read</span>
+        </div>
+        <h1>Programmatic Buying Models: CPM CPC CPA and Beyond</h1>
+        <p class="blog-post-subtitle">Understanding how programmatic transactions are priced.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>As someone who has spent over a decade building advertising technology products — from Google's DFP and AdX platform through unified monetization at Glance to exchange architecture at InMobi — I bring a product-first perspective to programmatic buying models that goes beyond surface-level explanations. This is the guide I wish existed when I started building in this space.</p>
+        <h2>Why This Matters</h2>
+        <p>Understanding programmatic buying models is fundamental to building effective programmatic advertising products. At InMobi, where I lead Web and CTV Exchange product strategy, every decision we make about exchange architecture, auction design, and signal quality connects back to these fundamentals. The publishers generating $200M+ in programmatic revenue — the kind of scale I helped build at Glance — understand these concepts at a deep technical level. They do not treat them as abstractions; they treat them as product levers.</p>
+        <h2>The Technical Reality</h2>
+        <p>Most explanations of programmatic buying models focus on the theoretical. Let me give you the operational reality based on processing billions of impressions across InMobi Exchange. The real-world implementation involves trade-offs between latency and thoroughness, between signal richness and privacy compliance, between demand competition and auction complexity. At Google, I learned how the world's largest ad platform navigates these trade-offs. At Glance, I learned how to build these systems from scratch when you do not have Google's advantages. At InMobi, I apply both perspectives to design exchange products competing at the highest level globally.</p>
+        <p>The programmatic ecosystem — spanning DSPs like The Trade Desk, DV360, Amazon DSP, Xandr, and Criteo on the demand side, and SSPs like InMobi Exchange, Magnite, PubMatic, Index Exchange, and OpenX on the supply side — processes these transactions through the OpenRTB protocol at sub-100-millisecond speeds. Every field in the bid request, every auction configuration, every timeout setting is a product decision with measurable revenue impact.</p>
+        <h2>Product Implications</h2>
+        <p>From a product strategy perspective, programmatic buying models connects directly to publisher revenue outcomes. When I was building Glance's monetization stack, we measured the impact of every optimization in this area — A/B testing configurations, measuring eCPM and fill rate changes, and calculating total revenue impact. The results consistently showed that getting the fundamentals right produces more revenue than chasing exotic features. A 5% improvement in programmatic efficiency across billions of impressions moves millions in annual revenue.</p>
+        <p>At InMobi Exchange, we incorporate these principles into our product design. Our exchange processes ad requests from publishers worldwide, sending OpenRTB bid requests to connected DSPs, running first-price auctions with dynamic floor optimization, and returning winning creatives — all within tight latency budgets. The product decisions embedded in this pipeline determine whether publishers earn $2 or $20 CPM for functionally identical impressions. That is the power of understanding fundamentals deeply.</p>
+        <h2>Current State and Future Direction</h2>
+        <p>As of 2025, the industry is evolving rapidly in this area. Server-side processing is becoming default, AI is driving dynamic optimization, CTV is creating new application contexts, and privacy regulations are reshaping signal availability. The exchanges and DSPs that adapt fastest will lead the market through 2030. At InMobi, we are investing in next-generation capabilities — ML-powered optimization, attention-based signals, CTV-specific infrastructure, and AI-agent-compatible interfaces — all built on these fundamental principles.</p>
+        <p>Header bidding through Prebid.js and Prebid Server has transformed how these fundamentals are applied in practice. The shift from waterfall to parallel auctions, from client-side to server-side processing, and from static to dynamic optimization represents an ongoing architectural evolution. At AdsGupta.com, I am building AI-powered tools that help publishers and advertisers navigate this complexity with intelligence and precision. The fundamentals covered on this page are the foundation everything else is built upon.</p>
+        <h2>My Perspective</h2>
+        <p>Having worked across every layer of the ad tech stack — Google's ad server, independent SSP strategy at Automatad, unified monetization at Glance, exchange design at InMobi — I can tell you that mastering programmatic buying models is not optional for anyone building in programmatic advertising. It is the difference between ad products that generate incremental value and ad products that transform publisher economics. I build for transformation, and I start with fundamentals.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/what-is-real-time-bidding">RTB Guide</a>
+          <a href="/blog/openrtb-protocol-explained">OpenRTB</a>
+          <a href="/blog/header-bidding-complete-guide">Header Bidding</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

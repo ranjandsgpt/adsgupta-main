@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yield and Monetization: Push Notification Revenue | Ranjan Dasgupta</title>
+  <meta name="description" content="Publisher monetization guide covering Push Notification Revenue">
+  <meta name="keywords" content="yield optimization, monetization, publisher revenue, eCPM, fill rate, programmatic revenue">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Yield and Monetization: Push Notification Revenue">
+  <meta property="og:description" content="Publisher monetization guide covering Push Notification Revenue">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/yield-push-notification-revenue">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/yield-push-notification-revenue">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Yield and Monetization: Push Notification Revenue",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Publisher monetization guide covering Push Notification Revenue",
+    "url": "https://ranjan.adsgupta.com/blog/yield-push-notification-revenue"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Yield &amp; Monetization</span>
+          <span class="blog-post-read-time">7 min read</span>
+        </div>
+        <h1>Yield and Monetization: Push Notification Revenue</h1>
+        <p class="blog-post-subtitle">Expert perspective on yield and monetization from inside the exchange.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Yield and Monetization is a subject I approach with deep hands-on experience. Having spent over a decade building advertising technology products — four years inside Google's ad platform (DFP, AdX, DV360, SA360), five years building unified monetization at Glance scaling to $200M+ revenue, and now leading Web and CTV Exchange product strategy at InMobi — I bring the perspective of someone who has built these systems in production, not just theorized about them.</p>
+
+        <h2>Why This Topic Matters Now</h2>
+        <p>Understanding yield and monetization is increasingly critical in the programmatic advertising landscape of 2025 and beyond. The ecosystem is evolving rapidly: server-side processing is becoming default, AI is driving dynamic optimization, CTV is creating new application contexts, and privacy regulations are reshaping signal availability. At InMobi, every product decision I make about yield optimization, monetization strategy, and publisher revenue growth connects to these broader industry shifts. Publishers generating significant programmatic revenue understand this topic at a deep level because it directly impacts their monetization outcomes.</p>
+        <p>The programmatic ecosystem processes trillions of real-time transactions annually, with technology platforms spanning Google Ad Manager, Prebid.js, InMobi Exchange, Magnite, PubMatic, Amazon Publisher Services, and comprehensive demand partner stacks. Each platform makes different product decisions that materially affect outcomes. Understanding how yield and monetization fits into this ecosystem — and how to optimize for it — separates the highest-performing publishers and advertisers from the average.</p>
+
+        <h2>My Experience and Perspective</h2>
+        <p>My perspective on yield and monetization comes from building a unified monetization stack at Glance that scaled to $200M+ annual revenue across Web, App, and CTV, optimizing every aspect of publisher yield. This is not theoretical knowledge gathered from industry reports — it is operational understanding built from processing billions of impressions, debugging production issues at 2 AM, and measuring the revenue impact of every product decision.</p>
+        <p>At Google, I learned how the world's largest ad platform approaches these challenges at massive scale. The DFP and AdX integration patterns, the auction mechanics, the priority systems — all of this formed the foundation of my understanding. At Automatad, I learned how independent publishers navigate the programmatic landscape without Google's advantages. At Glance, I built a unified monetization stack from scratch across Web, App, and CTV, applying everything I had learned to create a system generating $200M+ in annual revenue. Now at InMobi, I am designing exchange products that serve publishers and advertisers globally.</p>
+
+        <h2>Technical Deep Dive</h2>
+        <p>The technical implementation of yield and monetization involves several interconnected systems. At the protocol level, OpenRTB bid requests carry the signals that enable targeting, auction clearing, and performance measurement. The bid request fields — <code>imp</code> for impression details, <code>site</code> or <code>app</code> for publisher context, <code>device</code> for hardware and connectivity, <code>user</code> for identity and consent — each play a role in how yield and monetization functions in practice.</p>
+        <p>At InMobi Exchange, our product architecture addresses yield and monetization through multiple layers. The signal enrichment layer adds contextual intelligence and quality scores to bid requests. The auction engine applies dynamic floor optimization and demand routing logic. The measurement layer tracks outcome metrics that validate our approach. And the API layer provides transparency to both publishers and demand partners about how yield and monetization affects their transactions.</p>
+        <p>The header bidding ecosystem — whether through Prebid.js for client-side, Prebid Server for server-side, or Amazon TAM — intersects with yield and monetization in important ways. The configuration decisions publishers make in their wrapper — which partners to include, timeout settings, bid caching rules, floor strategies — all interact with how yield and monetization plays out in practice. I have optimized these configurations across thousands of publisher setups.</p>
+
+        <h2>Common Challenges and Solutions</h2>
+        <p>Based on my experience across Google, Glance, and InMobi, the most common challenges with yield and monetization include: balancing optimization with latency (every additional processing step adds milliseconds that can cost pageviews and revenue), maintaining data quality across fragmented systems (different platforms report different numbers), adapting to regulatory changes (privacy laws continue to reshape what signals are available), and scaling efficiently (solutions that work for 100K daily impressions may break at 10B).</p>
+        <p>The solutions I have implemented involve rigorous A/B testing of every change, building monitoring systems that catch degradation in real time, designing architectures that are modular enough to adapt to regulatory shifts, and investing in infrastructure that scales cost-effectively. At InMobi, these principles guide our exchange product development.</p>
+
+        <h2>Current State and Future Direction</h2>
+        <p>AI-driven yield management will replace manual optimization. Dynamic everything — floors, timeouts, partner selection, ad layout — will be optimized per impression using machine learning, maximizing total publisher revenue. These shifts represent both challenges and opportunities for everyone building in adtech. At InMobi, we are investing in next-generation capabilities — ML-powered optimization, attention-based signals, CTV-specific infrastructure, and AI-agent-compatible interfaces — all building on the fundamentals of yield and monetization.</p>
+        <p>For publishers, understanding yield and monetization translates directly to revenue impact. The publishers I have worked with who invest in understanding these systems — rather than treating them as black boxes — consistently outperform their peers by 20-40% in programmatic revenue. This is not about becoming a technical expert; it is about understanding the product decisions embedded in the technology stack and making informed choices about your monetization architecture.</p>
+
+        <h2>Building at AdsGupta.com</h2>
+        <p>I am applying everything I know about yield and monetization to adsgupta.com — an AI-powered advertising intelligence platform I am building alongside my work at InMobi. The tools on adsgupta.com help publishers and advertisers navigate the complexity of programmatic with data-driven intelligence, drawing on the same expertise I bring to exchange product design. If you want to go deeper on yield and monetization or any aspect of advertising technology, explore the resources at adsgupta.com or reach out to me directly at ranjan.adsgupta.com.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/yield-optimization-fundamentals">Yield Fundamentals</a>
+          <a href="/blog/dynamic-floor-pricing">Dynamic Floors</a>
+          <a href="/blog/header-bidding-complete-guide">Header Bidding</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

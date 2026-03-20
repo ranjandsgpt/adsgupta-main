@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Programmatic Advertising Works: The Complete Technical Guide | Ranjan Dasgupta</title>
+  <meta name="description" content="A technical guide to programmatic advertising from an exchange product leader at Google, Glance, and InMobi">
+  <meta name="keywords" content="programmatic advertising, how programmatic works, ad tech stack, DSP, SSP, ad exchange, ad server, Google Ad Manager, Prebid, programmatic buying">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="How Programmatic Advertising Works: The Complete Technical Guide">
+  <meta property="og:description" content="A technical guide to programmatic advertising from an exchange product leader at Google, Glance, and InMobi">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/how-programmatic-advertising-works">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/how-programmatic-advertising-works">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "How Programmatic Advertising Works: The Complete Technical Guide",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "A technical guide to programmatic advertising from an exchange product leader at Google, Glance, and InMobi",
+    "url": "https://ranjan.adsgupta.com/blog/how-programmatic-advertising-works"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">10 min read</span>
+        </div>
+        <h1>How Programmatic Advertising Works: The Complete Technical Guide</h1>
+        <p class="blog-post-subtitle">Everything that happens between the page load and the ad render.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Programmatic advertising is a distributed system processing trillions of real-time transactions annually, matching advertiser demand with publisher supply through auction-based exchanges in under 100 milliseconds. I have been inside this system for over a decade.</p>
+        <h2>From Page Load to Ad Render</h2>
+        <p>When a user loads a webpage, the publisher ad code executes. If header bidding is used, a JavaScript wrapper (typically Prebid.js) fires parallel bid requests to multiple SSPs. Simultaneously, the page requests the publisher ad server (usually Google Ad Manager). Each SSP translates the request into OpenRTB and sends it to connected DSPs. At InMobi Exchange, a single impression might generate requests to 30+ DSPs including The Trade Desk, DV360, Amazon DSP, Xandr, Criteo, and MediaMath. DSPs that want to bid return responses to the SSP, which runs its auction and returns the winner to the header bidding wrapper. The wrapper collects winners from all SSPs and passes them as key-value pairs to Google Ad Manager, which runs its own final auction. Total elapsed time: 80-150 milliseconds.</p>
+        <h2>Key Platforms in the Stack</h2>
+        <p>Ad servers (Google Ad Manager, FreeWheel for video) manage inventory and make final ad selection. SSPs and exchanges (InMobi Exchange, Magnite, PubMatic, Index Exchange, OpenX, TripleLift, 33Across) sell publisher inventory through auctions. DSPs (The Trade Desk, DV360, Amazon DSP, Xandr, Criteo, StackAdapt) enable programmatic buying. Verification vendors (IAS, DoubleVerify, MOAT) measure viewability, brand safety, and fraud. At Google, I worked across the ad server and exchange simultaneously — a cross-platform perspective that has informed every product decision since.</p>
+        <h2>Transaction Types</h2>
+        <p>Open auction RTB is the unreserved real-time auction. Private Marketplace deals give selected buyers priority access at negotiated floors identified by deal IDs. Programmatic Guaranteed is fixed-price, fixed-volume executed programmatically. Preferred Deals offer first-look access at negotiated prices. Each requires different product architecture. At InMobi, managing their interaction — priority, pricing, and allocation logic — is one of our most complex challenges.</p>
+        <h2>Why Product Thinking Beats Ops</h2>
+        <p>Every component is a product decision. Timeout configuration is not an ops setting — it is a product trade-off between demand competition and user experience. Floor pricing is not an ops lever — it is a product architecture shaping auction dynamics. Demand partner selection is not an ops task — it is a product strategy determining supply path complexity and bid density. I have built monetization systems generating $200M+ in revenue. Every dollar started with a product decision.</p>
+        <h2>Where Programmatic Is Heading</h2>
+        <p>The future is server-side, AI-native, and cross-surface. Header bidding will move entirely server-side. AI will drive dynamic everything — floors, timeouts, demand routing, creative selection. And the programmatic model will extend from web and app to CTV, DOOH, audio, and surfaces we have not invented yet.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/private-marketplaces-explained">PMPs</a>
+          <a href="/blog/programmatic-guaranteed-guide">PG Guide</a>
+          <a href="/blog/how-programmatic-advertising-works">How Programmatic Works</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

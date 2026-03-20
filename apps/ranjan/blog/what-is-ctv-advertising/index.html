@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Is CTV Advertising and Why It Is the Biggest Opportunity in AdTech | Ranjan Dasgupta</title>
+  <meta name="description" content="Guide to connected TV advertising from an exchange product leader building CTV at InMobi">
+  <meta name="keywords" content="CTV advertising, connected TV, OTT ads, streaming advertising, CTV programmatic, InMobi CTV, CTV exchange">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="What Is CTV Advertising and Why It Is the Biggest Opportunity in AdTech">
+  <meta property="og:description" content="Guide to connected TV advertising from an exchange product leader building CTV at InMobi">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/what-is-ctv-advertising">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/what-is-ctv-advertising">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "What Is CTV Advertising and Why It Is the Biggest Opportunity in AdTech",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Guide to connected TV advertising from an exchange product leader building CTV at InMobi",
+    "url": "https://ranjan.adsgupta.com/blog/what-is-ctv-advertising"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">CTV &amp; Video Advertising</span>
+          <span class="blog-post-read-time">8 min read</span>
+        </div>
+        <h1>What Is CTV Advertising and Why It Is the Biggest Opportunity in AdTech</h1>
+        <p class="blog-post-subtitle">CTV is the largest new ad surface since mobile.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+        <p>Connected TV advertising is programmatic advertising delivered on internet-connected television devices — smart TVs, streaming sticks (Roku, Fire TV, Chromecast), and gaming consoles. As someone building CTV exchange products at InMobi, I see CTV as the most significant ad surface opportunity since mobile. The numbers support this: CTV ad spend is growing 25%+ annually, CPMs are 5-10x higher than display, and completion rates exceed 90% for most video formats.</p>
+        <h2>Why CTV Matters</h2>
+        <p>CTV combines the premium environment of television with the targeting precision of digital. Unlike linear TV where advertisers buy against broad demographics, CTV enables household-level targeting, frequency capping, and real-time optimization through programmatic infrastructure. At InMobi, our CTV exchange connects streaming publishers with DSPs like The Trade Desk, DV360, and Amazon DSP, enabling this precision at scale.</p>
+        <p>The CTV ad experience is fundamentally different from display. Ads are full-screen, typically unskippable, and delivered in content environments where users are highly engaged. This explains the CPM premium — brand advertisers pay $15-40 CPM for CTV versus $2-8 for display because the attention value is dramatically higher.</p>
+        <h2>How CTV Ad Serving Works</h2>
+        <p>CTV ad delivery uses either SSAI (Server-Side Ad Insertion) or CSAI (Client-Side Ad Insertion). In SSAI, ads are stitched into the content stream on the server before delivery to the device — creating a seamless viewing experience with no buffering. In CSAI, the client application requests and plays ads separately. Most premium CTV environments use SSAI because it prevents ad blocking and provides a TV-like experience.</p>
+        <p>The ad format is VAST-based (Video Ad Serving Template), typically VAST 4.x, which defines the video creative, tracking pixels, companion ads, and verification scripts. Ad pods — groups of ads played together like traditional TV commercial breaks — are managed through VMAP (Video Multiple Ad Playlist), which defines when ad breaks occur within content and how many ads each break contains.</p>
+        <h2>CTV Exchange Architecture at InMobi</h2>
+        <p>At InMobi, our CTV exchange handles the unique requirements of streaming ad delivery: ad podding with competitive separation (ensuring competing brands do not appear in the same break), frequency capping across sessions and devices, SSAI integration with major streaming platforms, and CTV-specific OpenRTB extensions for content metadata and device identification.</p>
+        <p>The identity framework for CTV relies on device-level IDs (IFA — Identifier for Advertising) rather than cookies, and increasingly on household-level graphs that connect the TV to other devices in the home. This enables cross-screen attribution — connecting a CTV ad view to a mobile or web conversion — which is essential for proving CTV advertising ROI.</p>
+        <h2>CTV Measurement Challenges</h2>
+        <p>Measurement remains CTV's biggest challenge. Traditional viewability does not apply — the ad is full-screen by default. Instead, CTV measurement focuses on video completion rate (VCR), reach and frequency, brand lift, and increasingly attention metrics. Cross-screen attribution — connecting CTV exposure to downstream actions on other devices — requires sophisticated identity resolution.</p>
+        <p>At InMobi, we integrate with major measurement vendors including Nielsen, Comscore, IAS, and DoubleVerify to provide comprehensive CTV campaign reporting. We also transmit attention-related signals in our bid requests that help DSPs value CTV inventory more accurately.</p>
+        <p>CTV will surpass mobile as the highest-revenue programmatic surface by 2030. The infrastructure being built now — ad podding, SSAI, cross-screen identity, attention measurement — will define the CTV advertising ecosystem for the next decade. At InMobi, building this infrastructure is my core focus, and I believe the exchanges that get CTV right will lead the programmatic market.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/what-is-ctv-advertising">CTV Guide</a>
+          <a href="/blog/ctv-ad-podding-guide">Ad Podding</a>
+          <a href="/blog/ctv-measurement-guide">CTV Measurement</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

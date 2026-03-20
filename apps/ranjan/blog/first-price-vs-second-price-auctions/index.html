@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First Price vs Second Price Auctions: What Changed and Why It Matters | Ranjan Dasgupta</title>
+  <meta name="description" content="An exchange architect explains the shift from second-price to first-price auctions in programmatic advertising">
+  <meta name="keywords" content="first price auction, second price auction, bid shading, programmatic auction, ad exchange, floor pricing, DSP bidding, auction mechanics, exchange design">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="First Price vs Second Price Auctions: What Changed and Why It Matters">
+  <meta property="og:description" content="An exchange architect explains the shift from second-price to first-price auctions in programmatic advertising">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/first-price-vs-second-price-auctions">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/first-price-vs-second-price-auctions">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "First Price vs Second Price Auctions: What Changed and Why It Matters",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "An exchange architect explains the shift from second-price to first-price auctions in programmatic advertising",
+    "url": "https://ranjan.adsgupta.com/blog/first-price-vs-second-price-auctions"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">8 min read</span>
+        </div>
+        <h1>First Price vs Second Price Auctions: What Changed and Why It Matters</h1>
+        <p class="blog-post-subtitle">The auction model shift that reshaped programmatic economics.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>The shift from second-price to first-price auctions was the most significant structural change in programmatic advertising in the last decade. I witnessed it from inside the ecosystem — at Google where AdX was one of the last to move, and now at InMobi where I design auction logic for our Web and CTV exchange.</p>
+        <h2>How Second-Price Worked</h2>
+        <p>In a second-price auction, the highest bidder wins but pays only $0.01 above the second-highest bid. This was dominant through approximately 2019. The theory — rooted in Vickrey auction design — was that it incentivizes truthful bidding. In practice, exchanges layered soft floors, hard floors, and yield optimization tactics that made the effective clearing price unpredictable. Transparency eroded as DSPs could not trust that prices reflected genuine competitive dynamics.</p>
+        <h2>Why the Industry Moved to First-Price</h2>
+        <p>Header bidding broke the second-price model. When publishers ran parallel auctions across multiple SSPs — Magnite, PubMatic, Index Exchange, OpenX, InMobi — each SSP ran its own second-price auction, then submitted winning bids to the publisher ad server for a final auction. The economics became distorted because second-price dynamics do not compose cleanly across nested auctions. First-price solved this: you bid what you are willing to pay, you pay that amount. Between 2018 and 2020, virtually every major exchange moved to first-price.</p>
+        <h2>The Bid Shading Response</h2>
+        <p>DSPs needed bid shading algorithms. Without shading, a DSP bidding $5.00 would pay the full amount instead of ~$3.50 in second-price. The Trade Desk, DV360, Xandr, Amazon DSP, and Criteo invested heavily in ML models predicting minimum winning bids. Early shading was aggressive — DSPs slashed bids 30-40%, temporarily cratering publisher revenue. Today algorithms are nuanced, using historical win-rate data, competitive density, and publisher floor patterns. At Glance, the key to maintaining yield in a shaded environment was bid density — 15+ DSPs bidding per impression limits shading room.</p>
+        <h2>Impact on Floor Pricing</h2>
+        <p>First-price fundamentally changed floor strategy. In second-price, aggressive floors pushed clearing prices up without necessarily losing auctions. In first-price, a floor too high simply kills the auction. At Glance, we redesigned our entire floor architecture — dynamic floors adjusting based on real-time bid landscape data. The result balanced revenue maximization with fill rate preservation. I have seen publishers lose 15-20% revenue by applying first-price floors using second-price logic.</p>
+        <h2>Exchange Design Implications</h2>
+        <p>As exchange product leader at InMobi, auction model is one of my most important decisions. Details matter: how floors are communicated via <code>bidfloor</code> in OpenRTB, how multi-bid responses are handled, how auction transparency is provided through win notices and clearing price signals. Exchanges that DSPs trust get higher bid density, which drives publisher revenue. Transparent first-price auctions with predictable floors build that trust. I design for trust because it compounds.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/first-price-vs-second-price-auctions">Auction Types</a>
+          <a href="/blog/bid-shading-explained">Bid Shading</a>
+          <a href="/blog/dynamic-floor-pricing">Dynamic Floors</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

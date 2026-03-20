@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auction Mechanics in Programmatic: Beyond First and Second Price | Ranjan Dasgupta</title>
+  <meta name="description" content="Deep dive into programmatic auction mechanics including multi-bid, deal overlays, and exchange optimization">
+  <meta name="keywords" content="auction mechanics, programmatic auction, multi-bid, auction priority, exchange auction, bid evaluation, auction design">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Auction Mechanics in Programmatic: Beyond First and Second Price">
+  <meta property="og:description" content="Deep dive into programmatic auction mechanics including multi-bid, deal overlays, and exchange optimization">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/auction-mechanics-programmatic">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/auction-mechanics-programmatic">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Auction Mechanics in Programmatic: Beyond First and Second Price",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Deep dive into programmatic auction mechanics including multi-bid, deal overlays, and exchange optimization",
+    "url": "https://ranjan.adsgupta.com/blog/auction-mechanics-programmatic"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">8 min read</span>
+        </div>
+        <h1>Auction Mechanics in Programmatic: Beyond First and Second Price</h1>
+        <p class="blog-post-subtitle">Product decisions inside every auction that determine winners.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Most conversations about programmatic auctions stop at first-price vs second-price. The actual mechanics inside a modern exchange are far more nuanced. As someone designing auction logic at InMobi Exchange, the real product decisions happen in spaces between textbook models.</p>
+        <h2>Multi-Layer Auctions</h2>
+        <p>A modern transaction involves cascading auctions. Each SSP runs its own auction against connected DSPs. Winners compete in the publisher ad server (Google Ad Manager typically). Within the ad server, header bidding winners compete against AdX demand, direct campaigns, and PG deals. Each layer introduces product decisions about floor application, deal priority, and multi-bid handling.</p>
+        <h2>Multi-Bid Responses</h2>
+        <p>A DSP can submit multiple bids — different sizes, creatives, or buyer seats. The exchange must evaluate each independently. The Trade Desk, DV360, and Amazon DSP frequently send multi-bid responses. Exchanges that flatten these to single bids throw away competing offers — a product bug directly costing publishers money. At InMobi, our engine evaluates each bid independently, particularly important for multi-format ad units and CTV ad pods.</p>
+        <h2>Deal Priority</h2>
+        <p>When impressions are eligible for both PMP deals and open auction, the exchange must decide layering. Standard: PG highest priority, then Preferred Deals, then PMPs, then open auction. But at InMobi, we implement configurable priority rules — some publishers want PMPs to always win to preserve buyer relationships, others want pure price competition. This flexibility is a key differentiator.</p>
+        <h2>Auction Transparency</h2>
+        <p>After auctions clear, exchanges send win notices with clearing prices. DSPs also want second-price data to calibrate shading models. At InMobi, we provide detailed auction insights: clearing prices, bid landscape summaries, competitive density data. This helps DSPs optimize bidding, which paradoxically benefits publishers — better-calibrated DSPs bid more efficiently and participate in more auctions.</p>
+        <h2>Intelligent Orchestration</h2>
+        <p>The most sophisticated exchanges orchestrate auctions — deciding which DSPs receive each bid request based on predicted bid likelihood, adaptive timeouts, and partial response handling. ML models predict which DSPs are most likely to bid competitively per impression, reducing unnecessary network calls and improving win rates. This is where AI enters auction design at InMobi.</p>
+
+        <h2>Agent-Mediated Auctions: The Future</h2>
+        <p>By 2030, some auction participants will be AI agents rather than traditional DSP bidders. These agents will have different communication patterns — potentially negotiating deal terms in real-time, adjusting strategies mid-auction, or making multi-impression commitments. Auction mechanics will evolve to accommodate these participants, and the exchanges building agent-aware infrastructure now will have significant advantages.</p>
+        <p>At InMobi, I am thinking about what agent-compatible auction design looks like. The current OpenRTB request-response model assumes a simple ask-and-answer pattern. Agent-mediated buying might require richer negotiation protocols, multi-turn interactions, or bundled impression commitments. These are speculative but grounded in the trajectory I see from AI development in the DSP space. The exchanges that prototype these capabilities early — even before agent buyers are common — will be the preferred partners when the shift happens. This is exactly the kind of forward-looking product thinking I bring to exchange design at InMobi.</p>
+      <p>This depth of understanding — built across Google, Automatad, Glance, and InMobi over a decade — is what I bring to every product decision at InMobi Exchange and every tool I build at adsgupta.com.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/first-price-vs-second-price-auctions">Auction Types</a>
+          <a href="/blog/bid-shading-explained">Bid Shading</a>
+          <a href="/blog/dynamic-floor-pricing">Dynamic Floors</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

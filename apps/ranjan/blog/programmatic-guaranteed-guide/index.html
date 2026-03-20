@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programmatic Guaranteed: Automating Direct Sales Without Losing Control | Ranjan Dasgupta</title>
+  <meta name="description" content="How Programmatic Guaranteed deals work at exchange level from a product leader at InMobi">
+  <meta name="keywords" content="programmatic guaranteed, PG deals, direct sales automation, Google Ad Manager, reservation, guaranteed delivery, programmatic direct">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Programmatic Guaranteed: Automating Direct Sales Without Losing Control">
+  <meta property="og:description" content="How Programmatic Guaranteed deals work at exchange level from a product leader at InMobi">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/programmatic-guaranteed-guide">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/programmatic-guaranteed-guide">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Programmatic Guaranteed: Automating Direct Sales Without Losing Control",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "How Programmatic Guaranteed deals work at exchange level from a product leader at InMobi",
+    "url": "https://ranjan.adsgupta.com/blog/programmatic-guaranteed-guide"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">7 min read</span>
+        </div>
+        <h1>Programmatic Guaranteed: Automating Direct Sales Without Losing Control</h1>
+        <p class="blog-post-subtitle">The bridge between direct sales relationships and programmatic efficiency.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Programmatic Guaranteed is the industry answer to a persistent question: how do you preserve direct IO deal reliability while gaining programmatic efficiency? Having managed both channels at Glance and now building exchange products at InMobi, I have seen PG from both sides.</p>
+        <h2>What Makes PG Different</h2>
+        <p>PG is a fixed-price, fixed-volume deal executed through programmatic pipes. Unlike PMPs (auction-based) or open RTB (fully dynamic), PG deals guarantee specific impressions at specific CPM. In Google Ad Manager, PG campaigns are trafficked as guaranteed line items — but instead of manually uploading creatives, the buyer serves through their DSP (typically DV360). The ad server handles forecasting, reservation, and pacing while the DSP handles targeting, creative optimization, and reporting.</p>
+        <h2>Architecture Challenges</h2>
+        <p>PG requires coordination between ad server, exchange, and DSP. The ad server needs accurate forecasting to guarantee volumes without over-committing. The exchange needs to recognize PG-eligible impressions and route with priority. The DSP needs to respond with correct deal ID and creative within timeout. At Glance, implementing PG required building forecasting models predicting available inventory by targeting segment with enough accuracy to commit guaranteed volumes — harder than it sounds in mobile and CTV environments with volatile traffic.</p>
+        <h2>What Works and What Breaks</h2>
+        <p>PG works best for brand advertisers wanting premium placement certainty — homepage takeovers, CTV first-position mid-rolls. It does not work for performance campaigns needing dynamic bidding. The most common failure: PG deals that under-deliver because forecasting was too optimistic — publisher commits 10M impressions but matching inventory yields only 7M after buyer targeting. Another failure: PG deals that cannibalize open auction revenue when publishers allocate premium inventory at rates below effective CPM.</p>
+        <h2>PG and Header Bidding</h2>
+        <p>In Google Ad Manager, PG line items have priority over header bidding and open auction. PG impressions are served first; only unmatched inventory flows to programmatic. At InMobi, we advise publishers to treat PG as complement to header bidding — PG covers premium brand demand valuing certainty, header bidding covers performance demand valuing competition. The two systems serve different buyer needs.</p>
+        <h2>CTV and Beyond</h2>
+        <p>PG will grow significantly in CTV where brand advertisers are accustomed to guaranteed buying from linear TV. Infrastructure challenges — forecasting, creative management, cross-platform frequency capping — are being solved by FreeWheel, Google, and InMobi. By 2027, I expect PG to represent 20-30% of CTV programmatic transactions. The longer-term evolution is AI-powered PG: systems automatically negotiating terms, optimizing pricing, and forecasting delivery using machine learning.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/private-marketplaces-explained">PMPs</a>
+          <a href="/blog/programmatic-guaranteed-guide">PG Guide</a>
+          <a href="/blog/how-programmatic-advertising-works">How Programmatic Works</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

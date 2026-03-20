@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenRTB Protocol Explained: The Language Exchanges Speak | Ranjan Dasgupta</title>
+  <meta name="description" content="Deep technical walkthrough of the OpenRTB protocol from an exchange product leader at InMobi">
+  <meta name="keywords" content="OpenRTB, OpenRTB 2.6, bid request, bid response, programmatic protocol, ad exchange, SSP, DSP, IAB Tech Lab, programmatic standards">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="OpenRTB Protocol Explained: The Language Exchanges Speak">
+  <meta property="og:description" content="Deep technical walkthrough of the OpenRTB protocol from an exchange product leader at InMobi">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/openrtb-protocol-explained">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/openrtb-protocol-explained">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "OpenRTB Protocol Explained: The Language Exchanges Speak",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Deep technical walkthrough of the OpenRTB protocol from an exchange product leader at InMobi",
+    "url": "https://ranjan.adsgupta.com/blog/openrtb-protocol-explained"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">9 min read</span>
+        </div>
+        <h1>OpenRTB Protocol Explained: The Language Exchanges Speak</h1>
+        <p class="blog-post-subtitle">Understanding the protocol that powers every programmatic transaction.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>OpenRTB is the protocol that makes programmatic advertising possible. Every real-time auction — whether through Google AdX, InMobi Exchange, Magnite, PubMatic, or any other exchange — speaks some version of OpenRTB. Having built exchange products that process billions of bid requests, I can tell you that understanding this protocol at a structural level is the single most important technical skill in adtech product management.</p>
+        <h2>Anatomy of a Bid Request</h2>
+        <p>A bid request is a JSON object describing an advertising opportunity. The <code>imp</code> object describes the ad slot — format, size, position, deal IDs. The <code>site</code> or <code>app</code> object identifies the publisher property. The <code>device</code> object carries user-agent, IP, device type, screen dimensions, connection type. The <code>user</code> object can include buyer UIDs, consent strings, and audience data. At InMobi, we pay close attention to extension fields because this is where exchanges differentiate. We pass enriched contextual signals, supply chain objects, and proprietary signals that help DSPs like The Trade Desk, DV360, and Amazon DSP make better bidding decisions.</p>
+        <h2>Anatomy of a Bid Response</h2>
+        <p>The DSP returns bid price in CPM, ad markup (HTML, VAST XML for video, or native asset object), advertiser domain, campaign identifiers, and creative dimensions. The response can include multiple seat bids from different buyer seats within the same DSP. The exchange must handle multi-seat responses correctly to ensure auction fairness — something I have debugged extensively.</p>
+        <h2>OpenRTB 2.6 vs 3.0</h2>
+        <p>OpenRTB 3.0 introduced a layered architecture separating transaction, ad object (AdCOM), and regulatory layers. Technically superior but the industry has not migrated. Almost every major exchange still runs on 2.5 or 2.6. The reason is coordination — migrating DSPs and SSPs simultaneously is a chicken-and-egg problem. OpenRTB 2.6 incrementally addressed urgent needs: SupplyChain object, improved video ad podding, better privacy signal handling. From a product perspective, 2.6 will remain dominant through at least 2027.</p>
+        <h2>Protocol Decisions That Affect Revenue</h2>
+        <p>Signal completeness matters enormously. At Glance, adding complete <code>content</code> objects increased average bid prices by 8-15% from contextual buyers. Auction type signaling via the <code>at</code> field must be accurate or DSPs will misbid. And timeout and seat management — how many DSPs receive each bid request, how long you wait — is a product decision with direct revenue and latency implications. At InMobi, we use intelligent seat routing to maximize competition without blowing up timeouts.</p>
+        <h2>The Future of the Protocol</h2>
+        <p>The next evolution will likely include native support for attention signals, richer contextual taxonomies building on IAB Content Taxonomy 3.0, better CTV-specific fields for ad podding, and possibly agent-to-agent communication protocols. At InMobi, we actively participate in IAB Tech Lab working groups because protocol design is product design — the fields in the bid request determine what the exchange can optimize for.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/what-is-real-time-bidding">RTB Guide</a>
+          <a href="/blog/openrtb-protocol-explained">OpenRTB</a>
+          <a href="/blog/header-bidding-complete-guide">Header Bidding</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSAI vs CSAI: Server-Side vs Client-Side Ad Insertion for CTV | Ranjan Dasgupta</title>
+  <meta name="description" content="Technical comparison of SSAI and CSAI ad insertion methods for streaming">
+  <meta name="keywords" content="SSAI, CSAI, server-side ad insertion, client-side ad insertion, CTV ad delivery, streaming ads, ad stitching">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="SSAI vs CSAI: Server-Side vs Client-Side Ad Insertion for CTV">
+  <meta property="og:description" content="Technical comparison of SSAI and CSAI ad insertion methods for streaming">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/ssai-vs-csai">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/ssai-vs-csai">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "SSAI vs CSAI: Server-Side vs Client-Side Ad Insertion for CTV",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "Technical comparison of SSAI and CSAI ad insertion methods for streaming",
+    "url": "https://ranjan.adsgupta.com/blog/ssai-vs-csai"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">CTV &amp; Video Advertising</span>
+          <span class="blog-post-read-time">8 min read</span>
+        </div>
+        <h1>SSAI vs CSAI: Server-Side vs Client-Side Ad Insertion for CTV</h1>
+        <p class="blog-post-subtitle">The delivery mechanism that determines CTV ad quality.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+        <p>How ads get into streaming content matters enormously for user experience, measurement, and monetization. Having built CTV exchange products at InMobi that work with both SSAI and CSAI implementations, I can explain the technical differences, trade-offs, and when to use each approach.</p>
+        <h2>Server-Side Ad Insertion (SSAI)</h2>
+        <p>SSAI stitches ads directly into the content stream on the server before delivery to the device. The viewer receives a single continuous stream — content and ads are indistinguishable at the transport layer. This eliminates buffering between content and ads, prevents client-side ad blocking, and provides a TV-like experience.</p>
+        <p>The technical implementation requires an SSAI vendor (such as AWS MediaTailor, Google DAI, Brightcove SSAI, or Yospace) that sits between the content origin and the CDN. When an ad break is triggered, the SSAI service requests ads from the publisher ad server or exchange, transcodes them to match the content stream format and bitrate, and stitches them into the manifest file. At InMobi, our exchange integrates with major SSAI providers to fill CTV ad breaks programmatically.</p>
+        <h2>Client-Side Ad Insertion (CSAI)</h2>
+        <p>CSAI uses the client application (streaming app) to request and play ads separately from content. The app detects ad break cues in the content stream, pauses playback, requests ads via VAST from the ad server or exchange, plays the ad creative, then resumes content. This approach gives the client more control over the ad experience but introduces latency between content and ads.</p>
+        <p>CSAI is more common in mobile and web video environments where the client has sufficient processing power and network connectivity. For CTV, CSAI can cause visible buffering at ad transitions, which degrades the premium viewing experience that advertisers pay premium CPMs for.</p>
+        <h2>Trade-offs and Selection</h2>
+        <p>SSAI advantages: seamless experience, ad-block resistant, consistent bitrate, better for premium content. SSAI disadvantages: more complex infrastructure, harder to implement interactive ad features, measurement relies on server-side tracking rather than client-side verification. CSAI advantages: easier implementation, richer interactivity (clickable overlays, QR codes), client-side verification compatibility. CSAI disadvantages: buffering at transitions, ad-blockable, device performance dependency.</p>
+        <p>At InMobi, we support both models but advise premium CTV publishers toward SSAI for brand advertisers who expect a TV-quality experience. Our exchange sends VAST responses compatible with both insertion methods and includes appropriate tracking mechanisms for each.</p>
+        <p>The industry is moving toward SSAI as the default for CTV and premium video environments. As streaming content quality increases and advertiser expectations rise, the seamless experience SSAI provides will be table stakes. At InMobi, we are investing in deeper SSAI integration to ensure our exchange delivers the highest-quality CTV ad experience.</p>
+
+        <h2>Building Toward the Future</h2>
+        <p>At InMobi, where I lead Web and CTV Exchange product strategy, every aspect of this topic connects to our exchange product roadmap. The decisions we make about auction design, signal enrichment, demand routing, and yield optimization are all informed by deep understanding of these fundamentals. Having built monetization systems scaling to $200M+ at Glance, I know that getting the basics right compounds into massive revenue impact at scale.</p>
+        <p>The programmatic industry is evolving toward AI-native, server-side, cross-surface architecture. By 2030, exchanges will consolidate, AI agents will participate in auctions, attention-based signals will supplement viewability, and CTV will be the dominant ad surface. The product builders who understand today's fundamentals deeply — and invest in building for tomorrow's requirements — will lead this transformation. That is exactly what I am doing at InMobi and at adsgupta.com, where I am building AI-powered advertising intelligence tools drawing on everything I have learned across Google, Automatad, Glance, and InMobi over the past decade.</p>
+        <p>If you are building in programmatic advertising, I encourage you to go beyond surface-level understanding. Read the OpenRTB specification. Study bid request logs. Analyze auction dynamics. Trace the supply chain from publisher to advertiser. This depth of understanding is what separates good ad products from great ones — and it is the perspective I bring to everything I build.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/what-is-ctv-advertising">CTV Guide</a>
+          <a href="/blog/ctv-ad-podding-guide">Ad Podding</a>
+          <a href="/blog/ctv-measurement-guide">CTV Measurement</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

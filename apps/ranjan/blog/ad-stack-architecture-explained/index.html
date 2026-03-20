@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ad Stack Architecture Explained: How the Entire System Fits Together | Ranjan Dasgupta</title>
+  <meta name="description" content="A complete guide to digital advertising stack architecture from ad server to exchange to DSP">
+  <meta name="keywords" content="ad stack, ad tech architecture, ad server, SSP, DSP, ad exchange, Google Ad Manager, programmatic stack">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Ad Stack Architecture Explained: How the Entire System Fits Together">
+  <meta property="og:description" content="A complete guide to digital advertising stack architecture from ad server to exchange to DSP">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/ad-stack-architecture-explained">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/ad-stack-architecture-explained">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Ad Stack Architecture Explained: How the Entire System Fits Together",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "A complete guide to digital advertising stack architecture from ad server to exchange to DSP",
+    "url": "https://ranjan.adsgupta.com/blog/ad-stack-architecture-explained"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">9 min read</span>
+        </div>
+        <h1>Ad Stack Architecture Explained: How the Entire System Fits Together</h1>
+        <p class="blog-post-subtitle">The architectural blueprint of the digital advertising ecosystem.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>The ad stack is the most sophisticated distributed system most people have never heard of. It processes more transactions per second than most stock exchanges, makes decisions in under 100 milliseconds, and operates across every digital surface. Having worked at every layer — from Google ad server to exchange infrastructure at InMobi — I can give you the architectural overview most explanations miss.</p>
+        <h2>The Publisher Layer</h2>
+        <p>Everything starts with the publisher. The key technology is the ad server — Google Ad Manager dominates for web and app, FreeWheel for CTV and broadcast. The ad server manages inventory, traffics direct campaigns, and coordinates with programmatic demand. At Google, I spent years understanding DFP priority systems determining how demand sources are evaluated. On top sits the header bidding layer — Prebid.js for client-side or Prebid Server for server-side — soliciting parallel bids from multiple SSPs.</p>
+        <h2>The Exchange Layer</h2>
+        <p>SSPs and exchanges sit between publishers and buyers. InMobi Exchange, Magnite, PubMatic, Index Exchange, OpenX, TripleLift, 33Across, Sovrn, and Google AdX each receive bid requests from publishers, translate to OpenRTB, send to DSPs, run auctions, and return winners. Exchanges are not interchangeable pipes — each makes different product decisions materially affecting outcomes. The same impression through two exchanges can yield 30% CPM difference based on demand routing, floor optimization, and signal quality.</p>
+        <h2>The Demand Layer</h2>
+        <p>DSPs enable programmatic buying: The Trade Desk, DV360, Amazon DSP, Xandr, Criteo, MediaMath, StackAdapt. They evaluate bid requests, apply campaign targeting and budget logic, run bid optimization including shading, and submit bids. Supporting infrastructure includes DMPs/CDPs for audience management, verification vendors (IAS, DoubleVerify, MOAT), identity solutions (UID 2.0, LiveRamp, Privacy Sandbox), and measurement platforms (Nielsen, Comscore).</p>
+        <h2>The CTV Stack</h2>
+        <p>CTV has notably different architecture. Ad server is often FreeWheel rather than GAM. Ad insertion can be server-side (SSAI). Format is VAST-based video, not display. Identity relies on device-level IDs rather than cookies. At InMobi, building exchange products for both Web and CTV means maintaining parallel architectures sharing auction logic but differing in delivery, creative management, and measurement.</p>
+        <h2>Why Architecture Matters</h2>
+        <p>Every component is a product decision. Choice of ad server, header bidding config, exchange selection, floor strategy, demand partner mix — each affects revenue, user experience, and monetization health. I have built stacks generating $200M+ revenue. Every dollar started with an architectural choice. Understanding architecture is the foundation of every product decision in digital advertising.</p>
+
+        <h2>Practical Implications for Builders</h2>
+        <p>Understanding the ad stack at this architectural level is not academic — it is the foundation of every product decision in digital advertising. When I evaluate a new monetization opportunity at InMobi, I trace the full path: how does the ad request originate, what signals does it carry, which exchanges process it, which DSPs evaluate it, and how does the creative render? Each node in this chain is an optimization opportunity. At Glance, I optimized each layer independently and then as a system, compounding improvements that drove the monetization stack to $200M+ in annual revenue. The publishers and exchanges that understand their stack architecturally — rather than treating it as a collection of vendor integrations — consistently outperform those that do not.</p>
+        <p>For anyone building in adtech, my advice is straightforward: learn every layer. Spend time with the ad server configuration, understand the header bidding wrapper mechanics, study the exchange auction logic, analyze DSP bidding patterns, and trace creative delivery end-to-end. This cross-layer understanding is rare and extraordinarily valuable. It is what I bring from my journey across Google, Automatad, Glance, and InMobi — and it is what I am building into the tools at adsgupta.com.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/ad-stack-architecture-explained">Ad Stack</a>
+          <a href="/blog/waterfall-vs-header-bidding">Waterfall vs HB</a>
+          <a href="/blog/programmatic-supply-chain">Supply Chain</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>

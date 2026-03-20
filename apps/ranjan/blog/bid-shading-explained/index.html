@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bid Shading Explained: How DSPs Optimize in First-Price Auctions | Ranjan Dasgupta</title>
+  <meta name="description" content="How bid shading algorithms work in first-price programmatic auctions from an exchange product leader">
+  <meta name="keywords" content="bid shading, first price auction, DSP optimization, auction strategy, programmatic bidding, The Trade Desk, DV360, exchange architecture">
+  <meta name="author" content="Ranjan Dasgupta">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Bid Shading Explained: How DSPs Optimize in First-Price Auctions">
+  <meta property="og:description" content="How bid shading algorithms work in first-price programmatic auctions from an exchange product leader">
+  <meta property="og:url" content="https://ranjan.adsgupta.com/blog/bid-shading-explained">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Ranjan Dasgupta">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ranjan.adsgupta.com/blog/bid-shading-explained">
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/footer.js"></script>
+  <script src="/seo.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Bid Shading Explained: How DSPs Optimize in First-Price Auctions",
+    "author": { "@type": "Person", "name": "Ranjan Dasgupta", "url": "https://ranjan.adsgupta.com" },
+    "publisher": { "@type": "Organization", "name": "AdsGupta", "url": "https://adsgupta.com" },
+    "datePublished": "2025-01-01",
+    "description": "How bid shading algorithms work in first-price programmatic auctions from an exchange product leader",
+    "url": "https://ranjan.adsgupta.com/blog/bid-shading-explained"
+  }
+  </script>
+</head>
+<body>
+  <nav class="site-nav" id="siteNav" aria-label="Primary">
+    <div class="site-nav-brand">
+      <div class="site-nav-avatar" aria-hidden="true">RD</div>
+      <a href="/" class="site-nav-name">Ranjan Dasgupta</a>
+    </div>
+    <div class="site-nav-right">
+      <div class="site-nav-links">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/work">Work</a>
+        <a href="/insights">Insights</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a href="/audit" class="site-nav-audit">Audit Tool</a>
+      <a href="https://adsgupta.com" class="site-nav-adsgupta" target="_blank" rel="noopener">AdsGupta &rarr;</a>
+    </div>
+  </nav>
+  <main id="main-content" class="blog-post">
+    <article>
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span class="blog-post-category">Programmatic Advertising</span>
+          <span class="blog-post-read-time">7 min read</span>
+        </div>
+        <h1>Bid Shading Explained: How DSPs Optimize in First-Price Auctions</h1>
+        <p class="blog-post-subtitle">The DSP strategy that reshaped programmatic buying economics.</p>
+        <div class="blog-post-author">
+          <div class="author-avatar">RD</div>
+          <div>
+            <strong>Ranjan Dasgupta</strong>
+            <span>AdTech Product Leader &middot; InMobi</span>
+          </div>
+        </div>
+      </header>
+      <div class="blog-post-content">
+
+        <p>Bid shading is the most important algorithmic development in programmatic buying since RTB itself. When the industry moved to first-price auctions, DSPs needed to avoid systematically overpaying. The answer was ML models predicting minimum winning bids. From the exchange side at InMobi, I watch bid shading affect every auction we run.</p>
+        <h2>Why Bid Shading Exists</h2>
+        <p>In second-price, you bid true valuation and pay the second price plus a penny. In first-price, you pay exactly what you bid. If a DSP values an impression at $5.00 but the next-highest bid is $2.50, paying $5.00 wastes $2.50 per impression. Multiply across billions of daily transactions and waste becomes staggering. The Trade Desk, DV360, Xandr, Amazon DSP, and Criteo all run proprietary shading models asking: what is the floor, what is the competitive landscape, what minimum do I need to bid?</p>
+        <h2>How Algorithms Work</h2>
+        <p>Modern shading models use historical win rate data, competitive density signals, floor price signals from the bid request, and supply characteristics. Models are typically gradient-boosted trees or neural networks trained on millions of auction outcomes, updated continuously. A DSP shading model perfectly calibrated Monday might lose 20% more auctions by Thursday if competitors changed strategy.</p>
+        <h2>Impact on Publishers and Exchanges</h2>
+        <p>Short-term impact was negative: average winning bids decreased 20-40% initially. But equilibrium settled as exchanges responded with better floor optimization and increased demand competition. At Glance, the key to maintaining yield was bid density — 15+ DSPs bidding per impression limits shading room. At InMobi, my strategy is straightforward: increase bid density, improve signal quality so DSPs value impressions more accurately and shade less aggressively, and optimize floors dynamically.</p>
+        <h2>The Cat-and-Mouse Game</h2>
+        <p>Floor optimization and bid shading are locked in perpetual tension. Publishers raise floors. DSPs adjust shading. Publishers see lower fill rates and adjust down. DSPs shade more aggressively. The equilibrium shifts constantly. Exchanges navigating this best have granular bid distribution data, real-time competitive landscape analysis, and intelligent floor algorithms optimizing for revenue rather than individual auction wins.</p>
+        <h2>Transparency Is the Future</h2>
+        <p>By 2027, I expect bid shading to become more transparent. DSPs and exchanges will share more auction data to reduce information asymmetry. IAB Tech Lab is working on auction transparency specifications. Exchanges embracing transparency — sharing genuine clearing prices and competitive data — will build trust, which translates to higher bid density and better publisher outcomes. At InMobi, we invest in auction transparency because trust is the ultimate competitive advantage.</p>
+
+        <h2>What This Means for Exchange Product Design</h2>
+        <p>At InMobi, understanding bid shading dynamics is essential to our exchange product strategy. We design our auction mechanics knowing that every DSP is running shading algorithms against our floor signals. This means our floor optimization must be sophisticated enough to maintain yield while remaining predictable enough that DSP algorithms can calibrate effectively. Erratic floor behavior causes DSPs to increase uncertainty premiums in their shading, which paradoxically reduces bid values. Consistent, data-driven floors build algorithmic trust.</p>
+        <p>We also invest in signal quality because richer bid requests help DSPs value impressions more accurately, which reduces the uncertainty that drives aggressive shading. When a DSP can precisely value an impression at $5.00 based on rich contextual, audience, and quality signals, it shades less than when it has to guess the value from sparse data. Signal enrichment at the exchange level is therefore an anti-shading strategy — one of the most powerful levers we have for maintaining publisher yield in the first-price era.</p>
+      </div>
+      <footer class="blog-post-footer">
+        <div class="blog-related">
+          <h3>Related</h3>
+          <a href="/blog/first-price-vs-second-price-auctions">Auction Types</a>
+          <a href="/blog/bid-shading-explained">Bid Shading</a>
+          <a href="/blog/dynamic-floor-pricing">Dynamic Floors</a>
+          <a href="/blog">All Articles</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+  <div id="site-footer"></div>
+<script src='/navbar.js'></script>
+<script src='/footer.js'></script>
+<script src='/seo.js'></script>
+</body>
+</html>
