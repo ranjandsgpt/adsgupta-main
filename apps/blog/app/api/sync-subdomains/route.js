@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import { getUser } from "../../../lib/auth.js";
-import { isSupabaseCmsEnabled } from "../../../lib/cms-runtime.js";
-import { createServerSupabase } from "../../../lib/supabase-server.js";
-import * as cms from "../../../lib/supabase-cms.js";
+import { isPostgresConfigured } from "../../../lib/cms-runtime.js";
+import * as cms from "../../../lib/cms-pg.js";
 
 /**
- * Called after publish. Subdomain sites read the same Supabase rows with
- * publish_to_ranjan / publish_to_pousali — this route validates auth and can
- * enqueue social/cross-post work later.
+ * Called after publish. Subdomain sites read Postgres rows with
+ * publish_to_ranjan / publish_to_pousali — validates auth for future cross-post work.
  */
 export async function POST(request) {
   const user = await getUser();
@@ -22,13 +20,12 @@ export async function POST(request) {
   }
   if (!postId) return NextResponse.json({ error: "postId required" }, { status: 400 });
 
-  if (!isSupabaseCmsEnabled()) {
+  if (!isPostgresConfigured()) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
   try {
-    const supabase = createServerSupabase();
-    const post = await cms.getPostById(supabase, user.id, postId);
+    const post = await cms.getPostById(user.email, postId);
     if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({
       ok: true,

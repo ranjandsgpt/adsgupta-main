@@ -1,31 +1,7 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function POST(request) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const origin = request.nextUrl?.origin || new URL(request.url).origin;
-
-  if (!url || !anonKey) {
-    return NextResponse.redirect(new URL("/admin/login", origin));
-  }
-
-  const cookieStore = cookies();
-  const supabase = createServerClient(url, anonKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
-        });
-      },
-    },
-  });
-
-  await supabase.auth.signOut();
-
-  return NextResponse.redirect(new URL("/admin/login", origin), { status: 302 });
+/** @deprecated use GET /api/auth/signout from NextAuth */
+export async function POST() {
+  const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  return NextResponse.redirect(`${base}/api/auth/signout?callbackUrl=${encodeURIComponent(`${base}/admin/login`)}`);
 }

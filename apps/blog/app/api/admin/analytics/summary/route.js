@@ -1,30 +1,25 @@
 import { NextResponse } from "next/server";
 import { getUser } from "../../../../../lib/auth.js";
-import { isSupabaseCmsEnabled } from "../../../../../lib/cms-runtime.js";
-import { createServerSupabase } from "../../../../../lib/supabase-server.js";
+import { isPostgresConfigured } from "../../../../../lib/cms-runtime.js";
+import { sql } from "../../../../../lib/db.js";
 
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!isSupabaseCmsEnabled()) {
+  if (!isPostgresConfigured()) {
     return NextResponse.json({ series: [], topPosts: [], sources: [], devices: [] });
   }
 
   try {
-    const supabase = createServerSupabase();
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { data: posts } = await supabase.from("posts").select("id").eq("author_id", user.id);
-    const ids = (posts || []).map((p) => p.id);
-    if (!ids.length) {
-      return NextResponse.json({ series: [], topPosts: [], sources: [], devices: [] });
-    }
-
-    const { data: events } = await supabase
-      .from("analytics_events")
-      .select("post_id, event_type, referrer, device, created_at")
-      .in("post_id", ids)
-      .gte("created_at", since);
+    const { rows: events } = await sql`
+      SELECT e.post_id, e.event_type, e.referrer, e.device, e.created_at
+      FROM analytics_events e
+      INNER JOIN posts p ON p.id = e.post_id
+      WHERE p.author_email = ${user.email}
+      AND e.created_at >= ${since}::timestamptz
+    `;
 
     const byDay = {};
     const byPost = {};
@@ -33,7 +28,7 @@ export async function GET() {
 
     (events || []).forEach((ev) => {
       if (ev.event_type === "view") {
-        const d = ev.created_at?.slice(0, 10) || "";
+        const d = ev.created_at ? String(ev.created_at).slice(0, 10) : "";
         byDay[d] = (byDay[d] || 0) + 1;
         if (ev.post_id) {
           byPost[ev.post_id] = (byPost[ev.post_id] || 0) + 1;
@@ -49,8 +44,10 @@ export async function GET() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, views]) => ({ date, views }));
 
-    const { data: postRows } = await supabase.from("posts").select("id, title, slug").in("id", ids);
-    const titleById = Object.fromEntries((postRows || []).map((p) => [p.id, p]));
+    const { rows: postRows } = await sql`
+      SELECT id, title, slug FROM posts WHERE author_email = ${user.email}
+    `;
+    const titleById = Object.fromEntries((postRows || []).map((p) => [String(p.id), p]));
 
     const topPosts = Object.entries(byPost)
       .sort((a, b) => b[1] - a[1])

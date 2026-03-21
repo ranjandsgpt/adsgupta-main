@@ -27,7 +27,7 @@ export async function POST(request) {
   }
 
   const safeName = String(file.name || "upload").replace(/[^\w.\-]+/g, "_");
-  const pathname = `blog/${encodeURIComponent(user.email)}/${Date.now()}-${safeName}`;
+  const pathname = `media/${encodeURIComponent(user.email)}/${Date.now()}-${safeName}`;
 
   const blob = await put(pathname, buf, {
     access: "public",
@@ -35,15 +35,16 @@ export async function POST(request) {
     contentType: file.type || "application/octet-stream",
   });
 
-  try {
-    await cms.insertMediaRow(user.email, {
-      filename: safeName,
-      url: blob.url,
-      size_bytes: buf.length,
-    });
-  } catch {
-    /* optional */
-  }
+  const id = await cms.insertMediaRow(user.email, {
+    filename: safeName,
+    url: blob.url,
+    size_bytes: buf.length,
+  });
 
-  return NextResponse.json({ url: blob.url, pathname: blob.pathname });
+  return NextResponse.json({
+    id,
+    url: blob.url,
+    pathname: blob.pathname,
+    filename: safeName,
+  });
 }

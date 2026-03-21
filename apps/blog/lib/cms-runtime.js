@@ -1,7 +1,7 @@
-/** Whether CMS should use Supabase (vs legacy SQLite admin). */
-export function isSupabaseCmsEnabled() {
-  return !!(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+/** True when Vercel Postgres env is available (CMS data layer). */
+export function isPostgresConfigured() {
+  return !!process.env.POSTGRES_URL;
 }
+
+/** @deprecated use isPostgresConfigured */
+export const isSupabaseCmsEnabled = isPostgresConfigured;

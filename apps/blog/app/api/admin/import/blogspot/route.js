@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getUser } from "../../../../../lib/auth.js";
-import { getDatabase, slugify } from "../../../../../lib/db.js";
+import { isPostgresConfigured } from "../../../../../lib/cms-runtime.js";
+import * as cms from "../../../../../lib/cms-pg.js";
+import { slugify } from "../../../../../lib/slugify.js";
 
 async function requireAdmin() {
   const user = await getUser();
@@ -30,17 +32,14 @@ function htmlToSimple(html) {
     .trim();
 }
 
-function insertPost(db, { title, slug, content, excerpt, source, category, external_url, publish_date, status, reading_time }) {
-  db.prepare(
-    `INSERT INTO posts (title, slug, content, excerpt, source, category, external_url, publish_date, status, reading_time)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(title, slug, content, excerpt, source, category, external_url, publish_date, status, reading_time);
-  return db.prepare("SELECT last_insert_rowid() as id").get().id;
-}
-
 export async function POST(request) {
   const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isPostgresConfigured()) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
+  const subdomain = user.subdomain || "ranjan";
   let imported = 0;
   let skipped = 0;
   try {
@@ -53,19 +52,36 @@ export async function POST(request) {
       const html = await res.text();
       const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/) || html.match(/<title>([^<]+)<\/title>/);
       const title = titleMatch ? (titleMatch[1] || "").trim().replace(/&amp;/g, "&") : "Blogspot Post";
-      const slugBase = (slugify(title) || "blogspot-post") + "-" + singleUrl.split("/").filter(Boolean).pop().replace(/\.html?$/i, "").slice(-12);
-      const db = getDatabase();
-      const existing = db.prepare("SELECT 1 FROM posts WHERE slug = ?").get(slugBase);
-      if (existing) return NextResponse.json({ error: "Post with this slug already exists", imported: 0, skipped: 1 });
-      const articleMatch = html.match(/<div[^>]*class="[^"]*post-body[^"]*"[\s\S]*?>([\s\S]*?)(?:<\/div>\s*<div|$)/i) || html.match(/<article[\s\S]*?>([\s\S]*?)<\/article>/i);
+      const slugBase =
+        (slugify(title) || "blogspot-post") +
+        "-" +
+        singleUrl
+          .split("/")
+          .filter(Boolean)
+          .pop()
+          .replace(/\.html?$/i, "")
+          .slice(-12);
+      if (await cms.slugExists(slugBase)) {
+        return NextResponse.json({ error: "Post with this slug already exists", imported: 0, skipped: 1 });
+      }
+      const articleMatch =
+        html.match(/<div[^>]*class="[^"]*post-body[^"]*"[\s\S]*?>([\s\S]*?)(?:<\/div>\s*<div|$)/i) ||
+        html.match(/<article[\s\S]*?>([\s\S]*?)<\/article>/i);
       let content = articleMatch ? htmlToSimple(articleMatch[1]) : htmlToSimple(html);
       if (content.length < 100) content = `<p>Imported from <a href="${singleUrl}">Blogspot</a>.</p>`;
       const excerpt = content.replace(/\s+/g, " ").trim().slice(0, 160) + "…";
-      const dateMatch = html.match(/<meta\s+property="article:published_time"\s+content="([^"]+)"/) || html.match(/datetime="([^"]+)"/);
-      const publish_date = dateMatch ? dateMatch[1].slice(0, 10) : new Date().toISOString().slice(0, 10);
-      const words = content.split(/\s+/).filter(Boolean).length;
-      const reading_time = Math.max(1, Math.ceil(words / 220));
-      insertPost(db, { title, slug: slugBase, content, excerpt, source: "Blogspot", category: "Neural Philosophical", external_url: singleUrl, publish_date, status: "draft", reading_time });
+      await cms.createPost(
+        user.email,
+        {
+          title,
+          slug: slugBase,
+          content,
+          excerpt,
+          category: "Neural Philosophical",
+          status: "draft",
+        },
+        subdomain
+      );
       return NextResponse.json({ imported: 1, skipped: 0, slug: slugBase });
     }
 
@@ -74,17 +90,15 @@ export async function POST(request) {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; AdsGuptaBlog/1.0)" },
     });
     if (!indexRes.ok) {
-      return NextResponse.json({ error: "Could not fetch Blogspot index. Provide a single post URL instead.", imported: 0, skipped: 0 }, { status: 400 });
+      return NextResponse.json(
+        { error: "Could not fetch Blogspot index. Provide a single post URL instead.", imported: 0, skipped: 0 },
+        { status: 400 }
+      );
     }
     const indexHtml = await indexRes.text();
     const linkMatches = indexHtml.matchAll(/<a[^>]*href="(https?:\/\/ifiwasbornasanad\.blogspot\.com\/[^"]+)"[^>]*>/gi);
     const urls = [...new Set([...linkMatches].map((m) => m[1]).filter((u) => u.includes("/202") && !u.includes("comment") && !u.includes("search")))];
-    const db = getDatabase();
-    const insert = db.prepare(`
-      INSERT OR IGNORE INTO posts (title, slug, content, excerpt, source, category, external_url, publish_date, status, reading_time)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    const getSlug = db.prepare("SELECT 1 FROM posts WHERE slug = ?");
+
     for (const url of urls.slice(0, 50)) {
       try {
         const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; AdsGuptaBlog/1.0)" } });
@@ -92,20 +106,37 @@ export async function POST(request) {
         const html = await res.text();
         const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/) || html.match(/<title>([^<]+)<\/title>/);
         const title = titleMatch ? (titleMatch[1] || "").trim().replace(/&amp;/g, "&") : "Blogspot Post";
-        const slug = (slugify(title) || "blogspot-post") + "-" + url.split("/").filter(Boolean).pop().replace(/\.html?$/, "").slice(-8);
-        if (getSlug.get(slug)) {
+        const slug =
+          (slugify(title) || "blogspot-post") +
+          "-" +
+          url
+            .split("/")
+            .filter(Boolean)
+            .pop()
+            .replace(/\.html?$/, "")
+            .slice(-8);
+        if (await cms.slugExists(slug)) {
           skipped++;
           continue;
         }
-        const articleMatch = html.match(/<div[^>]*class="[^"]*post-body[^"]*"[\s\S]*?>([\s\S]*?)(?:<\/div>|$)/i) || html.match(/<article[\s\S]*?>([\s\S]*?)<\/article>/i);
+        const articleMatch =
+          html.match(/<div[^>]*class="[^"]*post-body[^"]*"[\s\S]*?>([\s\S]*?)(?:<\/div>|$)/i) ||
+          html.match(/<article[\s\S]*?>([\s\S]*?)<\/article>/i);
         let content = articleMatch ? htmlToSimple(articleMatch[1]) : htmlToSimple(html);
         if (content.length < 100) content = `<p>Imported from <a href="${url}">Blogspot</a>. ${content}</p>`;
         const excerpt = content.replace(/\s+/g, " ").trim().slice(0, 160) + "…";
-        const dateMatch = html.match(/<meta\s+property="article:published_time"\s+content="([^"]+)"/) || html.match(/datetime="([^"]+)"/);
-        const publish_date = dateMatch ? dateMatch[1].slice(0, 10) : new Date().toISOString().slice(0, 10);
-        const words = content.split(/\s+/).filter(Boolean).length;
-        const reading_time = Math.max(1, Math.ceil(words / 220));
-        insert.run(title, slug, content, excerpt, "Blogspot", "Neural Philosophical", url, publish_date, "draft", reading_time);
+        await cms.createPost(
+          user.email,
+          {
+            title,
+            slug,
+            content,
+            excerpt,
+            category: "Neural Philosophical",
+            status: "draft",
+          },
+          subdomain
+        );
         imported++;
       } catch (_) {}
     }

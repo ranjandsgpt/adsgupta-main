@@ -1,34 +1,35 @@
 import { NextResponse } from "next/server";
-import { isSupabaseCmsEnabled } from "../../../../lib/cms-runtime.js";
-import { createServerSupabase } from "../../../../lib/supabase-server.js";
+import { isPostgresConfigured } from "../../../../lib/cms-runtime.js";
+import { sql } from "../../../../lib/db.js";
 
 export async function POST(request) {
+  const body = await request.json().catch(() => ({}));
+  const slug = String(body.slug || "").trim();
+  if (!slug) return NextResponse.json({ error: "slug required" }, { status: 400 });
+
+  if (!isPostgresConfigured()) {
+    return NextResponse.json({ ok: true, skipped: true });
+  }
+
   try {
-    const body = await request.json();
-    const slug = body.slug?.trim();
-    const event_type = body.event_type || "view";
-    if (!slug) return NextResponse.json({ ok: false }, { status: 400 });
+    const { rows } = await sql`
+      SELECT id FROM posts WHERE slug = ${slug} LIMIT 1
+    `;
+    const postId = rows[0]?.id || null;
 
-    if (!isSupabaseCmsEnabled()) {
-      return NextResponse.json({ ok: true, skipped: true });
-    }
-
-    const supabase = createServerSupabase();
-    let post_id = null;
-    const { data: post } = await supabase.from("posts").select("id").eq("slug", slug).maybeSingle();
-    if (post?.id) post_id = post.id;
-
-    await supabase.from("analytics_events").insert({
-      post_id,
-      event_type,
-      referrer: typeof body.referrer === "string" ? body.referrer : null,
-      session_id: typeof body.session_id === "string" ? body.session_id : null,
-      device: body.device || null,
-      country: body.country || null,
-    });
-
+    await sql`
+      INSERT INTO analytics_events (post_id, event_type, session_id, referrer, country, device)
+      VALUES (
+        ${postId},
+        ${body.event_type || "view"},
+        ${body.session_id || null},
+        ${body.referrer || null},
+        ${body.country || null},
+        ${body.device || null}
+      )
+    `;
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ ok: false }, { status: 500 });
+  } catch (e) {
+    return NextResponse.json({ error: e.message || "track failed" }, { status: 500 });
   }
 }

@@ -82,7 +82,7 @@ export default function MonetizationAdminClient() {
         Monetization
       </h1>
       <p style={{ color: "var(--ads-text-muted)", marginBottom: "1rem" }}>
-        Ad slots stored in Supabase. Inline placement is injected after paragraph 3 on article pages (when active).
+        Ad slots stored in Postgres. Inline placement is injected after paragraph 3 on article pages (when active).
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "1.5rem" }}>
@@ -106,7 +106,7 @@ export default function MonetizationAdminClient() {
       {loading ? (
         <p style={{ color: "var(--ads-text-muted)" }}>Loading…</p>
       ) : slots.length === 0 ? (
-        <p style={{ color: "var(--ads-text-muted)" }}>No slots yet (requires Supabase). Use the form below.</p>
+        <p style={{ color: "var(--ads-text-muted)" }}>No slots yet. Use the form below (requires POSTGRES_URL).</p>
       ) : (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem", marginBottom: "1rem" }}>
           <thead>

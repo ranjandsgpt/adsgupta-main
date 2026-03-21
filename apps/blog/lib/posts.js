@@ -37,7 +37,7 @@ async function contentToHtml(content) {
   return processed.toString();
 }
 
-function mapSupabaseListRow(row) {
+function mapPgListRow(row) {
   const minutes =
     row.read_time_minutes ||
     Math.max(1, Math.ceil(String(row.content || "").split(/\s+/).filter(Boolean).length / 220));
@@ -65,13 +65,11 @@ function mapSupabaseListRow(row) {
   };
 }
 
-async function getPostBySlugFromSupabase(slug) {
-  const { isSupabaseCmsEnabled } = await import("./cms-runtime.js");
-  if (!isSupabaseCmsEnabled()) return null;
-  const { createServerSupabase } = await import("./supabase-server.js");
-  const { getPublishedPostBySlug } = await import("./supabase-cms.js");
-  const supabase = createServerSupabase();
-  const row = await getPublishedPostBySlug(supabase, slug);
+async function getPostBySlugFromPostgres(slug) {
+  const { isPostgresConfigured } = await import("./cms-runtime.js");
+  if (!isPostgresConfigured()) return null;
+  const { getPublishedPostBySlug } = await import("./cms-pg.js");
+  const row = await getPublishedPostBySlug(slug);
   if (!row) return null;
   const contentHtml = await contentToHtml(row.content);
   const minutes =
@@ -98,34 +96,19 @@ async function getPostBySlugFromSupabase(slug) {
       ctaLabel: "Run your audit on DemoAI",
       ctaUrl: "https://demoai.adsgupta.com",
     },
-    source: "supabase",
+    source: "postgres",
   };
 }
 
-/** Prefer Supabase CMS; then SQLite; then markdown files. */
+/** Prefer Vercel Postgres CMS; then markdown files. */
 export async function getPostBySlug(slug) {
   try {
-    const sup = await getPostBySlugFromSupabase(slug);
-    if (sup) return sup;
+    const pg = await getPostBySlugFromPostgres(slug);
+    if (pg) return pg;
   } catch (_) {
     /* continue */
   }
-  try {
-    const { getPostBySlug: getFromDb } = await import("./db.js");
-    const row = getFromDb(slug);
-    if (row) {
-      const contentHtml = await contentToHtml(row.content);
-      return {
-        slug: row.slug,
-        content: row.content,
-        contentHtml,
-        excerpt: row.excerpt,
-        readingTime: row.readingTime,
-        meta: row.meta,
-        source: "db",
-      };
-    }
-  } catch (_) {}
+
   const fullPath = path.join(postsDirectory, `${slug}.md`);
   if (!fs.existsSync(fullPath)) return null;
   const fileContents = fs.readFileSync(fullPath, "utf8");
@@ -156,17 +139,15 @@ export async function getPostBySlug(slug) {
   };
 }
 
-/** Published posts for blog.adsgupta.com — Supabase first when configured. */
+/** Published posts for blog — Postgres first, then markdown. */
 export async function getAllPosts() {
   try {
-    const { isSupabaseCmsEnabled } = await import("./cms-runtime.js");
-    if (isSupabaseCmsEnabled()) {
-      const { createServerSupabase } = await import("./supabase-server.js");
-      const { listPublishedBlogPosts } = await import("./supabase-cms.js");
-      const supabase = createServerSupabase();
-      const rows = await listPublishedBlogPosts(supabase, { limit: 200 });
+    const { isPostgresConfigured } = await import("./cms-runtime.js");
+    if (isPostgresConfigured()) {
+      const { listPublishedBlogPosts } = await import("./cms-pg.js");
+      const rows = await listPublishedBlogPosts({ limit: 200 });
       if (rows.length > 0) {
-        return rows.map(mapSupabaseListRow).sort((a, b) => {
+        return rows.map(mapPgListRow).sort((a, b) => {
           const aDate = a.meta?.date ? new Date(a.meta.date).getTime() : 0;
           const bDate = b.meta?.date ? new Date(b.meta.date).getTime() : 0;
           return bDate - aDate;
@@ -177,27 +158,6 @@ export async function getAllPosts() {
     /* fall through */
   }
 
-  let fromDb = [];
-  try {
-    const { getAllPosts: getAllFromDb } = await import("./db.js");
-    fromDb = getAllFromDb({ status: "published" });
-  } catch (_) {}
-  if (fromDb.length > 0) {
-    const withHtml = await Promise.all(
-      fromDb.map(async (row) => {
-        const contentHtml = await contentToHtml(row.content);
-        return {
-          ...row,
-          contentHtml,
-        };
-      })
-    );
-    return withHtml.sort((a, b) => {
-      const aDate = a.meta?.date ? new Date(a.meta.date).getTime() : 0;
-      const bDate = b.meta?.date ? new Date(b.meta.date).getTime() : 0;
-      return bDate - aDate;
-    });
-  }
   const slugs = getAllSlugsFromFiles();
   const posts = await Promise.all(slugs.map((slug) => getPostBySlug(slug)));
   return posts.filter(Boolean).sort((a, b) => {
@@ -207,26 +167,18 @@ export async function getAllPosts() {
   });
 }
 
-/** Slugs for SSG — merge Supabase, SQLite, markdown. */
+/** Slugs for SSG — merge Postgres and markdown. */
 export async function getPostSlugs() {
   const seen = new Map();
   try {
-    const { isSupabaseCmsEnabled } = await import("./cms-runtime.js");
-    if (isSupabaseCmsEnabled()) {
-      const { createServerSupabase } = await import("./supabase-server.js");
-      const supabase = createServerSupabase();
-      const { data } = await supabase
-        .from("posts")
-        .select("slug")
-        .eq("status", "published")
-        .eq("publish_to_blog", true);
-      (data || []).forEach((r) => seen.set(r.slug, true));
+    const { isPostgresConfigured } = await import("./cms-runtime.js");
+    if (isPostgresConfigured()) {
+      const { sql } = await import("./db.js");
+      const { rows } = await sql`
+        SELECT slug FROM posts WHERE status = 'published' AND publish_to_blog = true
+      `;
+      (rows || []).forEach((r) => seen.set(r.slug, true));
     }
-  } catch (_) {}
-  try {
-    const { getPostSlugs: getSlugsFromDb } = await import("./db.js");
-    const dbSlugs = getSlugsFromDb();
-    dbSlugs.forEach((r) => seen.set(r.slug, true));
   } catch (_) {}
   getAllSlugsFromFiles().forEach((s) => seen.set(s, true));
   return [...seen.keys()].map((slug) => ({ slug }));

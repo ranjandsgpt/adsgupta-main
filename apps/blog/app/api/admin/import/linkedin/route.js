@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUser } from "../../../../../lib/auth.js";
-import { createPost } from "../../../../../lib/db.js";
+import { isPostgresConfigured } from "../../../../../lib/cms-runtime.js";
+import * as cms from "../../../../../lib/cms-pg.js";
 
 async function requireAdmin() {
   const user = await getUser();
@@ -11,6 +12,9 @@ async function requireAdmin() {
 export async function POST(request) {
   const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isPostgresConfigured()) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
   try {
     const { url } = await request.json();
     if (!url || !url.includes("linkedin.com")) {
@@ -41,18 +45,20 @@ export async function POST(request) {
     }
     if (!content) content = `<p>Content extracted from LinkedIn. Original: <a href="${url}">${url}</a></p>`;
     const slugBase = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 100) || "linkedin-article";
-    const slug = slugBase + "-" + Date.now().toString(36);
-    const id = createPost({
-      title,
-      slug,
-      content,
-      excerpt,
-      source: "LinkedIn",
-      category: "Programmatic Strategy",
-      external_url: url,
-      publish_date: new Date().toISOString().slice(0, 10),
-      status: "draft",
-    });
+    const slug = `${slugBase}-${Date.now().toString(36)}`;
+    const subdomain = user.subdomain || "ranjan";
+    const id = await cms.createPost(
+      user.email,
+      {
+        title,
+        slug,
+        content,
+        excerpt,
+        category: "Programmatic Strategy",
+        status: "draft",
+      },
+      subdomain
+    );
     return NextResponse.json({ id, slug, message: "Post created as draft" });
   } catch (e) {
     return NextResponse.json({ error: e.message || "Import failed" }, { status: 500 });

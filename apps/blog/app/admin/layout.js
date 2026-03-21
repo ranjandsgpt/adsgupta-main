@@ -1,4 +1,5 @@
 import AdminShell from "../../components/AdminShell";
+import AdminProviders from "./providers";
 
 export const metadata = {
   title: "Admin | BlogAI CMS",
@@ -7,8 +8,10 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="shell" style={{ paddingTop: "1.5rem", paddingBottom: "3rem" }}>
-      <AdminShell>{children}</AdminShell>
-    </div>
+    <AdminProviders>
+      <div className="shell" style={{ paddingTop: "1.5rem", paddingBottom: "3rem" }}>
+        <AdminShell>{children}</AdminShell>
+      </div>
+    </AdminProviders>
   );
 }

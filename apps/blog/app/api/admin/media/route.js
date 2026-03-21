@@ -1,28 +1,17 @@
 import { NextResponse } from "next/server";
+import { del } from "@vercel/blob";
 import { getUser } from "../../../../lib/auth.js";
-import { isSupabaseCmsEnabled } from "../../../../lib/cms-runtime.js";
-import { createServerSupabase } from "../../../../lib/supabase-server.js";
-import * as cms from "../../../../lib/supabase-cms.js";
-
-const BUCKET = "blog-media";
-
-function storagePathFromPublicUrl(url) {
-  if (!url || typeof url !== "string") return null;
-  const marker = `/object/public/${BUCKET}/`;
-  const i = url.indexOf(marker);
-  if (i === -1) return null;
-  return decodeURIComponent(url.slice(i + marker.length));
-}
+import { isPostgresConfigured } from "../../../../lib/cms-runtime.js";
+import * as cms from "../../../../lib/cms-pg.js";
 
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!isSupabaseCmsEnabled()) {
+  if (!isPostgresConfigured()) {
     return NextResponse.json({ items: [] });
   }
   try {
-    const supabase = createServerSupabase();
-    const items = await cms.listMedia(supabase, user.id);
+    const items = await cms.listMedia(user.email);
     return NextResponse.json({ items });
   } catch (e) {
     return NextResponse.json({ error: e.message || "Failed" }, { status: 500 });
@@ -35,21 +24,23 @@ export async function DELETE(request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
-  if (!isSupabaseCmsEnabled()) {
-    return NextResponse.json({ error: "Supabase not configured" }, { status: 503 });
+  if (!isPostgresConfigured()) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   }
 
   try {
-    const supabase = createServerSupabase();
-    const items = await cms.listMedia(supabase, user.id);
+    const items = await cms.listMedia(user.email);
     const row = items.find((r) => r.id === id);
     if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const path = storagePathFromPublicUrl(row.url);
-    if (path) {
-      await supabase.storage.from(BUCKET).remove([path]);
+    if (process.env.BLOB_READ_WRITE_TOKEN && row.url?.includes("blob.vercel-storage.com")) {
+      try {
+        await del(row.url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+      } catch {
+        /* blob may already be gone */
+      }
     }
-    await cms.deleteMediaRow(supabase, user.id, id);
+    await cms.deleteMediaRow(user.email, id);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: e.message || "Delete failed" }, { status: 500 });

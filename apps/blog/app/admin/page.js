@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUser } from "../../lib/auth.js";
-import { createServerSupabase } from "../../lib/supabase-server.js";
-import { isSupabaseCmsEnabled } from "../../lib/cms-runtime.js";
-import * as cms from "../../lib/supabase-cms.js";
-import { getAllPostsForAdmin } from "../../lib/db.js";
+import { isPostgresConfigured } from "../../lib/cms-runtime.js";
+import * as cms from "../../lib/cms-pg.js";
 
 const accent = "#06b6d4";
 const muted = "rgba(255,255,255,0.65)";
@@ -27,26 +25,14 @@ export default async function AdminDashboardPage() {
   };
   let recent = [];
 
-  if (isSupabaseCmsEnabled()) {
+  if (isPostgresConfigured()) {
     try {
-      const supabase = createServerSupabase();
-      stats = await cms.getDashboardStats(supabase, user.id);
-      const rows = await cms.listRecentPosts(supabase, user.id, 8);
-      const profile = await cms.getProfile(supabase, user.id);
-      recent = rows.map((r) => cms.mapPostRow(r, profile));
+      stats = await cms.getDashboardStats(user.email);
+      const rows = await cms.listRecentPosts(user.email, 8);
+      recent = rows.map((r) => cms.mapPostRow(r, user.email));
     } catch {
-      const posts = getAllPostsForAdmin();
-      stats.total_posts = posts.length;
-      stats.published = posts.filter((p) => p.status === "published").length;
-      stats.drafts = posts.filter((p) => p.status === "draft").length;
-      recent = posts.slice(0, 8);
+      /* empty */
     }
-  } else {
-    const posts = getAllPostsForAdmin();
-    stats.total_posts = posts.length;
-    stats.published = posts.filter((p) => p.status === "published").length;
-    stats.drafts = posts.filter((p) => p.status === "draft").length;
-    recent = posts.slice(0, 8);
   }
 
   return (

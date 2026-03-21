@@ -1,27 +1,18 @@
-import { isSupabaseCmsEnabled } from "./cms-runtime.js";
+import { isPostgresConfigured } from "./cms-runtime.js";
+import { sql } from "./db.js";
 
-/** First active inline ad: Supabase ad_slots, else legacy SQLite monetization row. */
+/** First active inline ad from Postgres `ad_slots`. */
 export async function getInlineMonetizationScript() {
-  if (isSupabaseCmsEnabled()) {
-    try {
-      const { createServerSupabase } = await import("./supabase-server.js");
-      const supabase = createServerSupabase();
-      const { data } = await supabase
-        .from("ad_slots")
-        .select("ad_code")
-        .eq("active", true)
-        .eq("placement", "inline")
-        .limit(1);
-      if (data?.[0]?.ad_code) return String(data[0].ad_code);
-    } catch {
-      /* fall through */
-    }
-  }
+  if (!isPostgresConfigured()) return "";
   try {
-    const { getMonetizationScripts } = await import("./db.js");
-    const scripts = getMonetizationScripts();
-    return scripts?.[0]?.script || "";
+    const { rows } = await sql`
+      SELECT ad_code FROM ad_slots
+      WHERE active = true AND placement = 'inline'
+      LIMIT 1
+    `;
+    if (rows?.[0]?.ad_code) return String(rows[0].ad_code);
   } catch {
-    return "";
+    /* ignore */
   }
+  return "";
 }

@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUser } from "../../../lib/auth.js";
-import { createServerSupabase } from "../../../lib/supabase-server.js";
-import { isSupabaseCmsEnabled } from "../../../lib/cms-runtime.js";
-import * as cms from "../../../lib/supabase-cms.js";
-import { getAllPostsForAdmin } from "../../../lib/db.js";
+import { isPostgresConfigured } from "../../../lib/cms-runtime.js";
+import * as cms from "../../../lib/cms-pg.js";
 import PostManagerClient from "../../../components/admin/PostManagerClient";
 
 export default async function AdminPostsPage({ searchParams }) {
@@ -15,26 +13,14 @@ export default async function AdminPostsPage({ searchParams }) {
 
   let posts = [];
 
-  if (isSupabaseCmsEnabled()) {
+  if (isPostgresConfigured()) {
     try {
-      const supabase = createServerSupabase();
-      posts = await cms.listPostsForAdmin(supabase, user.id, {
+      posts = await cms.listPostsForAdmin(user.email, {
         status: tab === "all" ? undefined : tab,
         q,
       });
     } catch {
-      posts = getAllPostsForAdmin();
-    }
-  } else {
-    const filters = {};
-    if (tab !== "all") filters.status = tab;
-    posts = getAllPostsForAdmin(filters);
-    if (q.trim()) {
-      const t = q.trim().toLowerCase();
-      posts = posts.filter(
-        (p) =>
-          (p.title || "").toLowerCase().includes(t) || (p.slug || "").toLowerCase().includes(t)
-      );
+      posts = [];
     }
   }
 

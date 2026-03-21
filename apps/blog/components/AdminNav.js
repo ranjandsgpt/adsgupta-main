@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "../lib/supabase.js";
+import { signOut } from "next-auth/react";
 
 const accent = "#06b6d4";
 const muted = "rgba(255,255,255,0.55)";
@@ -27,12 +27,7 @@ export default function AdminNav() {
 
   async function handleLogout(e) {
     e.preventDefault();
-    try {
-      const supabase = createBrowserSupabaseClient();
-      await supabase.auth.signOut();
-    } catch {
-      await fetch("/api/auth/logout", { method: "POST", redirect: "manual" });
-    }
+    await signOut({ redirect: false });
     router.push("/admin/login");
     router.refresh();
   }
