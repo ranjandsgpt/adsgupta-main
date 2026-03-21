@@ -56,7 +56,7 @@ export default function AmazonAdvertisingResourcesPage() {
                   </p>
                   <span className="inline-flex items-center gap-1 text-sm font-medium text-cyan-500 group-hover:gap-2 transition-all">
                     Read more
-                    <ArrowRight size={14} aria-hidden />
+                    <ArrowRight size={14} className="shrink-0" aria-hidden />
                   </span>
                 </Link>
               </motion.li>

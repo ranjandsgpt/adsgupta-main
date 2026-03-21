@@ -1,3 +1,3 @@
-export { Header, Nav } from "./index.tsx";
+export { Header, Nav } from "./header-nav";
 export { Footer } from "./components/Footer";
 

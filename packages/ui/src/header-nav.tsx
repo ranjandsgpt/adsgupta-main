@@ -1,6 +1,5 @@
 import * as React from "react";
 import { brand } from "@adsgupta/config";
-import { Footer } from "./components/Footer";
 
 export function Header({ title }: { title: string }) {
   return (
@@ -35,6 +34,3 @@ export function Nav() {
     </nav>
   );
 }
-
-export { Footer };
-
