@@ -9,7 +9,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const post = await getPostBySlug(params.slug);
+  const { slug } = await Promise.resolve(params);
+  let post;
+  try {
+    post = await getPostBySlug(slug);
+  } catch {
+    return { title: 'Post not found' };
+  }
   return {
     title: post.title,
     description: post.description,
@@ -17,9 +23,10 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function BlogPostPage({ params }) {
+  const { slug } = await Promise.resolve(params);
   let post;
   try {
-    post = await getPostBySlug(params.slug);
+    post = await getPostBySlug(slug);
   } catch {
     notFound();
   }

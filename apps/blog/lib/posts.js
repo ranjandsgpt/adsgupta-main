@@ -8,6 +8,28 @@ import remarkHtml from 'remark-html';
 const postsDirectory = path.join(process.cwd(), 'posts');
 
 /**
+ * YAML (gray-matter/js-yaml) parses unquoted dates like `2025-02-27` as JavaScript Date objects.
+ * React cannot render Date (or other objects) as children — normalize to strings for JSX.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function asPlainText(value) {
+  if (value == null) return '';
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  // Fallback: avoid "[object Object]" in titles when possible
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+/**
  * Get all post slugs (filename without .md).
  * @returns {string[]}
  */
@@ -36,9 +58,9 @@ export async function getPostBySlug(slug) {
 
   return {
     slug,
-    title: data.title ?? '',
-    date: data.date ?? '',
-    description: data.description ?? '',
+    title: asPlainText(data.title),
+    date: asPlainText(data.date),
+    description: asPlainText(data.description),
     contentHtml,
   };
 }
@@ -56,9 +78,9 @@ export function getAllPosts() {
     const { data } = matter(fileContents);
     return {
       slug,
-      title: data.title ?? '',
-      date: data.date ?? '',
-      description: data.description ?? '',
+      title: asPlainText(data.title),
+      date: asPlainText(data.date),
+      description: asPlainText(data.description),
     };
   });
 
