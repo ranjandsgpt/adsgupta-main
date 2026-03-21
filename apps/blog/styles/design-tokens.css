@@ -1,0 +1,11 @@
+@import "./design-system.css";
+
+:root {
+  --ads-card-bg: rgba(255, 255, 255, 0.03);
+
+  /* Layout */
+  --ads-page-max-width: 1200px;
+  --ads-page-padding-x: clamp(1.25rem, 5vw, 2.5rem);
+  --ads-page-padding-y: 1.5rem;
+}
+

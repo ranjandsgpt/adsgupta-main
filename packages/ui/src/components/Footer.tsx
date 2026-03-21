@@ -1,213 +1,264 @@
+"use client";
+
 import * as React from "react";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ArrowRight, Linkedin, Twitter } from "lucide-react";
+import "./Footer.css";
 
-export const Footer = () => {
+/**
+ * Master footer — matches apps/ranjan/footer.js (layout, links, #0A0A0A background).
+ * Uses plain <a href> so it works in Next.js and CRA without a router import.
+ */
+export function Footer() {
   const [email, setEmail] = useState("");
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (email) {
-      setIsSubscribed(true);
-      setEmail("");
-      setTimeout(() => setIsSubscribed(false), 3000);
-    }
-  };
-
-  const footerLinks: Array<{
-    title: string;
-    links: Array<{ label: string; href: string; external?: boolean }>;
-  }> = [
-    {
-      title: "Platform",
-      links: [
-        {
-          label: "AI Sandbox",
-          href: "https://demoai.adsgupta.com",
-          external: true,
-        },
-        { label: "Features", href: "/#features" },
-        { label: "Pricing", href: "#" },
-      ],
-    },
-    {
-      title: "Resources",
-      links: [
-        { label: "Blog", href: "/blog" },
-        { label: "Documentation", href: "#" },
-        { label: "API", href: "#" },
-      ],
-    },
-    {
-      title: "Company",
-      links: [
-        { label: "About", href: "/aboutme" },
-        { label: "Contact", href: "/contact" },
-        { label: "Careers", href: "#" },
-      ],
-    },
-    {
-      title: "Legal",
-      links: [
-        { label: "Privacy Policy", href: "/privacy" },
-        { label: "Terms of Service", href: "/terms" },
-      ],
-    },
-  ];
+    if (!email.trim()) return;
+    setShowSuccess(true);
+    setEmail("");
+    window.setTimeout(() => setShowSuccess(false), 4000);
+  }
 
   return (
     <footer
+      className="adsg-footer"
       data-testid="footer-section"
-      className="relative py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5"
+      role="contentinfo"
     >
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16">
-          {/* Left: Newsletter */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h3 className="text-3xl md:text-4xl font-bold text-white font-['Space_Grotesk'] mb-4 tracking-tight">
+      <div className="adsg-footer__container">
+        <div className="adsg-footer__main">
+          <div className="adsg-footer__left">
+            <h3 className="adsg-footer__title">
               Stay Ahead of
               <br />
               the Curve
             </h3>
-            <p className="text-zinc-400 text-lg mb-8 max-w-md">
+
+            <p className="adsg-footer__subtitle">
               Get exclusive insights on AI advertising, delivered to your inbox.
             </p>
 
             <form
+              className="adsg-footer__form"
+              data-testid="newsletter-form"
+              aria-label="Newsletter signup"
               onSubmit={handleSubmit}
-              className="flex gap-3"
             >
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 data-testid="newsletter-input"
-                className="newsletter-input flex-1 px-5 py-4 rounded-full text-white placeholder-zinc-500 font-medium"
+                className="adsg-footer__input"
                 required
+                type="email"
+                aria-label="Email for newsletter"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              <motion.button
+              <button
                 type="submit"
                 data-testid="newsletter-submit"
-                data-hoverable="true"
-                className="glow-button w-14 h-14 rounded-full bg-cyan-500 text-black flex items-center justify-center hover:bg-cyan-400"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="adsg-footer__submit"
+                aria-label="Subscribe"
               >
-                <ArrowRight size={20} />
-              </motion.button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#000000"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </button>
             </form>
 
-            {isSubscribed && (
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-cyan-400 mt-4 text-sm font-medium"
-              >
-                Thanks for subscribing! Check your inbox.
-              </motion.p>
-            )}
-          </motion.div>
+            <div
+              className={
+                "adsg-footer__success" +
+                (showSuccess ? " adsg-footer__success--visible" : "")
+              }
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              Thanks! You are subscribed.
+            </div>
+          </div>
 
-          {/* Right: Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
-          >
-            {footerLinks.map((group, index) => (
-              <div key={index}>
-                <h4 className="text-white font-semibold mb-4 text-sm tracking-wide">
-                  {group.title}
-                </h4>
-                <ul className="space-y-3">
-                  {group.links.map((link, linkIndex) => (
-                    <li key={linkIndex}>
-                      {link.external ? (
-                        <a
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          data-hoverable="true"
-                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
-                        >
-                          {link.label}
-                        </a>
-                      ) : link.href.startsWith("/#") ? (
-                        <a
-                          href={link.href}
-                          data-hoverable="true"
-                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
-                        >
-                          {link.label}
-                        </a>
-                      ) : (
-                        <Link
-                          to={link.href}
-                          data-hoverable="true"
-                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
-                        >
-                          {link.label}
-                        </Link>
-                      )}
-                    </li>
-                  ))}
+          <div className="adsg-footer__right" aria-label="Footer navigation">
+            <div className="adsg-footer__grid">
+              <div className="adsg-footer__col">
+                <h4 className="adsg-footer__heading">Platform</h4>
+                <ul className="adsg-footer__list">
+                  <li>
+                    <a
+                      href="https://demoai.adsgupta.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="adsg-footer__link"
+                    >
+                      AI Sandbox
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://adsgupta.com/#features"
+                      className="adsg-footer__link"
+                    >
+                      Features
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://adsgupta.com/" className="adsg-footer__link">
+                      Pricing
+                    </a>
+                  </li>
                 </ul>
               </div>
-            ))}
-          </motion.div>
+
+              <div className="adsg-footer__col">
+                <h4 className="adsg-footer__heading">Resources</h4>
+                <ul className="adsg-footer__list">
+                  <li>
+                    <a href="/insights" className="adsg-footer__link">
+                      Blog
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://adsgupta.com/" className="adsg-footer__link">
+                      Documentation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://adsgupta.com/" className="adsg-footer__link">
+                      API
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="adsg-footer__col">
+                <h4 className="adsg-footer__heading">Company</h4>
+                <ul className="adsg-footer__list">
+                  <li>
+                    <a href="/about" className="adsg-footer__link">
+                      About
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/contact" className="adsg-footer__link">
+                      Contact
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://adsgupta.com/" className="adsg-footer__link">
+                      Careers
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="adsg-footer__col">
+                <h4 className="adsg-footer__heading">Legal</h4>
+                <ul className="adsg-footer__list">
+                  <li>
+                    <a
+                      href="https://adsgupta.com/privacy"
+                      className="adsg-footer__link"
+                    >
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://adsgupta.com/terms"
+                      className="adsg-footer__link"
+                    >
+                      Terms of Service
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <Link
-              to="/"
-              className="text-2xl font-bold text-white font-['Space_Grotesk']"
+        <div className="adsg-footer__bottom">
+          <div className="adsg-footer__brand">
+            <a
+              className="adsg-footer__brand-link"
+              href="https://adsgupta.com"
+              aria-label="ADS Gupta"
             >
-              ADS
-              <span className="text-cyan-400">GUPTA</span>
-            </Link>
-            <span className="text-zinc-600 text-sm">
-              © 2025 Ads Gupta. All rights reserved.
+              ADS<span className="adsg-footer__brand-accent">GUPTA</span>
+            </a>
+            <span className="adsg-footer__copyright">
+              © {new Date().getFullYear()} Ads Gupta. All rights reserved.
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <motion.a
-              href="#"
+          <div className="adsg-footer__social" aria-label="Social links">
+            <a
+              href="https://twitter.com/adsgupta"
+              target="_blank"
+              rel="noopener noreferrer"
               data-testid="social-twitter"
-              data-hoverable="true"
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors duration-300"
-              whileHover={{ y: -2 }}
+              className="adsg-footer__icon"
+              aria-label="Twitter"
             >
-              <Twitter size={18} strokeWidth={1.5} />
-            </motion.a>
-            <motion.a
-              href="#"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+              </svg>
+            </a>
+
+            <a
+              href="https://linkedin.com/company/adsgupta"
+              target="_blank"
+              rel="noopener noreferrer"
               data-testid="social-linkedin"
-              data-hoverable="true"
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors duration-300"
-              whileHover={{ y: -2 }}
+              className="adsg-footer__icon"
+              aria-label="LinkedIn"
             >
-              <Linkedin size={18} strokeWidth={1.5} />
-            </motion.a>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect width="4" height="12" x="2" y="9" fill="none" />
+                <circle cx="4" cy="4" r="2" fill="none" />
+              </svg>
+            </a>
           </div>
         </div>
       </div>
     </footer>
   );
-};
+}
 
 export default Footer;
-

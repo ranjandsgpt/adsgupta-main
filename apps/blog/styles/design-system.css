@@ -1,0 +1,14 @@
+:root {
+  /* Core design system tokens */
+  --ads-background: #000000;
+  --ads-surface: #0a0a0a;
+  --ads-accent: #00ffff;
+  --ads-text-primary: #ffffff;
+  --ads-text-secondary: #9ca3af;
+
+  /* Backwards-compatible aliases used across the blog */
+  --ads-bg: var(--ads-background);
+  --ads-text-muted: var(--ads-text-secondary);
+}
+
+

@@ -12,6 +12,8 @@
     "generate-docs": "tsx scripts/updateDocs.ts"
   },
   "dependencies": {
+    "@adsgupta/config": "^0.0.0",
+    "@adsgupta/ui": "^0.0.0",
     "@google/genai": "^1.44.0",
     "@supabase/supabase-js": "^2.99.1",
     "@tanstack/react-virtual": "^3.13.19",

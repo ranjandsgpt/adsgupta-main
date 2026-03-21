@@ -1,0 +1,289 @@
+/* Matches apps/ranjan/footer.js — pinned dark footer, independent of page theme */
+footer[data-testid="footer-section"] {
+  background: #0a0a0a !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 64px 0 !important;
+  color: #e5e7eb !important;
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif !important;
+  color-scheme: dark !important;
+}
+
+footer[data-testid="footer-section"] a {
+  color: #6f6f70 !important;
+  text-decoration: none !important;
+}
+
+footer[data-testid="footer-section"] a:visited,
+footer[data-testid="footer-section"] a:active {
+  color: #6f6f70 !important;
+}
+
+footer[data-testid="footer-section"] a:hover {
+  color: #ffffff !important;
+}
+
+footer[data-testid="footer-section"] h3,
+footer[data-testid="footer-section"] h4 {
+  color: #ffffff !important;
+}
+
+footer[data-testid="footer-section"] p {
+  color: rgba(161, 161, 170, 1) !important;
+}
+
+.adsg-footer {
+  background: #0a0a0a;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 64px 0;
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #e5e7eb !important;
+}
+
+.adsg-footer,
+.adsg-footer * {
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.adsg-footer__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+.adsg-footer__main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  margin-bottom: 64px !important;
+}
+
+.adsg-footer__title {
+  font-size: 40px;
+  font-weight: 700;
+  color: #ffffff !important;
+  line-height: 1.2;
+  margin: 0 0 16px 0;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.adsg-footer__subtitle {
+  color: #a1a1aa !important;
+  font-size: 18px;
+  margin: 0 0 32px 0 !important;
+  max-width: 400px;
+}
+
+.adsg-footer__form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.adsg-footer__input {
+  flex: 1;
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 16px 20px;
+  color: #ffffff !important;
+  font-size: 15px;
+  font-family: "Space Grotesk", sans-serif;
+  outline: none;
+}
+
+.adsg-footer__input::placeholder {
+  color: #71717a !important;
+}
+
+.adsg-footer__input:focus {
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: none;
+}
+
+.adsg-footer__submit {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 50%;
+  background: #06b6d4 !important;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.adsg-footer__submit:hover {
+  background: #22d3ee !important;
+}
+
+.adsg-footer__success {
+  color: #22d3ee !important;
+  font-size: 14px;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+.adsg-footer__success--visible {
+  display: block !important;
+}
+
+.adsg-footer__success:not(.adsg-footer__success--visible) {
+  display: none;
+}
+
+.adsg-footer__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+.adsg-footer__heading {
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.025em !important;
+  margin: 0 0 16px 0 !important;
+  font-family: "Space Grotesk", sans-serif;
+  text-transform: none;
+}
+
+.adsg-footer__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adsg-footer__link {
+  color: #6f6f70 !important;
+  font-size: 14px !important;
+  text-decoration: none !important;
+  display: block !important;
+  margin-bottom: 12px !important;
+  transition: color 0.3s !important;
+  white-space: nowrap !important;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.adsg-footer__list li:last-child .adsg-footer__link {
+  margin-bottom: 0;
+}
+
+.adsg-footer__link:hover {
+  color: #ffffff !important;
+}
+
+.adsg-footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.adsg-footer__brand {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.adsg-footer__brand-link {
+  color: #ffffff !important;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.adsg-footer__brand-accent {
+  color: #22d3ee !important;
+}
+
+.adsg-footer__copyright {
+  color: #52525b !important;
+  font-size: 14px;
+  margin-left: 24px;
+}
+
+.adsg-footer__social {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.adsg-footer__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a1a1aa !important;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.adsg-footer__icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+}
+
+.adsg-footer__icon svg {
+  fill: none !important;
+  stroke: currentColor !important;
+}
+
+.adsg-footer__submit svg {
+  fill: none !important;
+  stroke: #000000 !important;
+}
+
+@media (max-width: 768px) {
+  .adsg-footer {
+    padding: 48px 0;
+  }
+
+  .adsg-footer__container {
+    padding: 0 24px;
+  }
+
+  .adsg-footer__main {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .adsg-footer__title {
+    font-size: 32px;
+  }
+
+  .adsg-footer__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .adsg-footer__bottom {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .adsg-footer__brand-link {
+    font-size: 22px;
+  }
+
+  .adsg-footer__copyright {
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .adsg-footer__social {
+    justify-content: center;
+  }
+}
