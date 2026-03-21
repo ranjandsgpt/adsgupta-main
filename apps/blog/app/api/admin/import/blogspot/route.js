@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { checkSession, getCookieName } from "../../../../../lib/auth.js";
+import { getUser } from "../../../../../lib/auth.js";
 import { getDatabase, slugify } from "../../../../../lib/db.js";
 
-async function requireAdmin(request) {
-  const cookie = request.cookies.get(getCookieName())?.value;
-  const user = await checkSession(cookie);
+async function requireAdmin() {
+  const user = await getUser();
   if (!user) return null;
   return user;
 }
@@ -40,7 +39,7 @@ function insertPost(db, { title, slug, content, excerpt, source, category, exter
 }
 
 export async function POST(request) {
-  const user = await requireAdmin(request);
+  const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   let imported = 0;
   let skipped = 0;

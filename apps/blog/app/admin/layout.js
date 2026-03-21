@@ -1,5 +1,4 @@
-import Link from "next/link";
-import AdminNav from "../../components/AdminNav";
+import AdminShell from "../../components/AdminShell";
 
 export const metadata = {
   title: "Admin | BlogAI CMS",
@@ -9,8 +8,7 @@ export const metadata = {
 export default function AdminLayout({ children }) {
   return (
     <div className="shell" style={{ paddingTop: "1.5rem", paddingBottom: "3rem" }}>
-      <AdminNav />
-      {children}
+      <AdminShell>{children}</AdminShell>
     </div>
   );
 }

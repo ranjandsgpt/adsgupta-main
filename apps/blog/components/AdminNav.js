@@ -2,13 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createBrowserSupabaseClient } from "../lib/supabase.js";
 
 export default function AdminNav() {
   const router = useRouter();
 
   async function handleLogout(e) {
     e.preventDefault();
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.signOut();
+    } catch {
+      await fetch("/api/auth/logout", { method: "POST", redirect: "manual" });
+    }
     router.push("/admin/login");
     router.refresh();
   }

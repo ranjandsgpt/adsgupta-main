@@ -9,10 +9,11 @@
   "dependencies": {
     "@adsgupta/config": "^0.0.0",
     "@adsgupta/ui": "^0.0.0",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.6.0",
     "gray-matter": "^4.0.3",
-    "jose": "^5.9.6",
     "next": "14.2.18",
     "react": "18.2.0",
     "react-dom": "18.2.0",

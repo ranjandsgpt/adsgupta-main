@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import { checkSession, getCookieName } from "../../../../../lib/auth.js";
+import { getUser } from "../../../../../lib/auth.js";
 import { createPost } from "../../../../../lib/db.js";
 
-async function requireAdmin(request) {
-  const cookie = request.cookies.get(getCookieName())?.value;
-  const user = await checkSession(cookie);
+async function requireAdmin() {
+  const user = await getUser();
   if (!user) return null;
   return user;
 }
 
 export async function POST(request) {
-  const user = await requireAdmin(request);
+  const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const { url } = await request.json();

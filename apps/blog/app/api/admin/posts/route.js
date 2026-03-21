@@ -1,23 +1,22 @@
 import { NextResponse } from "next/server";
-import { checkSession, getCookieName } from "../../../../lib/auth.js";
+import { getUser } from "../../../../lib/auth.js";
 import { getAllPostsForAdmin, createPost } from "../../../../lib/db.js";
 
-async function requireAdmin(request) {
-  const cookie = request.cookies.get(getCookieName())?.value;
-  const user = await checkSession(cookie);
+async function requireAdmin() {
+  const user = await getUser();
   if (!user) return null;
   return user;
 }
 
-export async function GET(request) {
-  const user = await requireAdmin(request);
+export async function GET() {
+  const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const posts = getAllPostsForAdmin();
   return NextResponse.json(posts);
 }
 
 export async function POST(request) {
-  const user = await requireAdmin(request);
+  const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const body = await request.json();

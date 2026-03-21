@@ -1,10 +1,31 @@
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { getCookieName } from "../../../../lib/auth.js";
 
-export function POST(request) {
-  const url = request.nextUrl || new URL(request.url);
-  const origin = url.origin || "http://localhost:3000";
-  const res = NextResponse.redirect(new URL("/admin/login", origin));
-  res.cookies.set(getCookieName(), "", { httpOnly: true, path: "/", maxAge: 0 });
-  return res;
+export async function POST(request) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const origin = request.nextUrl?.origin || new URL(request.url).origin;
+
+  if (!url || !anonKey) {
+    return NextResponse.redirect(new URL("/admin/login", origin));
+  }
+
+  const cookieStore = cookies();
+  const supabase = createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          cookieStore.set(name, value, options);
+        });
+      },
+    },
+  });
+
+  await supabase.auth.signOut();
+
+  return NextResponse.redirect(new URL("/admin/login", origin), { status: 302 });
 }
