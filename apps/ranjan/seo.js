@@ -1,125 +1,88 @@
-(function () {
-  // Minimal SEO injector used by blog pages.
-  // It only adds tags if they're missing to avoid overriding pre-built SEO.
-  function ensureCanonical() {
-    var canonical = document.querySelector("link[rel='canonical']");
-    if (canonical && canonical.getAttribute("href")) return;
+(function() {
+  var head = document.head;
+  var url = window.location.href;
+  var title = document.title;
+  var desc = (document.querySelector('meta[name="description"]') || {}).content || '';
 
-    var url = "";
-    try {
-      url = window.location.href.split("#")[0];
-    } catch (e) {}
-
-    if (!url) return;
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      document.head.appendChild(canonical);
-    }
-    canonical.href = url;
+  // Canonical if missing
+  if (!document.querySelector('link[rel="canonical"]')) {
+    var c = document.createElement('link');
+    c.rel = 'canonical'; c.href = url;
+    head.appendChild(c);
   }
 
-  function ensureOpenGraphAndTwitter() {
-    // Ensure basic defaults when missing.
-    // We intentionally don't force values if tags already exist.
-    var ogTitle = getMeta("property", "og:title");
-    var ogDesc = getMeta("property", "og:description");
-    var ogUrl = getMeta("property", "og:url");
-    var ogImage = getMeta("property", "og:image");
-
-    if (!ogUrl) {
-      var url = "";
-      try {
-        url = window.location.href.split("#")[0];
-      } catch (e) {}
-      if (url) {
-        ogUrl = createMeta("property", "og:url", url);
-      }
+  // hreflang tags
+  var langs = [
+    {lang: 'en', href: url},
+    {lang: 'en-us', href: url},
+    {lang: 'en-in', href: url},
+    {lang: 'en-gb', href: url},
+    {lang: 'en-au', href: url},
+    {lang: 'x-default', href: url}
+  ];
+  langs.forEach(function(l) {
+    if (!document.querySelector('link[hreflang="' + l.lang + '"]')) {
+      var el = document.createElement('link');
+      el.rel = 'alternate'; el.hreflang = l.lang; el.href = l.href;
+      head.appendChild(el);
     }
-
-    if (!ogTitle) {
-      var t = document.title || "";
-      if (t) createMeta("property", "og:title", t);
-    }
-
-    if (!ogDesc) {
-      var d = getMeta("name", "description");
-      if (d && d.getAttribute("content")) {
-        createMeta("property", "og:description", d.getAttribute("content"));
-      }
-    }
-
-    // If the page already sets twitter card / title / desc / image, don't override.
-    if (!getMeta("name", "twitter:card")) createMeta("name", "twitter:card", "summary_large_image");
-    if (!getMeta("name", "twitter:title")) {
-      var tt = document.title || "";
-      if (tt) createMeta("name", "twitter:title", tt);
-    }
-    if (!getMeta("name", "twitter:description")) {
-      var td = getMeta("name", "description");
-      if (td && td.getAttribute("content")) createMeta("name", "twitter:description", td.getAttribute("content"));
-    }
-    if (!getMeta("name", "twitter:image")) {
-      if (ogImage && ogImage.getAttribute("content")) {
-        createMeta("name", "twitter:image", ogImage.getAttribute("content"));
-      }
-    }
-  }
-
-  function ensurePersonJsonLd() {
-    var id = "adsgupta-person-jsonld";
-    if (document.getElementById(id)) return;
-
-    var url = "";
-    try {
-      url = window.location.href.split("#")[0];
-    } catch (e) {}
-
-    var person = {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Ranjan Dasgupta",
-      "url": "https://ranjan.adsgupta.com",
-      "jobTitle": "AdTech Product Leader",
-      "sameAs": ["https://www.linkedin.com/in/ranjandsgpt/", "https://adsgupta.com"]
-    };
-
-    var script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.id = id;
-    script.text = JSON.stringify(person);
-
-    // Append to head if possible; fallback to documentElement.
-    (document.head || document.documentElement).appendChild(script);
-  }
-
-  function getMeta(attr, name) {
-    return document.querySelector('meta[' + attr + '="' + name + '"]');
-  }
-
-  function createMeta(attr, name, content) {
-    if (!content) return null;
-    var m = document.createElement("meta");
-    m.setAttribute(attr, name);
-    m.setAttribute("content", String(content));
-    document.head.appendChild(m);
-    return m;
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    try {
-      ensureCanonical();
-      ensureOpenGraphAndTwitter();
-      ensurePersonJsonLd();
-    } catch (e) {}
   });
-  if (document.readyState !== "loading") {
-    // If script loads late, still run immediately.
-    try {
-      ensureCanonical();
-      ensureOpenGraphAndTwitter();
-      ensurePersonJsonLd();
-    } catch (e) {}
+
+  // Twitter creator if missing
+  if (!document.querySelector('meta[name="twitter:creator"]')) {
+    var tw = document.createElement('meta');
+    tw.name = 'twitter:creator'; tw.content = '@adsgupta';
+    head.appendChild(tw);
+  }
+
+  // Twitter site if missing
+  if (!document.querySelector('meta[name="twitter:site"]')) {
+    var tws = document.createElement('meta');
+    tws.name = 'twitter:site'; tws.content = '@adsgupta';
+    head.appendChild(tws);
+  }
+
+  // OG locale if missing
+  if (!document.querySelector('meta[property="og:locale"]')) {
+    var ogl = document.createElement('meta');
+    ogl.setAttribute('property', 'og:locale'); ogl.content = 'en_US';
+    head.appendChild(ogl);
+  }
+
+  // Article author for blog pages
+  if (url.indexOf('/blog/') > -1) {
+    if (!document.querySelector('meta[property="article:author"]')) {
+      var aa = document.createElement('meta');
+      aa.setAttribute('property', 'article:author'); aa.content = 'Ranjan Dasgupta';
+      head.appendChild(aa);
+    }
+    if (!document.querySelector('meta[property="article:publisher"]')) {
+      var ap = document.createElement('meta');
+      ap.setAttribute('property', 'article:publisher'); ap.content = 'https://adsgupta.com';
+      head.appendChild(ap);
+    }
+  }
+
+  // BreadcrumbList schema
+  var path = window.location.pathname;
+  var parts = path.split('/').filter(Boolean);
+  if (parts.length > 0) {
+    var items = [{name: 'Home', url: 'https://ranjan.adsgupta.com'}];
+    var built = 'https://ranjan.adsgupta.com';
+    parts.forEach(function(p) {
+      built += '/' + p;
+      items.push({name: p.replace(/-/g, ' ').replace(/\w/g, function(c){return c.toUpperCase();}), url: built});
+    });
+    var bc = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': items.map(function(item, i) {
+        return {'@type': 'ListItem', 'position': i+1, 'name': item.name, 'item': item.url};
+      })
+    };
+    var bcs = document.createElement('script');
+    bcs.type = 'application/ld+json';
+    bcs.textContent = JSON.stringify(bc);
+    head.appendChild(bcs);
   }
 })();
-

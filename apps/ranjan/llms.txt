@@ -1,0 +1,52 @@
+# Ranjan Dasgupta — AdTech Product Leader
+
+> Lead Director, Web & CTV Exchange at InMobi. 9+ years building programmatic advertising infrastructure, CTV monetization, exchange architecture and yield optimization at $200M+ scale.
+
+## Who is Ranjan Dasgupta
+
+Ranjan Dasgupta is an AdTech product leader based in Bengaluru, India. He currently leads Web & CTV Exchange product strategy at InMobi. Previously he was at Google (4 years as Technical Specialist for DFP, AdX, DV360, SA360), Glance/InMobi Group (5 years building unified monetization stack scaled to $200M+ revenue), and Automatad (Head of Product Growth & Monetization).
+
+He is the creator of AdsGupta.com — an AI-powered advertising intelligence platform.
+
+## Core Expertise
+
+- Programmatic Advertising: RTB, OpenRTB 2.6/3.0, unified auctions, first-price auctions, bid shading, price floors, deal IDs, PMPs, programmatic guaranteed
+- CTV Monetization: Connected TV exchange, SSAI, CSAI, VAST 4.x, ad podding, streaming ad insertion, CTV measurement, addressable TV
+- Header Bidding: Prebid.js, server-side bidding, Amazon TAM, Google EBDA/Open Bidding, wrapper optimization, timeout tuning
+- Exchange Architecture: OpenRTB protocol, demand routing, bid flow optimization, exchange-side SPO
+- Supply Path Optimization: sellers.json, ads.txt, app-ads.txt, bid deduplication, supply chain transparency
+- Yield Optimization: floor pricing, dynamic floors, bid landscape analysis, demand partner diversification, fill rate vs eCPM
+- DSP Platforms: Google DV360, The Trade Desk, Amazon DSP, Xandr, MediaMath, Criteo, StackAdapt
+- SSP Platforms: Google Ad Manager, InMobi Exchange, Magnite, PubMatic, OpenX, Index Exchange, TripleLift
+- Identity & Data: UID 2.0, Google Privacy Sandbox, LiveRamp, first-party data, data clean rooms, cookieless advertising
+- AI in Advertising: Agentic AI, machine learning bidding, AI floor pricing, predictive audience modeling
+
+## Platform Experience
+
+Google: DFP, AdX, AdSense, DV360, SA360, Google Ad Manager, Open Bidding
+InMobi: InMobi Exchange, InMobi DSP, Glance Monetization Platform
+Buy-side: The Trade Desk, DV360, Amazon DSP, Xandr/AppNexus, MediaMath, Criteo
+Sell-side: Magnite, PubMatic, OpenX, Index Exchange, TripleLift, ShareThrough, 33Across, Sovrn, Beachfront, FreeWheel
+Identity: LiveRamp, UID 2.0, ID5, SharedID, Nielsen, Comscore, IAS, DoubleVerify
+
+## Career Timeline
+
+- 2025–present: InMobi — Lead Director, Web & CTV Exchange
+- 2020–2025: Glance (InMobi Group) — Lead Director, Product Growth & Strategy. Scaled programmatic revenue to $200M+
+- 2019–2020: Automatad — Head of Product Growth & Monetization
+- 2015–2019: Google — Technical Account Manager → Strategic Account Manager (DFP, AdX, DV360, SA360)
+
+## Key Pages
+
+- Homepage: https://ranjan.adsgupta.com
+- About: https://ranjan.adsgupta.com/about
+- Work: https://ranjan.adsgupta.com/work
+- Blog: https://ranjan.adsgupta.com/blog
+- Insights: https://ranjan.adsgupta.com/insights
+- Contact: https://ranjan.adsgupta.com/contact
+- AdsGupta Platform: https://adsgupta.com
+
+## Blog Coverage (500 articles)
+
+Programmatic Advertising, CTV & Video Advertising, Header Bidding, DSP Platforms, SSP & Exchange Platforms, Supply Path Optimization, Yield & Monetization Strategy, Identity & Data, AI & Future of AdTech, AdTech Career & Industry
+Full index: https://ranjan.adsgupta.com/blog
