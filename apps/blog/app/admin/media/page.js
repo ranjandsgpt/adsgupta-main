@@ -1,3 +1,5 @@
-export default function MediaPlaceholder() {
-  return <p style={{ color: "var(--ads-text-muted)" }}>Media Library — loading in Phase 7.</p>;
+import MediaLibraryClient from "../../../components/admin/MediaLibraryClient";
+
+export default function MediaPage() {
+  return <MediaLibraryClient />;
 }
