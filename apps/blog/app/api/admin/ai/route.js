@@ -57,6 +57,51 @@ export async function POST(request) {
       return NextResponse.json({ excerpt: text.slice(0, 280) });
     }
 
+    if (action === "linkedin_post") {
+      const content = (body.content || "").slice(0, 12000);
+      const text = await geminiGenerateText(
+        `Turn this article into a LinkedIn post (1300 chars max, short paragraphs, 3-5 hashtags at end):\n\n${content}`,
+        { system: "Professional B2B voice. No markdown headings." }
+      );
+      return NextResponse.json({ text });
+    }
+
+    if (action === "twitter_thread") {
+      const content = (body.content || "").slice(0, 8000);
+      const text = await geminiGenerateText(
+        `Create a Twitter/X thread (numbered tweets 1/, 2/, ... max 260 chars each, 5-8 tweets) summarizing:\n\n${content}`,
+        { system: "Punchy. One idea per tweet." }
+      );
+      return NextResponse.json({ text });
+    }
+
+    if (action === "instagram_caption") {
+      const content = (body.content || "").slice(0, 6000);
+      const text = await geminiGenerateText(
+        `Write an Instagram caption + emoji + 8-12 hashtags for this article theme:\n\n${content}`,
+        { system: "Brand-safe. Engaging." }
+      );
+      return NextResponse.json({ text });
+    }
+
+    if (action === "headline_test") {
+      const h = [body.h1, body.h2, body.h3].filter(Boolean).join(" | ");
+      const text = await geminiGenerateText(
+        `Pick the single best headline for CTR from these three (reply with one line: the winner + 1 sentence why):\n${h}`,
+        { system: "Be decisive." }
+      );
+      return NextResponse.json({ result: text });
+    }
+
+    if (action === "readability") {
+      const content = (body.content || "").slice(0, 12000);
+      const text = await geminiGenerateText(
+        `Score readability 1-10 and give 3 bullet suggestions to improve clarity for this draft:\n\n${content}`,
+        { system: "Constructive editor." }
+      );
+      return NextResponse.json({ feedback: text });
+    }
+
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (e) {
     return NextResponse.json({ error: e.message || "AI failed" }, { status: 500 });

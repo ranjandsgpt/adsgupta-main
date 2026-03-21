@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import PostCard from "../../../components/PostCard";
 import MonetizationInjector from "../../../components/MonetizationInjector";
+import ArticleViewTracker from "../../../components/ArticleViewTracker";
 import { getPostBySlug, getPostSlugs, getAllPosts, injectMonetizationSlot } from "../../../lib/posts";
-import { getMonetizationScripts } from "../../../lib/db.js";
+import { getInlineMonetizationScript } from "../../../lib/monetization-load.js";
+
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   return await getPostSlugs();
@@ -60,8 +63,7 @@ export default async function ArchivePostPage({ params }) {
 
   let scriptHtml = "";
   try {
-    const scripts = getMonetizationScripts();
-    if (scripts && scripts[0]) scriptHtml = scripts[0].script || "";
+    scriptHtml = await getInlineMonetizationScript();
   } catch (_) {}
   const { contentHtml: contentWithSlot } = injectMonetizationSlot(post.contentHtml, scriptHtml, 3);
 
@@ -113,6 +115,7 @@ export default async function ArchivePostPage({ params }) {
 
   return (
     <div className="shell post-layout">
+      <ArticleViewTracker slug={slug} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

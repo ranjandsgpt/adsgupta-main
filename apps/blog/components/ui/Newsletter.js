@@ -19,9 +19,19 @@ export default function Newsletter() {
     }
   }, []);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!email) return;
+
+    try {
+      await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "footer" }),
+      });
+    } catch {
+      // still mark submitted for UX
+    }
 
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);

@@ -1,3 +1,5 @@
-export default function SubscribersPlaceholder() {
-  return <p style={{ color: "var(--ads-text-muted)" }}>Subscribers — Phase 11.</p>;
+import SubscribersAdminClient from "../../../components/admin/SubscribersAdminClient";
+
+export default function SubscribersPage() {
+  return <SubscribersAdminClient />;
 }

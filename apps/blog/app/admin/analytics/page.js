@@ -1,3 +1,5 @@
-export default function AnalyticsPlaceholder() {
-  return <p style={{ color: "var(--ads-text-muted)" }}>Analytics — Phase 10.</p>;
+import AnalyticsAdminClient from "../../../components/admin/AnalyticsAdminClient";
+
+export default function AnalyticsPage() {
+  return <AnalyticsAdminClient />;
 }

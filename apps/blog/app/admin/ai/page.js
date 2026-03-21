@@ -1,3 +1,5 @@
-export default function AIToolsPlaceholder() {
-  return <p style={{ color: "var(--ads-text-muted)" }}>AI Tools — Phase 12.</p>;
+import AIToolsClient from "../../../components/admin/AIToolsClient";
+
+export default function AIPage() {
+  return <AIToolsClient />;
 }

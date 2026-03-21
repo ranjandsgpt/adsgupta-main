@@ -37,8 +37,79 @@ async function contentToHtml(content) {
   return processed.toString();
 }
 
-/** Prefer DB; fallback to markdown file. */
+function mapSupabaseListRow(row) {
+  const minutes =
+    row.read_time_minutes ||
+    Math.max(1, Math.ceil(String(row.content || "").split(/\s+/).filter(Boolean).length / 220));
+  const date = row.published_at || row.created_at;
+  return {
+    slug: row.slug,
+    content: row.content,
+    contentHtml: "",
+    excerpt: row.excerpt || "",
+    readingTime: { minutes, text: `${minutes} min read` },
+    meta: {
+      title: row.title,
+      description: row.seo_description || row.excerpt || row.title,
+      date,
+      category: row.category,
+      source: "AdsGupta",
+      author: "AdsGupta",
+      ogTitle: row.seo_title || row.title,
+      ogDescription: row.seo_description || row.excerpt,
+      ogImage: row.og_image || row.cover_image,
+      showCta: true,
+      ctaLabel: "Run your audit on DemoAI",
+      ctaUrl: "https://demoai.adsgupta.com",
+    },
+  };
+}
+
+async function getPostBySlugFromSupabase(slug) {
+  const { isSupabaseCmsEnabled } = await import("./cms-runtime.js");
+  if (!isSupabaseCmsEnabled()) return null;
+  const { createServerSupabase } = await import("./supabase-server.js");
+  const { getPublishedPostBySlug } = await import("./supabase-cms.js");
+  const supabase = createServerSupabase();
+  const row = await getPublishedPostBySlug(supabase, slug);
+  if (!row) return null;
+  const contentHtml = await contentToHtml(row.content);
+  const minutes =
+    row.read_time_minutes ||
+    Math.max(1, Math.ceil(String(row.content || "").split(/\s+/).filter(Boolean).length / 220));
+  const date = row.published_at || row.created_at;
+  return {
+    slug: row.slug,
+    content: row.content,
+    contentHtml,
+    excerpt: row.excerpt || "",
+    readingTime: { minutes, text: `${minutes} min read` },
+    meta: {
+      title: row.title,
+      description: row.seo_description || row.excerpt || row.title,
+      date,
+      category: row.category,
+      source: "AdsGupta",
+      author: "AdsGupta",
+      ogTitle: row.seo_title || row.title,
+      ogDescription: row.seo_description || row.excerpt,
+      ogImage: row.og_image || row.cover_image,
+      showCta: true,
+      ctaLabel: "Run your audit on DemoAI",
+      ctaUrl: "https://demoai.adsgupta.com",
+    },
+    source: "supabase",
+  };
+}
+
+/** Prefer Supabase CMS; then SQLite; then markdown files. */
 export async function getPostBySlug(slug) {
+  try {
+    const sup = await getPostBySlugFromSupabase(slug);
+    if (sup) return sup;
+  } catch (_) {
+    /* continue */
+  }
   try {
     const { getPostBySlug: getFromDb } = await import("./db.js");
     const row = getFromDb(slug);
@@ -76,8 +147,7 @@ export async function getPostBySlug(slug) {
       source: data.source || "AdsGupta",
       author: data.author || "AdsGupta",
       ogTitle: data.ogTitle || data.title || slug,
-      ogDescription:
-        data.ogDescription || data.description || buildExcerpt(content),
+      ogDescription: data.ogDescription || data.description || buildExcerpt(content),
       ogImage: data.ogImage || null,
       showCta: data.showCta !== false,
       ctaLabel: data.ctaLabel || "Run your audit on DemoAI",
@@ -86,8 +156,27 @@ export async function getPostBySlug(slug) {
   };
 }
 
-/** Prefer DB posts; merge with markdown if DB has any. */
+/** Published posts for blog.adsgupta.com — Supabase first when configured. */
 export async function getAllPosts() {
+  try {
+    const { isSupabaseCmsEnabled } = await import("./cms-runtime.js");
+    if (isSupabaseCmsEnabled()) {
+      const { createServerSupabase } = await import("./supabase-server.js");
+      const { listPublishedBlogPosts } = await import("./supabase-cms.js");
+      const supabase = createServerSupabase();
+      const rows = await listPublishedBlogPosts(supabase, { limit: 200 });
+      if (rows.length > 0) {
+        return rows.map(mapSupabaseListRow).sort((a, b) => {
+          const aDate = a.meta?.date ? new Date(a.meta.date).getTime() : 0;
+          const bDate = b.meta?.date ? new Date(b.meta.date).getTime() : 0;
+          return bDate - aDate;
+        });
+      }
+    }
+  } catch (_) {
+    /* fall through */
+  }
+
   let fromDb = [];
   try {
     const { getAllPosts: getAllFromDb } = await import("./db.js");
@@ -118,14 +207,29 @@ export async function getAllPosts() {
   });
 }
 
-/** Slugs for SSG: DB first, then markdown. */
+/** Slugs for SSG — merge Supabase, SQLite, markdown. */
 export async function getPostSlugs() {
+  const seen = new Map();
+  try {
+    const { isSupabaseCmsEnabled } = await import("./cms-runtime.js");
+    if (isSupabaseCmsEnabled()) {
+      const { createServerSupabase } = await import("./supabase-server.js");
+      const supabase = createServerSupabase();
+      const { data } = await supabase
+        .from("posts")
+        .select("slug")
+        .eq("status", "published")
+        .eq("publish_to_blog", true);
+      (data || []).forEach((r) => seen.set(r.slug, true));
+    }
+  } catch (_) {}
   try {
     const { getPostSlugs: getSlugsFromDb } = await import("./db.js");
     const dbSlugs = getSlugsFromDb();
-    if (dbSlugs.length > 0) return dbSlugs;
+    dbSlugs.forEach((r) => seen.set(r.slug, true));
   } catch (_) {}
-  return getAllSlugsFromFiles().map((slug) => ({ slug }));
+  getAllSlugsFromFiles().forEach((s) => seen.set(s, true));
+  return [...seen.keys()].map((slug) => ({ slug }));
 }
 
 /**
@@ -136,7 +240,6 @@ export function injectMonetizationSlot(contentHtml, scriptHtml, afterParagraph =
   if (!scriptHtml || !contentHtml) return { contentHtml, scriptHtml: "" };
   const slot = '<div id="adsgupta-monetization-slot"></div>';
   const parts = contentHtml.split(/(<\/p>\s*)/i);
-  let idx = 0;
   let count = 0;
   const result = [];
   for (let i = 0; i < parts.length; i++) {

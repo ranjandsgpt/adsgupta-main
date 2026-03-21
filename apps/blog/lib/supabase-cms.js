@@ -385,3 +385,65 @@ export async function deleteMediaRow(supabase, userId, id) {
   if (error) throw error;
   return true;
 }
+
+export async function listAdSlots(supabase) {
+  const { data, error } = await supabase.from("ad_slots").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function insertAdSlot(supabase, row) {
+  const { data, error } = await supabase.from("ad_slots").insert(row).select("id").single();
+  if (error) throw error;
+  return data.id;
+}
+
+export async function updateAdSlot(supabase, id, patch) {
+  const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+  const { error } = await supabase.from("ad_slots").update(clean).eq("id", id);
+  if (error) throw error;
+  return true;
+}
+
+export async function deleteAdSlot(supabase, id) {
+  const { error } = await supabase.from("ad_slots").delete().eq("id", id);
+  if (error) throw error;
+  return true;
+}
+
+export async function listSocialSyncs(supabase, userId, limit = 100) {
+  const { data: posts } = await supabase.from("posts").select("id, title").eq("author_id", userId);
+  const ids = (posts || []).map((p) => p.id);
+  if (!ids.length) return [];
+  const { data, error } = await supabase
+    .from("social_syncs")
+    .select("*")
+    .in("post_id", ids)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  const titleById = Object.fromEntries((posts || []).map((p) => [p.id, p.title]));
+  return (data || []).map((r) => ({ ...r, post_title: titleById[r.post_id] || "—" }));
+}
+
+export async function insertSubscriber(supabase, email, source) {
+  const { error } = await supabase.from("subscribers").insert({
+    email: email.toLowerCase().trim(),
+    status: "active",
+    source: source || "footer",
+  });
+  if (error) {
+    const msg = String(error.message || "").toLowerCase();
+    if (msg.includes("duplicate") || msg.includes("unique")) return true;
+    throw error;
+  }
+  return true;
+}
+
+export async function listSubscribers(supabase, { status } = {}) {
+  let q = supabase.from("subscribers").select("*").order("created_at", { ascending: false });
+  if (status) q = q.eq("status", status);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data || [];
+}
