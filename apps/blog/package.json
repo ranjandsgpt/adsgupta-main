@@ -11,6 +11,7 @@
     "@adsgupta/ui": "^0.0.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
+    "@uiw/react-md-editor": "^4.0.11",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^11.6.0",
     "gray-matter": "^4.0.3",

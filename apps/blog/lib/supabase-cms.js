@@ -226,11 +226,13 @@ export async function updatePost(supabase, userId, id, body) {
     og_image: body.og_image ?? existing.og_image,
     read_time_minutes: readTime,
     featured: body.featured ?? existing.featured,
-    scheduled_at: body.scheduled_at ?? existing.scheduled_at,
+    scheduled_at: body.scheduled_at !== undefined ? body.scheduled_at : existing.scheduled_at,
     published_at:
       (body.status ?? existing.status) === "published"
         ? body.published_at || existing.published_at || new Date().toISOString()
-        : body.published_at ?? existing.published_at,
+        : body.published_at !== undefined
+          ? body.published_at
+          : existing.published_at,
     publish_to_blog: body.publish_to_blog ?? existing.publish_to_blog,
     publish_to_ranjan: body.publish_to_ranjan ?? existing.publish_to_ranjan,
     publish_to_pousali: body.publish_to_pousali ?? existing.publish_to_pousali,

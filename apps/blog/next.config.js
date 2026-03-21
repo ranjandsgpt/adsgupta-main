@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@adsgupta/ui", "@adsgupta/config"],
+  transpilePackages: ["@adsgupta/ui", "@adsgupta/config", "@uiw/react-md-editor", "@uiw/react-markdown-preview"],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = config.externals || [];
