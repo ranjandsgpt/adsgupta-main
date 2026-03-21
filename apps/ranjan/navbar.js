@@ -250,7 +250,26 @@
     });
   }
 
+  function ensureThemeFromStorage() {
+    // Safety net if a page ever loads without the inline <head> theme bootstrap.
+    var html = document.documentElement;
+    var cur = html.getAttribute("data-theme");
+    if (cur === "light" || cur === "dark") return;
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "light" || t === "dark") {
+        html.setAttribute("data-theme", t);
+        return;
+      }
+    } catch (e) {}
+    var prefersDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    html.setAttribute("data-theme", prefersDark ? "dark" : "light");
+  }
+
   function init() {
+    ensureThemeFromStorage();
     applyCSS();
 
     // Replace the existing navbar.
