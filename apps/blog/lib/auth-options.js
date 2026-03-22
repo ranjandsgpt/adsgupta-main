@@ -1,21 +1,20 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 
 function adminUsers() {
   return [
     {
       email: process.env.ADMIN_USER_1_EMAIL?.trim().toLowerCase(),
-      passwordHash: process.env.ADMIN_USER_1_PASSWORD,
+      password: process.env.ADMIN_USER_1_PASSWORD,
       name: process.env.ADMIN_USER_1_NAME || "Admin 1",
       subdomain: process.env.ADMIN_USER_1_SUBDOMAIN || "ranjan",
     },
     {
       email: process.env.ADMIN_USER_2_EMAIL?.trim().toLowerCase(),
-      passwordHash: process.env.ADMIN_USER_2_PASSWORD,
+      password: process.env.ADMIN_USER_2_PASSWORD,
       name: process.env.ADMIN_USER_2_NAME || "Admin 2",
       subdomain: process.env.ADMIN_USER_2_SUBDOMAIN || "pousali",
     },
-  ].filter((u) => u.email && u.passwordHash);
+  ].filter((u) => u.email && u.password);
 }
 
 /** @type {import("next-auth").NextAuthOptions} */
@@ -36,8 +35,7 @@ export const authOptions = {
         const user = users.find((u) => u.email === email);
         if (!user) return null;
 
-        const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return null;
+        if (password !== user.password) return null;
 
         return {
           id: email,

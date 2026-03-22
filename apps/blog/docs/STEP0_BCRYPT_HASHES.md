@@ -1,24 +1,10 @@
-# STEP 0 — Bcrypt hashes for admin passwords
+# Admin passwords (env vars)
 
-Run from `apps/blog` (uses `process.env` or defaults `changeme1` / `changeme2`):
+`ADMIN_USER_1_PASSWORD` and `ADMIN_USER_2_PASSWORD` are **plaintext** values. NextAuth compares the login form password with `===` against these env vars (two internal users only).
 
-```bash
-node -e "console.log(require('bcryptjs').hashSync(process.env.ADMIN_USER_1_PASSWORD || 'changeme1', 10))"
-node -e "console.log(require('bcryptjs').hashSync(process.env.ADMIN_USER_2_PASSWORD || 'changeme2', 10))"
-```
+Set in Vercel / `.env.local`:
 
-**Store the bcrypt hash** (not plaintext) in Vercel / `.env.local`:
+- `ADMIN_USER_1_EMAIL`, `ADMIN_USER_1_PASSWORD`, `ADMIN_USER_1_NAME`, `ADMIN_USER_1_SUBDOMAIN`
+- `ADMIN_USER_2_EMAIL`, `ADMIN_USER_2_PASSWORD`, `ADMIN_USER_2_NAME`, `ADMIN_USER_2_SUBDOMAIN`
 
-- `ADMIN_USER_1_PASSWORD` = output of command 1
-- `ADMIN_USER_2_PASSWORD` = output of command 2
-
-NextAuth compares the **login password** with `bcrypt.compare()` against these env values.
-
-### Example outputs when env vars are unset (changeme1 / changeme2)
-
-```
-$2a$10$WVK9Xd7fbp/OkZeYSobTrOGMNVL7k58XsNB15zGykHQ4lGlJB72Eu
-$2a$10$dZe00OJGcp7fsDG/fnIY9uUQfSRHUw5ZK3R8r3Z3ZqKa9alQta236
-```
-
-(Re-run locally to generate fresh salts.)
+If you previously stored bcrypt hashes in these variables, replace them with the actual plaintext passwords or login will fail.
