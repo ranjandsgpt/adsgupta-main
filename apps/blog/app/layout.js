@@ -1,15 +1,33 @@
 import "../styles/globals.css";
-import { Space_Grotesk } from "next/font/google";
+import { Barlow_Condensed, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import Header from "../components/Header";
 import Providers from "../components/Providers";
 import { Footer } from "@adsgupta/ui";
 import AIAssistant from "../components/ui/AIAssistant";
 import { getAllPosts } from "../lib/posts";
 
-const spaceGrotesk = Space_Grotesk({
+const fontDisplay = Barlow_Condensed({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  weight: ["300", "500", "700", "800", "900"],
+  variable: "--font-display",
+  display: "swap",
 });
+
+const fontBody = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const fontMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
+const fontVars = `${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable}`;
 
 export const metadata = {
   title: {
@@ -37,7 +55,7 @@ export default async function RootLayout({ children }) {
   }));
 
   return (
-    <html lang="en" className={spaceGrotesk.variable}>
+    <html lang="en" className={fontVars}>
       <body className="app-body">
         <Providers>
           <Header />

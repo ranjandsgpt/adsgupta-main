@@ -4,13 +4,19 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 
-function NavLink({ href, children }) {
-  return (
-    <Link href={href} className="header-nav-link">
-      {children}
-    </Link>
-  );
-}
+const TICKER =
+  "Programmatic · Amazon · TikTok Shop · Meta Ads · CTV · GAM · Prebid · Retail Media · Attribution · DCO";
+
+const NAV_TABS = [
+  { label: "Programmatic", href: "/#channel-programmatic" },
+  { label: "Search & PPC", href: "/#channel-search" },
+  { label: "Social Ads", href: "/#channel-social" },
+  { label: "Marketplaces", href: "/#channel-marketplaces" },
+  { label: "Creative", href: "/#channel-creative" },
+  { label: "Data & Measurement", href: "/#channel-data" },
+  { label: "CTV", href: "/#channel-ctv" },
+  { label: "Agency", href: "/#channel-agency" },
+];
 
 function UserSessionActions() {
   const { data: session, status } = useSession();
@@ -27,7 +33,7 @@ function UserSessionActions() {
 
   if (status === "loading") {
     return (
-      <span className="header-btn header-btn-login" style={{ opacity: 0.65, cursor: "default" }} aria-busy="true">
+      <span className="blog-header__login blog-header__login--ghost" aria-busy="true">
         …
       </span>
     );
@@ -35,13 +41,8 @@ function UserSessionActions() {
 
   if (!session?.user) {
     return (
-      <Link href="/admin/login" className="header-btn header-btn-login">
-        <svg className="header-login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-          <polyline points="10 17 15 12 10 7" />
-          <line x1="15" y1="12" x2="3" y2="12" />
-        </svg>
-        <span>Login</span>
+      <Link href="/admin/login" className="blog-header__login">
+        Login
       </Link>
     );
   }
@@ -50,30 +51,27 @@ function UserSessionActions() {
   const initial = String(name).trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="header-user-wrap" ref={wrapRef}>
+    <div className="blog-header__user" ref={wrapRef}>
       <button
         type="button"
-        className="header-user-trigger"
+        className="blog-header__user-trigger"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="header-user-avatar" aria-hidden>
+        <span className="blog-header__user-avatar" aria-hidden>
           {initial}
         </span>
-        <span className="header-user-name">{name}</span>
-        <span className="header-dropdown-caret" aria-hidden>
-          ▾
-        </span>
+        <span className="blog-header__user-name">{name}</span>
       </button>
       {open ? (
-        <div className="header-dropdown-menu header-user-dropdown" role="menu">
-          <Link href="/admin/settings" className="header-dropdown-link" role="menuitem" onClick={() => setOpen(false)}>
+        <div className="blog-header__user-menu" role="menu">
+          <Link href="/admin/settings" className="blog-header__user-link" role="menuitem" onClick={() => setOpen(false)}>
             Profile
           </Link>
           <button
             type="button"
-            className="header-dropdown-link header-dropdown-link-button"
+            className="blog-header__user-link blog-header__user-link--btn"
             role="menuitem"
             onClick={() => {
               setOpen(false);
@@ -89,58 +87,61 @@ function UserSessionActions() {
 }
 
 export default function Header() {
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="header">
-      <div className="shell-wide header-inner">
-        <div className="header-left">
-          <Link href="/" className="header-logo" aria-label="ADSGUPTA BlogAI — blog.adsgupta.com">
-            <span className="header-logo-text">
-              <span className="header-logo-ads">ADS</span>
-              <span className="header-logo-gupta">GUPTA</span>
-            </span>
-            <span className="header-blogai-pill">BlogAI</span>
-          </Link>
-        </div>
-
-        <button
-          type="button"
-          className="header-menu-toggle"
-          aria-label="Toggle navigation"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span />
-          <span />
-        </button>
-
-        <nav className={`header-nav ${open ? "header-nav-open" : ""}`}>
-          <div className="header-nav-item">
-            <NavLink href="/archives">The Archives</NavLink>
-          </div>
-          <div className="header-nav-item">
-            <NavLink href="/series">Series</NavLink>
-          </div>
-          <div className="header-nav-item">
-            <NavLink href="/categories">Categories</NavLink>
-          </div>
-          <div className="header-nav-item">
-            <NavLink href="/search">Search</NavLink>
-          </div>
-        </nav>
-
-        <div className="header-actions">
-          <UserSessionActions />
-          <a
-            href="https://demoai.adsgupta.com"
-            target="_blank"
-            rel="noreferrer"
-            className="header-btn header-btn-primary"
-          >
-            Try Demo
-          </a>
+    <div className="blog-header-wrap">
+      <div className="blog-ticker" aria-hidden="true">
+        <div className="blog-ticker__track">
+          <span className="blog-ticker__text">{TICKER}</span>
+          <span className="blog-ticker__text">{TICKER}</span>
         </div>
       </div>
-    </header>
+
+      <header className="blog-header">
+        <div className="shell-wide blog-header__inner">
+          <div className="blog-header__left">
+            <Link href="/" className="blog-header__wordmark" aria-label="AdsGupta Blog home">
+              <span className="blog-header__ads">Ads</span>
+              <span className="blog-header__gupta">Gupta</span>
+              <span className="blog-header__badge">BLOG</span>
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            className="blog-header__burger"
+            aria-label="Toggle navigation"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+
+          <nav className={`blog-header__nav ${mobileOpen ? "is-open" : ""}`} aria-label="Channels">
+            {NAV_TABS.map((t) => (
+              <Link key={t.href} href={t.href} className="blog-header__tab" onClick={() => setMobileOpen(false)}>
+                {t.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="blog-header__right">
+            <Link href="/search" className="blog-header__icon-btn" aria-label="Search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3-3" />
+              </svg>
+            </Link>
+            <a href="#newsletter" className="blog-header__subscribe">
+              Subscribe
+            </a>
+            <UserSessionActions />
+          </div>
+        </div>
+      </header>
+    </div>
   );
 }
