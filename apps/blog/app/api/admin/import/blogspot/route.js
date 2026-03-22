@@ -80,7 +80,8 @@ export async function POST(request) {
           category: "Neural Philosophical",
           status: "draft",
         },
-        subdomain
+        subdomain,
+        user.name
       );
       return NextResponse.json({ imported: 1, skipped: 0, slug: slugBase });
     }
@@ -135,7 +136,8 @@ export async function POST(request) {
             category: "Neural Philosophical",
             status: "draft",
           },
-          subdomain
+          subdomain,
+          user.name
         );
         imported++;
       } catch (_) {}

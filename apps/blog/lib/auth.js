@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth-options.js";
 
@@ -13,6 +14,15 @@ export async function getUser() {
     name: session.user.name,
     subdomain: session.user.subdomain,
   };
+}
+
+/** Same as getUser — use in API routes that require a logged-in admin. */
+export async function requireAuth() {
+  return getUser();
+}
+
+export function unauthorizedResponse() {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 
 /** Synthetic profile for admin UI (no profiles table). */

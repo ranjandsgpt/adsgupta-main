@@ -57,7 +57,8 @@ export async function POST(request) {
         category: "Programmatic Strategy",
         status: "draft",
       },
-      subdomain
+      subdomain,
+      user.name
     );
     return NextResponse.json({ id, slug, message: "Post created as draft" });
   } catch (e) {

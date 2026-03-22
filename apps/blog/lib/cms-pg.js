@@ -1,5 +1,5 @@
 /**
- * CMS data layer — Vercel Postgres via @vercel/postgres `sql`.
+ * CMS data layer — Neon Postgres via `lib/db.js` `sql`.
  */
 import { sql } from "./db.js";
 import { slugify } from "./slugify.js";
@@ -13,9 +13,10 @@ function wordsToReadTime(content) {
 
 function parseTags(row) {
   if (!row?.tags) return [];
+  if (Array.isArray(row.tags)) return row.tags.map(String).filter(Boolean);
   try {
     const j = JSON.parse(row.tags);
-    return Array.isArray(j) ? j : [];
+    return Array.isArray(j) ? j.map(String) : [];
   } catch {
     return String(row.tags)
       .split(",")
@@ -41,7 +42,8 @@ export function mapPostRow(row, authorLabel) {
     tags,
     status: row.status,
     author_email: row.author_email,
-    author: authorLabel || row.author_email || "—",
+    author_name: row.author_name,
+    author: authorLabel || row.author_name || row.author_email || "—",
     seo_title: row.seo_title,
     seo_description: row.seo_description,
     og_image: row.og_image,
@@ -163,12 +165,23 @@ export async function getPostById(authorEmail, id) {
   return mapPostRow(row, authorEmail);
 }
 
-function tagsToJson(tags) {
-  const arr = Array.isArray(tags) ? tags : [];
-  return JSON.stringify(arr);
+function tagsToArray(tags) {
+  if (Array.isArray(tags)) return tags.map(String).filter(Boolean);
+  if (typeof tags === "string" && tags.trim()) {
+    try {
+      const j = JSON.parse(tags);
+      if (Array.isArray(j)) return j.map(String);
+    } catch {
+      return tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+    }
+  }
+  return [];
 }
 
-function buildInsertPayload(body, authorEmail, distDefaults) {
+function buildInsertPayload(body, authorEmail, authorName, distDefaults) {
   const slug = body.slug?.trim() || slugify(body.title || "post");
   const content = body.content ?? "";
   const readTime = body.read_time_minutes ?? wordsToReadTime(content);
@@ -182,9 +195,10 @@ function buildInsertPayload(body, authorEmail, distDefaults) {
     excerpt: body.excerpt || null,
     cover_image: body.cover_image || null,
     category: body.category || null,
-    tags: tagsToJson(body.tags),
+    tags: tagsToArray(body.tags),
     status: st,
     author_email: authorEmail,
+    author_name: authorName || null,
     seo_title: body.seo_title || null,
     seo_description: body.seo_description || null,
     og_image: body.og_image || null,
@@ -203,22 +217,22 @@ function buildInsertPayload(body, authorEmail, distDefaults) {
   };
 }
 
-export async function createPost(authorEmail, body, subdomain) {
+export async function createPost(authorEmail, body, subdomain, authorName) {
   const defaults = distributionDefaultsFromSubdomain(subdomain);
-  const p = buildInsertPayload(body, authorEmail, {
+  const p = buildInsertPayload(body, authorEmail, authorName, {
     publish_to_blog: body.publish_to_blog ?? defaults.publish_to_blog,
     publish_to_ranjan: body.publish_to_ranjan ?? defaults.publish_to_ranjan,
     publish_to_pousali: body.publish_to_pousali ?? defaults.publish_to_pousali,
   });
   const { rows } = await sql`
     INSERT INTO posts (
-      slug, title, subtitle, content, excerpt, cover_image, category, tags, status, author_email,
+      slug, title, subtitle, content, excerpt, cover_image, category, tags, status, author_email, author_name,
       seo_title, seo_description, og_image, read_time_minutes, featured, scheduled_at, published_at,
       publish_to_blog, publish_to_ranjan, publish_to_pousali,
       crosspost_linkedin, crosspost_instagram, crosspost_facebook, crosspost_twitter
     ) VALUES (
       ${p.slug}, ${p.title}, ${p.subtitle}, ${p.content}, ${p.excerpt}, ${p.cover_image}, ${p.category}, ${p.tags},
-      ${p.status}, ${p.author_email}, ${p.seo_title}, ${p.seo_description}, ${p.og_image}, ${p.read_time_minutes},
+      ${p.status}, ${p.author_email}, ${p.author_name}, ${p.seo_title}, ${p.seo_description}, ${p.og_image}, ${p.read_time_minutes},
       ${p.featured}, ${p.scheduled_at}, ${p.published_at},
       ${p.publish_to_blog}, ${p.publish_to_ranjan}, ${p.publish_to_pousali},
       ${p.crosspost_linkedin}, ${p.crosspost_instagram}, ${p.crosspost_facebook}, ${p.crosspost_twitter}
@@ -234,8 +248,8 @@ export async function updatePost(authorEmail, id, body) {
   const content = body.content ?? existing.content;
   const readTime = body.read_time_minutes ?? wordsToReadTime(content);
   const st = body.status ?? existing.status;
-  const tagsJson =
-    body.tags !== undefined ? tagsToJson(body.tags) : JSON.stringify(existing.tags || []);
+  const tagsArr =
+    body.tags !== undefined ? tagsToArray(body.tags) : tagsToArray(existing.tags || []);
 
   await sql`
     UPDATE posts SET
@@ -246,7 +260,8 @@ export async function updatePost(authorEmail, id, body) {
       excerpt = ${body.excerpt ?? existing.excerpt},
       cover_image = ${body.cover_image ?? existing.cover_image},
       category = ${body.category ?? existing.category},
-      tags = ${tagsJson},
+      tags = ${tagsArr},
+      author_name = ${body.author_name ?? existing.author_name},
       status = ${st},
       seo_title = ${body.seo_title ?? existing.seo_title},
       seo_description = ${body.seo_description ?? existing.seo_description},
@@ -275,10 +290,10 @@ export async function updatePost(authorEmail, id, body) {
 }
 
 export async function deletePost(authorEmail, id) {
-  const { rowCount } = await sql`
-    DELETE FROM posts WHERE id = ${id}::uuid AND author_email = ${authorEmail}
+  const { rows } = await sql`
+    DELETE FROM posts WHERE id = ${id}::uuid AND author_email = ${authorEmail} RETURNING id
   `;
-  return rowCount > 0;
+  return rows.length > 0;
 }
 
 export async function duplicatePost(authorEmail, id, subdomain) {
@@ -305,7 +320,8 @@ export async function duplicatePost(authorEmail, id, subdomain) {
       publish_to_ranjan: row.publish_to_ranjan,
       publish_to_pousali: row.publish_to_pousali,
     },
-    subdomain
+    subdomain,
+    row.author_name || authorEmail
   );
 }
 
@@ -315,14 +331,15 @@ export async function bulkSetStatus(authorEmail, ids, status) {
   let total = 0;
   for (const raw of ids) {
     const id = String(raw);
-    const { rowCount } = await sql`
+    const { rows } = await sql`
       UPDATE posts SET
         status = ${status},
         published_at = ${status === "published" ? pub : null},
         updated_at = NOW()
       WHERE author_email = ${authorEmail} AND id = ${id}::uuid
+      RETURNING id
     `;
-    total += rowCount || 0;
+    total += rows.length;
   }
   return total;
 }
@@ -332,10 +349,10 @@ export async function bulkDelete(authorEmail, ids) {
   let total = 0;
   for (const raw of ids) {
     const id = String(raw);
-    const { rowCount } = await sql`
-      DELETE FROM posts WHERE author_email = ${authorEmail} AND id = ${id}::uuid
+    const { rows } = await sql`
+      DELETE FROM posts WHERE author_email = ${authorEmail} AND id = ${id}::uuid RETURNING id
     `;
-    total += rowCount || 0;
+    total += rows.length;
   }
   return total;
 }
@@ -434,10 +451,10 @@ export async function insertMediaRow(authorEmail, row) {
 }
 
 export async function deleteMediaRow(authorEmail, id) {
-  const { rowCount } = await sql`
-    DELETE FROM media WHERE id = ${id}::uuid AND uploaded_by = ${authorEmail}
+  const { rows } = await sql`
+    DELETE FROM media WHERE id = ${id}::uuid AND uploaded_by = ${authorEmail} RETURNING id
   `;
-  return rowCount > 0;
+  return rows.length > 0;
 }
 
 export async function listAdSlots() {
@@ -464,16 +481,17 @@ export async function updateAdSlot(id, patch) {
   const placement = patch.placement !== undefined ? patch.placement : e.placement;
   const ad_code = patch.ad_code !== undefined ? patch.ad_code : e.ad_code;
   const active = patch.active !== undefined ? patch.active : e.active;
-  const { rowCount } = await sql`
+  const { rows } = await sql`
     UPDATE ad_slots SET name = ${name}, placement = ${placement}, ad_code = ${ad_code}, active = ${active}
     WHERE id = ${id}::uuid
+    RETURNING id
   `;
-  return rowCount > 0;
+  return rows.length > 0;
 }
 
 export async function deleteAdSlot(id) {
-  const { rowCount } = await sql`DELETE FROM ad_slots WHERE id = ${id}::uuid`;
-  return rowCount > 0;
+  const { rows } = await sql`DELETE FROM ad_slots WHERE id = ${id}::uuid RETURNING id`;
+  return rows.length > 0;
 }
 
 export async function listSocialSyncs(authorEmail, limit = 100) {

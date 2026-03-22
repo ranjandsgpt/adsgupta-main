@@ -40,7 +40,7 @@ export async function POST(request) {
     const body = await request.json();
     const profile = profileFromUser(user);
     const subdomain = profile?.subdomain || "ranjan";
-    const id = await cms.createPost(user.email, body, subdomain);
+    const id = await cms.createPost(user.email, body, subdomain, user.name);
     return NextResponse.json({ id });
   } catch (e) {
     return NextResponse.json({ error: e.message || "Failed to create post" }, { status: 500 });

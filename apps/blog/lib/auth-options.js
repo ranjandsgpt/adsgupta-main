@@ -36,7 +36,7 @@ export const authOptions = {
         const user = users.find((u) => u.email === email);
         if (!user) return null;
 
-        const ok = bcrypt.compareSync(password, user.passwordHash);
+        const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
 
         return {

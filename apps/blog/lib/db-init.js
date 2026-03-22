@@ -1,7 +1,7 @@
 import { sql } from "./db.js";
 
 /**
- * Creates CMS tables on Vercel Postgres (run once via GET /api/db-init with secret).
+ * Creates CMS tables on Neon Postgres (run via GET /api/db-init or `node scripts/init-db.js`).
  */
 export async function createTables() {
   await sql`
@@ -14,9 +14,10 @@ export async function createTables() {
       excerpt TEXT,
       cover_image TEXT,
       category TEXT,
-      tags TEXT,
+      tags TEXT[] DEFAULT ARRAY[]::TEXT[],
       status TEXT DEFAULT 'draft',
-      author_email TEXT NOT NULL,
+      author_email TEXT,
+      author_name TEXT,
       seo_title TEXT,
       seo_description TEXT,
       og_image TEXT,
@@ -40,7 +41,7 @@ export async function createTables() {
     CREATE TABLE IF NOT EXISTS media (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       filename TEXT,
-      url TEXT NOT NULL,
+      url TEXT,
       alt_text TEXT,
       width INT,
       height INT,
@@ -55,7 +56,7 @@ export async function createTables() {
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
       platform TEXT,
-      status TEXT,
+      status TEXT DEFAULT 'pending',
       platform_post_id TEXT,
       published_at TIMESTAMPTZ,
       error_message TEXT,
@@ -66,7 +67,7 @@ export async function createTables() {
   await sql`
     CREATE TABLE IF NOT EXISTS analytics_events (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      post_id UUID REFERENCES posts(id) ON DELETE SET NULL,
+      post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
       event_type TEXT,
       session_id TEXT,
       referrer TEXT,

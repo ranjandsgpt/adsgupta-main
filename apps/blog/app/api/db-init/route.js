@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
 import { createTables } from "../../../lib/db-init.js";
 
+function extractSecret(request) {
+  const auth = request.headers.get("authorization");
+  if (auth?.startsWith("Bearer ")) {
+    return auth.slice(7).trim();
+  }
+  const h = request.headers.get("x-db-init-secret");
+  if (h) return h.trim();
+  return request.nextUrl.searchParams.get("secret");
+}
+
 export async function GET(request) {
-  const secret = request.headers.get("x-db-init-secret") || request.nextUrl.searchParams.get("secret");
+  const secret = extractSecret(request);
   if (!process.env.DB_INIT_SECRET || secret !== process.env.DB_INIT_SECRET) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
