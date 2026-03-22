@@ -1,46 +1,11 @@
 /**
- * One-time migration: copy static ranjan blog HTML posts into Postgres `posts`.
- *
- * Read-only: apps/ranjan/blog/**/index.html (does not modify ranjan files).
- *
- * From apps/blog:
- *
- *   npm run migrate:ranjan
- *
- * Requires POSTGRES_URL, ADMIN_USER_1_EMAIL (and optionally ADMIN_USER_1_NAME).
- * Loads apps/blog/.env.local when present.
+ * Shared HTML → posts migration for ranjan.adsgupta.com static blog files.
+ * Used by scripts/migrate-ranjan-posts.cjs and GET /api/migrate-ranjan.
  */
-const fs = require("node:fs");
-const path = require("node:path");
+import fs from "node:fs";
+import path from "node:path";
 
-const __dirname = path.dirname(path.resolve(process.argv[1]));
-
-function loadEnvLocal() {
-  const candidates = [
-    path.join(__dirname, "../.env.local"),
-    path.join(__dirname, "../.env"),
-    path.join(__dirname, "../../../.env.local"),
-  ];
-  for (const p of candidates) {
-    if (!fs.existsSync(p)) continue;
-    const raw = fs.readFileSync(p, "utf8");
-    for (const line of raw.split("\n")) {
-      const t = line.trim();
-      if (!t || t.startsWith("#")) continue;
-      const eq = t.indexOf("=");
-      if (eq <= 0) continue;
-      const key = t.slice(0, eq).trim();
-      let val = t.slice(eq + 1).trim();
-      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-        val = val.slice(1, -1);
-      }
-      if (process.env[key] === undefined) process.env[key] = val;
-    }
-    break;
-  }
-}
-
-function stripTags(s) {
+export function stripTags(s) {
   return String(s || "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
@@ -54,7 +19,7 @@ function extract(html, re) {
   return m ? m[1] : "";
 }
 
-function parsePostHtml(html, slug) {
+export function parsePostHtml(html, slug) {
   const titleRaw = extract(html, /<h1[^>]*class=["'][^"']*post-title[^"']*["'][^>]*>([\s\S]*?)<\/h1>/i);
   const title = stripTags(titleRaw) || slug;
 
@@ -76,7 +41,7 @@ function parsePostHtml(html, slug) {
   if (!excerpt) excerpt = title.slice(0, 220);
 
   const articleMatch = html.match(/<article[^>]*class=["'][^"']*prose[^"']*["'][^>]*>([\s\S]*?)<\/article>/i);
-  let content = articleMatch ? articleMatch[1].trim() : "";
+  const content = articleMatch ? articleMatch[1].trim() : "";
   if (!content) {
     return null;
   }
@@ -98,28 +63,24 @@ function parsePostHtml(html, slug) {
   };
 }
 
-async function main() {
-  loadEnvLocal();
-
-  const email = process.env.ADMIN_USER_1_EMAIL;
-  const authorName = process.env.ADMIN_USER_1_NAME || "Ranjan Dasgupta";
-
-  if (!email) {
-    console.error("ADMIN_USER_1_EMAIL is required.");
-    process.exit(1);
-  }
-  if (!process.env.POSTGRES_URL) {
-    console.error("POSTGRES_URL is required.");
-    process.exit(1);
-  }
-
-  const ranjanBlogRoot = path.join(__dirname, "../../ranjan/blog");
+/**
+ * @param {object} opts
+ * @param {function} opts.sql - tagged template from lib/db.js (Neon)
+ * @param {string} opts.ranjanBlogRoot - absolute path to apps/ranjan/blog
+ * @param {string} opts.authorEmail
+ * @param {string} opts.authorName
+ */
+export async function migrateRanjanPosts({ sql, ranjanBlogRoot, authorEmail, authorName }) {
+  const errors = [];
   if (!fs.existsSync(ranjanBlogRoot)) {
-    console.error("Path not found:", ranjanBlogRoot);
-    process.exit(1);
+    return {
+      migrated: 0,
+      skipped: 0,
+      failed: 0,
+      total: 0,
+      errors: [`Ranjan blog path not found: ${ranjanBlogRoot}`],
+    };
   }
-
-  const { sql } = await import("../lib/db.js");
 
   const entries = fs.readdirSync(ranjanBlogRoot, { withFileTypes: true });
   const dirs = entries.filter((d) => d.isDirectory()).map((d) => d.name);
@@ -127,14 +88,11 @@ async function main() {
   let migrated = 0;
   let skipped = 0;
   let failed = 0;
-  let index = 0;
   const emptyTags = [];
 
   for (const slug of dirs.sort()) {
-    index += 1;
     const filePath = path.join(ranjanBlogRoot, slug, "index.html");
     if (!fs.existsSync(filePath)) {
-      console.warn(`Skip ${index}/${total}: [${slug}] — no index.html`);
       skipped += 1;
       continue;
     }
@@ -143,14 +101,13 @@ async function main() {
     try {
       html = fs.readFileSync(filePath, "utf8");
     } catch (e) {
-      console.error(`Read failed ${slug}:`, e.message);
       failed += 1;
+      errors.push(`${slug}: ${e.message || "read failed"}`);
       continue;
     }
 
     const parsed = parsePostHtml(html, slug);
     if (!parsed) {
-      console.warn(`Skip ${index}/${total}: [${slug}] — could not parse article.prose`);
       skipped += 1;
       continue;
     }
@@ -173,7 +130,7 @@ async function main() {
           ${parsed.category},
           ${emptyTags},
           ${"published"},
-          ${email},
+          ${authorEmail},
           ${authorName},
           ${parsed.title},
           ${parsed.excerpt},
@@ -196,21 +153,23 @@ async function main() {
 
       if (rows && rows.length > 0) {
         migrated += 1;
-        console.log(`Migrated ${index}/${total}: [${slug}]`);
       } else {
         skipped += 1;
-        console.log(`Skipped (exists) ${index}/${total}: [${slug}]`);
       }
     } catch (e) {
       failed += 1;
-      console.error(`Error ${slug}:`, e.message || e);
+      errors.push(`${slug}: ${e.message || String(e)}`);
     }
   }
 
-  console.log(`Done. Migrated: ${migrated}, skipped: ${skipped}, failed: ${failed}, folders: ${total}`);
+  return { migrated, skipped, failed, total, errors };
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+/** Resolve apps/ranjan/blog from apps/blog cwd (Next.js) or monorepo root. */
+export function resolveRanjanBlogRoot(cwd = process.cwd()) {
+  const a = path.join(cwd, "..", "ranjan", "blog");
+  if (fs.existsSync(a)) return path.resolve(a);
+  const b = path.join(cwd, "ranjan", "blog");
+  if (fs.existsSync(b)) return path.resolve(b);
+  return path.resolve(a);
+}
