@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="first-price-vs-second-price-auctions">
 <p>The shift from second-price to first-price auctions was the most significant structural change in programmatic advertising in the last decade. I witnessed it from inside the ecosystem — at Google where AdX was one of the last to move, and now at InMobi where I design auction logic for our Web and CTV exchange.</p>
         <h2>How Second-Price Worked</h2>
         <p>In a second-price auction, the highest bidder wins but pays only $0.01 above the second-highest bid. This was dominant through approximately 2019. The theory — rooted in Vickrey auction design — was that it incentivizes truthful bidding. In practice, exchanges layered soft floors, hard floors, and yield optimization tactics that made the effective clearing price unpredictable. Transparency eroded as DSPs could not trust that prices reflected genuine competitive dynamics.</p>
@@ -119,5 +119,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>

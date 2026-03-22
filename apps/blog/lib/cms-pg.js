@@ -415,6 +415,28 @@ export async function getPublishedPostBySlug(slug) {
   return rows[0] || null;
 }
 
+/** Public API: single post by slug for ranjan / pousali surfaces (not main blog feed). */
+export async function getPublishedPostBySlugForSubdomain(slug, subdomain) {
+  const s = String(subdomain || "").toLowerCase();
+  if (s === "ranjan") {
+    const { rows } = await sql`
+      SELECT * FROM posts
+      WHERE slug = ${slug} AND status = 'published' AND publish_to_ranjan = true
+      LIMIT 1
+    `;
+    return rows[0] || null;
+  }
+  if (s === "pousali") {
+    const { rows } = await sql`
+      SELECT * FROM posts
+      WHERE slug = ${slug} AND status = 'published' AND publish_to_pousali = true
+      LIMIT 1
+    `;
+    return rows[0] || null;
+  }
+  return getPublishedPostBySlug(slug);
+}
+
 export async function slugExists(slug) {
   const { rows } = await sql`SELECT 1 FROM posts WHERE slug = ${slug} LIMIT 1`;
   return (rows || []).length > 0;

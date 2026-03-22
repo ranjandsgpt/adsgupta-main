@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="waterfall-vs-header-bidding">
 <p>The transition from waterfall to header bidding was the most important architectural change in publisher monetization. I have worked on both sides: at Google where the ad server sat at the center of the waterfall, and at Glance and InMobi where I built unified auction systems leveraging header bidding.</p>
         <h2>How the Waterfall Worked</h2>
         <p>The publisher ad server called demand sources sequentially in priority order. Direct campaigns first, then highest-priority partner (say AdX at $3.00 floor), then next (Magnite at $2.00), then next (PubMatic at $1.50). The fundamental problem: a demand partner lower in the waterfall might pay $4.00 but never gets the chance because a higher-priority partner already filled at $3.00. Waterfall optimized fill rate at each level but not total revenue.</p>
@@ -119,5 +119,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>

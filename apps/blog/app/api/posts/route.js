@@ -4,15 +4,48 @@ import { authOptions } from "../../../lib/auth-options.js";
 import { isPostgresConfigured } from "../../../lib/cms-runtime.js";
 import * as cms from "../../../lib/cms-pg.js";
 import { profileFromUser } from "../../../lib/auth.js";
+import { serializePublicPost } from "../../../lib/public-post-serialize.js";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
 
 /**
- * GET: authenticated → author’s posts (optional status, search, page).
- *       unauthenticated → public published list (subdomain=blog|ranjan|pousali or default blog feed).
- * POST: create post (auth required).
+ * GET — Public (no auth): list or single post with CORS for ranjan.adsgupta.com etc.
+ *       ?subdomain=ranjan|pousali|blog — list published posts for that surface
+ *       ?slug= — single post (use ?subdomain=ranjan|pousali for ranjan/pousali flags)
+ *       ?status=published — default for public lists
+ * Authenticated: author post manager (unchanged).
+ * POST: create post (auth).
  */
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const session = await getServerSession(authOptions);
+
+  const slugParam = searchParams.get("slug")?.trim();
+
+  /** Public single-post fetch (ranjan blog-loader) — always unauthenticated semantics; CORS */
+  if (slugParam) {
+    if (!isPostgresConfigured()) {
+      return NextResponse.json({ error: "Not found" }, { status: 404, headers: corsHeaders });
+    }
+    const subdomain = (searchParams.get("subdomain") || "blog").toLowerCase();
+    try {
+      const row = await cms.getPublishedPostBySlugForSubdomain(slugParam, subdomain);
+      if (!row) {
+        return NextResponse.json({ error: "Not found" }, { status: 404, headers: corsHeaders });
+      }
+      return NextResponse.json({ post: serializePublicPost(row) }, { headers: corsHeaders });
+    } catch (e) {
+      return NextResponse.json({ error: e.message || "Failed" }, { status: 500, headers: corsHeaders });
+    }
+  }
 
   if (session?.user?.email) {
     if (!isPostgresConfigured()) {
@@ -37,12 +70,17 @@ export async function GET(request) {
     }
   }
 
-  const subdomain = searchParams.get("subdomain") || "blog";
+  const subdomain = (searchParams.get("subdomain") || "blog").toLowerCase();
+  const statusFilter = (searchParams.get("status") || "published").toLowerCase();
   const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10) || 50, 100);
   const offset = parseInt(searchParams.get("offset") || "0", 10) || 0;
 
   if (!isPostgresConfigured()) {
-    return NextResponse.json({ posts: [] });
+    return NextResponse.json({ posts: [] }, { headers: corsHeaders });
+  }
+
+  if (statusFilter !== "published") {
+    return NextResponse.json({ error: "Only status=published is public" }, { status: 400, headers: corsHeaders });
   }
 
   try {
@@ -54,9 +92,10 @@ export async function GET(request) {
     } else {
       rows = await cms.listPublishedBlogPosts({ limit, offset });
     }
-    return NextResponse.json({ posts: rows || [] });
+    const posts = (rows || []).map((r) => serializePublicPost(r));
+    return NextResponse.json({ posts }, { headers: corsHeaders });
   } catch (e) {
-    return NextResponse.json({ error: e.message || "Failed" }, { status: 500 });
+    return NextResponse.json({ error: e.message || "Failed" }, { status: 500, headers: corsHeaders });
   }
 }
 

@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="auction-mechanics-programmatic">
 <p>Most conversations about programmatic auctions stop at first-price vs second-price. The actual mechanics inside a modern exchange are far more nuanced. As someone designing auction logic at InMobi Exchange, the real product decisions happen in spaces between textbook models.</p>
         <h2>Multi-Layer Auctions</h2>
         <p>A modern transaction involves cascading auctions. Each SSP runs its own auction against connected DSPs. Winners compete in the publisher ad server (Google Ad Manager typically). Within the ad server, header bidding winners compete against AdX demand, direct campaigns, and PG deals. Each layer introduces product decisions about floor application, deal priority, and multi-bid handling.</p>
@@ -119,5 +119,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>

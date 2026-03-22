@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="bid-shading-explained">
 <p>Bid shading is the most important algorithmic development in programmatic buying since RTB itself. When the industry moved to first-price auctions, DSPs needed to avoid systematically overpaying. The answer was ML models predicting minimum winning bids. From the exchange side at InMobi, I watch bid shading affect every auction we run.</p>
         <h2>Why Bid Shading Exists</h2>
         <p>In second-price, you bid true valuation and pay the second price plus a penny. In first-price, you pay exactly what you bid. If a DSP values an impression at $5.00 but the next-highest bid is $2.50, paying $5.00 wastes $2.50 per impression. Multiply across billions of daily transactions and waste becomes staggering. The Trade Desk, DV360, Xandr, Amazon DSP, and Criteo all run proprietary shading models asking: what is the floor, what is the competitive landscape, what minimum do I need to bid?</p>
@@ -118,5 +118,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>

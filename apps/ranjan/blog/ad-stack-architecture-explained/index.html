@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="ad-stack-architecture-explained">
 <p>The ad stack is the most sophisticated distributed system most people have never heard of. It processes more transactions per second than most stock exchanges, makes decisions in under 100 milliseconds, and operates across every digital surface. Having worked at every layer — from Google ad server to exchange infrastructure at InMobi — I can give you the architectural overview most explanations miss.</p>
         <h2>The Publisher Layer</h2>
         <p>Everything starts with the publisher. The key technology is the ad server — Google Ad Manager dominates for web and app, FreeWheel for CTV and broadcast. The ad server manages inventory, traffics direct campaigns, and coordinates with programmatic demand. At Google, I spent years understanding DFP priority systems determining how demand sources are evaluated. On top sits the header bidding layer — Prebid.js for client-side or Prebid Server for server-side — soliciting parallel bids from multiple SSPs.</p>
@@ -118,5 +118,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>

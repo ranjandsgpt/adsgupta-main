@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="openrtb-protocol-explained">
 <p>OpenRTB is the protocol that makes programmatic advertising possible. Every real-time auction — whether through Google AdX, InMobi Exchange, Magnite, PubMatic, or any other exchange — speaks some version of OpenRTB. Having built exchange products that process billions of bid requests, I can tell you that understanding this protocol at a structural level is the single most important technical skill in adtech product management.</p>
         <h2>Anatomy of a Bid Request</h2>
         <p>A bid request is a JSON object describing an advertising opportunity. The <code>imp</code> object describes the ad slot — format, size, position, deal IDs. The <code>site</code> or <code>app</code> object identifies the publisher property. The <code>device</code> object carries user-agent, IP, device type, screen dimensions, connection type. The <code>user</code> object can include buyer UIDs, consent strings, and audience data. At InMobi, we pay close attention to extension fields because this is where exchanges differentiate. We pass enriched contextual signals, supply chain objects, and proprietary signals that help DSPs like The Trade Desk, DV360, and Amazon DSP make better bidding decisions.</p>
@@ -119,5 +119,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>

@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="deal-id-management">
 <p>Deal IDs are the connective tissue of premium programmatic — identifiers linking business agreements to technical transactions in the exchange. Having built deal infrastructure at Glance and InMobi Exchange, I have debugged thousands of deal issues.</p>
         <h2>What Deal IDs Are</h2>
         <p>A deal ID is a unique string representing a buying arrangement. When publisher and advertiser agree to a PMP, Preferred Deal, or PG through an SSP, the exchange generates a deal ID included in every eligible bid request in the <code>imp.pmp.deals</code> array. The DSP matches it and bids at or above the deal floor. The deal ID carries floor price, auction type, authorized buyer seats, and creative restrictions.</p>
@@ -118,5 +118,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>

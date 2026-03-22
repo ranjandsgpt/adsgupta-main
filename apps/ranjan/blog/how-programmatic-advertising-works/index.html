@@ -74,7 +74,7 @@
           <span class="meta-pill">Jan 1, 2025</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-cms-slug="how-programmatic-advertising-works">
 <p>Programmatic advertising is a distributed system processing trillions of real-time transactions annually, matching advertiser demand with publisher supply through auction-based exchanges in under 100 milliseconds. I have been inside this system for over a decade.</p>
         <h2>From Page Load to Ad Render</h2>
         <p>When a user loads a webpage, the publisher ad code executes. If header bidding is used, a JavaScript wrapper (typically Prebid.js) fires parallel bid requests to multiple SSPs. Simultaneously, the page requests the publisher ad server (usually Google Ad Manager). Each SSP translates the request into OpenRTB and sends it to connected DSPs. At InMobi Exchange, a single impression might generate requests to 30+ DSPs including The Trade Desk, DV360, Amazon DSP, Xandr, Criteo, and MediaMath. DSPs that want to bid return responses to the SSP, which runs its auction and returns the winner to the header bidding wrapper. The wrapper collects winners from all SSPs and passes them as key-value pairs to Google Ad Manager, which runs its own final auction. Total elapsed time: 80-150 milliseconds.</p>
@@ -119,5 +119,7 @@
 <script src='/navbar.js'></script>
   <script src='/footer.js'></script>
   <script src='/seo.js'></script>
+  <script src="/blog/cms-config.js"></script>
+  <script src="/blog-loader.js"></script>
 </body>
 </html>
