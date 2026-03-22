@@ -1,6 +1,7 @@
 /**
- * Shared HTML → posts migration for ranjan.adsgupta.com static blog files.
- * Used by scripts/migrate-ranjan-posts.cjs and GET /api/migrate-ranjan.
+ * Shared migration helpers for ranjan static blog → Postgres `posts`.
+ * HTML parsing + filesystem: migrateRanjanPosts.
+ * Embedded JSON (Vercel): migrateRanjanPostsFromRecords.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -63,6 +64,50 @@ export function parsePostHtml(html, slug) {
   };
 }
 
+const emptyTags = [];
+
+async function insertRanjanRow(sql, row, authorEmail, authorName) {
+  const readTime = row.read_time_minutes ?? row.read_time ?? 5;
+  const publishedAt = new Date().toISOString();
+  const { rows } = await sql`
+    INSERT INTO posts (
+      slug, title, subtitle, content, excerpt, cover_image, category, tags, status, author_email, author_name,
+      seo_title, seo_description, og_image, read_time_minutes, featured, scheduled_at, published_at,
+      publish_to_blog, publish_to_ranjan, publish_to_pousali,
+      crosspost_linkedin, crosspost_instagram, crosspost_facebook, crosspost_twitter
+    ) VALUES (
+      ${row.slug},
+      ${row.title},
+      ${null},
+      ${row.content},
+      ${row.excerpt},
+      ${null},
+      ${row.category},
+      ${emptyTags},
+      ${"published"},
+      ${authorEmail},
+      ${authorName},
+      ${row.title},
+      ${row.excerpt},
+      ${null},
+      ${readTime},
+      ${false},
+      ${null},
+      ${publishedAt},
+      ${true},
+      ${true},
+      ${false},
+      ${false},
+      ${false},
+      ${false},
+      ${false}
+    )
+    ON CONFLICT (slug) DO NOTHING
+    RETURNING id
+  `;
+  return rows && rows.length > 0 ? "migrated" : "skipped";
+}
+
 /**
  * @param {object} opts
  * @param {function} opts.sql - tagged template from lib/db.js (Neon)
@@ -88,7 +133,6 @@ export async function migrateRanjanPosts({ sql, ranjanBlogRoot, authorEmail, aut
   let migrated = 0;
   let skipped = 0;
   let failed = 0;
-  const emptyTags = [];
 
   for (const slug of dirs.sort()) {
     const filePath = path.join(ranjanBlogRoot, slug, "index.html");
@@ -113,49 +157,48 @@ export async function migrateRanjanPosts({ sql, ranjanBlogRoot, authorEmail, aut
     }
 
     try {
-      const publishedAt = new Date().toISOString();
-      const { rows } = await sql`
-        INSERT INTO posts (
-          slug, title, subtitle, content, excerpt, cover_image, category, tags, status, author_email, author_name,
-          seo_title, seo_description, og_image, read_time_minutes, featured, scheduled_at, published_at,
-          publish_to_blog, publish_to_ranjan, publish_to_pousali,
-          crosspost_linkedin, crosspost_instagram, crosspost_facebook, crosspost_twitter
-        ) VALUES (
-          ${parsed.slug},
-          ${parsed.title},
-          ${null},
-          ${parsed.content},
-          ${parsed.excerpt},
-          ${null},
-          ${parsed.category},
-          ${emptyTags},
-          ${"published"},
-          ${authorEmail},
-          ${authorName},
-          ${parsed.title},
-          ${parsed.excerpt},
-          ${null},
-          ${parsed.read_time_minutes},
-          ${false},
-          ${null},
-          ${publishedAt},
-          ${true},
-          ${true},
-          ${false},
-          ${false},
-          ${false},
-          ${false},
-          ${false}
-        )
-        ON CONFLICT (slug) DO NOTHING
-        RETURNING id
-      `;
+      const r = await insertRanjanRow(sql, parsed, authorEmail, authorName);
+      if (r === "migrated") migrated += 1;
+      else skipped += 1;
+    } catch (e) {
+      failed += 1;
+      errors.push(`${slug}: ${e.message || String(e)}`);
+    }
+  }
 
-      if (rows && rows.length > 0) {
-        migrated += 1;
-      } else {
+  return { migrated, skipped, failed, total, errors };
+}
+
+/**
+ * Insert from embedded JSON (plain-text content, read_time minutes).
+ * @param {object} opts
+ * @param {Array<{slug:string,title:string,category:string,excerpt:string,content:string,read_time?:number,read_time_minutes?:number}>} opts.records
+ */
+export async function migrateRanjanPostsFromRecords({ sql, records, authorEmail, authorName }) {
+  const errors = [];
+  const total = records.length;
+  let migrated = 0;
+  let skipped = 0;
+  let failed = 0;
+
+  for (const rec of records) {
+    const slug = rec.slug || "unknown";
+    try {
+      const row = {
+        slug: rec.slug,
+        title: rec.title,
+        category: rec.category,
+        excerpt: rec.excerpt,
+        content: rec.content,
+        read_time_minutes: rec.read_time ?? rec.read_time_minutes ?? 5,
+      };
+      if (!row.slug || !row.title) {
         skipped += 1;
+        continue;
       }
+      const r = await insertRanjanRow(sql, row, authorEmail, authorName);
+      if (r === "migrated") migrated += 1;
+      else skipped += 1;
     } catch (e) {
       failed += 1;
       errors.push(`${slug}: ${e.message || String(e)}`);

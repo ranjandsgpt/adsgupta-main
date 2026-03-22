@@ -1,11 +1,12 @@
 /**
- * TEMPORARY one-shot migration: create CMS tables + import ranjan static HTML posts into Postgres.
+ * TEMPORARY one-shot migration: create CMS tables + import ranjan posts from bundled JSON.
  * Delete this route after migration is complete (or leave disabled).
  */
 import { NextResponse } from "next/server";
 import { createTables } from "../../../lib/db-init.js";
 import { sql } from "../../../lib/db.js";
-import { migrateRanjanPosts, resolveRanjanBlogRoot } from "../../../lib/migrate-ranjan-html.js";
+import { migrateRanjanPostsFromRecords } from "../../../lib/migrate-ranjan-html.js";
+import ranjanPosts from "../../../data/ranjan-posts.json";
 
 function getSecret(request) {
   return request.nextUrl.searchParams.get("secret")?.trim() || "";
@@ -28,21 +29,26 @@ export async function GET(request) {
     await createTables();
   } catch (e) {
     return NextResponse.json(
-      { error: `createTables failed: ${e.message || e}`, migrated: 0, skipped: 0, failed: 0, total: 0, errors: [String(e.message || e)] },
+      { error: `createTables failed: ${e.message || e}`, migrated: 0, skipped: 0, failed: 0, total: 0 },
       { status: 500 }
     );
   }
 
-  const ranjanBlogRoot = resolveRanjanBlogRoot(process.cwd());
+  const records = Array.isArray(ranjanPosts) ? ranjanPosts : [];
 
   try {
-    const result = await migrateRanjanPosts({
+    const result = await migrateRanjanPostsFromRecords({
       sql,
-      ranjanBlogRoot,
+      records,
       authorEmail,
       authorName,
     });
-    return NextResponse.json(result);
+    return NextResponse.json({
+      migrated: result.migrated,
+      skipped: result.skipped,
+      failed: result.failed,
+      total: result.total,
+    });
   } catch (e) {
     return NextResponse.json(
       {
@@ -51,7 +57,6 @@ export async function GET(request) {
         skipped: 0,
         failed: 0,
         total: 0,
-        errors: [String(e.message || e)],
       },
       { status: 500 }
     );

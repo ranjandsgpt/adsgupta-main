@@ -5,7 +5,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "migrate:ranjan": "node scripts/migrate-ranjan-posts.cjs"
+    "migrate:ranjan": "node scripts/migrate-ranjan-posts.cjs",
+    "extract:ranjan": "node scripts/extract-ranjan-posts.cjs"
   },
   "dependencies": {
     "@adsgupta/config": "^0.0.0",
