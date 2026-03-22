@@ -8,7 +8,7 @@ export default function PostManagerTable({ posts }) {
 
   async function handleDelete(id, title) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    const res = await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
     if (res.ok) router.refresh();
     else alert("Failed to delete");
   }

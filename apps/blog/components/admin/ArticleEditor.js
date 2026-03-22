@@ -81,7 +81,7 @@ export default function ArticleEditor({ mode, postId }) {
 
   useEffect(() => {
     if (mode !== "edit" || !postId) return;
-    fetch(`/api/admin/posts/${postId}`)
+    fetch(`/api/posts/${postId}`)
       .then((r) => {
         if (!r.ok) throw new Error("Not found");
         return r.json();
@@ -150,7 +150,7 @@ export default function ArticleEditor({ mode, postId }) {
     try {
       const body = { ...payload(), status: "draft" };
       if (mode === "new") {
-        const res = await fetch("/api/admin/posts", {
+        const res = await fetch("/api/posts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -160,7 +160,7 @@ export default function ArticleEditor({ mode, postId }) {
         router.push(`/admin/posts/${data.id}/edit`);
         router.refresh();
       } else {
-        const res = await fetch(`/api/admin/posts/${postId}`, {
+        const res = await fetch(`/api/posts/${postId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -180,7 +180,7 @@ export default function ArticleEditor({ mode, postId }) {
     try {
       const body = { ...payload(), status: status === "scheduled" ? "scheduled" : "published" };
       if (mode === "new") {
-        const res = await fetch("/api/admin/posts", {
+        const res = await fetch("/api/posts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -191,7 +191,7 @@ export default function ArticleEditor({ mode, postId }) {
         router.push(`/admin/posts/${data.id}/edit`);
         router.refresh();
       } else {
-        const res = await fetch(`/api/admin/posts/${postId}`, {
+        const res = await fetch(`/api/posts/${postId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),

@@ -99,6 +99,9 @@ export async function getDashboardStats(authorEmail) {
   const { rows: sc } = await sql`SELECT COUNT(*)::int AS c FROM subscribers WHERE status = 'active'`;
   const subCount = sc[0]?.c ?? 0;
 
+  const { rows: adRows } = await sql`SELECT COUNT(*)::int AS c FROM ad_slots WHERE active = true`;
+  const adSlotsActive = adRows[0]?.c ?? 0;
+
   return {
     total_posts: total,
     published,
@@ -108,6 +111,7 @@ export async function getDashboardStats(authorEmail) {
     views: viewCount,
     subscribers: subCount,
     revenue_cents: 0,
+    ad_slots_active: adSlotsActive,
   };
 }
 

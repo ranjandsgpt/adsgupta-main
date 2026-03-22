@@ -45,7 +45,7 @@ export default function PostManagerClient({ initialPosts, tab, q }) {
     if (action === "delete" && !confirm(`Delete ${selected.size} post(s)?`)) return;
     setBusy(true);
     try {
-      const res = await fetch("/api/admin/posts/bulk", {
+      const res = await fetch("/api/posts/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: [...selected], action }),
@@ -61,7 +61,7 @@ export default function PostManagerClient({ initialPosts, tab, q }) {
 
   async function handleDelete(id, title) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    const res = await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
     if (res.ok) router.refresh();
     else alert("Failed to delete");
   }
@@ -69,7 +69,7 @@ export default function PostManagerClient({ initialPosts, tab, q }) {
   async function handleDuplicate(id) {
     setBusy(true);
     try {
-      const res = await fetch(`/api/admin/posts/${id}/duplicate`, { method: "POST" });
+      const res = await fetch(`/api/posts/${id}/duplicate`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error();
       router.push(`/admin/posts/${data.id}/edit`);
