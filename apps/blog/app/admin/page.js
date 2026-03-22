@@ -22,6 +22,7 @@ export default async function AdminDashboardPage() {
     views: 0,
     subscribers: 0,
     revenue_cents: 0,
+    ad_slots_active: 0,
   };
   let recent = [];
 
@@ -41,7 +42,9 @@ export default async function AdminDashboardPage() {
         <h1 className="hero-title" style={{ fontSize: "1.75rem", marginBottom: "0.35rem" }}>
           Dashboard
         </h1>
-        <p style={{ color: muted, fontSize: "0.95rem" }}>Overview · {user.email}</p>
+        <p style={{ color: muted, fontSize: "0.95rem" }}>
+          Welcome back, {user.name || user.email.split("@")[0]} · {user.email}
+        </p>
       </div>
 
       <div
@@ -60,7 +63,7 @@ export default async function AdminDashboardPage() {
           ["Archived", stats.archived],
           ["Views", stats.views],
           ["Subscribers", stats.subscribers],
-          ["Revenue", "$0"],
+          ["Ad slots active", stats.ad_slots_active ?? 0],
         ].map(([label, val]) => (
           <div
             key={label}
