@@ -2,6 +2,7 @@ import Link from "next/link";
 import PostCard from "../components/PostCard";
 import Newsletter from "../components/ui/Newsletter";
 import { getAllPosts } from "../lib/posts";
+import { getCategoriesWithCounts } from "../lib/category-metadata";
 
 function trendingScore(post) {
   const date = post.meta?.date ? new Date(post.meta.date).getTime() : 0;
@@ -11,7 +12,7 @@ function trendingScore(post) {
 }
 
 export default async function Home() {
-  const posts = await getAllPosts();
+  const [posts, categories] = await Promise.all([getAllPosts(), getCategoriesWithCounts()]);
   const [featured, ...rest] = posts || [];
   const latest = (posts || []).slice(0, 6);
   const trending = [...(posts || [])].sort((a, b) => trendingScore(b) - trendingScore(a)).slice(0, 5);
@@ -85,38 +86,20 @@ export default async function Home() {
           <h2 className="section-title">Categories</h2>
         </div>
         <div className="categories-grid">
-          <article className="category-card">
-            <Link href="/categories" style={{ textDecoration: "none", color: "inherit" }}>
-              <h3 className="category-title">Neural Philosophical</h3>
-              <p className="category-description">
-                Explorations at the intersection of cognition, neural networks, and attention economies.
-              </p>
-            </Link>
-          </article>
-          <article className="category-card">
-            <Link href="/categories" style={{ textDecoration: "none", color: "inherit" }}>
-              <h3 className="category-title">Marketplace Protocols</h3>
-              <p className="category-description">
-                How to win in Amazon, Walmart, and marketplace auctions with AI-native playbooks.
-              </p>
-            </Link>
-          </article>
-          <article className="category-card">
-            <Link href="/categories" style={{ textDecoration: "none", color: "inherit" }}>
-              <h3 className="category-title">AdTech Infrastructure</h3>
-              <p className="category-description">
-                Architecture notes for bidders, data pipelines, and experimentation frameworks.
-              </p>
-            </Link>
-          </article>
-          <article className="category-card">
-            <Link href="/categories" style={{ textDecoration: "none", color: "inherit" }}>
-              <h3 className="category-title">Programmatic Strategy</h3>
-              <p className="category-description">
-                Header bidding, auction dynamics, and programmatic buying.
-              </p>
-            </Link>
-          </article>
+          {categories.slice(0, 4).map((cat) => (
+            <article key={cat.id} className="category-card">
+              <Link
+                href={`/archives?category=${encodeURIComponent(cat.name)}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <h3 className="category-title">{cat.name}</h3>
+                <p className="category-description">{cat.description}</p>
+                <p className="category-count" style={{ marginTop: "0.35rem", fontSize: "0.85rem", opacity: 0.85 }}>
+                  {cat.count} {cat.count === 1 ? "article" : "articles"}
+                </p>
+              </Link>
+            </article>
+          ))}
         </div>
         <p style={{ marginTop: "1rem" }}>
           <Link href="/categories" className="chip chip-muted">Browse all categories →</Link>

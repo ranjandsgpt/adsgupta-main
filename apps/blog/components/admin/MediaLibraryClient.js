@@ -15,7 +15,7 @@ export default function MediaLibraryClient() {
     setLoading(true);
     setErr("");
     try {
-      const res = await fetch("/api/admin/media");
+      const res = await fetch("/api/media");
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Failed");
       setItems(data.items || []);
@@ -50,7 +50,7 @@ export default function MediaLibraryClient() {
 
   async function onDelete(id) {
     if (!confirm("Delete this asset?")) return;
-    const res = await fetch(`/api/admin/media?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    const res = await fetch(`/api/media?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     if (res.ok) load();
     else setErr("Delete failed");
   }

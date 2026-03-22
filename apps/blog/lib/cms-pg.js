@@ -512,6 +512,43 @@ export async function listSocialSyncs(authorEmail, limit = 100) {
   }));
 }
 
+/** Stub / future real cross-post — logs intent in social_syncs */
+export async function insertSocialSync(postId, platform, { status = "stub", platformPostId = null, errorMessage = null } = {}) {
+  await sql`
+    INSERT INTO social_syncs (post_id, platform, status, platform_post_id, published_at, error_message)
+    VALUES (
+      ${postId}::uuid,
+      ${platform},
+      ${status},
+      ${platformPostId},
+      ${status === "published" ? new Date().toISOString() : null},
+      ${errorMessage}
+    )
+  `;
+}
+
+/** One stub row per post+platform (avoids duplicates on re-publish). */
+export async function ensureSocialSyncStub(postId, platform, message = "Cross-post not yet wired to OAuth APIs (logged for dashboard).") {
+  const { rows } = await sql`
+    SELECT id FROM social_syncs WHERE post_id = ${postId}::uuid AND platform = ${platform} LIMIT 1
+  `;
+  if (rows?.length) return false;
+  await insertSocialSync(postId, platform, { status: "stub", errorMessage: message });
+  return true;
+}
+
+export async function listPublishedCategories() {
+  const { rows } = await sql`
+    SELECT category, COUNT(*)::int AS count
+    FROM posts
+    WHERE status = 'published' AND publish_to_blog = true
+      AND category IS NOT NULL AND TRIM(category) <> ''
+    GROUP BY category
+    ORDER BY count DESC, category ASC
+  `;
+  return rows || [];
+}
+
 export async function insertSubscriber(email, source) {
   const em = email.toLowerCase().trim();
   await sql`

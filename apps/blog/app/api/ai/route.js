@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getUser } from "../../../../lib/auth.js";
-import { runAiAction } from "../../../../lib/ai-actions.js";
+import { getUser } from "../../../lib/auth.js";
+import { runAiAction } from "../../../lib/ai-actions.js";
 
 export async function POST(request) {
   const user = await getUser();

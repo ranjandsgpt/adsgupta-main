@@ -42,6 +42,7 @@ function mapPgListRow(row) {
     row.read_time_minutes ||
     Math.max(1, Math.ceil(String(row.content || "").split(/\s+/).filter(Boolean).length / 220));
   const date = row.published_at || row.created_at;
+  const authorLabel = row.author_name || row.author_email || "AdsGupta";
   return {
     slug: row.slug,
     content: row.content,
@@ -54,7 +55,7 @@ function mapPgListRow(row) {
       date,
       category: row.category,
       source: "AdsGupta",
-      author: "AdsGupta",
+      author: authorLabel,
       ogTitle: row.seo_title || row.title,
       ogDescription: row.seo_description || row.excerpt,
       ogImage: row.og_image || row.cover_image,
@@ -76,6 +77,7 @@ async function getPostBySlugFromPostgres(slug) {
     row.read_time_minutes ||
     Math.max(1, Math.ceil(String(row.content || "").split(/\s+/).filter(Boolean).length / 220));
   const date = row.published_at || row.created_at;
+  const authorLabel = row.author_name || row.author_email || "AdsGupta";
   return {
     slug: row.slug,
     content: row.content,
@@ -88,7 +90,7 @@ async function getPostBySlugFromPostgres(slug) {
       date,
       category: row.category,
       source: "AdsGupta",
-      author: "AdsGupta",
+      author: authorLabel,
       ogTitle: row.seo_title || row.title,
       ogDescription: row.seo_description || row.excerpt,
       ogImage: row.og_image || row.cover_image,
@@ -100,7 +102,7 @@ async function getPostBySlugFromPostgres(slug) {
   };
 }
 
-/** Prefer Vercel Postgres CMS; then markdown files. */
+/** Prefer Vercel Postgres CMS; then markdown files (only when Postgres is not configured). */
 export async function getPostBySlug(slug) {
   try {
     const pg = await getPostBySlugFromPostgres(slug);
@@ -108,6 +110,9 @@ export async function getPostBySlug(slug) {
   } catch (_) {
     /* continue */
   }
+
+  const { isPostgresConfigured } = await import("./cms-runtime.js");
+  if (isPostgresConfigured()) return null;
 
   const fullPath = path.join(postsDirectory, `${slug}.md`);
   if (!fs.existsSync(fullPath)) return null;
@@ -139,20 +144,18 @@ export async function getPostBySlug(slug) {
   };
 }
 
-/** Published posts for blog — Postgres first, then markdown. */
+/** Published posts — Postgres-only when POSTGRES_URL is set; else markdown files. */
 export async function getAllPosts() {
   try {
     const { isPostgresConfigured } = await import("./cms-runtime.js");
     if (isPostgresConfigured()) {
       const { listPublishedBlogPosts } = await import("./cms-pg.js");
       const rows = await listPublishedBlogPosts({ limit: 200 });
-      if (rows.length > 0) {
-        return rows.map(mapPgListRow).sort((a, b) => {
-          const aDate = a.meta?.date ? new Date(a.meta.date).getTime() : 0;
-          const bDate = b.meta?.date ? new Date(b.meta.date).getTime() : 0;
-          return bDate - aDate;
-        });
-      }
+      return rows.map(mapPgListRow).sort((a, b) => {
+        const aDate = a.meta?.date ? new Date(a.meta.date).getTime() : 0;
+        const bDate = b.meta?.date ? new Date(b.meta.date).getTime() : 0;
+        return bDate - aDate;
+      });
     }
   } catch (_) {
     /* fall through */
@@ -167,7 +170,7 @@ export async function getAllPosts() {
   });
 }
 
-/** Slugs for SSG — merge Postgres and markdown. */
+/** Slugs for SSG — Postgres-only when configured; else markdown files. */
 export async function getPostSlugs() {
   const seen = new Map();
   try {
@@ -178,6 +181,7 @@ export async function getPostSlugs() {
         SELECT slug FROM posts WHERE status = 'published' AND publish_to_blog = true
       `;
       (rows || []).forEach((r) => seen.set(r.slug, true));
+      return [...seen.keys()].map((slug) => ({ slug }));
     }
   } catch (_) {}
   getAllSlugsFromFiles().forEach((s) => seen.set(s, true));

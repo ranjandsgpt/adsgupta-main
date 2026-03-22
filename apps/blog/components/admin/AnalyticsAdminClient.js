@@ -17,7 +17,7 @@ export default function AnalyticsAdminClient() {
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/analytics/summary")
+    fetch("/api/analytics")
       .then((r) => r.json())
       .then((d) => {
         if (d.error) throw new Error(d.error);

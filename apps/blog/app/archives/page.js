@@ -1,6 +1,7 @@
 import PostCard from "../../components/PostCard";
 import ArchiveWithFilters from "../../components/ArchiveWithFilters";
 import { getAllPosts } from "../../lib/posts";
+import { getCategoriesWithCounts } from "../../lib/category-metadata";
 import Newsletter from "../../components/ui/Newsletter";
 import SponsoredInsightCard from "../../components/ui/SponsoredInsightCard";
 
@@ -24,7 +25,7 @@ function trendingScore(post) {
 }
 
 export default async function ArchivesPage() {
-  const posts = await getAllPosts();
+  const [posts, categoryList] = await Promise.all([getAllPosts(), getCategoriesWithCounts()]);
 
   if (!posts || posts.length === 0) {
     return (
@@ -47,15 +48,6 @@ export default async function ArchivesPage() {
   const [featured, ...rest] = posts;
   const latest = posts.slice(0, 8);
   const trending = [...posts].sort((a, b) => trendingScore(b) - trendingScore(a)).slice(0, 5);
-
-  const categoryConfig = [
-    { id: "neural-philosophical", name: "Neural Philosophical", description: "Long-form essays on cognition, attention, and how neural systems reshape advertising." },
-    { id: "marketplace-protocols", name: "Marketplace Protocols", description: "Playbooks for Amazon, Walmart, and marketplace auctions." },
-    { id: "adtech-infrastructure", name: "AdTech Infrastructure", description: "Standards, regulation, and platform shifts." },
-    { id: "revenue-engineering", name: "Revenue Engineering", description: "Monetization strategy and revenue systems." },
-    { id: "programmatic-strategy", name: "Programmatic Strategy", description: "Header bidding, auction dynamics, programmatic buying." },
-    { id: "media-buying-systems", name: "Media Buying Systems", description: "Media buying optimization and infrastructure." },
-  ];
 
   const categoryCounts = posts.reduce((acc, post) => {
     const cat = post.meta?.category;
@@ -103,8 +95,8 @@ export default async function ArchivesPage() {
           <h2 className="section-title">Explore by Category</h2>
         </div>
         <div className="categories-grid">
-          {categoryConfig.map((cat) => {
-            const count = categoryCounts[cat.name] ?? 0;
+          {categoryList.map((cat) => {
+            const count = categoryCounts[cat.name] ?? cat.count ?? 0;
             return (
               <article key={cat.id} className="category-card">
                 <h3 className="category-title">{cat.name}</h3>

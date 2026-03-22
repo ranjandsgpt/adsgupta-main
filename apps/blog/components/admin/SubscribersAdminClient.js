@@ -10,7 +10,7 @@ export default function SubscribersAdminClient() {
   function load() {
     setLoading(true);
     const q = filter === "all" ? "" : `?status=${filter}`;
-    fetch(`/api/admin/subscribers-list${q}`)
+    fetch(`/api/subscribers${q}`)
       .then((r) => r.json())
       .then((d) => setRows(d.subscribers || []))
       .finally(() => setLoading(false));
@@ -21,13 +21,8 @@ export default function SubscribersAdminClient() {
   }, [filter]);
 
   function exportCsv() {
-    const header = "email,status,source,created_at\n";
-    const body = rows.map((r) => [r.email, r.status, r.source || "", r.created_at].join(",")).join("\n");
-    const blob = new Blob([header + body], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "subscribers.csv";
-    a.click();
+    const q = filter === "all" ? "" : `?status=${encodeURIComponent(filter)}`;
+    window.open(`/api/subscribers/export${q}`, "_blank", "noopener,noreferrer");
   }
 
   const total = rows.length;

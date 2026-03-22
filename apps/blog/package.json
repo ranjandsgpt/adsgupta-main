@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "migrate:ranjan": "node scripts/migrate-ranjan-posts.js"
   },
   "dependencies": {
     "@adsgupta/config": "^0.0.0",

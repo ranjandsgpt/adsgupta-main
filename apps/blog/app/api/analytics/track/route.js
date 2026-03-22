@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { isPostgresConfigured } from "../../../../lib/cms-runtime.js";
 import { sql } from "../../../../lib/db.js";
+import { rateLimit, clientKeyFromRequest } from "../../../../lib/rate-limit.js";
 
 export async function POST(request) {
+  const key = `track:${clientKeyFromRequest(request)}`;
+  const limited = rateLimit(key, { max: 120, windowMs: 60_000 });
+  if (!limited.ok) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } });
+  }
+
   const body = await request.json().catch(() => ({}));
   const slug = String(body.slug || "").trim();
   if (!slug) return NextResponse.json({ error: "slug required" }, { status: 400 });

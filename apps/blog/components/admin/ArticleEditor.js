@@ -232,7 +232,7 @@ export default function ArticleEditor({ mode, postId }) {
   async function runAi(action, extra = {}) {
     setError("");
     try {
-      const res = await fetch("/api/admin/ai", {
+      const res = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, title, content, ...extra }),

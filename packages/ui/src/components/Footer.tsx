@@ -4,17 +4,48 @@ import * as React from "react";
 import { useState } from "react";
 import "./Footer.css";
 
+export type FooterProps = {
+  /** When set, POSTs JSON `{ email, source }` to this URL (e.g. `/api/subscribe`). */
+  subscribeEndpoint?: string;
+  subscribeSource?: string;
+};
+
 /**
  * Master footer — matches apps/ranjan/footer.js (layout, links, #0A0A0A background).
  * Uses plain <a href> so it works in Next.js and CRA without a router import.
  */
-export function Footer() {
+export function Footer({ subscribeEndpoint, subscribeSource = "footer" }: FooterProps) {
   const [email, setEmail] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState("");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email.trim()) return;
+    setFormError("");
+
+    if (subscribeEndpoint) {
+      setBusy(true);
+      try {
+        const res = await fetch(subscribeEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim(), source: subscribeSource }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error((data as { error?: string }).error || "Subscribe failed");
+        setShowSuccess(true);
+        setEmail("");
+        window.setTimeout(() => setShowSuccess(false), 4000);
+      } catch (err) {
+        setFormError(err instanceof Error ? err.message : "Subscribe failed");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
     setShowSuccess(true);
     setEmail("");
     window.setTimeout(() => setShowSuccess(false), 4000);
@@ -57,6 +88,7 @@ export function Footer() {
               />
               <button
                 type="submit"
+                disabled={busy}
                 data-testid="newsletter-submit"
                 className="adsg-footer__submit"
                 aria-label="Subscribe"
@@ -78,6 +110,12 @@ export function Footer() {
                 </svg>
               </button>
             </form>
+
+            {formError ? (
+              <p className="adsg-footer__subtitle" style={{ color: "#f87171", marginTop: "0.5rem" }}>
+                {formError}
+              </p>
+            ) : null}
 
             <div
               className={

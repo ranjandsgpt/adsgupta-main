@@ -1,28 +1,13 @@
 import Link from "next/link";
-import { getAllPosts } from "../../lib/posts";
+import { getCategoriesWithCounts } from "../../lib/category-metadata";
 
 export const metadata = {
   title: "Categories",
   description: "Browse AdsGupta BlogAI articles by category.",
 };
 
-const CATEGORIES = [
-  { name: "Neural Philosophical", description: "Long-form essays on cognition, attention, and how neural systems reshape advertising." },
-  { name: "Marketplace Protocols", description: "Playbooks for Amazon, Walmart, and marketplace auctions." },
-  { name: "AdTech Infrastructure", description: "Standards, regulation, and platform shifts." },
-  { name: "Revenue Engineering", description: "Monetization strategy and revenue systems." },
-  { name: "Programmatic Strategy", description: "Header bidding, auction dynamics, programmatic buying." },
-  { name: "Media Buying Systems", description: "Media buying optimization and infrastructure." },
-];
-
 export default async function CategoriesPage() {
-  const posts = await getAllPosts();
-  const counts = (posts || []).reduce((acc, post) => {
-    const cat = post.meta?.category;
-    if (!cat) return acc;
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-  }, {});
+  const CATEGORIES = await getCategoriesWithCounts();
 
   return (
     <div className="shell hero-accent">
@@ -37,9 +22,9 @@ export default async function CategoriesPage() {
       <section className="section-block">
         <div className="categories-grid">
           {CATEGORIES.map((cat) => {
-            const count = counts[cat.name] ?? 0;
+            const count = cat.count ?? 0;
             return (
-              <article key={cat.name} className="category-card">
+              <article key={cat.id} className="category-card">
                 <h3 className="category-title">{cat.name}</h3>
                 <p className="category-description">{cat.description}</p>
                 <p className="category-count">

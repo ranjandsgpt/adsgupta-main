@@ -1,6 +1,7 @@
 import "../styles/globals.css";
 import { Space_Grotesk } from "next/font/google";
 import Header from "../components/Header";
+import Providers from "../components/Providers";
 import { Footer } from "@adsgupta/ui";
 import AIAssistant from "../components/ui/AIAssistant";
 import { getAllPosts } from "../lib/posts";
@@ -38,10 +39,12 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={spaceGrotesk.variable}>
       <body className="app-body">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <AIAssistant articles={knowledgeBase} />
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer subscribeEndpoint={process.env.NEXT_PUBLIC_SUBSCRIBE_URL || "/api/subscribe"} subscribeSource="footer" />
+          <AIAssistant articles={knowledgeBase} />
+        </Providers>
       </body>
     </html>
   );
