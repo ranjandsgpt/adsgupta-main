@@ -1,0 +1,60 @@
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import { z } from "zod";
+import { getDb } from "@/lib/mongodb";
+import { createJwtToken, sessionCookieOptions } from "@/lib/auth";
+
+export const runtime = "nodejs";
+
+const bodySchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+});
+
+export async function POST(request: Request) {
+  try {
+    const json = await request.json();
+    const parsed = bodySchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
+    }
+    const { email, password } = parsed.data;
+    const db = await getDb();
+
+    const user = await db.collection("users").findOne({ email }, { projection: { _id: 0 } });
+    if (!user) {
+      return NextResponse.json({ detail: "Invalid email or password" }, { status: 401 });
+    }
+    if (user.auth_provider !== "jwt") {
+      return NextResponse.json(
+        { detail: "This account uses a different login method." },
+        { status: 400 }
+      );
+    }
+    if (!user.password_hash || typeof user.password_hash !== "string") {
+      return NextResponse.json({ detail: "Invalid email or password" }, { status: 401 });
+    }
+
+    const ok = await bcrypt.compare(password, user.password_hash);
+    if (!ok) {
+      return NextResponse.json({ detail: "Invalid email or password" }, { status: 401 });
+    }
+
+    const token = await createJwtToken(user.user_id as string, user.email as string);
+    const res = NextResponse.json({
+      access_token: token,
+      expires_in: 168 * 3600,
+      user: {
+        user_id: user.user_id,
+        email: user.email,
+        name: user.name,
+        picture: user.picture ?? null,
+      },
+    });
+    res.cookies.set("session_token", token, sessionCookieOptions());
+    return res;
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ detail: "Server error" }, { status: 500 });
+  }
+}

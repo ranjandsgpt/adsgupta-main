@@ -1,0 +1,38 @@
+{
+  "name": "talentos",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@adsgupta/ui": "^0.0.0",
+    "@hookform/resolvers": "^3.9.1",
+    "bcryptjs": "^2.4.3",
+    "framer-motion": "^11.15.0",
+    "jose": "^5.9.6",
+    "lucide-react": "^0.460.0",
+    "mongodb": "^6.12.0",
+    "next": "14.2.18",
+    "openai": "^4.77.0",
+    "razorpay": "^2.9.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-dropzone": "^14.3.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.17.10",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.18",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  }
+}
