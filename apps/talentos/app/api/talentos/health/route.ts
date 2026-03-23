@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { hasLlm } from "@/lib/llm";
-import { ADTECH_KNOWLEDGE_BASE } from "@/lib/adtech-knowledge";
 
 export async function GET() {
-  return NextResponse.json({
-    status: "healthy",
-    service: "talentos",
-    llm_available: hasLlm(),
-    knowledge_base_categories: ADTECH_KNOWLEDGE_BASE.length,
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    return NextResponse.json({
+      status: "healthy",
+      service: "talentos",
+      llm_available: hasLlm(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ detail: "Health check failed" }, { status: 500 });
+  }
 }

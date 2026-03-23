@@ -12,6 +12,9 @@ export async function generateLLMResponse(
   userPrompt: string,
   jsonMode?: boolean
 ): Promise<string> {
+  if (!process.env.Gemini_API_Key && !process.env.ANTHROPIC_API_KEY) {
+    throw new Error("AI features require configuration");
+  }
   try {
     const model = genAI.getGenerativeModel({
       model: process.env.GEMINI_MODEL || "gemini-1.5-flash",

@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Bot, Download, Loader2, ArrowUpDown } from "lucide-react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { Paywall } from "@/components/Paywall";
+const Paywall = dynamic(() => import("@/components/Paywall").then((m) => m.Paywall), { ssr: false });
 
 type PrepPayload = {
   companyIntel: {

@@ -34,7 +34,7 @@ export default function LoginPage() {
       });
       const json = (await res.json()) as { detail?: string };
       if (!res.ok) throw new Error(json.detail || "Unable to sign in");
-      router.push("/dashboard");
+      router.push("/workspace");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to sign in");
     } finally {
@@ -61,7 +61,7 @@ export default function LoginPage() {
       });
       const json = (await res.json()) as { detail?: string };
       if (!res.ok) throw new Error(json.detail || "Unable to create account");
-      router.push("/dashboard");
+      router.push("/workspace");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unable to create account");
     } finally {
