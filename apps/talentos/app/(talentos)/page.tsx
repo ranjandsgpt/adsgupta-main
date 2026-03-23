@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Brain,
   FileText,
@@ -99,7 +100,27 @@ const BentoCard = ({
 );
 
 export default function HomePage() {
+  const router = useRouter();
   const [isHovering, setIsHovering] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          router.replace("/dashboard");
+          return;
+        }
+      } finally {
+        setAuthChecked(true);
+      }
+    })();
+  }, [router]);
+
+  if (!authChecked) {
+    return <div className="min-h-screen bg-[#050505]" />;
+  }
 
   const features = [
     {
@@ -195,7 +216,7 @@ export default function HomePage() {
               Sign In
             </Link>
             <Link
-              href="/workspace"
+              href="/login"
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all"
               data-testid="get-started-btn"
             >
@@ -247,7 +268,7 @@ export default function HomePage() {
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               <Link
-                href="/workspace"
+                href="/login"
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
                 className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg overflow-hidden"
@@ -470,7 +491,7 @@ export default function HomePage() {
             <p className="text-zinc-400 text-lg mb-10">Start your free analysis today. No credit card required.</p>
 
             <Link
-              href="/workspace"
+              href="/login"
               className="inline-flex items-center gap-2 px-10 py-5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all"
               data-testid="cta-bottom-btn"
             >
