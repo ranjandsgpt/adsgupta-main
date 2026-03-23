@@ -18,6 +18,12 @@ export const PRICING: Record<
     name: "TalentOS Professional",
     description: "Professional monthly subscription",
   },
+  pro_jpy_monthly: {
+    amount: 900,
+    currency: "JPY",
+    name: "TalentOS Professional",
+    description: "Professional monthly subscription",
+  },
 };
 
 export async function ensureUserForPayment(userId: string): Promise<User | null> {

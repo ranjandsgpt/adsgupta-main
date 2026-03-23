@@ -1,0 +1,31 @@
+# TalentOS — AI Career Intelligence Platform by AdsGupta
+
+> The all-in-one AI platform for job seekers: resume analysis, mock interviews with AI personas, STAR-method scoring, personalized prep guides, company intelligence, and smart job matching across 10+ countries.
+
+## What is TalentOS?
+TalentOS is an AI-powered career intelligence platform built by AdsGupta. It helps job seekers prepare for interviews by analyzing their resume against job descriptions, running realistic mock interviews with AI personas, providing STAR-method scoring and feedback, generating personalized prep guides, and matching users with relevant jobs globally.
+
+## Core Features
+- Resume Intelligence: AI parses resumes (PDF/DOCX), extracts skills, experience, proof points, and compares against any job description
+- Mock Interviews: 4 AI personas (Recruiter, Hiring Manager, Technical Peer, Bar Raiser) conduct realistic interview simulations
+- STAR Scoring: Every answer scored on Situation, Task, Action, Result dimensions with specific feedback
+- Company Intelligence: Research reports on company culture, interview process, common questions, and insider tips
+- Prep Guides: Personalized cheat sheets, study plans, STAR story templates, and interview-day checklists
+- Smart Job Matching: AI-ranked job recommendations across US, UK, India, Australia, Germany, France, Japan, Canada, Brazil, Singapore
+- Adaptive Difficulty: Interview questions automatically adjust based on candidate performance
+
+## Who is it for?
+Job seekers of any level and industry — software engineers, product managers, content strategists, marketers, designers, operations managers, sales executives, and more. Works for fresh graduates and C-suite executives alike.
+
+## Pricing
+- Free: 3 analyses + 1 mock interview
+- Pro: ₹499/month or $5.99/month — unlimited everything
+- Enterprise: Custom pricing for teams and organizations
+
+## Built by
+AdsGupta (adsgupta.com) — founded by Ranjan Dasgupta, AdTech product leader at InMobi.
+
+## Links
+- Website: https://talentos.adsgupta.com
+- Parent: https://adsgupta.com
+- Blog: https://blog.adsgupta.com

@@ -12,6 +12,8 @@ export default function PricingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [paymentsEnabled, setPaymentsEnabled] = useState(false);
+  const [currency, setCurrency] = useState<"INR" | "USD" | "JPY">("INR");
+  const [priceLabel, setPriceLabel] = useState("₹499/month");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -20,6 +22,10 @@ export default function PricingPage() {
       const config = await fetch("/api/payments/config");
       const cfg = (await config.json()) as { enabled?: boolean };
       setPaymentsEnabled(Boolean(cfg.enabled));
+      const geo = await fetch("/api/geo");
+      const g = (await geo.json()) as { currency?: "INR" | "USD" | "JPY"; priceLabel?: string };
+      setCurrency(g.currency || "INR");
+      setPriceLabel(g.priceLabel || "₹499/month");
       const status = await fetch("/api/payments/status");
       if (status.ok) {
         const s = (await status.json()) as { isSubscribed?: boolean };
@@ -48,7 +54,7 @@ export default function PricingPage() {
       const orderResponse = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "pro", currency: "INR" }),
+        body: JSON.stringify({ plan: "pro", currency }),
       });
       if (!orderResponse.ok) throw new Error("Failed to create order");
       const orderData = (await orderResponse.json()) as {
@@ -166,8 +172,7 @@ export default function PricingPage() {
           <div className="p-6 rounded-2xl border bg-gradient-to-b from-cyan-500/10 to-transparent border-cyan-500/40 relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-full bg-cyan-500 text-black font-semibold">Most Popular</div>
             <h3 className="text-xl font-bold mb-2">{PLANS.pro.name}</h3>
-            <p className="text-4xl font-bold mb-1">₹{PLANS.pro.priceINR}</p>
-            <p className="text-zinc-400 text-sm mb-4">/month</p>
+            <p className="text-4xl font-bold mb-4">{priceLabel}</p>
             <ul className="space-y-2 text-sm text-zinc-200">
               {PLANS.pro.features.map((f) => <li key={f}>- {f}</li>)}
             </ul>

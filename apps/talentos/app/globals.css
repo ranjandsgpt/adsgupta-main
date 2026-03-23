@@ -13,6 +13,11 @@ body {
   @apply bg-[#050505] text-white antialiased;
 }
 
+:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 2px;
+}
+
 .grain-overlay {
   pointer-events: none;
   position: fixed;

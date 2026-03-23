@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 
 const schema = z.object({
   plan: z.enum(["pro"]).default("pro"),
-  currency: z.enum(["INR", "USD"]).optional(),
+  currency: z.enum(["INR", "USD", "JPY"]).optional(),
   user_id: z.string().optional(),
 });
 
@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ detail: "User not found" }, { status: 404 });
     }
 
-    const priceKey = currency === "USD" ? "pro_usd_monthly" : "pro_inr_monthly";
+    const priceKey =
+      currency === "USD" ? "pro_usd_monthly" : currency === "JPY" ? "pro_jpy_monthly" : "pro_inr_monthly";
     const plan = PRICING[priceKey];
     const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret });
 

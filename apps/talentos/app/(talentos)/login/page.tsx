@@ -116,9 +116,15 @@ export default function LoginPage() {
           {tab === "signin" ? (
             <motion.div key="signin" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 8 }}>
               <div className="space-y-3">
-                <input value={signIn.email} onChange={(e) => setSignIn((p) => ({ ...p, email: e.target.value }))} placeholder="Email" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
-                <input type="password" value={signIn.password} onChange={(e) => setSignIn((p) => ({ ...p, password: e.target.value }))} placeholder="Password" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
-                <button onClick={() => { void handleSignIn(); }} disabled={loading} className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold disabled:opacity-50">
+                <label className="text-sm text-zinc-300 block">
+                  Email
+                  <input aria-label="Email" value={signIn.email} onChange={(e) => setSignIn((p) => ({ ...p, email: e.target.value }))} placeholder="Email" className="mt-1 w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
+                </label>
+                <label className="text-sm text-zinc-300 block">
+                  Password
+                  <input aria-label="Password" type="password" value={signIn.password} onChange={(e) => setSignIn((p) => ({ ...p, password: e.target.value }))} placeholder="Password" className="mt-1 w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
+                </label>
+                <button aria-label="Sign In" onClick={() => { void handleSignIn(); }} disabled={loading} className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold disabled:opacity-50">
                   {loading ? "Signing in..." : "Sign In"}
                 </button>
               </div>
@@ -126,12 +132,24 @@ export default function LoginPage() {
           ) : (
             <motion.div key="signup" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}>
               <div className="space-y-3">
-                <input value={signUp.name} onChange={(e) => setSignUp((p) => ({ ...p, name: e.target.value }))} placeholder="Name" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
-                <input value={signUp.email} onChange={(e) => setSignUp((p) => ({ ...p, email: e.target.value }))} placeholder="Email" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
-                <input type="password" value={signUp.password} onChange={(e) => setSignUp((p) => ({ ...p, password: e.target.value }))} placeholder="Password" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
-                <input type="password" value={signUp.confirmPassword} onChange={(e) => setSignUp((p) => ({ ...p, confirmPassword: e.target.value }))} placeholder="Confirm Password" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
+                <label className="text-sm text-zinc-300 block">
+                  Name
+                  <input aria-label="Name" value={signUp.name} onChange={(e) => setSignUp((p) => ({ ...p, name: e.target.value }))} placeholder="Name" className="mt-1 w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
+                </label>
+                <label className="text-sm text-zinc-300 block">
+                  Email
+                  <input aria-label="Email" value={signUp.email} onChange={(e) => setSignUp((p) => ({ ...p, email: e.target.value }))} placeholder="Email" className="mt-1 w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
+                </label>
+                <label className="text-sm text-zinc-300 block">
+                  Password
+                  <input aria-label="Create Password" type="password" value={signUp.password} onChange={(e) => setSignUp((p) => ({ ...p, password: e.target.value }))} placeholder="Password" className="mt-1 w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
+                </label>
+                <label className="text-sm text-zinc-300 block">
+                  Confirm Password
+                  <input aria-label="Confirm Password" type="password" value={signUp.confirmPassword} onChange={(e) => setSignUp((p) => ({ ...p, confirmPassword: e.target.value }))} placeholder="Confirm Password" className="mt-1 w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10" />
+                </label>
                 {signUpError ? <p className="text-red-300 text-sm">{signUpError}</p> : null}
-                <button onClick={() => { void handleSignUp(); }} disabled={loading} className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold disabled:opacity-50">
+                <button aria-label="Create Account" onClick={() => { void handleSignUp(); }} disabled={loading} className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold disabled:opacity-50">
                   {loading ? "Creating account..." : "Create Account"}
                 </button>
               </div>
@@ -142,7 +160,7 @@ export default function LoginPage() {
         {error ? <p className="text-red-300 text-sm mt-3">{error}</p> : null}
 
         <div className="mt-6 text-center">
-          <button onClick={continueAsGuest} className="text-zinc-400 hover:text-white text-sm inline-flex items-center gap-1">
+          <button aria-label="Continue as Guest" onClick={continueAsGuest} className="text-zinc-400 hover:text-white text-sm inline-flex items-center gap-1">
             Continue as Guest <ArrowRight size={14} />
           </button>
         </div>

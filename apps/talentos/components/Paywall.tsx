@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Crown, X } from "lucide-react";
 import { PLANS } from "@/lib/plans";
@@ -13,6 +14,15 @@ type Props = {
 };
 
 export function Paywall({ open, featureName, loading = false, onUpgrade, onClose }: Props) {
+  const [priceLabel, setPriceLabel] = useState("₹499/month");
+
+  useEffect(() => {
+    fetch("/api/geo")
+      .then((res) => res.json())
+      .then((d: { priceLabel?: string }) => setPriceLabel(d.priceLabel || "₹499/month"))
+      .catch(() => undefined);
+  }, []);
+
   if (!open) return null;
 
   return (
@@ -50,7 +60,7 @@ export function Paywall({ open, featureName, loading = false, onUpgrade, onClose
             disabled={loading}
             className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold disabled:opacity-50"
           >
-            {loading ? "Processing..." : "Upgrade Now - ₹499/month"}
+            {loading ? "Processing..." : `Upgrade Now - ${priceLabel}`}
           </button>
           <button
             type="button"
