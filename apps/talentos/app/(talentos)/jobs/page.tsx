@@ -1,22 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import {
-  Search,
-  MapPin,
-  Building2,
-  ExternalLink,
-  Bookmark,
-  BookmarkCheck,
-  Filter,
-  Briefcase,
-  Bot,
-  Loader2,
-  Sparkles,
-  Target,
-} from "lucide-react";
+import { Bot, Bookmark, BookmarkCheck, Briefcase, Building2, ExternalLink, Loader2, MapPin, Search, Sparkles } from "lucide-react";
 
 type Job = {
   job_id: string;
@@ -28,18 +15,17 @@ type Job = {
   salary_max: number | null;
   url: string;
   created: string;
-  is_adtech: boolean;
-  match_keywords: string[];
+  match_score?: number | null;
+  match_reason?: string | null;
 };
 
-function JobCard({
-  job,
-  onSave,
-  isSaved,
-}: {
+type Tab = "search" | "recommended" | "saved";
+
+function JobCard({ job, onSave, isSaved, onRemoveSaved }: {
   job: Job;
   onSave: (j: Job) => void;
   isSaved: boolean;
+  onRemoveSaved?: (id: string) => void;
 }) {
   const formatSalary = (min: number | null, max: number | null) => {
     if (!min && !max) return "Not disclosed";
@@ -62,11 +48,13 @@ function JobCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            {job.is_adtech && (
-              <span className="px-2 py-0.5 rounded text-xs bg-cyan-500/20 text-cyan-400">Ad-Tech</span>
-            )}
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-zinc-500 text-xs">{new Date(job.created).toLocaleDateString()}</span>
+            {job.match_score !== undefined && job.match_score !== null ? (
+              <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/20 text-emerald-400">
+                Match {Math.round(job.match_score)}%
+              </span>
+            ) : null}
           </div>
           <h3 className="text-lg font-semibold text-white group-hover:text-cyan-400 transition-colors">{job.title}</h3>
           <div className="flex items-center gap-4 mt-2 text-sm text-zinc-400">
@@ -80,26 +68,28 @@ function JobCard({
             </span>
           </div>
           <p className="text-zinc-500 text-sm mt-3 line-clamp-2">{job.description}</p>
-          {job.match_keywords?.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {job.match_keywords.slice(0, 5).map((kw, i) => (
-                <span key={i} className="px-2 py-0.5 rounded text-xs bg-white/5 text-zinc-400">
-                  {kw}
-                </span>
-              ))}
-            </div>
-          )}
+          {job.match_reason ? <p className="text-emerald-300 text-xs mt-3">{job.match_reason}</p> : null}
         </div>
         <div className="flex flex-col items-end gap-2">
-          <button
-            type="button"
-            onClick={() => onSave(job)}
-            className={`p-2 rounded-lg transition-all ${
-              isSaved ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            {isSaved ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
-          </button>
+          {onRemoveSaved && isSaved ? (
+            <button
+              type="button"
+              onClick={() => onRemoveSaved(job.job_id)}
+              className="p-2 rounded-lg transition-all bg-red-500/20 text-red-300 hover:bg-red-500/30"
+            >
+              Remove
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onSave(job)}
+              className={`p-2 rounded-lg transition-all ${
+                isSaved ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {isSaved ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
+            </button>
+          )}
           <span className="text-emerald-400 text-sm font-medium whitespace-nowrap">
             {formatSalary(job.salary_min, job.salary_max)}
           </span>
@@ -127,24 +117,56 @@ function JobCard({
 }
 
 export default function JobsPage() {
-  const [searchQuery, setSearchQuery] = useState("programmatic advertising");
-  const [location, setLocation] = useState("us");
-  const [adtechOnly, setAdtechOnly] = useState(true);
+  const [tab, setTab] = useState<Tab>("search");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [location, setLocation] = useState("");
+  const [country, setCountry] = useState("us");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [hasAdzunaKeys, setHasAdzunaKeys] = useState(true);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [savedJobs, setSavedJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecsLoading, setIsRecsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
-  const [config, setConfig] = useState<{ adzuna_enabled?: boolean; adtech_keywords?: string[] } | null>(null);
+  const [authAvailable, setAuthAvailable] = useState(true);
 
   useEffect(() => {
     fetch("/api/jobs/config")
       .then((res) => res.json())
-      .then((data) => setConfig(data))
+      .then((data: { adzuna_enabled?: boolean }) => setHasAdzunaKeys(Boolean(data.adzuna_enabled)))
       .catch(console.error);
   }, []);
 
-  async function searchJobs() {
+  useEffect(() => {
+    const role = new URLSearchParams(window.location.search).get("role");
+    if (role) {
+      setSearchQuery(role);
+    } else {
+      setSearchQuery("software engineer");
+    }
+  }, []);
+
+  async function loadSavedJobs() {
+    try {
+      const res = await fetch("/api/jobs/saved");
+      if (!res.ok) {
+        setAuthAvailable(false);
+        setSavedJobs([]);
+        return;
+      }
+      const data = (await res.json()) as { jobs: Job[] };
+      setSavedJobs(data.jobs ?? []);
+      setAuthAvailable(true);
+    } catch {
+      setSavedJobs([]);
+      setAuthAvailable(false);
+    }
+  }
+
+  async function searchJobs(reset = false) {
+    const targetPage = reset ? 1 : page;
     setIsLoading(true);
     setError("");
     try {
@@ -152,16 +174,18 @@ export default function JobsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          keywords: searchQuery,
+          query: searchQuery,
           location,
-          adtech_only: adtechOnly,
-          results_per_page: 20,
-          page: 1,
+          country,
+          page: targetPage,
         }),
       });
       if (!response.ok) throw new Error("Search failed");
       const data = (await response.json()) as Job[];
-      setJobs(data);
+      const next = reset ? data : [...jobs, ...data];
+      setJobs(next);
+      setHasMore(data.length >= 20);
+      setPage(targetPage + 1);
     } catch (err) {
       console.error(err);
       setError("Failed to search jobs. Please try again.");
@@ -171,52 +195,69 @@ export default function JobsPage() {
   }
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setIsLoading(true);
-      setError("");
-      try {
-        const response = await fetch("/api/jobs/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            keywords: "programmatic advertising",
-            location: "us",
-            adtech_only: true,
-            results_per_page: 20,
-            page: 1,
-          }),
-        });
-        if (!response.ok) throw new Error("Search failed");
-        const data = (await response.json()) as Job[];
-        if (!cancelled) setJobs(data);
-      } catch (err) {
-        console.error(err);
-        if (!cancelled) setError("Failed to search jobs. Please try again.");
-      } finally {
-        if (!cancelled) setIsLoading(false);
+    if (!searchQuery) return;
+    void searchJobs(true);
+    void loadSavedJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, location, country]);
+
+  async function loadRecommendedJobs() {
+    setIsRecsLoading(true);
+    try {
+      const response = await fetch("/api/jobs/recommendations");
+      if (!response.ok) {
+        setRecommendedJobs([]);
+        return;
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const handleSaveJob = (job: Job) => {
-    if (savedJobs.some((j) => j.job_id === job.job_id)) {
-      setSavedJobs((prev) => prev.filter((j) => j.job_id !== job.job_id));
-    } else {
-      setSavedJobs((prev) => [...prev, job]);
+      const data = (await response.json()) as { jobs: Job[] };
+      setRecommendedJobs(data.jobs ?? []);
+    } finally {
+      setIsRecsLoading(false);
     }
-  };
+  }
 
-  const locations = [
-    { value: "us", label: "United States" },
+  async function handleSaveJob(job: Job) {
+    try {
+      const response = await fetch("/api/jobs/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job }),
+      });
+      if (!response.ok) throw new Error("Save failed");
+      await loadSavedJobs();
+    } catch {
+      setError("Please sign in to save jobs.");
+    }
+  }
+
+  async function removeSavedJob(id: string) {
+    try {
+      const response = await fetch(`/api/jobs/saved/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Remove failed");
+      await loadSavedJobs();
+    } catch {
+      setError("Failed to remove saved job.");
+    }
+  }
+
+  const countries = [
+    { value: "us", label: "US" },
+    { value: "gb", label: "UK" },
     { value: "in", label: "India" },
-    { value: "gb", label: "United Kingdom" },
     { value: "au", label: "Australia" },
     { value: "de", label: "Germany" },
+    { value: "fr", label: "France" },
+    { value: "jp", label: "Japan" },
+    { value: "ca", label: "Canada" },
+    { value: "br", label: "Brazil" },
+    { value: "sg", label: "Singapore" },
   ];
+
+  const visibleJobs = useMemo(() => {
+    if (tab === "search") return jobs;
+    if (tab === "recommended") return recommendedJobs;
+    return savedJobs;
+  }, [tab, jobs, recommendedJobs, savedJobs]);
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -253,16 +294,21 @@ export default function JobsPage() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
             <Sparkles size={14} className="text-cyan-400" />
             <span className="text-zinc-400 text-sm">
-              {config?.adzuna_enabled ? "Powered by Adzuna API" : "Demo Mode"}
+              {hasAdzunaKeys ? "Powered by Adzuna API" : "Job search coming soon"}
             </span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-space)] mb-2">
-            Discover Ad-Tech Jobs
+            Discover Jobs
           </h1>
-          <p className="text-zinc-400">Find programmatic, DSP, SSP, and ad operations roles</p>
+          <p className="text-zinc-400">Search, save, and get smart recommendations</p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <button onClick={() => setTab("search")} className={`px-3 py-2 rounded-lg text-sm ${tab === "search" ? "bg-cyan-500/20 text-cyan-300" : "bg-white/5 text-zinc-400"}`}>Search</button>
+            <button onClick={() => { setTab("recommended"); void loadRecommendedJobs(); }} className={`px-3 py-2 rounded-lg text-sm ${tab === "recommended" ? "bg-cyan-500/20 text-cyan-300" : "bg-white/5 text-zinc-400"}`}>Recommended for You</button>
+            <button onClick={() => { setTab("saved"); void loadSavedJobs(); }} className={`px-3 py-2 rounded-lg text-sm ${tab === "saved" ? "bg-cyan-500/20 text-cyan-300" : "bg-white/5 text-zinc-400"}`}>Saved Jobs</button>
+          </div>
           <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative">
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
@@ -270,18 +316,23 @@ export default function JobsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && void searchJobs()}
-                placeholder="Search jobs (e.g., programmatic, DSP, header bidding)"
+                onKeyDown={(e) => e.key === "Enter" && void searchJobs(true)}
+                placeholder="Role or keyword"
                 className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50 transition-all"
-                data-testid="job-search-input"
               />
             </div>
-            <select
+            <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              placeholder="Location (e.g., London, Remote)"
+              className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white"
+            />
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
               className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50 appearance-none cursor-pointer"
             >
-              {locations.map((loc) => (
+              {countries.map((loc) => (
                 <option key={loc.value} value={loc.value} className="bg-zinc-900">
                   {loc.label}
                 </option>
@@ -289,22 +340,9 @@ export default function JobsPage() {
             </select>
             <button
               type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-3 rounded-xl border transition-all flex items-center gap-2 ${
-                showFilters || adtechOnly
-                  ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
-                  : "bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10"
-              }`}
-            >
-              <Filter size={18} />
-              Filters
-            </button>
-            <button
-              type="button"
-              onClick={() => void searchJobs()}
+              onClick={() => void searchJobs(true)}
               disabled={isLoading}
               className="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all disabled:opacity-50 flex items-center gap-2"
-              data-testid="search-jobs-btn"
             >
               {isLoading ? (
                 <>
@@ -319,102 +357,50 @@ export default function JobsPage() {
               )}
             </button>
           </div>
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-3 p-4 rounded-xl bg-white/5 border border-white/10"
-              >
-                <div className="flex items-center gap-6 flex-wrap">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={adtechOnly}
-                      onChange={(e) => setAdtechOnly(e.target.checked)}
-                      className="w-4 h-4 rounded bg-white/10 border-white/20 text-cyan-500 focus:ring-cyan-500/20"
-                    />
-                    <span className="text-zinc-300 text-sm">Ad-Tech roles only</span>
-                  </label>
-                  <div className="flex items-center gap-2 text-zinc-500 text-sm">
-                    <Target size={14} />
-                    Keywords: {config?.adtech_keywords?.slice(0, 5).join(", ")}...
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-zinc-400 text-sm">{isLoading ? "Searching..." : `${jobs.length} jobs found`}</p>
-              {savedJobs.length > 0 && (
-                <span className="text-emerald-400 text-sm flex items-center gap-1">
-                  <BookmarkCheck size={14} />
-                  {savedJobs.length} saved
-                </span>
-              )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {error ? <div className="md:col-span-2 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400">{error}</div> : null}
+          {!hasAdzunaKeys && tab !== "saved" ? (
+            <div className="md:col-span-2 text-center py-16 rounded-xl bg-white/5 border border-white/10">
+              <Briefcase size={42} className="mx-auto text-zinc-600 mb-3" />
+              <p className="text-zinc-300">Job search coming soon</p>
             </div>
-            {error && <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 mb-4">{error}</div>}
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="p-5 rounded-xl bg-white/5 animate-pulse">
-                    <div className="h-4 bg-white/10 rounded w-20 mb-3" />
-                    <div className="h-6 bg-white/10 rounded w-3/4 mb-2" />
-                    <div className="h-4 bg-white/10 rounded w-1/2 mb-4" />
-                    <div className="h-16 bg-white/10 rounded" />
-                  </div>
-                ))}
-              </div>
-            ) : jobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {jobs.map((job, i) => (
-                  <JobCard
-                    key={job.job_id || i}
-                    job={job}
-                    onSave={handleSaveJob}
-                    isSaved={savedJobs.some((j) => j.job_id === job.job_id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <Briefcase size={48} className="mx-auto text-zinc-600 mb-4" />
-                <p className="text-zinc-400">No jobs found. Try different keywords or location.</p>
-              </div>
-            )}
-          </div>
+          ) : null}
+          {tab === "recommended" && isRecsLoading ? (
+            <div className="md:col-span-2 flex items-center justify-center py-16 text-zinc-400">
+              <Loader2 size={18} className="animate-spin mr-2" /> Loading recommendations...
+            </div>
+          ) : null}
+          {visibleJobs.map((job, i) => (
+            <JobCard
+              key={`${job.job_id}-${i}`}
+              job={job}
+              onSave={handleSaveJob}
+              isSaved={savedJobs.some((s) => s.job_id === job.job_id)}
+              onRemoveSaved={tab === "saved" ? removeSavedJob : undefined}
+            />
+          ))}
+          {!isLoading && !isRecsLoading && visibleJobs.length === 0 && (tab === "saved" ? authAvailable : hasAdzunaKeys) ? (
+            <div className="md:col-span-2 text-center py-16">
+              <Briefcase size={40} className="mx-auto text-zinc-600 mb-3" />
+              <p className="text-zinc-400">{tab === "saved" ? "No saved jobs yet." : "No jobs found."}</p>
+            </div>
+          ) : null}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-white/5"
-        >
-          <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link href="/workspace" className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-center">
-              <Target size={24} className="mx-auto text-cyan-400 mb-2" />
-              <p className="text-white font-medium text-sm">Analyze Your Fit</p>
-              <p className="text-zinc-500 text-xs">Upload resume & JD</p>
-            </Link>
-            <Link href="/interview" className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-center">
-              <Bot size={24} className="mx-auto text-purple-400 mb-2" />
-              <p className="text-white font-medium text-sm">Practice Interview</p>
-              <p className="text-zinc-500 text-xs">Mock interview room</p>
-            </Link>
-            <div className="p-4 rounded-xl bg-white/5 text-center opacity-60">
-              <Sparkles size={24} className="mx-auto text-amber-400 mb-2" />
-              <p className="text-white font-medium text-sm">AI Recommendations</p>
-              <p className="text-zinc-500 text-xs">Coming soon</p>
-            </div>
+        {tab === "search" && hasMore ? (
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => void searchJobs(false)}
+              disabled={isLoading}
+              className="px-5 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 disabled:opacity-50"
+            >
+              {isLoading ? "Loading..." : "Load More"}
+            </button>
           </div>
-        </motion.div>
+        ) : null}
       </main>
     </div>
   );

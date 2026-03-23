@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUserFromRequest } from "@/lib/auth";
+import type { NextRequest } from "next/server";
+
+export const dynamic = "force-dynamic";
 
 const jobSchema = z.object({
   job_id: z.string(),
@@ -12,23 +16,24 @@ const jobSchema = z.object({
   salary_max: z.number().nullable().optional(),
   url: z.string(),
   created: z.string(),
-  is_adtech: z.boolean(),
-  match_keywords: z.array(z.string()).optional(),
+  match_score: z.number().nullable().optional(),
+  match_reason: z.string().nullable().optional(),
 });
 
 const schema = z.object({
-  user_id: z.string(),
   job: jobSchema,
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const json = await request.json();
     const parsed = schema.safeParse(json);
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const { user_id, job } = parsed.data;
+    const authUser = await getCurrentUserFromRequest(request);
+    const user_id = authUser.user_id;
+    const { job } = parsed.data;
     const user = await prisma.user.findUnique({ where: { id: user_id } });
     if (!user && user_id.startsWith("guest_")) {
       await prisma.user.create({
@@ -50,13 +55,13 @@ export async function POST(request: Request) {
         location: job.location,
         url: job.url,
         source: "adzuna",
-        matchScore: job.match_keywords?.length ? Math.min(job.match_keywords.length * 10, 100) : null,
+        matchScore: job.match_score ?? null,
       },
       update: {
         title: job.title,
         company: job.company,
         location: job.location,
-        matchScore: job.match_keywords?.length ? Math.min(job.match_keywords.length * 10, 100) : null,
+        matchScore: job.match_score ?? null,
       },
     });
     return NextResponse.json({ success: true, job_id: saved.id });

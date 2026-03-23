@@ -1,34 +1,22 @@
-import { generateId } from "./ids";
 import { prisma } from "./prisma";
+import { generateLLMResponse, hasLlm } from "./llm";
 
-export const ADTECH_KEYWORDS = [
-  "programmatic",
-  "dsp",
-  "ssp",
-  "ad tech",
-  "adtech",
-  "ad operations",
-  "header bidding",
-  "prebid",
-  "rtb",
-  "real-time bidding",
-  "yield optimization",
-  "demand side",
-  "supply side",
-  "ad exchange",
-  "ad server",
-  "google ad manager",
-  "dfp",
-  "dv360",
-  "the trade desk",
-  "amazon ads",
-  "retail media",
-  "advertising technology",
-  "campaign manager",
-  "media buying",
-  "performance marketing",
-  "ad trafficking",
-];
+const COUNTRY_MAP: Record<string, string> = {
+  uk: "gb",
+  gb: "gb",
+  us: "us",
+  in: "in",
+  india: "in",
+  au: "au",
+  de: "de",
+  fr: "fr",
+  jp: "jp",
+  ca: "ca",
+  br: "br",
+  sg: "sg",
+};
+
+export const ADTECH_KEYWORDS: string[] = [];
 
 export type JobSearchResult = {
   job_id: string;
@@ -40,144 +28,73 @@ export type JobSearchResult = {
   salary_max: number | null;
   url: string;
   created: string;
-  is_adtech: boolean;
-  match_keywords: string[];
+  match_score?: number | null;
+  match_reason?: string | null;
 };
 
-function extractAdtechKeywords(text: string): string[] {
-  const lower = text.toLowerCase();
-  return ADTECH_KEYWORDS.filter((k) => lower.includes(k));
+function normalizeCountry(country?: string): string {
+  if (!country) return "us";
+  const key = country.trim().toLowerCase();
+  return COUNTRY_MAP[key] ?? "us";
 }
 
-function isAdtechJob(title: string, description: string): boolean {
-  const combined = `${title} ${description}`.toLowerCase();
-  return ADTECH_KEYWORDS.some((k) => combined.includes(k));
-}
-
-function mockJobs(keywords: string, adtechOnly: boolean): JobSearchResult[] {
+function mockJobs(query: string, location: string): JobSearchResult[] {
   const now = new Date().toISOString();
   const mock: JobSearchResult[] = [
     {
       job_id: "mock_1",
-      title: "Senior Programmatic Specialist",
+      title: `${query || "Senior Marketing Manager"}`,
       company: "Publicis Media",
-      location: "Mumbai, India",
+      location: location || "Remote",
       description:
-        "Looking for experienced programmatic specialists with DSP expertise. Must have experience with DV360, The Trade Desk, and header bidding implementations.",
+        "We're hiring for a high-impact role with cross-functional collaboration, measurable growth goals, and strong communication requirements.",
       salary_min: 1500000,
       salary_max: 2500000,
       url: "https://example.com/job/1",
       created: now,
-      is_adtech: true,
-      match_keywords: ["programmatic", "dsp", "header bidding", "dv360", "the trade desk"],
     },
     {
       job_id: "mock_2",
-      title: "Ad Operations Manager",
+      title: `${query || "Growth Lead"}`,
       company: "GroupM",
-      location: "Bangalore, India",
+      location: location || "Remote",
       description:
-        "Manage ad operations for premium publisher clients. Experience with GAM, Prebid, and yield optimization required.",
+        "Lead strategy and execution with ownership across planning, experimentation, and stakeholder communication.",
       salary_min: 1200000,
       salary_max: 1800000,
       url: "https://example.com/job/2",
       created: now,
-      is_adtech: true,
-      match_keywords: ["ad operations", "prebid", "yield optimization"],
-    },
-    {
-      job_id: "mock_3",
-      title: "Yield Optimization Analyst",
-      company: "InMobi",
-      location: "Bangalore, India",
-      description:
-        "Drive yield optimization strategies for our mobile ad network. Strong analytical skills and understanding of RTB required.",
-      salary_min: 1000000,
-      salary_max: 1600000,
-      url: "https://example.com/job/3",
-      created: now,
-      is_adtech: true,
-      match_keywords: ["yield optimization", "rtb"],
-    },
-    {
-      job_id: "mock_4",
-      title: "DSP Campaign Manager",
-      company: "MediaMath",
-      location: "Delhi, India",
-      description:
-        "Manage programmatic campaigns across multiple DSPs. Experience with audience targeting, bid optimization, and performance analysis.",
-      salary_min: 800000,
-      salary_max: 1400000,
-      url: "https://example.com/job/4",
-      created: now,
-      is_adtech: true,
-      match_keywords: ["programmatic", "dsp", "campaign manager"],
-    },
-    {
-      job_id: "mock_5",
-      title: "Digital Marketing Manager",
-      company: "TCS",
-      location: "Chennai, India",
-      description:
-        "Lead digital marketing initiatives for enterprise clients. Experience with paid media, SEO, and analytics required.",
-      salary_min: 1200000,
-      salary_max: 2000000,
-      url: "https://example.com/job/5",
-      created: now,
-      is_adtech: false,
-      match_keywords: [],
     },
   ];
-
-  let list = adtechOnly ? mock.filter((j) => j.is_adtech) : mock;
-  const kl = keywords.toLowerCase();
-  if (kl) {
-    list = list.filter(
-      (j) => j.title.toLowerCase().includes(kl) || j.description.toLowerCase().includes(kl)
-    );
-  }
-  return list;
+  return mock;
 }
 
-export async function searchJobsApi(
-  keywords: string,
+export async function searchJobs(
+  query: string,
   location: string,
-  page: number,
-  resultsPerPage: number,
-  adtechOnly: boolean
+  country: string,
+  page: number
 ): Promise<JobSearchResult[]> {
   const appId = process.env.ADZUNA_APP_ID ?? "";
   const appKey = process.env.ADZUNA_APP_KEY ?? "";
   const hasAdzuna = Boolean(appId && appKey);
 
   if (!hasAdzuna) {
-    return mockJobs(keywords, adtechOnly);
+    return mockJobs(query, location);
   }
 
-  const countryMap: Record<string, string> = {
-    india: "in",
-    us: "us",
-    usa: "us",
-    "united states": "us",
-    uk: "gb",
-    "united kingdom": "gb",
-    australia: "au",
-    germany: "de",
-    france: "fr",
-  };
-  const country = countryMap[location.toLowerCase()] ?? "in";
-  let searchQuery = keywords;
-  if (adtechOnly) searchQuery = `${searchQuery} programmatic adtech`;
+  const normalizedCountry = normalizeCountry(country);
 
-  const url = new URL(`https://api.adzuna.com/v1/api/jobs/${country}/search/${page}`);
+  const url = new URL(`https://api.adzuna.com/v1/api/jobs/${normalizedCountry}/search/${page}`);
   url.searchParams.set("app_id", appId);
   url.searchParams.set("app_key", appKey);
-  url.searchParams.set("results_per_page", String(resultsPerPage));
-  url.searchParams.set("what", searchQuery);
+  url.searchParams.set("results_per_page", "20");
+  url.searchParams.set("what", query);
+  if (location) url.searchParams.set("where", location);
 
   const res = await fetch(url.toString(), { next: { revalidate: 0 } });
   if (!res.ok) {
-    return mockJobs(keywords, adtechOnly);
+    return mockJobs(query, location);
   }
 
   const data = (await res.json()) as { results?: Record<string, unknown>[] };
@@ -187,8 +104,6 @@ export async function searchJobsApi(
   for (const job of results) {
     const title = String(job.title ?? "");
     const description = String(job.description ?? "");
-    const jobIsAdtech = isAdtechJob(title, description);
-    if (adtechOnly && !jobIsAdtech) continue;
 
     const company =
       typeof job.company === "object" && job.company !== null && "display_name" in job.company
@@ -202,7 +117,7 @@ export async function searchJobsApi(
     const descShort = description.length > 500 ? `${description.slice(0, 500)}...` : description;
 
     jobs.push({
-      job_id: String(job.id ?? generateId("job")),
+      job_id: String(job.id ?? `${title}-${company}`),
       title,
       company,
       location: loc,
@@ -211,25 +126,89 @@ export async function searchJobsApi(
       salary_max: (job.salary_max as number) ?? null,
       url: String(job.redirect_url ?? ""),
       created: String(job.created ?? ""),
-      is_adtech: jobIsAdtech,
-      match_keywords: extractAdtechKeywords(`${title} ${description}`),
     });
   }
 
   return jobs;
 }
 
-export async function getRecommendations(userId: string, limit: number): Promise<JobSearchResult[]> {
-  const resume = await prisma.resume.findFirst({
+export async function getSmartRecommendations(userId: string): Promise<JobSearchResult[]> {
+  const [latestAnalysis, latestResume, user] = await Promise.all([
+    prisma.analysis.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.resume.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.user.findUnique({ where: { id: userId } }),
+  ]);
+
+  if (!latestAnalysis) return [];
+
+  const country = user?.country ?? "us";
+  const baseJobs = await searchJobs(
+    latestAnalysis.roleName || "software engineer",
+    user?.targetRole ?? "",
+    country,
+    1
+  );
+
+  if (!hasLlm() || !latestResume) return baseJobs;
+
+  const resumeSummary = latestResume.rawText.slice(0, 1000);
+  const skills = JSON.stringify(latestResume.skills ?? {});
+  const scoredJobs: JobSearchResult[] = [];
+
+  for (const job of baseJobs.slice(0, 20)) {
+    try {
+      const llmRaw = await generateLLMResponse(
+        "You are a strict JSON scorer. Return only valid JSON.",
+        `Given this candidate's profile: ${resumeSummary}, skills: ${skills}
+Rate this job's match (0-100) and give a 1-line reason:
+Job: ${job.title} at ${job.company} — ${job.description}
+Return JSON: { "matchScore": number, "reason": "1 line" }`,
+        true
+      );
+      const parsed = JSON.parse((llmRaw.match(/\{[\s\S]*\}/) || ["{}"])[0]) as {
+        matchScore?: number;
+        reason?: string;
+      };
+      scoredJobs.push({
+        ...job,
+        match_score: Math.max(0, Math.min(100, Number(parsed.matchScore ?? 0))),
+        match_reason: parsed.reason ?? "",
+      });
+    } catch {
+      scoredJobs.push({ ...job, match_score: null, match_reason: null });
+    }
+  }
+
+  return scoredJobs.sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0));
+}
+
+export async function getRecommendations(userId: string, _limit = 20): Promise<JobSearchResult[]> {
+  return getSmartRecommendations(userId);
+}
+
+export async function getSavedJobs(userId: string) {
+  const saved = await prisma.savedJob.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    select: { skills: true },
+    take: 200,
   });
-  const parsed = resume?.skills as { skills?: string[] } | string[] | null | undefined;
-  const skills = Array.isArray(parsed) ? parsed : parsed?.skills;
-  if (!skills?.length) {
-    return searchJobsApi("programmatic advertising", "india", 1, limit, true);
-  }
-  const searchKeywords = skills.slice(0, 5).join(" ");
-  return searchJobsApi(searchKeywords, "india", 1, limit, true);
+  return saved.map((j) => ({
+    job_id: j.id,
+    title: j.title,
+    company: j.company,
+    location: j.location ?? "",
+    description: "",
+    salary_min: null,
+    salary_max: null,
+    url: j.url,
+    created: j.createdAt.toISOString(),
+    match_score: j.matchScore,
+    match_reason: null,
+  }));
 }
