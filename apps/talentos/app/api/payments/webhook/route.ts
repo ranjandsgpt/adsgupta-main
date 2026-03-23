@@ -38,10 +38,19 @@ export async function POST(request: NextRequest) {
     const orderId = paymentEntity?.order_id as string | undefined;
     const paymentId = paymentEntity?.id as string | undefined;
     if (orderId) {
-      await prisma.payment.updateMany({
+      const updated = await prisma.payment.updateMany({
         where: { razorpayOrderId: orderId },
         data: { razorpayPaymentId: paymentId, status: "captured" },
       });
+      if (updated.count > 0) {
+        const payment = await prisma.payment.findUnique({ where: { razorpayOrderId: orderId } });
+        if (payment) {
+          await prisma.user.update({
+            where: { id: payment.userId },
+            data: { isSubscribed: true, credits: -1 },
+          });
+        }
+      }
     }
   } else if (eventType === "payment.failed") {
     const paymentEntity = eventData.payload?.payment?.entity;

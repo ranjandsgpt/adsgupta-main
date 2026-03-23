@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generatePrepGuide } from "@/lib/prep-guide";
 import { getCompanyIntel } from "@/lib/company-intelligence";
+import { getCurrentUserFromRequest } from "@/lib/auth";
+import { checkCredits } from "@/lib/credits";
+import type { NextRequest } from "next/server";
 
 const TTL_DAYS = 7;
 
@@ -15,8 +18,26 @@ async function ensureCacheTable() {
   `);
 }
 
-export async function GET(_request: Request, { params }: { params: { analysisId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { analysisId: string } }) {
   try {
+    let userId = "";
+    try {
+      const user = await getCurrentUserFromRequest(request);
+      userId = user.user_id;
+    } catch {
+      return NextResponse.json(
+        { error: "upgrade_required", plan: "pro", message: "Prep guides require TalentOS Pro." },
+        { status: 403 }
+      );
+    }
+    const creditCheck = await checkCredits(userId, "prep_guide");
+    if (!creditCheck.allowed) {
+      return NextResponse.json(
+        { error: "upgrade_required", plan: "pro", message: creditCheck.message },
+        { status: 403 }
+      );
+    }
+
     await ensureCacheTable();
     const analysisId = params.analysisId;
 

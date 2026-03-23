@@ -1,33 +1,22 @@
 import { prisma } from "./prisma";
 import type { User } from "@prisma/client";
+import { PLANS } from "./plans";
 
 export const PRICING: Record<
   string,
   { amount: number; currency: string; name: string; description: string }
 > = {
-  pro_monthly: {
-    amount: 99900,
+  pro_inr_monthly: {
+    amount: PLANS.pro.priceINR * 100,
     currency: "INR",
-    name: "TalentOS Pro Monthly",
-    description: "Unlimited interviews, premium AI analysis, job discovery",
+    name: "TalentOS Professional",
+    description: "Professional monthly subscription",
   },
-  pro_yearly: {
-    amount: 799900,
-    currency: "INR",
-    name: "TalentOS Pro Yearly",
-    description: "Best value - 2 months free!",
-  },
-  credits_10: {
-    amount: 29900,
-    currency: "INR",
-    name: "10 Credits Pack",
-    description: "10 additional analysis credits",
-  },
-  pro_trial: {
-    amount: 100,
-    currency: "INR",
-    name: "Pro Trial",
-    description: "Try TalentOS Pro for just ₹1",
+  pro_usd_monthly: {
+    amount: Math.round(PLANS.pro.priceUSD * 100),
+    currency: "USD",
+    name: "TalentOS Professional",
+    description: "Professional monthly subscription",
   },
 };
 
@@ -38,12 +27,12 @@ export async function ensureUserForPayment(userId: string): Promise<User | null>
   if (userId.startsWith("guest_")) {
     const doc = await prisma.user.create({
       data: {
-      id: userId,
-      email: `${userId}@guest.talentos.local`,
-      name: "Guest",
-      credits: 3,
-      isSubscribed: false,
-      passwordHash: "guest_account_no_password",
+        id: userId,
+        email: `${userId}@guest.talentos.local`,
+        name: "Guest",
+        credits: PLANS.free.limits.analyses,
+        isSubscribed: false,
+        passwordHash: "guest_account_no_password",
       },
     });
     return doc;

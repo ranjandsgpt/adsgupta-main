@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCompanyIntel } from "@/lib/company-intelligence";
+import { getCurrentUserFromRequest } from "@/lib/auth";
+import { checkCredits } from "@/lib/credits";
+import type { NextRequest } from "next/server";
 
 const TTL_DAYS = 7;
 
@@ -14,8 +17,26 @@ async function ensureCacheTable() {
   `);
 }
 
-export async function GET(_request: Request, { params }: { params: { name: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { name: string } }) {
   try {
+    let userId = "";
+    try {
+      const user = await getCurrentUserFromRequest(request);
+      userId = user.user_id;
+    } catch {
+      return NextResponse.json(
+        { error: "upgrade_required", plan: "pro", message: "Company intelligence requires TalentOS Pro." },
+        { status: 403 }
+      );
+    }
+    const creditCheck = await checkCredits(userId, "company_intel");
+    if (!creditCheck.allowed) {
+      return NextResponse.json(
+        { error: "upgrade_required", plan: "pro", message: creditCheck.message },
+        { status: 403 }
+      );
+    }
+
     const companyName = decodeURIComponent(params.name);
     if (!companyName) {
       return NextResponse.json({ detail: "Company name is required" }, { status: 400 });

@@ -4,15 +4,18 @@ import Razorpay from "razorpay";
 import { prisma } from "@/lib/prisma";
 import { PRICING, ensureUserForPayment } from "@/lib/payments";
 import { generateId } from "@/lib/ids";
+import { getCurrentUserFromRequest } from "@/lib/auth";
+import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
 const schema = z.object({
-  plan_type: z.string(),
-  user_id: z.string(),
+  plan: z.enum(["pro"]).default("pro"),
+  currency: z.enum(["INR", "USD"]).optional(),
+  user_id: z.string().optional(),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const keyId = process.env.RAZORPAY_KEY_ID ?? "";
     const keySecret = process.env.RAZORPAY_KEY_SECRET ?? "";
@@ -25,9 +28,16 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const { plan_type, user_id } = parsed.data;
-    if (!PRICING[plan_type]) {
-      return NextResponse.json({ detail: `Invalid plan type. Available: ${Object.keys(PRICING).join(", ")}` }, { status: 400 });
+    const { currency } = parsed.data;
+
+    let user_id = parsed.data.user_id ?? "";
+    if (!user_id) {
+      try {
+        const user = await getCurrentUserFromRequest(request);
+        user_id = user.user_id;
+      } catch {
+        user_id = `guest_${Date.now()}`;
+      }
     }
 
     const user = await ensureUserForPayment(user_id);
@@ -35,7 +45,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: "User not found" }, { status: 404 });
     }
 
-    const plan = PRICING[plan_type];
+    const priceKey = currency === "USD" ? "pro_usd_monthly" : "pro_inr_monthly";
+    const plan = PRICING[priceKey];
     const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret });
 
     const order = await rzp.orders.create({
@@ -44,7 +55,7 @@ export async function POST(request: Request) {
       receipt: `talentos_${user_id}_${generateId("ord")}`,
       notes: {
         user_id,
-        plan_type,
+        plan_type: "pro",
       },
     });
 
@@ -55,7 +66,7 @@ export async function POST(request: Request) {
       razorpayOrderId: order.id,
       amount: plan.amount,
       currency: plan.currency,
-      plan: plan_type,
+      plan: "pro",
       status: "created",
       },
     });

@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { NextRequest } from "next/server";
 import { startInterview } from "@/lib/interview-engine";
 import { getCurrentUserFromRequest } from "@/lib/auth";
+import { checkCredits } from "@/lib/credits";
 
 const schema = z.object({
   analysisId: z.string(),
@@ -27,6 +28,13 @@ export async function POST(request: NextRequest) {
     }
     if (!userId) {
       return NextResponse.json({ detail: "Missing user identity" }, { status: 400 });
+    }
+    const creditCheck = await checkCredits(userId, "interview");
+    if (!creditCheck.allowed) {
+      return NextResponse.json(
+        { error: "upgrade_required", plan: "pro", message: creditCheck.message },
+        { status: 403 }
+      );
     }
 
     const result = await startInterview(parsed.data.analysisId, parsed.data.persona, userId);

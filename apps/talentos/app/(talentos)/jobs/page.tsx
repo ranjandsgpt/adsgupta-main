@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Bot, Bookmark, BookmarkCheck, Briefcase, Building2, ExternalLink, Loader2, MapPin, Search, Sparkles } from "lucide-react";
+import { Paywall } from "@/components/Paywall";
 
 type Job = {
   job_id: string;
@@ -131,6 +132,65 @@ export default function JobsPage() {
   const [isRecsLoading, setIsRecsLoading] = useState(false);
   const [error, setError] = useState("");
   const [authAvailable, setAuthAvailable] = useState(true);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [paywallMessage, setPaywallMessage] = useState("TalentOS Pro feature");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  async function upgradeToPro() {
+    setCheckoutLoading(true);
+    try {
+      if (!window.Razorpay) {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://checkout.razorpay.com/v1/checkout.js";
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error("Unable to load Razorpay"));
+          document.body.appendChild(s);
+        });
+      }
+      const orderRes = await fetch("/api/payments/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "pro", currency: "INR" }),
+      });
+      if (!orderRes.ok) throw new Error("Unable to start payment");
+      const order = (await orderRes.json()) as {
+        order_id: string;
+        key_id: string;
+        amount: number;
+        currency: string;
+        description: string;
+      };
+      const RazorpayCtor = window.Razorpay;
+      if (!RazorpayCtor) throw new Error("Razorpay unavailable");
+      const rz = new RazorpayCtor({
+        key: order.key_id,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.order_id,
+        name: "TalentOS",
+        description: order.description,
+        handler: async function (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) {
+          await fetch("/api/payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          });
+          setPaywallOpen(false);
+          void loadRecommendedJobs();
+        },
+      });
+      rz.open();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Unable to upgrade now.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
 
   useEffect(() => {
     fetch("/api/jobs/config")
@@ -206,6 +266,11 @@ export default function JobsPage() {
     try {
       const response = await fetch("/api/jobs/recommendations");
       if (!response.ok) {
+        if (response.status === 403) {
+          const err = (await response.json()) as { message?: string };
+          setPaywallMessage(err.message || "AI job recommendations");
+          setPaywallOpen(true);
+        }
         setRecommendedJobs([]);
         return;
       }
@@ -402,6 +467,15 @@ export default function JobsPage() {
           </div>
         ) : null}
       </main>
+      <Paywall
+        open={paywallOpen}
+        featureName={paywallMessage}
+        onUpgrade={() => {
+          void upgradeToPro();
+        }}
+        loading={checkoutLoading}
+        onClose={() => setPaywallOpen(false)}
+      />
     </div>
   );
 }

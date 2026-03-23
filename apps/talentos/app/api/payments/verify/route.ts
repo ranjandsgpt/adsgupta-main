@@ -9,7 +9,6 @@ const schema = z.object({
   razorpay_order_id: z.string(),
   razorpay_payment_id: z.string(),
   razorpay_signature: z.string(),
-  user_id: z.string(),
 });
 
 export async function POST(request: Request) {
@@ -24,7 +23,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, user_id } = parsed.data;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = parsed.data;
 
     const payload = `${razorpay_order_id}|${razorpay_payment_id}`;
     const expected = createHmac("sha256", secret).update(payload).digest("hex");
@@ -46,21 +45,13 @@ export async function POST(request: Request) {
     });
 
     const planType = payment.plan;
-
-    if (["pro_monthly", "pro_yearly", "pro_trial"].includes(planType)) {
-      await prisma.user.update({
-        where: { id: user_id },
-        data: { isSubscribed: true },
-      });
-    } else if (planType === "credits_10") {
-      await prisma.user.update({
-        where: { id: user_id },
-        data: { credits: { increment: 10 } },
-      });
-    }
+    await prisma.user.update({
+      where: { id: payment.userId },
+      data: { isSubscribed: true, credits: -1 },
+    });
 
     const updatedUser = await prisma.user.findUnique({
-      where: { id: user_id },
+      where: { id: payment.userId },
       select: { id: true, email: true, name: true, credits: true, isSubscribed: true },
     });
 

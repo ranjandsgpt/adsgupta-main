@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Bot, Download, Loader2, ArrowUpDown } from "lucide-react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import { Paywall } from "@/components/Paywall";
 
 type PrepPayload = {
   companyIntel: {
@@ -36,6 +37,8 @@ export default function PrepGuidePage() {
   const [error, setError] = useState("");
   const [checklistState, setChecklistState] = useState<Record<number, boolean>>({});
   const [sortAsc, setSortAsc] = useState(true);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,7 +54,10 @@ export default function PrepGuidePage() {
       }
       try {
         const res = await fetch(`/api/prep-guide/${analysisId}`);
-        if (!res.ok) throw new Error("Failed to fetch prep guide");
+        if (!res.ok) {
+          if (res.status === 403) setPaywallOpen(true);
+          throw new Error("Failed to fetch prep guide");
+        }
         const json = (await res.json()) as { payload?: PrepPayload };
         setData(json.payload ?? null);
       } catch (e) {
@@ -84,6 +90,60 @@ export default function PrepGuidePage() {
     pdf.save(`prep-guide-${analysisId || "talentos"}.pdf`);
   }
 
+  async function upgradeToPro() {
+    setCheckoutLoading(true);
+    try {
+      if (!window.Razorpay) {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://checkout.razorpay.com/v1/checkout.js";
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error("Unable to load Razorpay"));
+          document.body.appendChild(s);
+        });
+      }
+      const orderRes = await fetch("/api/payments/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "pro", currency: "INR" }),
+      });
+      if (!orderRes.ok) throw new Error("Unable to start payment");
+      const order = (await orderRes.json()) as {
+        order_id: string;
+        key_id: string;
+        amount: number;
+        currency: string;
+        description: string;
+      };
+      const RazorpayCtor = window.Razorpay;
+      if (!RazorpayCtor) throw new Error("Razorpay unavailable");
+      const rz = new RazorpayCtor({
+        key: order.key_id,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.order_id,
+        name: "TalentOS",
+        description: order.description,
+        handler: async function (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) {
+          await fetch("/api/payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          });
+          setPaywallOpen(false);
+          window.location.reload();
+        },
+      });
+      rz.open();
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
@@ -96,6 +156,15 @@ export default function PrepGuidePage() {
     return (
       <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
         <p>{error || "Prep guide unavailable."}</p>
+        <Paywall
+          open={paywallOpen}
+          featureName="Prep Guide"
+          loading={checkoutLoading}
+          onUpgrade={() => {
+            void upgradeToPro();
+          }}
+          onClose={() => setPaywallOpen(false)}
+        />
       </div>
     );
   }
@@ -218,6 +287,15 @@ export default function PrepGuidePage() {
           </div>
         </section>
       </div>
+      <Paywall
+        open={paywallOpen}
+        featureName="Prep Guide"
+        loading={checkoutLoading}
+        onUpgrade={() => {
+          void upgradeToPro();
+        }}
+        onClose={() => setPaywallOpen(false)}
+      />
     </div>
   );
 }

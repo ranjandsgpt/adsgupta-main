@@ -4,6 +4,7 @@ import { parseResumeBuffer } from "@/lib/resume-parser";
 import { analyzeMatch, analyzeResume } from "@/lib/resume-intelligence";
 import { getCurrentUserFromRequest } from "@/lib/auth";
 import type { NextRequest } from "next/server";
+import { checkCredits, deductCredit } from "@/lib/credits";
 
 async function resolveUserId(request: NextRequest, formData: FormData): Promise<string | null> {
   try {
@@ -21,6 +22,13 @@ export async function POST(request: NextRequest) {
     const userId = await resolveUserId(request, formData);
     if (!userId) {
       return NextResponse.json({ detail: "Missing userId" }, { status: 400 });
+    }
+    const creditCheck = await checkCredits(userId, "analysis");
+    if (!creditCheck.allowed) {
+      return NextResponse.json(
+        { error: "upgrade_required", plan: "pro", message: creditCheck.message },
+        { status: 403 }
+      );
     }
 
     const jobDescription = formData.get("jobDescription");
@@ -96,6 +104,7 @@ export async function POST(request: NextRequest) {
           summary: `${match.summary}\n\nPrep Advice: ${match.prepAdvice}`,
         },
       });
+      await deductCredit(userId, "analysis");
 
       return NextResponse.json({
         id: analysis.id,
