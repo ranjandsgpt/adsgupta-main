@@ -435,6 +435,14 @@ export default function InterviewPage() {
                     Jarvis Report
                   </h3>
                   <pre className="text-xs text-zinc-300 whitespace-pre-wrap">{JSON.stringify(report, null, 2)}</pre>
+                  {analysisId ? (
+                    <Link
+                      href={`/prep?analysisId=${analysisId}`}
+                      className="inline-block mt-3 px-3 py-2 rounded-lg bg-purple-500/20 text-purple-100 hover:bg-purple-500/30 text-sm"
+                    >
+                      Open Prep Guide
+                    </Link>
+                  ) : null}
                 </div>
               ) : null}
               <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-xs text-zinc-300">

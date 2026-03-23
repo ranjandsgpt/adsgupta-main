@@ -353,6 +353,12 @@ export default function AnalysisPage() {
               <Briefcase size={18} />
               Search Related Jobs
             </Link>
+            <Link
+              href={`/prep?analysisId=${analysis.id}`}
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-purple-500/20 text-purple-100 font-semibold hover:bg-purple-500/30 transition-all"
+            >
+              Prep Guide
+            </Link>
             </div>
           </motion.div>
         </div>
