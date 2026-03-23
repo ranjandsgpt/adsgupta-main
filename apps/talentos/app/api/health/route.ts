@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   let database = "disconnected";
   try {
-    const db = await getDb();
-    await db.command({ ping: 1 });
-    database = "connected";
+    if (process.env.POSTGRES_PRISMA_URL && process.env.POSTGRES_URL) {
+      await prisma.$queryRaw`SELECT 1`;
+      database = "connected";
+    }
   } catch {
     database = "disconnected";
   }

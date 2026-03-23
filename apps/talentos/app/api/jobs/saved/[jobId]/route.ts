@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 export async function DELETE(request: NextRequest, { params }: { params: { jobId: string } }) {
   try {
@@ -8,9 +8,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { jobId
     if (!userId) {
       return NextResponse.json({ detail: "user_id query required" }, { status: 400 });
     }
-    const db = await getDb();
-    const r = await db.collection("saved_jobs").deleteOne({ job_id: params.jobId, user_id: userId });
-    if (r.deletedCount === 0) {
+    const r = await prisma.savedJob.deleteMany({ where: { id: params.jobId, userId } });
+    if (r.count === 0) {
       return NextResponse.json({ detail: "Job not found" }, { status: 404 });
     }
     return NextResponse.json({ success: true });

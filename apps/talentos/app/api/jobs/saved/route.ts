@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 /** List saved jobs — was GET /api/jobs/saved/:user_id in FastAPI */
 export async function GET(request: NextRequest) {
@@ -9,13 +9,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ detail: "user_id query required" }, { status: 400 });
   }
   try {
-    const db = await getDb();
-    const jobs = await db
-      .collection("saved_jobs")
-      .find({ user_id: userId }, { projection: { _id: 0 } })
-      .sort({ created_at: -1 })
-      .limit(50)
-      .toArray();
+    const jobsRaw = await prisma.savedJob.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+    const jobs = jobsRaw.map((j) => ({
+      job_id: j.id,
+      user_id: j.userId,
+      title: j.title,
+      company: j.company,
+      location: j.location ?? "",
+      url: j.url,
+      source: j.source,
+      match_score: j.matchScore,
+      created_at: j.createdAt.toISOString(),
+    }));
     return NextResponse.json({ jobs });
   } catch (e) {
     console.error(e);

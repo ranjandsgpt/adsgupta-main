@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 import { createJwtToken, sessionCookieOptions } from "@/lib/auth";
-import { generateId } from "@/lib/ids";
 
 export const runtime = "nodejs";
 
@@ -21,35 +20,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
     const { email, password, name } = parsed.data;
-    const db = await getDb();
 
-    const existing = await db.collection("users").findOne({ email }, { projection: { _id: 0 } });
+    const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json({ detail: "Email already registered" }, { status: 400 });
     }
 
-    const userId = generateId("user");
     const passwordHash = await bcrypt.hash(password, 12);
-    const now = new Date().toISOString();
-
-    await db.collection("users").insertOne({
-      user_id: userId,
+    const user = await prisma.user.create({
+      data: {
       email,
       name,
-      picture: null,
-      auth_provider: "jwt",
-      password_hash: passwordHash,
-      is_pro: false,
+      passwordHash,
+      isSubscribed: false,
       credits: 3,
-      created_at: now,
-      updated_at: now,
+      },
     });
 
-    const token = await createJwtToken(userId, email);
+    const token = await createJwtToken(user.id, email);
     const res = NextResponse.json({
       access_token: token,
       expires_in: 168 * 3600,
-      user: { user_id: userId, email, name, picture: null },
+      user: { user_id: user.id, email, name, picture: null },
     });
     res.cookies.set("session_token", token, sessionCookieOptions());
     return res;

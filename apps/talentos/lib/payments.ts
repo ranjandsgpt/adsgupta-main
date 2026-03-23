@@ -1,5 +1,5 @@
-import type { Db } from "mongodb";
-import { generateId } from "./ids";
+import { prisma } from "./prisma";
+import type { User } from "@prisma/client";
 
 export const PRICING: Record<
   string,
@@ -31,24 +31,21 @@ export const PRICING: Record<
   },
 };
 
-export async function ensureUserForPayment(db: Db, userId: string): Promise<Record<string, unknown> | null> {
-  const existing = await db.collection("users").findOne({ user_id: userId }, { projection: { _id: 0 } });
-  if (existing) return existing as Record<string, unknown>;
+export async function ensureUserForPayment(userId: string): Promise<User | null> {
+  const existing = await prisma.user.findUnique({ where: { id: userId } });
+  if (existing) return existing;
 
   if (userId.startsWith("guest_")) {
-    const now = new Date().toISOString();
-    const doc = {
-      user_id: userId,
+    const doc = await prisma.user.create({
+      data: {
+      id: userId,
       email: `${userId}@guest.talentos.local`,
       name: "Guest",
-      auth_provider: "guest",
       credits: 3,
-      is_pro: false,
-      picture: null,
-      created_at: now,
-      updated_at: now,
-    };
-    await db.collection("users").insertOne(doc);
+      isSubscribed: false,
+      passwordHash: "guest_account_no_password",
+      },
+    });
     return doc;
   }
 

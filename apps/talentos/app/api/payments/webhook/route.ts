@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import crypto from "crypto";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
@@ -32,27 +32,25 @@ export async function POST(request: NextRequest) {
   }
 
   const eventType = eventData.event;
-  const db = await getDb();
-  const now = new Date().toISOString();
 
   if (eventType === "payment.captured") {
     const paymentEntity = eventData.payload?.payment?.entity;
     const orderId = paymentEntity?.order_id as string | undefined;
     const paymentId = paymentEntity?.id as string | undefined;
     if (orderId) {
-      await db.collection("payments").updateOne(
-        { razorpay_order_id: orderId },
-        { $set: { razorpay_payment_id: paymentId, status: "captured", updated_at: now } }
-      );
+      await prisma.payment.updateMany({
+        where: { razorpayOrderId: orderId },
+        data: { razorpayPaymentId: paymentId, status: "captured" },
+      });
     }
   } else if (eventType === "payment.failed") {
     const paymentEntity = eventData.payload?.payment?.entity;
     const orderId = paymentEntity?.order_id as string | undefined;
     if (orderId) {
-      await db.collection("payments").updateOne(
-        { razorpay_order_id: orderId },
-        { $set: { status: "failed", updated_at: now } }
-      );
+      await prisma.payment.updateMany({
+        where: { razorpayOrderId: orderId },
+        data: { status: "failed" },
+      });
     }
   }
 

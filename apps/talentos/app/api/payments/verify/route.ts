@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createHmac } from "crypto";
 import { z } from "zod";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
@@ -32,40 +32,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: "Invalid payment signature" }, { status: 400 });
     }
 
-    const db = await getDb();
-    const payment = await db.collection("payments").findOne({ razorpay_order_id }, { projection: { _id: 0 } });
+    const payment = await prisma.payment.findUnique({ where: { razorpayOrderId: razorpay_order_id } });
     if (!payment) {
       return NextResponse.json({ detail: "Payment order not found" }, { status: 404 });
     }
 
-    const now = new Date().toISOString();
-    await db.collection("payments").updateOne(
-      { razorpay_order_id },
-      {
-        $set: {
-          razorpay_payment_id,
-          razorpay_signature,
-          status: "captured",
-          updated_at: now,
-        },
-      }
-    );
+    await prisma.payment.update({
+      where: { razorpayOrderId: razorpay_order_id },
+      data: {
+        razorpayPaymentId: razorpay_payment_id,
+        status: "captured",
+      },
+    });
 
-    const planType = payment.plan_type as string;
-    const updateFields: Record<string, unknown> = { updated_at: now };
+    const planType = payment.plan;
 
     if (["pro_monthly", "pro_yearly", "pro_trial"].includes(planType)) {
-      updateFields.is_pro = true;
-      updateFields.razorpay_sub_id = razorpay_payment_id;
+      await prisma.user.update({
+        where: { id: user_id },
+        data: { isSubscribed: true },
+      });
     } else if (planType === "credits_10") {
-      const user = await db.collection("users").findOne({ user_id }, { projection: { _id: 0 } });
-      const current = (user?.credits as number) ?? 0;
-      updateFields.credits = current + 10;
+      await prisma.user.update({
+        where: { id: user_id },
+        data: { credits: { increment: 10 } },
+      });
     }
 
-    await db.collection("users").updateOne({ user_id }, { $set: updateFields });
-
-    const updatedUser = await db.collection("users").findOne({ user_id }, { projection: { _id: 0, password_hash: 0 } });
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: user_id },
+      select: { id: true, email: true, name: true, credits: true, isSubscribed: true },
+    });
 
     return NextResponse.json({
       success: true,

@@ -1,7 +1,8 @@
-import type { Db } from "mongodb";
-import { callLlm, hasLlm } from "./llm";
+import { prisma } from "./prisma";
+import { generateLLMResponse, hasLlm } from "./llm";
 import { ADTECH_KNOWLEDGE_BASE, INTERVIEW_SYSTEM_PROMPT } from "./adtech-knowledge";
 import { generateId } from "./ids";
+import type { Prisma } from "@prisma/client";
 
 const skillPatterns: RegExp[] = [
   /programmatic/i,
@@ -147,7 +148,11 @@ Provide:
 Format as JSON:
 {"high_impact_swaps": ["swap1", "swap2", "swap3"], "missing_keywords": ["kw1", "kw2", "kw3", "kw4", "kw5"], "summary": "..."}
 `;
-    const llmResponse = await callLlm(llmPrompt, "You are an expert resume optimizer. Always respond with valid JSON.");
+    const llmResponse = await generateLLMResponse(
+      "You are an expert resume optimizer. Always respond with valid JSON.",
+      llmPrompt,
+      true
+    );
     if (llmResponse) {
       try {
         const jsonMatch = llmResponse.match(/\{[\s\S]*\}/);
@@ -252,7 +257,10 @@ MISSING KEYWORDS:
 
 SUMMARY: [one sentence]
 `;
-    const response = await callLlm(prompt, "You are a senior ad-tech recruiter optimizing resumes.");
+    const response = await generateLLMResponse(
+      "You are a senior ad-tech recruiter optimizing resumes.",
+      prompt
+    );
     if (response) {
       const lines = response.split("\n");
       let inSwaps = false;
@@ -305,12 +313,22 @@ SUMMARY: [one sentence]
   };
 }
 
-export async function startInterviewSession(
-  db: Db,
-  userId: string,
-  jobMatchId: string | null | undefined,
-  mode: string
-) {
+export async function startInterviewSession(userId: string, jobMatchId: string | null | undefined, mode: string) {
+  const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+  if (!existingUser && userId.startsWith("guest_")) {
+    await prisma.user.create({
+      data: {
+        id: userId,
+        email: `${userId}@guest.talentos.local`,
+        name: "Guest",
+        passwordHash: "guest_account_no_password",
+        credits: 3,
+      },
+    });
+  } else if (!existingUser) {
+    throw new Error("USER_NOT_FOUND");
+  }
+
   let firstQuestion: string;
   let categoryName: string;
   if (mode === "adtech") {
@@ -342,7 +360,20 @@ export async function startInterviewSession(
     created_at: now,
   };
 
-  await db.collection("interview_sessions").insertOne(sessionDoc);
+  await prisma.interview.create({
+    data: {
+      id: sessionId,
+      userId,
+      analysisId: jobMatchId ?? null,
+      persona: mode,
+      status: "active",
+      messages: {
+        transcript: sessionDoc.transcript,
+        question_index: 0,
+        mode,
+      } as Prisma.InputJsonValue,
+    },
+  });
   return {
     session_id: sessionId,
     first_question: firstQuestion,
@@ -353,11 +384,8 @@ export async function startInterviewSession(
 
 type TranscriptEntry = Record<string, unknown>;
 
-export async function processInterviewMessage(db: Db, sessionId: string, userMessage: string) {
-  const session = await db.collection("interview_sessions").findOne(
-    { session_id: sessionId },
-    { projection: { _id: 0 } }
-  );
+export async function processInterviewMessage(sessionId: string, userMessage: string) {
+  const session = await prisma.interview.findUnique({ where: { id: sessionId } });
   if (!session) throw new Error("NOT_FOUND");
   if (session.status === "completed") throw new Error("ALREADY_COMPLETED");
 
@@ -390,7 +418,8 @@ export async function processInterviewMessage(db: Db, sessionId: string, userMes
     ),
   };
 
-  const transcript = [...((session.transcript as TranscriptEntry[]) ?? [])];
+  const messages = (session.messages as { transcript?: TranscriptEntry[]; question_index?: number; mode?: string }) ?? {};
+  const transcript = [...(messages.transcript ?? [])];
   transcript.push({
     role: "user",
     content: userMessage,
@@ -399,8 +428,8 @@ export async function processInterviewMessage(db: Db, sessionId: string, userMes
     timestamp: new Date().toISOString(),
   });
 
-  const questionIndex = (session.question_index as number) + 1;
-  const interviewMode = (session.mode as string) ?? "adtech";
+  const questionIndex = (messages.question_index ?? 0) + 1;
+  const interviewMode = messages.mode ?? session.persona ?? "adtech";
 
   let responseContent: string;
   let categoryName: string;
@@ -424,22 +453,23 @@ Key feedback:
 `;
     categoryName = "Feedback";
 
-    await db.collection("interview_sessions").updateOne(
-      { session_id: sessionId },
-      {
-        $set: {
-          transcript,
-          status,
+    await prisma.interview.update({
+      where: { id: sessionId },
+      data: {
+        status,
+        scores: {
+          star_scores: starScores,
+          filler_count: fillerCount,
           overall_score: overallScore,
-          feedback: {
-            star_scores: starScores,
-            filler_count: fillerCount,
-            overall_score: overallScore,
-          },
-          completed_at: new Date().toISOString(),
-        },
-      }
-    );
+        } as Prisma.InputJsonValue,
+        fillerWords: fillerCount,
+        messages: {
+          transcript,
+          question_index: questionIndex,
+          mode: interviewMode,
+        } as Prisma.InputJsonValue,
+      },
+    });
   } else {
     let nextQ: string;
     if (interviewMode === "adtech" && questionIndex < ADTECH_KNOWLEDGE_BASE.length) {
@@ -461,7 +491,7 @@ With this response: "${userMessage.slice(0, 500)}"
 They didn't include quantifiable results. Generate a brief, probing follow-up question to get specific metrics.
 Keep it under 30 words.
 `;
-      const followUp = await callLlm(followUpPrompt, INTERVIEW_SYSTEM_PROMPT);
+      const followUp = await generateLLMResponse(INTERVIEW_SYSTEM_PROMPT, followUpPrompt);
       responseContent = followUp
         ? `Interesting. ${followUp}\n\nNext question:\n${nextQ}`
         : `Good. Can you quantify the impact of your actions?\n\nMoving on:\n${nextQ}`;
@@ -477,10 +507,18 @@ Keep it under 30 words.
       timestamp: new Date().toISOString(),
     });
 
-    await db.collection("interview_sessions").updateOne(
-      { session_id: sessionId },
-      { $set: { transcript, question_index: questionIndex, status } }
-    );
+    await prisma.interview.update({
+      where: { id: sessionId },
+      data: {
+        status,
+        fillerWords: fillerCount,
+        messages: {
+          transcript,
+          question_index: questionIndex,
+          mode: interviewMode,
+        } as Prisma.InputJsonValue,
+      },
+    });
   }
 
   return {
@@ -529,9 +567,9 @@ export async function evaluateAnswer(question: string, answer: string) {
 
   let followUp: string | null = null;
   if (hasLlm() && resultScore < 60) {
-    followUp = await callLlm(
-      `Generate a brief follow-up question to get specific metrics for this answer: '${answer.slice(0, 300)}...'`,
-      "You are an ad-tech hiring manager. Keep response under 25 words."
+    followUp = await generateLLMResponse(
+      "You are an ad-tech hiring manager. Keep response under 25 words.",
+      `Generate a brief follow-up question to get specific metrics for this answer: '${answer.slice(0, 300)}...'`
     );
   }
 
@@ -563,17 +601,24 @@ export function listQuestions(category: string, difficulty: string) {
   return { questions };
 }
 
-export async function deleteUserData(db: Db, userId: string) {
-  const collections = ["users", "resumes", "job_matches", "interview_sessions", "payments", "saved_jobs"];
-  const deletedCounts: Record<string, number> = {};
-  for (const name of collections) {
-    try {
-      const r = await db.collection(name).deleteMany({ user_id: userId });
-      deletedCounts[name] = r.deletedCount;
-    } catch {
-      deletedCounts[name] = 0;
-    }
-  }
-  await db.collection("user_sessions").deleteMany({ user_id: userId });
-  return { success: true, user_id: userId, deleted_counts: deletedCounts };
+export async function deleteUserData(userId: string) {
+  const [resumes, analyses, interviews, payments, savedJobs] = await Promise.all([
+    prisma.resume.deleteMany({ where: { userId } }),
+    prisma.analysis.deleteMany({ where: { userId } }),
+    prisma.interview.deleteMany({ where: { userId } }),
+    prisma.payment.deleteMany({ where: { userId } }),
+    prisma.savedJob.deleteMany({ where: { userId } }),
+  ]);
+  await prisma.user.deleteMany({ where: { id: userId } });
+  return {
+    success: true,
+    user_id: userId,
+    deleted_counts: {
+      resumes: resumes.count,
+      analyses: analyses.count,
+      interviews: interviews.count,
+      payments: payments.count,
+      saved_jobs: savedJobs.count,
+    },
+  };
 }

@@ -18,6 +18,7 @@ import {
   Play,
   TrendingUp,
   Bot,
+  type LucideIcon,
 } from "lucide-react";
 
 const GlowingBorder = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -65,7 +66,7 @@ const BentoCard = ({
   size = "normal",
   delay = 0,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
   title: string;
   description: string;
   gradient: string;

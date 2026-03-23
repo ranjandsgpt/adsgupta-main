@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getDb } from "@/lib/mongodb";
 import { startInterviewSession } from "@/lib/talentos-service";
 
 const schema = z.object({
@@ -16,11 +15,13 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const db = await getDb();
     const { user_id, job_match_id, mode } = parsed.data;
-    const result = await startInterviewSession(db, user_id, job_match_id, mode);
+    const result = await startInterviewSession(user_id, job_match_id, mode);
     return NextResponse.json(result);
   } catch (e) {
+    if (String(e) === "Error: USER_NOT_FOUND") {
+      return NextResponse.json({ detail: "User not found" }, { status: 404 });
+    }
     console.error(e);
     return NextResponse.json({ detail: String(e) }, { status: 500 });
   }

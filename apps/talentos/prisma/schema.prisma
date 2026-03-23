@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL")
+}
+
+model User {
+  id              String      @id @default(cuid())
+  email           String      @unique
+  name            String?
+  passwordHash    String
+  linkedinUrl     String?
+  currentRole     String?
+  experienceYears Int?
+  targetRole      String?
+  country         String?
+  isSubscribed    Boolean     @default(false)
+  credits         Int         @default(3)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  resumes         Resume[]
+  analyses        Analysis[]
+  interviews      Interview[]
+  payments        Payment[]
+  savedJobs       SavedJob[]
+}
+
+model Resume {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  fileName   String
+  rawText    String     @db.Text
+  skills     Json?
+  experience Json?
+  education  Json?
+  version    String     @default("default")
+  createdAt  DateTime   @default(now())
+  analyses   Analysis[]
+}
+
+model Analysis {
+  id                 String      @id @default(cuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id])
+  resumeId           String
+  resume             Resume      @relation(fields: [resumeId], references: [id])
+  jobDescription     String      @db.Text
+  roleName           String
+  companyName        String?
+  matchScore         Int
+  strengths          Json
+  gaps               Json
+  interviewQuestions Json
+  summary            String      @db.Text
+  createdAt          DateTime    @default(now())
+  interviews         Interview[]
+}
+
+model Interview {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  analysisId  String?
+  analysis    Analysis? @relation(fields: [analysisId], references: [id])
+  persona     String    @default("hiring_manager")
+  difficulty  Int       @default(2)
+  status      String    @default("active")
+  messages    Json      @default("[]")
+  scores      Json?
+  fillerWords Int       @default(0)
+  totalTime   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  razorpayOrderId   String   @unique
+  razorpayPaymentId String?
+  amount            Int
+  currency          String   @default("INR")
+  plan              String
+  status            String   @default("created")
+  createdAt         DateTime @default(now())
+}
+
+model SavedJob {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  title      String
+  company    String
+  location   String?
+  url        String
+  matchScore Int?
+  source     String   @default("adzuna")
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, url])
+}

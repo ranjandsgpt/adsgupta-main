@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getDb } from "@/lib/mongodb";
 import { processInterviewMessage } from "@/lib/talentos-service";
 
 const schema = z.object({
@@ -16,10 +15,9 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const db = await getDb();
     const { session_id, user_message } = parsed.data;
     try {
-      const result = await processInterviewMessage(db, session_id, user_message);
+      const result = await processInterviewMessage(session_id, user_message);
       return NextResponse.json(result);
     } catch (err) {
       if (String(err) === "Error: NOT_FOUND") {

@@ -1,5 +1,5 @@
-import type { Db } from "mongodb";
 import { generateId } from "./ids";
+import { prisma } from "./prisma";
 
 export const ADTECH_KEYWORDS = [
   "programmatic",
@@ -219,12 +219,17 @@ export async function searchJobsApi(
   return jobs;
 }
 
-export async function getRecommendations(db: Db, userId: string, limit: number): Promise<JobSearchResult[]> {
-  const resume = await db.collection("resumes").findOne({ user_id: userId }, { projection: { _id: 0 } });
-  const parsed = resume?.parsed_data as { skills?: string[] } | undefined;
-  if (!parsed?.skills?.length) {
+export async function getRecommendations(userId: string, limit: number): Promise<JobSearchResult[]> {
+  const resume = await prisma.resume.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    select: { skills: true },
+  });
+  const parsed = resume?.skills as { skills?: string[] } | string[] | null | undefined;
+  const skills = Array.isArray(parsed) ? parsed : parsed?.skills;
+  if (!skills?.length) {
     return searchJobsApi("programmatic advertising", "india", 1, limit, true);
   }
-  const searchKeywords = parsed.skills.slice(0, 5).join(" ");
+  const searchKeywords = skills.slice(0, 5).join(" ");
   return searchJobsApi(searchKeywords, "india", 1, limit, true);
 }

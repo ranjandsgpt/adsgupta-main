@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import Razorpay from "razorpay";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 import { PRICING, ensureUserForPayment } from "@/lib/payments";
 import { generateId } from "@/lib/ids";
 
@@ -30,8 +30,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: `Invalid plan type. Available: ${Object.keys(PRICING).join(", ")}` }, { status: 400 });
     }
 
-    const db = await getDb();
-    const user = await ensureUserForPayment(db, user_id);
+    const user = await ensureUserForPayment(user_id);
     if (!user) {
       return NextResponse.json({ detail: "User not found" }, { status: 404 });
     }
@@ -49,17 +48,16 @@ export async function POST(request: Request) {
       },
     });
 
-    const now = new Date().toISOString();
-    await db.collection("payments").insertOne({
-      payment_id: generateId("pay"),
-      user_id,
-      razorpay_order_id: order.id,
+    await prisma.payment.create({
+      data: {
+      id: generateId("pay"),
+      userId: user_id,
+      razorpayOrderId: order.id,
       amount: plan.amount,
       currency: plan.currency,
-      plan_type,
+      plan: plan_type,
       status: "created",
-      created_at: now,
-      updated_at: now,
+      },
     });
 
     return NextResponse.json({
@@ -70,9 +68,9 @@ export async function POST(request: Request) {
       name: plan.name,
       description: plan.description,
       prefill: {
-        name: String(user.name ?? ""),
-        email: String(user.email ?? ""),
-        contact: String(user.phone ?? ""),
+        name: user.name ?? "",
+        email: user.email,
+        contact: "",
       },
     });
   } catch (e) {

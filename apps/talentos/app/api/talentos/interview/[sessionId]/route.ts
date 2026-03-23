@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(_request: Request, { params }: { params: { sessionId: string } }) {
   try {
-    const db = await getDb();
-    const session = await db.collection("interview_sessions").findOne(
-      { session_id: params.sessionId },
-      { projection: { _id: 0 } }
-    );
+    const session = await prisma.interview.findUnique({ where: { id: params.sessionId } });
     if (!session) {
       return NextResponse.json({ detail: "Session not found" }, { status: 404 });
     }
-    return NextResponse.json(session);
+    return NextResponse.json({
+      session_id: session.id,
+      user_id: session.userId,
+      status: session.status,
+      transcript: (session.messages as { transcript?: unknown[] } | null)?.transcript ?? [],
+      question_index: (session.messages as { question_index?: number } | null)?.question_index ?? 0,
+      mode: session.persona,
+      scores: session.scores,
+      filler_words: session.fillerWords,
+      created_at: session.createdAt.toISOString(),
+      updated_at: session.updatedAt.toISOString(),
+    });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ detail: String(e) }, { status: 500 });

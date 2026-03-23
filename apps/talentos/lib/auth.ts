@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies, headers } from "next/headers";
 import type { NextRequest } from "next/server";
-import { getDb } from "./mongodb";
+import { prisma } from "./prisma";
 
 const JWT_ALG = "HS256";
 export const JWT_EXPIRATION_HOURS = 168;
@@ -40,30 +40,13 @@ export type AppUser = Record<string, unknown> & {
 };
 
 function stripPassword(u: Record<string, unknown>): AppUser {
-  const copy = { ...u };
-  delete copy.password_hash;
+  const copy = {
+    user_id: String(u.id ?? ""),
+    email: String(u.email ?? ""),
+    name: (u.name as string | undefined) ?? "",
+    picture: null,
+  };
   return copy as AppUser;
-}
-
-async function findUserBySessionToken(sessionToken: string): Promise<AppUser | null> {
-  const db = await getDb();
-  const session = await db.collection("user_sessions").findOne(
-    { session_token: sessionToken },
-    { projection: { _id: 0 } }
-  );
-  if (!session?.user_id) return null;
-  const expiresAt = session.expires_at;
-  const exp =
-    typeof expiresAt === "string"
-      ? new Date(expiresAt)
-      : expiresAt instanceof Date
-        ? expiresAt
-        : null;
-  if (exp && exp < new Date()) return null;
-
-  const user = await db.collection("users").findOne({ user_id: session.user_id }, { projection: { _id: 0 } });
-  if (!user) return null;
-  return stripPassword(user as Record<string, unknown>);
 }
 
 export function getSessionTokenFromRequest(request: NextRequest): string | undefined {
@@ -77,19 +60,11 @@ export function getSessionTokenFromRequest(request: NextRequest): string | undef
 export async function getCurrentUserFromRequest(request: NextRequest): Promise<AppUser> {
   const sessionToken = getSessionTokenFromRequest(request);
   if (!sessionToken) throw new Error("UNAUTHORIZED");
-
-  if (sessionToken.startsWith("eyJ")) {
-    const payload = await verifyJwtToken(sessionToken);
-    if (!payload) throw new Error("UNAUTHORIZED");
-    const db = await getDb();
-    const user = await db.collection("users").findOne({ user_id: payload.sub }, { projection: { _id: 0 } });
-    if (!user) throw new Error("UNAUTHORIZED");
-    return stripPassword(user as Record<string, unknown>);
-  }
-
-  const fromSession = await findUserBySessionToken(sessionToken);
-  if (!fromSession) throw new Error("UNAUTHORIZED");
-  return fromSession;
+  const payload = await verifyJwtToken(sessionToken);
+  if (!payload) throw new Error("UNAUTHORIZED");
+  const user = await prisma.user.findUnique({ where: { id: payload.sub } });
+  if (!user) throw new Error("UNAUTHORIZED");
+  return stripPassword(user as unknown as Record<string, unknown>);
 }
 
 export async function getSessionTokenFromServerContext(): Promise<string | undefined> {

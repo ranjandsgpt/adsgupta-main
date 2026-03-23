@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(_request: Request, { params }: { params: { userId: string } }) {
   try {
-    const db = await getDb();
-    const user = await db.collection("users").findOne({ user_id: params.userId }, { projection: { _id: 0, password_hash: 0 } });
+    const user = await prisma.user.findUnique({ where: { id: params.userId } });
     if (!user) {
       return NextResponse.json({ detail: "User not found" }, { status: 404 });
     }
     return NextResponse.json({
-      is_pro: user.is_pro ?? false,
+      is_pro: user.isSubscribed ?? false,
       credits: user.credits ?? 3,
-      razorpay_sub_id: user.razorpay_sub_id ?? null,
+      razorpay_sub_id: null,
     });
   } catch (e) {
     console.error(e);

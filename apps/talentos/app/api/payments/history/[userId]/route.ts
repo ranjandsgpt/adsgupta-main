@@ -1,15 +1,24 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/mongodb";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(_request: Request, { params }: { params: { userId: string } }) {
   try {
-    const db = await getDb();
-    const payments = await db
-      .collection("payments")
-      .find({ user_id: params.userId }, { projection: { _id: 0 } })
-      .sort({ created_at: -1 })
-      .limit(50)
-      .toArray();
+    const paymentsRaw = await prisma.payment.findMany({
+      where: { userId: params.userId },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+    const payments = paymentsRaw.map((p) => ({
+      payment_id: p.id,
+      user_id: p.userId,
+      razorpay_order_id: p.razorpayOrderId,
+      razorpay_payment_id: p.razorpayPaymentId,
+      amount: p.amount,
+      currency: p.currency,
+      plan_type: p.plan,
+      status: p.status,
+      created_at: p.createdAt.toISOString(),
+    }));
     return NextResponse.json({ payments });
   } catch (e) {
     console.error(e);

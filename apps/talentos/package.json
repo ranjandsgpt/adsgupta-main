@@ -5,18 +5,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push"
   },
   "dependencies": {
     "@adsgupta/ui": "^0.0.0",
+    "@anthropic-ai/sdk": "^0.58.0",
+    "@google/generative-ai": "^0.21.0",
     "@hookform/resolvers": "^3.9.1",
+    "@prisma/client": "^6.6.0",
     "bcryptjs": "^2.4.3",
     "framer-motion": "^11.15.0",
     "jose": "^5.9.6",
     "lucide-react": "^0.460.0",
-    "mongodb": "^6.12.0",
     "next": "14.2.18",
-    "openai": "^4.77.0",
     "razorpay": "^2.9.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -32,6 +35,7 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.18",
     "postcss": "^8.4.49",
+    "prisma": "^6.6.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   }
