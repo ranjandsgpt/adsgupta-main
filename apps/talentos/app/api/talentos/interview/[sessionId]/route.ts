@@ -1,23 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { PERSONAS } from "@/lib/interview-personas";
 
 export async function GET(_request: Request, { params }: { params: { sessionId: string } }) {
   try {
-    const session = await prisma.interview.findUnique({ where: { id: params.sessionId } });
-    if (!session) {
-      return NextResponse.json({ detail: "Session not found" }, { status: 404 });
+    const interview = await prisma.interview.findUnique({ where: { id: params.sessionId } });
+    if (!interview) {
+      return NextResponse.json({ detail: "Interview not found" }, { status: 404 });
     }
+    const personaKey = interview.persona as keyof typeof PERSONAS;
     return NextResponse.json({
-      session_id: session.id,
-      user_id: session.userId,
-      status: session.status,
-      transcript: (session.messages as { transcript?: unknown[] } | null)?.transcript ?? [],
-      question_index: (session.messages as { question_index?: number } | null)?.question_index ?? 0,
-      mode: session.persona,
-      scores: session.scores,
-      filler_words: session.fillerWords,
-      created_at: session.createdAt.toISOString(),
-      updated_at: session.updatedAt.toISOString(),
+      id: interview.id,
+      userId: interview.userId,
+      analysisId: interview.analysisId,
+      persona: personaKey,
+      personaProfile: PERSONAS[personaKey] ?? PERSONAS.hiring_manager,
+      difficulty: interview.difficulty,
+      status: interview.status,
+      messages: (interview.messages as unknown[]) ?? [],
+      scores: interview.scores,
+      fillerWords: interview.fillerWords,
+      createdAt: interview.createdAt.toISOString(),
+      updatedAt: interview.updatedAt.toISOString(),
     });
   } catch (e) {
     console.error(e);

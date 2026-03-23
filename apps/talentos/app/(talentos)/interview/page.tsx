@@ -1,207 +1,103 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import {
+  AlertCircle,
+  Bot,
+  CheckCircle2,
+  Crown,
+  Loader2,
   Mic,
   MicOff,
-  Bot,
-  User,
-  Loader2,
-  Play,
-  Volume2,
-  VolumeX,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Brain,
+  Send,
   Star,
-  ArrowRight,
-  Home,
-  X,
+  User,
 } from "lucide-react";
+import { PERSONAS, type PersonaKey } from "@/lib/interview-personas";
 
-const STATES = {
-  IDLE: "IDLE",
-  USER_LISTENING: "USER_LISTENING",
-  ANALYZING: "ANALYZING",
-  COMPLETED: "COMPLETED",
-} as const;
+type Message = {
+  role: "interviewer" | "candidate" | "system";
+  content: string;
+  timestamp: string;
+  category?: string;
+  difficulty?: number;
+  evaluation?: {
+    situation: number;
+    task: number;
+    action: number;
+    result: number;
+    total: number;
+    feedback: string;
+  };
+};
 
-type State = (typeof STATES)[keyof typeof STATES];
-
-function AudioVisualizer({ isActive, intensity = 0.5 }: { isActive: boolean; intensity?: number }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const baseRadius = 40;
-      const numCircles = 4;
-      const time = Date.now() / 1000;
-
-      for (let i = 0; i < numCircles; i++) {
-        const phase = (i / numCircles) * Math.PI * 2;
-        const pulse = isActive ? Math.sin(time * 3 + phase) * intensity * 20 : 0;
-        const radius = baseRadius + i * 15 + pulse;
-        const alpha = isActive ? 0.3 - i * 0.05 : 0.1;
-
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-
-      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 50);
-      gradient.addColorStop(0, isActive ? "rgba(6, 182, 212, 0.4)" : "rgba(6, 182, 212, 0.1)");
-      gradient.addColorStop(1, "rgba(6, 182, 212, 0)");
-
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
-      ctx.fillStyle = gradient;
-      ctx.fill();
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-  }, [isActive, intensity]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={200}
-      height={200}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-    />
-  );
-}
-
-function STARScores({ scores }: { scores: Record<string, number> | null }) {
-  const items = [
-    { key: "situation", label: "Situation", color: "from-cyan-500 to-cyan-400" },
-    { key: "task", label: "Task", color: "from-blue-500 to-blue-400" },
-    { key: "action", label: "Action", color: "from-purple-500 to-purple-400" },
-    { key: "result", label: "Result", color: "from-pink-500 to-pink-400" },
-  ];
-
-  return (
-    <div className="space-y-3">
-      <h4 className="text-xs uppercase tracking-wider text-zinc-500 font-medium">STAR Score</h4>
-      {items.map(({ key, label, color }) => (
-        <div key={key} className="space-y-1">
-          <div className="flex justify-between text-sm">
-            <span className="text-zinc-400">{label}</span>
-            <span className="text-white font-mono">{scores?.[key] ?? 0}%</span>
-          </div>
-          <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${scores?.[key] ?? 0}%` }}
-              transition={{ duration: 0.5 }}
-              className={`h-full rounded-full bg-gradient-to-r ${color}`}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function TranscriptMessage({ message, isUser }: { message: { content: string; category?: string }; isUser: boolean }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}
-    >
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-          isUser ? "bg-purple-500/20" : "bg-cyan-500/20"
-        }`}
-      >
-        {isUser ? <User size={16} className="text-purple-400" /> : <Bot size={16} className="text-cyan-400" />}
-      </div>
-      <div
-        className={`max-w-[80%] p-3 rounded-xl ${
-          isUser ? "bg-purple-500/10 text-purple-100" : "bg-white/5 text-zinc-300"
-        }`}
-      >
-        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-        {message.category && <span className="text-xs text-zinc-500 mt-1 block">{message.category}</span>}
-      </div>
-    </motion.div>
-  );
-}
+type SessionState = "setup" | "running" | "report";
 
 export default function InterviewPage() {
-  const [state, setState] = useState<State>(STATES.IDLE);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [transcript, setTranscript] = useState<{ role: string; content: string; category?: string }[]>([]);
+  const [state, setState] = useState<SessionState>("setup");
+  const [analysisId, setAnalysisId] = useState("");
+  const [persona, setPersona] = useState<PersonaKey>("hiring_manager");
+  const [interviewId, setInterviewId] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [currentInput, setCurrentInput] = useState("");
+  const [liveTranscript, setLiveTranscript] = useState("");
+  const [currentDifficulty, setCurrentDifficulty] = useState(2);
+  const [report, setReport] = useState<Record<string, unknown> | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [starScores, setStarScores] = useState<Record<string, number> | null>(null);
-  const [fillerCount, setFillerCount] = useState(0);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [overallScore, setOverallScore] = useState<number | null>(null);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const transcriptRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Web Speech API
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<{
+    continuous: boolean;
+    interimResults: boolean;
+    onresult: ((event: {
+      resultIndex: number;
+      results: { length: number; [i: number]: { isFinal: boolean; [0]: { transcript: string } } };
+    }) => void) | null;
+    onerror: (() => void) | null;
+    start: () => void;
+    stop: () => void;
+  } | null>(null);
 
   useEffect(() => {
-    const w = window as Window & {
-      webkitSpeechRecognition?: new () => {
-        continuous: boolean;
-        interimResults: boolean;
-        onresult: ((ev: Event) => void) | null;
-        onerror: (() => void) | null;
-        start: () => void;
-        stop: () => void;
-      };
-      SpeechRecognition?: new () => {
-        continuous: boolean;
-        interimResults: boolean;
-        onresult: ((ev: Event) => void) | null;
-        onerror: (() => void) | null;
-        start: () => void;
-        stop: () => void;
-      };
-    };
-    const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    const params = new URLSearchParams(window.location.search);
+    setAnalysisId(params.get("analysisId") ?? "");
+  }, []);
+
+  useEffect(() => {
+    const SR = (window as Window & {
+      SpeechRecognition?: new () => NonNullable<typeof recognitionRef.current>;
+      webkitSpeechRecognition?: new () => NonNullable<typeof recognitionRef.current>;
+    }).SpeechRecognition ??
+      (window as Window & {
+        SpeechRecognition?: new () => NonNullable<typeof recognitionRef.current>;
+        webkitSpeechRecognition?: new () => NonNullable<typeof recognitionRef.current>;
+      }).webkitSpeechRecognition;
     if (!SR) return;
     const recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.onresult = (event: Event) => {
-      const ev = event as unknown as {
-        resultIndex: number;
-        results: { length: number; [i: number]: { isFinal: boolean; [0]: { transcript: string } } };
-      };
-      let finalTranscript = "";
-      for (let i = ev.resultIndex; i < ev.results.length; i++) {
-        const t = ev.results[i][0].transcript;
-        if (ev.results[i].isFinal) finalTranscript += t;
+    recognition.onresult = (event: {
+      resultIndex: number;
+      results: { length: number; [i: number]: { isFinal: boolean; [0]: { transcript: string } } };
+    }) => {
+      let finalText = "";
+      let interimText = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const text = event.results[i][0].transcript;
+        if (event.results[i].isFinal) finalText += text;
+        else interimText += text;
       }
-      if (finalTranscript) setCurrentInput((prev) => prev + finalTranscript);
+      if (finalText) setCurrentInput((prev) => `${prev} ${finalText}`.trim());
+      setLiveTranscript(interimText);
     };
-    recognition.onerror = () => setIsRecording(false);
+    recognition.onerror = () => {
+      setIsRecording(false);
+      setLiveTranscript("");
+    };
     recognitionRef.current = recognition;
     return () => recognition.stop();
   }, []);
@@ -210,10 +106,15 @@ export default function InterviewPage() {
     if (transcriptRef.current) {
       transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
     }
-  }, [transcript]);
+  }, [messages, liveTranscript]);
 
-  const startInterview = async () => {
-    setIsLoading(true);
+  const personaCards = useMemo(
+    () => (Object.entries(PERSONAS) as [PersonaKey, (typeof PERSONAS)[PersonaKey]][]),
+    []
+  );
+
+  async function startInterview() {
+    setLoading(true);
     setError("");
     try {
       let userId = localStorage.getItem("talentos_user_id");
@@ -221,81 +122,102 @@ export default function InterviewPage() {
         userId = `guest_${Date.now()}`;
         localStorage.setItem("talentos_user_id", userId);
       }
+      if (!analysisId) throw new Error("Missing analysisId in URL");
       const response = await fetch("/api/talentos/interview/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, mode: "adtech" }),
+        body: JSON.stringify({ analysisId, persona, userId }),
       });
       if (!response.ok) throw new Error("Failed to start interview");
       const data = (await response.json()) as {
-        session_id: string;
-        first_question: string;
-        category: string;
+        interviewId: string;
+        messages: Message[];
+        questionDifficulty: number;
       };
-      setSessionId(data.session_id);
-      setTranscript([
-        {
-          role: "interviewer",
-          content: data.first_question,
-          category: data.category,
-        },
-      ]);
-      setState(STATES.USER_LISTENING);
+      setInterviewId(data.interviewId);
+      setMessages(data.messages);
+      setCurrentDifficulty(Math.max(1, Math.min(5, data.questionDifficulty || 2)));
+      setState("running");
     } catch (err) {
       console.error(err);
       setError("Failed to start interview. Please try again.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
+  }
 
-  const sendResponse = async () => {
-    if (!currentInput.trim() || !sessionId) return;
-    setState(STATES.ANALYZING);
-    setTranscript((prev) => [...prev, { role: "user", content: currentInput }]);
+  async function sendResponse() {
+    if (!currentInput.trim() || !interviewId || loading) return;
+    const userMsg: Message = {
+      role: "candidate",
+      content: currentInput.trim(),
+      timestamp: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
     const userMessage = currentInput;
     setCurrentInput("");
-
+    setLiveTranscript("");
+    setLoading(true);
     try {
       const response = await fetch("/api/talentos/interview/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, user_message: userMessage }),
+        body: JSON.stringify({ interviewId, message: userMessage }),
       });
       if (!response.ok) throw new Error("Failed to send message");
       const data = (await response.json()) as {
+        evaluation: Message["evaluation"];
         response: string;
-        star_scores: Record<string, number>;
-        filler_count: number;
-        status: string;
-        question_index: number;
-        category: string;
+        questionCategory: string;
+        questionDifficulty: number;
+        nextAction: string;
       };
-
-      setStarScores(data.star_scores);
-      setFillerCount((prev) => prev + data.filler_count);
-      setQuestionIndex(data.question_index);
-      setTranscript((prev) => [
+      setCurrentDifficulty(Math.max(1, Math.min(5, data.questionDifficulty || 2)));
+      setMessages((prev) => [
         ...prev,
-        { role: "interviewer", content: data.response, category: data.category },
+        {
+          role: "interviewer",
+          content: data.response,
+          timestamp: new Date().toISOString(),
+          category: data.questionCategory,
+          difficulty: data.questionDifficulty,
+          evaluation: data.evaluation,
+        },
       ]);
-
-      if (data.status === "completed") {
-        setState(STATES.COMPLETED);
-        setOverallScore(
-          Math.round(Object.values(data.star_scores).reduce((a, b) => a + b, 0) / 4)
-        );
-      } else {
-        setState(STATES.USER_LISTENING);
+      if (data.nextAction === "wrap_up") {
+        setError("Interviewer suggests wrapping up. Click End Interview for report.");
       }
     } catch (err) {
       console.error(err);
       setError("Failed to process response. Please try again.");
-      setState(STATES.USER_LISTENING);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
-  const toggleRecording = () => {
+  async function endInterview() {
+    if (!interviewId) return;
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/talentos/interview/end", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ interviewId }),
+      });
+      if (!response.ok) throw new Error("Failed to end interview");
+      const data = (await response.json()) as Record<string, unknown>;
+      setReport(data);
+      setState("report");
+    } catch (err) {
+      console.error(err);
+      setError("Unable to generate report right now.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function toggleRecording() {
     const rec = recognitionRef.current;
     if (!rec) return;
     if (isRecording) {
@@ -305,10 +227,7 @@ export default function InterviewPage() {
       rec.start();
       setIsRecording(true);
     }
-  };
-
-  // AI "speaking" visual — not wired to TTS; keep UX similar to CRA
-  const aiActive = state === STATES.ANALYZING;
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -329,73 +248,70 @@ export default function InterviewPage() {
               <span className="text-xs text-zinc-500 block">Interview Room</span>
             </div>
           </Link>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-zinc-400 text-sm">
-              <Clock size={16} />
-              <span>Q{questionIndex + 1}/5</span>
-            </div>
-            {state !== STATES.IDLE && (
-              <Link
-                href="/workspace"
-                className="px-4 py-2 rounded-lg bg-white/5 text-zinc-400 text-sm hover:bg-white/10 transition-all flex items-center gap-2"
-              >
-                <X size={16} />
-                Exit
-              </Link>
-            )}
+          <div className="flex items-center gap-2">
+            {[1, 2, 3, 4, 5].map((d) => (
+              <Star
+                key={d}
+                size={14}
+                className={d <= currentDifficulty ? "text-amber-400 fill-amber-400" : "text-zinc-600"}
+              />
+            ))}
           </div>
         </div>
       </nav>
 
       <main className="relative max-w-6xl mx-auto px-6 py-8">
-        {state === STATES.IDLE ? (
+        {state === "setup" ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-20">
-            <div className="w-32 h-32 mx-auto mb-8 relative">
-              <AudioVisualizer isActive={false} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Bot size={40} className="text-cyan-400" />
-              </div>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-space)] mb-4">
-              Mock Interview Room
+            <h1 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-space)] mb-3">
+              Choose Interview Persona
             </h1>
-            <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
-              Practice with our AI interviewer trained on ad-tech hiring patterns. Get real-time STAR method scoring and
-              personalized feedback.
+            <p className="text-zinc-400 mb-8 max-w-2xl mx-auto">
+              Pick the round you want to practice. The interview adapts based on your responses.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-10">
-              {[
-                { icon: Brain, label: "5 Technical Questions", desc: "Adtech focused" },
-                { icon: Star, label: "STAR Method Scoring", desc: "Real-time feedback" },
-                { icon: Mic, label: "Voice or Type", desc: "Your choice" },
-              ].map((item, i) => (
-                <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5">
-                  <item.icon size={24} className="text-cyan-400 mb-2" />
-                  <p className="text-white font-medium text-sm">{item.label}</p>
-                  <p className="text-zinc-500 text-xs">{item.desc}</p>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-8">
+              {personaCards.map(([key, p]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setPersona(key)}
+                  className={`rounded-xl border p-5 transition-all ${
+                    persona === key
+                      ? "border-cyan-500 bg-cyan-500/10"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Bot size={16} className="text-cyan-400" />
+                    <p className="text-white font-semibold">{p.name}</p>
+                  </div>
+                  <p className="text-zinc-400 text-sm">{p.title}</p>
+                  <p className="text-zinc-500 text-xs mt-2">{p.roundName}</p>
+                  <p className="text-zinc-300 text-sm mt-3">{p.style}</p>
+                </button>
               ))}
             </div>
             <button
               type="button"
               onClick={startInterview}
-              disabled={isLoading}
+              disabled={loading || !analysisId}
               className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all flex items-center gap-2 mx-auto disabled:opacity-50"
-              data-testid="start-interview-btn"
             >
-              {isLoading ? (
+              {loading ? (
                 <>
                   <Loader2 size={20} className="animate-spin" />
                   Starting...
                 </>
               ) : (
                 <>
-                  <Play size={20} />
-                  Start Interview
+                  <Crown size={20} />
+                  Start {PERSONAS[persona].roundName}
                 </>
               )}
             </button>
+            {!analysisId && (
+              <p className="text-amber-400 text-sm mt-4">Missing analysisId. Start from the analysis page.</p>
+            )}
             {error && (
               <p className="text-red-400 mt-4 flex items-center justify-center gap-2">
                 <AlertCircle size={16} />
@@ -405,152 +321,128 @@ export default function InterviewPage() {
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
-                <div className="w-16 h-16 relative">
-                  <AudioVisualizer isActive={aiActive} intensity={0.7} />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Bot size={24} className="text-cyan-400" />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-white font-medium">AI Interviewer</p>
-                  <p className="text-zinc-500 text-sm">
-                    {state === STATES.ANALYZING
-                      ? "Analyzing your response..."
-                      : state === STATES.COMPLETED
-                        ? "Interview Complete"
-                        : "Listening..."}
-                  </p>
-                </div>
+            <div className="lg:col-span-2 rounded-xl border border-white/10 bg-[#0A0A0A] p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-zinc-400 text-sm">
+                  Interviewer: <span className="text-white">{PERSONAS[persona].name}</span>
+                </p>
                 <button
                   type="button"
-                  onClick={() => setIsMuted(!isMuted)}
-                  className="ml-auto p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
+                  onClick={endInterview}
+                  disabled={loading || state === "report"}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 text-sm hover:bg-red-500/30 disabled:opacity-50"
                 >
-                  {isMuted ? <VolumeX size={18} className="text-zinc-400" /> : <Volume2 size={18} className="text-zinc-400" />}
+                  End Interview
                 </button>
               </div>
-
               <div
                 ref={transcriptRef}
-                className="h-[400px] overflow-y-auto p-4 rounded-xl bg-[#0A0A0A] border border-white/5 space-y-4"
+                className="h-[55vh] overflow-y-auto p-2 rounded-xl bg-black/20 border border-white/5 space-y-4"
               >
-                {transcript.map((msg, i) => (
-                  <TranscriptMessage key={i} message={msg} isUser={msg.role === "user"} />
+                {messages.map((m, i) => (
+                  <motion.div key={`${m.timestamp}-${i}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <div className={`flex gap-3 ${m.role === "candidate" ? "flex-row-reverse" : ""}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${m.role === "candidate" ? "bg-purple-500/20" : "bg-cyan-500/20"}`}>
+                        {m.role === "candidate" ? <User size={16} className="text-purple-300" /> : <Bot size={16} className="text-cyan-300" />}
+                      </div>
+                      <div className={`max-w-[78%] rounded-xl p-3 ${m.role === "candidate" ? "bg-purple-500/10" : "bg-white/5"}`}>
+                        <p className="text-zinc-100 whitespace-pre-wrap">{m.content}</p>
+                        {m.category ? <p className="text-xs text-zinc-500 mt-1">{m.category}</p> : null}
+                        {m.evaluation ? (
+                          <div className="mt-3 rounded-lg bg-white/5 p-3">
+                            <p className="text-xs text-zinc-400 mb-2">STAR score ({m.evaluation.total}/100)</p>
+                            {(["situation", "task", "action", "result"] as const).map((k) => (
+                              <div key={k} className="mb-1.5">
+                                <div className="flex justify-between text-[11px] text-zinc-400">
+                                  <span className="capitalize">{k}</span>
+                                  <span>{m.evaluation?.[k]}/25</span>
+                                </div>
+                                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                  <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600" style={{ width: `${((m.evaluation?.[k] ?? 0) / 25) * 100}%` }} />
+                                </div>
+                              </div>
+                            ))}
+                            <p className="text-xs text-zinc-300 mt-2">{m.evaluation.feedback}</p>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </motion.div>
                 ))}
-                {state === STATES.ANALYZING && (
-                  <div className="flex items-center gap-2 text-zinc-500 text-sm">
-                    <Loader2 size={14} className="animate-spin" />
-                    Analyzing response...
-                  </div>
-                )}
+                <AnimatePresence>
+                  {loading && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-zinc-500 text-sm flex items-center gap-2">
+                      <Loader2 size={14} className="animate-spin" />
+                      Thinking...
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {liveTranscript ? <p className="text-cyan-300 text-sm italic">Live: {liveTranscript}</p> : null}
               </div>
 
-              {state === STATES.USER_LISTENING && (
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={toggleRecording}
-                    className={`p-4 rounded-xl transition-all ${
-                      isRecording
-                        ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                        : "bg-white/5 text-zinc-400 hover:bg-white/10"
-                    }`}
-                  >
-                    {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
-                  </button>
-                  <textarea
-                    value={currentInput}
-                    onChange={(e) => setCurrentInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        void sendResponse();
-                      }
-                    }}
-                    placeholder="Type your answer or use voice..."
-                    className="flex-1 p-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-cyan-500/50 transition-all"
-                    rows={3}
-                    data-testid="interview-input"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void sendResponse()}
-                    disabled={!currentInput.trim()}
-                    className="px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium disabled:opacity-50 transition-all flex items-center gap-2"
-                    data-testid="send-answer-btn"
-                  >
-                    <ArrowRight size={18} />
-                  </button>
-                </div>
-              )}
-
-              {state === STATES.COMPLETED && (
-                <div className="flex gap-3">
-                  <Link
-                    href="/workspace"
-                    className="flex-1 py-4 rounded-xl bg-white/5 text-white font-medium text-center hover:bg-white/10 transition-all"
-                  >
-                    <Home size={18} className="inline mr-2" />
-                    Back to Workspace
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSessionId(null);
-                      setTranscript([]);
-                      setState(STATES.IDLE);
-                      setStarScores(null);
-                      setFillerCount(0);
-                      setQuestionIndex(0);
-                      setOverallScore(null);
-                    }}
-                    className="flex-1 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all"
-                    data-testid="retry-interview-btn"
-                  >
-                    <Play size={18} className="inline mr-2" />
-                    Try Again
-                  </button>
-                </div>
-              )}
+              <div className="mt-3 flex gap-3">
+                <button
+                  type="button"
+                  onClick={toggleRecording}
+                  className={`p-4 rounded-xl transition-all ${isRecording ? "bg-red-500/20 text-red-300 border border-red-500/30" : "bg-white/5 text-zinc-300 hover:bg-white/10"}`}
+                >
+                  {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                </button>
+                <textarea
+                  value={currentInput}
+                  onChange={(e) => setCurrentInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      void sendResponse();
+                    }
+                  }}
+                  placeholder="Write your answer..."
+                  className="flex-1 p-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-cyan-500/50 transition-all"
+                  rows={3}
+                />
+                <button
+                  type="button"
+                  onClick={() => void sendResponse()}
+                  disabled={!currentInput.trim() || loading}
+                  className="px-5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium disabled:opacity-50 flex items-center"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
               <div className="p-4 rounded-xl bg-[#0A0A0A] border border-white/5">
-                <STARScores scores={starScores} />
-              </div>
-              <div className="p-4 rounded-xl bg-[#0A0A0A] border border-white/5 space-y-4">
-                <h4 className="text-xs uppercase tracking-wider text-zinc-500 font-medium">Session Stats</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Questions</span>
-                    <span className="text-white">{questionIndex}/5</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Filler Words</span>
-                    <span className={fillerCount > 5 ? "text-amber-400" : "text-emerald-400"}>{fillerCount}</span>
-                  </div>
-                  {overallScore !== null && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Overall Score</span>
-                      <span className="text-cyan-400 font-bold">{overallScore}%</span>
-                    </div>
-                  )}
+                <h4 className="text-xs uppercase tracking-wider text-zinc-500 font-medium mb-2">Adaptive Difficulty</h4>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((d) => (
+                    <div key={d} className={`h-2 flex-1 rounded-full ${d <= currentDifficulty ? "bg-cyan-500" : "bg-white/10"}`} />
+                  ))}
                 </div>
+                <p className="text-zinc-400 text-xs mt-2">Current Level: {currentDifficulty}/5</p>
               </div>
-              <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
-                <h4 className="text-cyan-400 text-sm font-medium mb-2">Pro Tips</h4>
-                <ul className="text-zinc-400 text-xs space-y-1">
-                  <li>• Use specific examples with numbers</li>
-                  <li>• Structure answers: Situation → Action → Result</li>
-                  <li>• Avoid filler words (um, like, basically)</li>
-                  <li>• Keep answers 1-2 minutes</li>
-                </ul>
+              {error ? (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-start gap-2">
+                  <AlertCircle size={16} className="mt-0.5" />
+                  <span>{error}</span>
+                </div>
+              ) : null}
+              {state === "report" && report ? (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-emerald-400" />
+                    Jarvis Report
+                  </h3>
+                  <pre className="text-xs text-zinc-300 whitespace-pre-wrap">{JSON.stringify(report, null, 2)}</pre>
+                </div>
+              ) : null}
+              <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-xs text-zinc-300">
+                Use STAR: Situation, Task, Action, Result. Include clear outcomes and metrics.
               </div>
             </div>
           </div>
-        )}
+        )} 
       </main>
     </div>
   );

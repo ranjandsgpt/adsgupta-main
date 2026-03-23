@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { processInterviewMessage } from "@/lib/talentos-service";
+import { processAnswer } from "@/lib/interview-engine";
 
 const schema = z.object({
-  session_id: z.string(),
-  user_message: z.string(),
-  is_audio: z.boolean().optional(),
+  interviewId: z.string(),
+  message: z.string().min(1),
 });
 
 export async function POST(request: Request) {
@@ -15,17 +14,13 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const { session_id, user_message } = parsed.data;
+    const { interviewId, message } = parsed.data;
     try {
-      const result = await processInterviewMessage(session_id, user_message);
+      const result = await processAnswer(interviewId, message);
       return NextResponse.json(result);
     } catch (err) {
-      if (String(err) === "Error: NOT_FOUND") {
-        return NextResponse.json({ detail: "Session not found" }, { status: 404 });
-      }
-      if (String(err) === "Error: ALREADY_COMPLETED") {
-        return NextResponse.json({ detail: "Session already completed" }, { status: 400 });
-      }
+      if (String(err) === "Error: INTERVIEW_NOT_FOUND") return NextResponse.json({ detail: "Interview not found" }, { status: 404 });
+      if (String(err) === "Error: ALREADY_COMPLETED") return NextResponse.json({ detail: "Interview already completed" }, { status: 400 });
       throw err;
     }
   } catch (e) {

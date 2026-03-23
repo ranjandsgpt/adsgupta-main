@@ -1,27 +1,39 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { startInterviewSession } from "@/lib/talentos-service";
+import type { NextRequest } from "next/server";
+import { startInterview } from "@/lib/interview-engine";
+import { getCurrentUserFromRequest } from "@/lib/auth";
 
 const schema = z.object({
-  user_id: z.string(),
-  job_match_id: z.string().nullable().optional(),
-  mode: z.string().default("adtech"),
+  analysisId: z.string(),
+  persona: z.enum(["recruiter", "hiring_manager", "technical_peer", "bar_raiser"]).default("hiring_manager"),
+  userId: z.string().optional(),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const json = await request.json();
     const parsed = schema.safeParse(json);
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const { user_id, job_match_id, mode } = parsed.data;
-    const result = await startInterviewSession(user_id, job_match_id, mode);
+    let userId = parsed.data.userId;
+    if (!userId) {
+      try {
+        userId = (await getCurrentUserFromRequest(request)).user_id;
+      } catch {
+        userId = undefined;
+      }
+    }
+    if (!userId) {
+      return NextResponse.json({ detail: "Missing user identity" }, { status: 400 });
+    }
+
+    const result = await startInterview(parsed.data.analysisId, parsed.data.persona, userId);
     return NextResponse.json(result);
   } catch (e) {
-    if (String(e) === "Error: USER_NOT_FOUND") {
-      return NextResponse.json({ detail: "User not found" }, { status: 404 });
-    }
+    if (String(e) === "Error: ANALYSIS_NOT_FOUND") return NextResponse.json({ detail: "Analysis not found" }, { status: 404 });
+    if (String(e) === "Error: UNAUTHORIZED") return NextResponse.json({ detail: "Unauthorized" }, { status: 403 });
     console.error(e);
     return NextResponse.json({ detail: String(e) }, { status: 500 });
   }
