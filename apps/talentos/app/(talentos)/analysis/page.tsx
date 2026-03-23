@@ -1,21 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   Brain,
-  Target,
-  CheckCircle2,
-  XCircle,
   AlertTriangle,
   ArrowRight,
   Bot,
   Sparkles,
   Mic,
-  MessageSquare,
-  Zap,
-  ChevronRight,
+  Briefcase,
 } from "lucide-react";
 
 function CircularProgress({
@@ -81,155 +76,71 @@ function CircularProgress({
   );
 }
 
-function SkillGapCard({
-  skill,
-  status,
-  description,
-  priority,
-}: {
-  skill: string;
-  status: string;
-  description: string;
-  priority: string;
-}) {
-  const statusConfig: Record<
-    string,
-    { icon: typeof CheckCircle2; color: string; bg: string; label: string }
-  > = {
-    match: { icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10", label: "Strong Match" },
-    partial: { icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10", label: "Partial Match" },
-    gap: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/10", label: "Gap Identified" },
-  };
-  const config = statusConfig[status] ?? statusConfig.gap;
-  const Icon = config.icon;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-all"
-    >
-      <div className="flex items-start gap-3">
-        <div className={`w-10 h-10 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0`}>
-          <Icon size={20} className={config.color} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-white font-medium truncate">{skill}</h4>
-            {priority === "high" && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400 uppercase">
-                High Priority
-              </span>
-            )}
-          </div>
-          <p className="text-zinc-400 text-sm">{description}</p>
-          <span className={`text-xs ${config.color} mt-2 inline-block`}>{config.label}</span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function InterviewQuestionCard({
-  question,
-  category,
-  difficulty,
-  index,
-}: {
+type Question = {
   question: string;
   category: string;
   difficulty: string;
-  index: number;
-}) {
-  const difficultyConfig: Record<string, { color: string; bg: string }> = {
-    easy: { color: "text-emerald-400", bg: "bg-emerald-500/20" },
-    medium: { color: "text-amber-400", bg: "bg-amber-500/20" },
-    hard: { color: "text-red-400", bg: "bg-red-500/20" },
-  };
-  const config = difficultyConfig[difficulty] ?? difficultyConfig.medium;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.1 }}
-      className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-cyan-500/30 transition-all group"
-    >
-      <div className="flex items-start gap-4">
-        <span className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-sm font-bold flex-shrink-0">
-          {index + 1}
-        </span>
-        <div className="flex-1">
-          <p className="text-white leading-relaxed mb-3">{question}</p>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-1 rounded text-xs bg-white/10 text-zinc-400">{category}</span>
-            <span className={`px-2 py-1 rounded text-xs ${config.bg} ${config.color} capitalize`}>
-              {difficulty}
-            </span>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+  why?: string;
+};
 
 type Analysis = {
-  match_score: number;
-  job_title: string;
-  company: string;
+  id: string;
+  roleName: string;
+  companyName: string;
+  matchScore: number;
+  strengths: string[];
+  gaps: string[];
+  interviewQuestions: Question[];
   summary: string;
-  skill_gaps: { skill: string; status: string; description: string; priority: string }[];
-  interview_questions: { question: string; category: string; difficulty: string }[];
-  action_items: string[];
-  readiness_score: Record<string, number>;
 };
 
 export default function AnalysisPage() {
+  const [analysisId, setAnalysisId] = useState<string>("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("talentos_analysis");
-    if (stored) {
-      setAnalysis(JSON.parse(stored) as Analysis);
-    } else {
-      setAnalysis({
-        match_score: 72,
-        job_title: "Senior Programmatic Specialist",
-        company: "Leading AdTech Company",
-        summary:
-          "You have strong foundational skills in programmatic advertising with notable experience in DSP operations. However, there are gaps in header bidding implementation and yield optimization that should be addressed before the interview.",
-        skill_gaps: [
-          { skill: "DSP Operations", status: "match", description: "Strong experience with The Trade Desk and DV360", priority: "low" },
-          { skill: "Header Bidding", status: "gap", description: "Limited exposure to Prebid.js and multi-wrapper setups", priority: "high" },
-          { skill: "RTB & Auction Logic", status: "partial", description: "Basic understanding, need deeper knowledge of second-price auctions", priority: "medium" },
-          { skill: "Yield Optimization", status: "gap", description: "No demonstrated experience with floor price optimization", priority: "high" },
-          { skill: "Data Analysis", status: "match", description: "Excellent SQL and analytics skills", priority: "low" },
-          { skill: "Campaign Management", status: "match", description: "Proven track record of managing $1M+ campaigns", priority: "low" },
-        ],
-        interview_questions: [
-          { question: "Walk me through how you would set up a header bidding wrapper with 8 demand partners while keeping latency under 500ms.", category: "Header Bidding", difficulty: "hard" },
-          { question: "How do you measure the true incremental revenue of header bidding vs. waterfall?", category: "Yield Optimization", difficulty: "medium" },
-          { question: "Explain the difference between first-price and second-price auctions. How does bid shading work?", category: "RTB", difficulty: "medium" },
-          { question: "A client's CPM has dropped 30% month-over-month. Walk me through your debugging process.", category: "Troubleshooting", difficulty: "hard" },
-          { question: "How would you structure a test to determine optimal floor prices across different ad units?", category: "Yield Optimization", difficulty: "hard" },
-        ],
-        action_items: [
-          "Complete a Prebid.js tutorial and implement a test wrapper",
-          "Study floor price optimization strategies and A/B testing methodologies",
-          "Practice explaining RTB auction mechanics using concrete examples",
-          "Prepare 2-3 case studies of campaign optimizations you've led",
-        ],
-        readiness_score: {
-          technical: 68,
-          behavioral: 85,
-          industry_knowledge: 72,
-          communication: 80,
-        },
-      });
-    }
-    setLoading(false);
+    const params = new URLSearchParams(window.location.search);
+    setAnalysisId(params.get("id") ?? "");
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (!analysisId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch(`/api/talentos/analysis/${analysisId}`);
+        if (!res.ok) throw new Error("Failed to load analysis");
+        const data = (await res.json()) as Analysis;
+        setAnalysis(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load analysis");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [analysisId]);
+
+  const questionsByCategory = useMemo(() => {
+    const grouped: Record<string, Question[]> = {};
+    for (const q of analysis?.interviewQuestions ?? []) {
+      if (!grouped[q.category]) grouped[q.category] = [];
+      grouped[q.category].push(q);
+    }
+    return grouped;
+  }, [analysis]);
+
+  const gapBars = useMemo(() => {
+    const strengths = analysis?.strengths.length ?? 0;
+    const gaps = analysis?.gaps.length ?? 0;
+    const total = Math.max(strengths + gaps, 1);
+    const aligned = Math.round((strengths / total) * 100);
+    const missing = 100 - aligned;
+    return { aligned, missing };
+  }, [analysis]);
 
   if (loading) {
     return (
@@ -252,7 +163,7 @@ export default function AnalysisPage() {
             <AlertTriangle size={32} className="text-amber-400" />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">No Analysis Found</h2>
-          <p className="text-zinc-400 mb-6">Please upload your resume and job description first.</p>
+          <p className="text-zinc-400 mb-6">{error || "Please upload your resume and job description first."}</p>
           <Link
             href="/workspace"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold"
@@ -283,7 +194,7 @@ export default function AnalysisPage() {
           </Link>
 
           <Link
-            href="/interview"
+            href={`/interview?analysisId=${analysis.id}`}
             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all flex items-center gap-2"
             data-testid="start-interview-btn"
           >
@@ -301,37 +212,35 @@ export default function AnalysisPage() {
             className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-8 mb-8"
           >
             <div className="flex flex-col md:flex-row items-center gap-8">
-              <CircularProgress value={analysis.match_score} size={140} />
+              <CircularProgress value={analysis.matchScore} size={140} />
               <div className="flex-1 text-center md:text-left">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-3">
                   <Sparkles size={14} className="text-cyan-400" />
                   <span className="text-cyan-400 text-sm">AI Analysis Complete</span>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-white font-[family-name:var(--font-space)] mb-2">
-                  {analysis.job_title}
+                  {analysis.roleName}
                 </h1>
-                <p className="text-zinc-400 mb-4">{analysis.company}</p>
+                <p className="text-zinc-400 mb-4">{analysis.companyName}</p>
                 <p className="text-zinc-300 leading-relaxed">{analysis.summary}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-white/5">
-              {Object.entries(analysis.readiness_score).map(([key, value]) => (
-                <div key={key} className="text-center">
-                  <div className="h-2 rounded-full bg-white/10 overflow-hidden mb-2">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${value}%` }}
-                      transition={{ duration: 0.8, delay: 0.2 }}
-                      className={`h-full rounded-full ${
-                        value >= 80 ? "bg-emerald-500" : value >= 60 ? "bg-cyan-500" : value >= 40 ? "bg-amber-500" : "bg-red-500"
-                      }`}
-                    />
-                  </div>
-                  <p className="text-white font-semibold">{value}%</p>
-                  <p className="text-zinc-500 text-xs capitalize">{key.replace('_', ' ')}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 pt-8 border-t border-white/5">
+              <div>
+                <p className="text-zinc-400 text-sm mb-2">Skill Gap Analysis</p>
+                <div className="h-3 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full bg-emerald-500" style={{ width: `${gapBars.aligned}%` }} />
                 </div>
-              ))}
+                <p className="text-emerald-400 text-xs mt-2">Aligned: {gapBars.aligned}%</p>
+              </div>
+              <div>
+                <p className="text-zinc-400 text-sm mb-2">Missing Coverage</p>
+                <div className="h-3 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full bg-amber-500" style={{ width: `${gapBars.missing}%` }} />
+                </div>
+                <p className="text-amber-400 text-xs mt-2">Gap: {gapBars.missing}%</p>
+              </div>
             </div>
           </motion.div>
 
@@ -343,17 +252,19 @@ export default function AnalysisPage() {
               className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                  <Target size={20} className="text-purple-400" />
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                  <Sparkles size={20} className="text-emerald-400" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Skill Gap Analysis</h2>
-                  <p className="text-zinc-500 text-sm">{analysis.skill_gaps.length} skills analyzed</p>
+                  <h2 className="text-lg font-semibold text-white">Strengths</h2>
+                  <p className="text-zinc-500 text-sm">Evidence-backed positives from resume</p>
                 </div>
               </div>
-              <div className="space-y-3">
-                {analysis.skill_gaps.map((gap, index) => (
-                  <SkillGapCard key={index} {...gap} />
+              <div className="flex flex-wrap gap-2">
+                {analysis.strengths.map((s, i) => (
+                  <span key={i} className="px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm">
+                    {s}
+                  </span>
                 ))}
               </div>
             </motion.div>
@@ -365,17 +276,19 @@ export default function AnalysisPage() {
               className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                  <MessageSquare size={20} className="text-cyan-400" />
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                  <AlertTriangle size={20} className="text-amber-400" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Likely Interview Questions</h2>
-                  <p className="text-zinc-500 text-sm">Based on your gaps and the JD</p>
+                  <h2 className="text-lg font-semibold text-white">Gaps</h2>
+                  <p className="text-zinc-500 text-sm">Skills and experiences to improve</p>
                 </div>
               </div>
-              <div className="space-y-3">
-                {analysis.interview_questions.map((q, index) => (
-                  <InterviewQuestionCard key={index} {...q} index={index} />
+              <div className="flex flex-wrap gap-2">
+                {analysis.gaps.map((g, i) => (
+                  <span key={i} className="px-3 py-1.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-sm">
+                    {g}
+                  </span>
                 ))}
               </div>
             </motion.div>
@@ -388,28 +301,30 @@ export default function AnalysisPage() {
             className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6 mt-8"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                <Zap size={20} className="text-emerald-400" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                <Mic size={20} className="text-cyan-400" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">Action Plan</h2>
-                <p className="text-zinc-500 text-sm">Complete these before your interview</p>
+                <h2 className="text-lg font-semibold text-white">Interview Questions</h2>
+                <p className="text-zinc-500 text-sm">Grouped by category</p>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {analysis.action_items.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  className="flex items-start gap-3 p-4 rounded-xl bg-white/5"
-                >
-                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <ChevronRight size={14} className="text-emerald-400" />
+            <div className="space-y-5">
+              {Object.entries(questionsByCategory).map(([category, items]) => (
+                <div key={category}>
+                  <h3 className="text-sm uppercase tracking-wider text-zinc-400 mb-2">{category}</h3>
+                  <div className="space-y-2">
+                    {items.map((q, i) => (
+                      <div key={`${category}-${i}`} className="p-4 rounded-xl bg-white/5 border border-white/5">
+                        <p className="text-white mb-2">{q.question}</p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="px-2 py-1 rounded bg-white/10 text-zinc-300">{q.difficulty}</span>
+                          {q.why ? <span className="text-zinc-500">{q.why}</span> : null}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-zinc-300 text-sm">{item}</p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </motion.div>
@@ -421,8 +336,9 @@ export default function AnalysisPage() {
             className="text-center mt-12"
           >
             <p className="text-zinc-400 mb-4">Ready to practice?</p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link
-              href="/interview"
+              href={`/interview?analysisId=${analysis.id}`}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all"
               data-testid="start-mock-interview-btn"
             >
@@ -430,6 +346,14 @@ export default function AnalysisPage() {
               Start Mock Interview
               <ArrowRight size={20} />
             </Link>
+            <Link
+              href={`/jobs?role=${encodeURIComponent(analysis.roleName)}`}
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-xl bg-white/10 text-white font-semibold hover:bg-white/15 transition-all"
+            >
+              <Briefcase size={18} />
+              Search Related Jobs
+            </Link>
+            </div>
           </motion.div>
         </div>
       </main>

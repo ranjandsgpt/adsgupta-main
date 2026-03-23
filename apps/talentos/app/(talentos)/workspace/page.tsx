@@ -1,55 +1,41 @@
 "use client";
 
-/**
- * TalentOS Workspace — port of TalentOSWorkspace.jsx
- */
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useDropzone } from "react-dropzone";
 import {
-  Upload,
+  Bot,
+  Brain,
   FileText,
-  Link as LinkIcon,
   Loader2,
-  CheckCircle2,
+  Sparkles,
+  UploadCloud,
+  Upload,
   AlertCircle,
   ArrowRight,
-  Bot,
-  Sparkles,
-  Brain,
-  Target,
-  Briefcase,
-  Zap,
+  CheckCircle2,
 } from "lucide-react";
+import { useDropzone } from "react-dropzone";
 
-function ResumeDropzone({
-  onFileUpload,
-  uploadedFile,
-  isProcessing,
-}: {
-  onFileUpload: (f: File | null) => void;
-  uploadedFile: File | null;
-  isProcessing: boolean;
-}) {
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) onFileUpload(acceptedFiles[0]);
-    },
-    [onFileUpload]
-  );
+type ResumeCard = {
+  id: string;
+  fileName: string;
+  version: string;
+  createdAt: string;
+};
 
+function ResumeDropzone({ file, onSelect, disabled }: { file: File | null; onSelect: (f: File | null) => void; disabled: boolean }) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles.length > 0) onSelect(acceptedFiles[0]);
+    },
     accept: {
       "application/pdf": [".pdf"],
-      "application/msword": [".doc"],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
-      "text/plain": [".txt"],
     },
     maxFiles: 1,
-    disabled: isProcessing,
+    disabled,
   });
 
   return (
@@ -58,29 +44,28 @@ function ResumeDropzone({
       className={`relative rounded-2xl border-2 border-dashed p-8 transition-all cursor-pointer ${
         isDragActive
           ? "border-cyan-500 bg-cyan-500/10"
-          : uploadedFile
+          : file
             ? "border-emerald-500/50 bg-emerald-500/5"
             : "border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10"
-      } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
-      data-testid="resume-dropzone"
+      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <input {...getInputProps()} />
 
       <div className="text-center">
-        {uploadedFile ? (
+        {file ? (
           <div className="space-y-3">
             <div className="w-16 h-16 mx-auto rounded-xl bg-emerald-500/20 flex items-center justify-center">
               <CheckCircle2 size={32} className="text-emerald-400" />
             </div>
             <div>
-              <p className="text-white font-medium">{uploadedFile.name}</p>
-              <p className="text-zinc-500 text-sm">{(uploadedFile.size / 1024).toFixed(1)} KB</p>
+              <p className="text-white font-medium">{file.name}</p>
+              <p className="text-zinc-500 text-sm">{(file.size / 1024).toFixed(1)} KB</p>
             </div>
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onFileUpload(null);
+                onSelect(null);
               }}
               className="text-zinc-400 text-sm hover:text-white transition-colors"
             >
@@ -90,13 +75,13 @@ function ResumeDropzone({
         ) : (
           <div className="space-y-3">
             <div className="w-16 h-16 mx-auto rounded-xl bg-white/10 flex items-center justify-center">
-              <Upload size={28} className={isDragActive ? "text-cyan-400" : "text-zinc-400"} />
+              <UploadCloud size={28} className={isDragActive ? "text-cyan-400" : "text-zinc-400"} />
             </div>
             <div>
               <p className="text-white font-medium">
                 {isDragActive ? "Drop your resume here" : "Upload Your Resume"}
               </p>
-              <p className="text-zinc-500 text-sm">PDF, DOC, DOCX or TXT • Max 5MB</p>
+              <p className="text-zinc-500 text-sm">PDF or DOCX • Max 10MB</p>
             </div>
           </div>
         )}
@@ -105,152 +90,41 @@ function ResumeDropzone({
   );
 }
 
-function JDInput({
-  jdText,
-  setJdText,
-  jdUrl,
-  setJdUrl,
-  inputMode,
-  setInputMode,
-  isProcessing,
-}: {
-  jdText: string;
-  setJdText: (s: string) => void;
-  jdUrl: string;
-  setJdUrl: (s: string) => void;
-  inputMode: "paste" | "url";
-  setInputMode: (m: "paste" | "url") => void;
-  isProcessing: boolean;
-}) {
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setInputMode("paste")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            inputMode === "paste"
-              ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-              : "bg-white/5 text-zinc-400 border border-white/10 hover:bg-white/10"
-          }`}
-        >
-          <FileText size={16} />
-          Paste JD Text
-        </button>
-        <button
-          type="button"
-          onClick={() => setInputMode("url")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            inputMode === "url"
-              ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-              : "bg-white/5 text-zinc-400 border border-white/10 hover:bg-white/10"
-          }`}
-        >
-          <LinkIcon size={16} />
-          LinkedIn URL
-        </button>
-      </div>
-
-      {inputMode === "paste" ? (
-        <textarea
-          value={jdText}
-          onChange={(e) => setJdText(e.target.value)}
-          placeholder={`Paste the job description here...\n\nExample:\nWe're looking for a Senior Programmatic Specialist...`}
-          disabled={isProcessing}
-          className="w-full h-48 p-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-cyan-500/50 transition-all disabled:opacity-50"
-          data-testid="jd-text-input"
-        />
-      ) : (
-        <div className="space-y-2">
-          <div className="relative">
-            <LinkIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
-            <input
-              type="url"
-              value={jdUrl}
-              onChange={(e) => setJdUrl(e.target.value)}
-              placeholder="https://linkedin.com/jobs/view/..."
-              disabled={isProcessing}
-              className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50 transition-all disabled:opacity-50"
-              data-testid="jd-url-input"
-            />
-          </div>
-          <p className="text-zinc-500 text-xs">
-            We&apos;ll extract the job description from the LinkedIn posting
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function LinkedInProfileInput({
-  profileUrl,
-  setProfileUrl,
-  isProcessing,
-}: {
-  profileUrl: string;
-  setProfileUrl: (s: string) => void;
-  isProcessing: boolean;
-}) {
-  return (
-    <div className="space-y-3">
-      <label className="text-zinc-400 text-sm">LinkedIn Profile (Optional)</label>
-      <div className="relative">
-        <LinkIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
-        <input
-          type="url"
-          value={profileUrl}
-          onChange={(e) => setProfileUrl(e.target.value)}
-          placeholder="https://linkedin.com/in/your-profile"
-          disabled={isProcessing}
-          className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50 transition-all disabled:opacity-50"
-          data-testid="linkedin-profile-input"
-        />
-      </div>
-      <p className="text-zinc-500 text-xs">We&apos;ll use your public profile data to enhance the analysis</p>
-    </div>
-  );
-}
-
 export default function WorkspacePage() {
   const router = useRouter();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeText, setResumeText] = useState("");
-  const [jdText, setJdText] = useState("");
-  const [jdUrl, setJdUrl] = useState("");
-  const [jdInputMode, setJdInputMode] = useState<"paste" | "url">("paste");
-  const [linkedInUrl, setLinkedInUrl] = useState("");
+  const [selectedResumeId, setSelectedResumeId] = useState<string>("");
+  const [savedResumes, setSavedResumes] = useState<ResumeCard[]>([]);
+  const [jobDescription, setJobDescription] = useState("");
+  const [isLoadingResumes, setIsLoadingResumes] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStep, setProcessingStep] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [processingStep, setProcessingStep] = useState("Preparing request...");
   const [error, setError] = useState("");
 
-  const handleResumeUpload = async (file: File | null) => {
-    if (!file) {
-      setResumeFile(null);
-      setResumeText("");
-      return;
-    }
-    setResumeFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result;
-      if (file.type === "text/plain" && typeof text === "string") {
-        setResumeText(text);
-      } else {
-        setResumeText(`[File: ${file.name}] - Will be parsed by AI`);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/resume/list");
+        if (!res.ok) {
+          setSavedResumes([]);
+          return;
+        }
+        const data = (await res.json()) as { resumes?: ResumeCard[] };
+        setSavedResumes(data.resumes ?? []);
+      } finally {
+        setIsLoadingResumes(false);
       }
-    };
-    reader.readAsText(file);
-  };
+    })();
+  }, []);
 
   const handleAnalyze = async () => {
-    if (!resumeFile) {
-      setError("Please upload your resume");
+    if (!resumeFile && !selectedResumeId) {
+      setError("Upload a resume or select a saved resume.");
       return;
     }
-    const hasJD = jdInputMode === "paste" ? jdText.trim() : jdUrl.trim();
-    if (!hasJD) {
-      setError("Please provide a job description");
+    if (!jobDescription.trim()) {
+      setError("Please paste the job description.");
       return;
     }
 
@@ -258,37 +132,46 @@ export default function WorkspacePage() {
     setIsProcessing(true);
 
     try {
-      setProcessingStep("Parsing your resume...");
-      await new Promise((r) => setTimeout(r, 600));
-      setProcessingStep("Extracting job requirements...");
-      await new Promise((r) => setTimeout(r, 600));
-      setProcessingStep("Running AI gap analysis...");
+      setProgress(15);
+      setProcessingStep("Uploading resume and parsing...");
+      const fd = new FormData();
+      fd.append("jobDescription", jobDescription);
+      const localUserId = localStorage.getItem("talentos_user_id");
+      if (localUserId) fd.append("userId", localUserId);
+      if (selectedResumeId) {
+        fd.append("resumeId", selectedResumeId);
+      } else if (resumeFile) {
+        fd.append("resume", resumeFile);
+      }
 
       const response = await fetch("/api/talentos/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          resume_text: resumeText || `Resume from file: ${resumeFile.name}`,
-          jd_text: jdInputMode === "paste" ? jdText : `JD from URL: ${jdUrl}`,
-          linkedin_url: linkedInUrl || null,
-        }),
+        body: fd,
       });
+      setProgress(80);
+      setProcessingStep("Generating dynamic match analysis...");
 
-      if (!response.ok) throw new Error("Analysis failed");
-
-      const result = await response.json();
-      sessionStorage.setItem("talentos_analysis", JSON.stringify(result));
-      router.push("/analysis");
+      const result = (await response.json()) as { id?: string; error?: string };
+      if (!response.ok || !result.id) {
+        throw new Error(result.error ?? "Analysis failed");
+      }
+      setProgress(100);
+      setProcessingStep("Done. Redirecting...");
+      router.push(`/analysis?id=${result.id}`);
     } catch (err) {
       console.error("Analysis error:", err);
-      setError("Analysis failed. Please try again.");
+      setError(err instanceof Error ? err.message : "Analysis failed. Please try again.");
     } finally {
       setIsProcessing(false);
       setProcessingStep("");
+      setProgress(0);
     }
   };
 
-  const canSubmit = Boolean(resumeFile && (jdInputMode === "paste" ? jdText.trim() : jdUrl.trim()));
+  const canSubmit = useMemo(
+    () => Boolean((resumeFile || selectedResumeId) && jobDescription.trim()),
+    [resumeFile, selectedResumeId, jobDescription]
+  );
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -334,7 +217,7 @@ export default function WorkspacePage() {
               Let&apos;s Analyze Your Fit
             </h1>
             <p className="text-zinc-400 text-lg">
-              Upload your resume and provide a job description for instant AI analysis
+              Upload your resume (or reuse a saved one) and paste the job description.
             </p>
           </motion.div>
 
@@ -351,43 +234,60 @@ export default function WorkspacePage() {
                 </div>
                 <h2 className="text-lg font-semibold text-white">Upload Your Resume</h2>
               </div>
-              <ResumeDropzone
-                onFileUpload={handleResumeUpload}
-                uploadedFile={resumeFile}
-                isProcessing={isProcessing}
-              />
+              <ResumeDropzone file={resumeFile} onSelect={(f) => {
+                setResumeFile(f);
+                if (f) setSelectedResumeId("");
+              }} disabled={isProcessing} />
+            </div>
+
+            <div className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm font-bold">
+                  2
+                </div>
+                <h2 className="text-lg font-semibold text-white">Saved Resumes</h2>
+              </div>
+              {isLoadingResumes ? (
+                <p className="text-zinc-500 text-sm">Loading saved resumes...</p>
+              ) : savedResumes.length === 0 ? (
+                <p className="text-zinc-500 text-sm">No saved resumes yet.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {savedResumes.map((resume) => (
+                    <button
+                      key={resume.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedResumeId(resume.id);
+                        setResumeFile(null);
+                      }}
+                      className={`text-left p-4 rounded-xl border transition-all ${
+                        selectedResumeId === resume.id
+                          ? "border-cyan-500 bg-cyan-500/10"
+                          : "border-white/10 bg-white/5 hover:bg-white/10"
+                      }`}
+                    >
+                      <p className="text-white font-medium">{resume.fileName}</p>
+                      <p className="text-zinc-500 text-xs mt-1">{resume.version} • {new Date(resume.createdAt).toLocaleDateString()}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 text-sm font-bold">
-                  2
+                  3
                 </div>
                 <h2 className="text-lg font-semibold text-white">Add Job Description</h2>
               </div>
-              <JDInput
-                jdText={jdText}
-                setJdText={setJdText}
-                jdUrl={jdUrl}
-                setJdUrl={setJdUrl}
-                inputMode={jdInputMode}
-                setInputMode={setJdInputMode}
-                isProcessing={isProcessing}
-              />
-            </div>
-
-            <div className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 text-sm font-bold">
-                  3
-                </div>
-                <h2 className="text-lg font-semibold text-white">LinkedIn Profile</h2>
-                <span className="px-2 py-0.5 rounded text-xs bg-white/10 text-zinc-400">Optional</span>
-              </div>
-              <LinkedInProfileInput
-                profileUrl={linkedInUrl}
-                setProfileUrl={setLinkedInUrl}
-                isProcessing={isProcessing}
+              <textarea
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                placeholder="Paste the full job description here..."
+                disabled={isProcessing}
+                className="w-full h-56 p-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-cyan-500/50 transition-all disabled:opacity-50"
               />
             </div>
 
@@ -424,26 +324,25 @@ export default function WorkspacePage() {
               ) : (
                 <>
                   <Brain size={20} />
-                  Run AI Gap Analysis
+                  Analyze Match
                   <ArrowRight size={20} />
                 </>
               )}
             </motion.button>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { icon: Brain, label: "Gap Analysis", desc: "Skill gaps identified" },
-                { icon: Target, label: "Match Score", desc: "% fit calculated" },
-                { icon: Briefcase, label: "Interview Qs", desc: "Custom questions" },
-                { icon: Zap, label: "Action Plan", desc: "Improvement roadmap" },
-              ].map((item, index) => (
-                <div key={index} className="text-center p-4 rounded-xl bg-white/5 border border-white/5">
-                  <item.icon size={20} className="mx-auto text-zinc-400 mb-2" />
-                  <p className="text-white text-sm font-medium">{item.label}</p>
-                  <p className="text-zinc-500 text-xs">{item.desc}</p>
+            {isProcessing && (
+              <div className="rounded-xl bg-white/5 border border-white/10 p-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-zinc-400">Analysis Progress</span>
+                  <span className="text-cyan-400">{progress}%</span>
                 </div>
-              ))}
-            </div>
+                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-600"
+                    animate={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
       </main>
