@@ -47,6 +47,16 @@ export default function PublisherLandingPage() {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 44 }}>
         <Link
+          href="/publisher/estimate"
+          className="portal-card"
+          style={{ borderColor: "#a855f744", textDecoration: "none", padding: 22 }}
+        >
+          <h2 style={{ color: "#a855f7", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Revenue estimator →</h2>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+            See modeled monthly earnings before you register — no login required.
+          </p>
+        </Link>
+        <Link
           href="/publisher/register"
           className="portal-card"
           style={{ borderColor: "#00d4aa44", textDecoration: "none", padding: 22 }}

@@ -205,6 +205,20 @@ export async function createTables() {
       ALTER TABLE creatives ADD CONSTRAINT creatives_status_check
       CHECK (status IN ('active', 'paused', 'archived', 'flagged', 'approved'))
     `;
+
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_checked_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_status TEXT`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS integration_tests (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        publisher_id UUID REFERENCES publishers(id) ON DELETE SET NULL,
+        ad_unit_id UUID REFERENCES ad_units(id) ON DELETE SET NULL,
+        test_url TEXT,
+        results JSONB,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;

@@ -7,7 +7,7 @@ export async function GET() {
     SELECT id FROM publishers WHERE status = 'active' ORDER BY id
   `;
 
-  const lines = pub.rows.map((p) => `exchange.adsgupta.com, ${p.id}, DIRECT, ${p.id}`);
+  const lines = pub.rows.map((p) => `exchange.adsgupta.com, ${p.id}, DIRECT, mde-exchange-001`);
   const text = lines.join("\n") + (lines.length ? "\n" : "");
 
   return new NextResponse(text, {

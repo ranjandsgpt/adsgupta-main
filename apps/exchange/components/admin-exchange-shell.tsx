@@ -26,6 +26,7 @@ const NAV = [
   { href: "/admin", icon: "◉", label: "Dashboard", color: C.accent },
   { href: "/admin/analytics", icon: "📈", label: "Analytics", color: C.green },
   { href: "/admin/publishers", icon: "▦", label: "Publishers", color: C.blue },
+  { href: "/admin/earnings", icon: "$", label: "Earnings", color: C.green },
   { href: "/admin/demand", icon: "⚡", label: "Demand", color: C.purple },
   { href: "/admin/inventory", icon: "▦", label: "Inventory", color: C.blue },
   { href: "/admin/pricing", icon: "△", label: "Yield", color: C.green },

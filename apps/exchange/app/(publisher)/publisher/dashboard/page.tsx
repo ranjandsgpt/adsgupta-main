@@ -103,7 +103,15 @@ function PublisherDashboardInner() {
   const [tagModalUnit, setTagModalUnit] = useState<AdUnit | null>(null);
   const [copied, setCopied] = useState(false);
   const [editingFloor, setEditingFloor] = useState<{ unitId: string; value: string } | null>(null);
-  const [tab, setTab] = useState<"overview" | "analytics" | "units" | "tags">("overview");
+  const [tab, setTab] = useState<"overview" | "analytics" | "units" | "tags" | "supply">("overview");
+  const [floorMeta, setFloorMeta] = useState<{
+    eligible: boolean;
+    auctionCount7d?: number;
+    units?: Array<{ revenueUplift: number }>;
+  } | null>(null);
+  const [adsLine, setAdsLine] = useState<string | null>(null);
+  const [adsCheckMsg, setAdsCheckMsg] = useState<string | null>(null);
+  const [checkingAds, setCheckingAds] = useState(false);
 
   const reloadUnits = useCallback(async (pid: string) => {
     const ir = await fetch(`/api/inventory?publisherId=${encodeURIComponent(pid)}`);
@@ -155,6 +163,23 @@ function PublisherDashboardInner() {
         }
         if (data?.status === "active") {
           await reloadUnits(id);
+          const [fa, at] = await Promise.all([
+            fetch(`/api/publisher-floor-analysis/${encodeURIComponent(id)}`, { credentials: "include" }),
+            fetch(`/api/publisher/ads-txt/${encodeURIComponent(id)}`, { credentials: "include" })
+          ]);
+          if (fa.ok) {
+            setFloorMeta(
+              (await fa.json()) as {
+                eligible: boolean;
+                auctionCount7d?: number;
+                units?: Array<{ revenueUplift: number }>;
+              }
+            );
+          }
+          if (at.ok) {
+            const j = (await at.json()) as { line?: string };
+            setAdsLine(typeof j.line === "string" ? j.line : null);
+          }
         }
       } catch {
         if (!cancelled) setLoadError("Network error");
@@ -253,6 +278,23 @@ function PublisherDashboardInner() {
     void reloadStats(id);
   }
 
+  async function checkAdsTxtOnDomain() {
+    if (!id || !pub?.domain) return;
+    setCheckingAds(true);
+    setAdsCheckMsg(null);
+    try {
+      const res = await fetch(
+        `/api/publisher/check-adstxt?domain=${encodeURIComponent(pub.domain)}&publisherId=${encodeURIComponent(id)}`,
+        { credentials: "include" }
+      );
+      const j = (await res.json()) as { message?: string };
+      setAdsCheckMsg(typeof j.message === "string" ? j.message : "Done");
+    } catch {
+      setAdsCheckMsg("Check failed");
+    }
+    setCheckingAds(false);
+  }
+
   async function archiveUnit(unit: AdUnit) {
     if (!id || !confirm(`Remove (archive) ad unit “${unit.name}”?`)) return;
     const res = await fetch(`/api/inventory/${encodeURIComponent(unit.id)}?publisherId=${encodeURIComponent(id)}`, {
@@ -346,7 +388,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
       {pub.status === "active" && (
         <>
           <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-            {(["overview", "analytics", "units", "tags"] as const).map((t) => (
+            {(["overview", "analytics", "units", "tags", "supply"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -358,6 +400,31 @@ ${testHtml ? `\n${testHtml}\n` : ""}
               </button>
             ))}
           </div>
+
+          {tab === "overview" && stats && id && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12, marginBottom: 20 }}>
+              <Link href={`/publisher/tester?id=${encodeURIComponent(id)}`} className="card" style={{ textDecoration: "none", display: "block" }}>
+                <div style={{ fontWeight: 800, color: "var(--accent)", marginBottom: 6 }}>Test my integration →</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Verify tag, auction, and demand before launch.</div>
+              </Link>
+              {floorMeta?.eligible && (
+                <Link href={`/publisher/optimizer?id=${encodeURIComponent(id)}`} className="card" style={{ textDecoration: "none", display: "block" }}>
+                  <div style={{ fontWeight: 800, color: "#4a9eff", marginBottom: 6 }}>Optimize floor prices →</div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                    Modeled revenue uplift across your ad units.
+                  </div>
+                </Link>
+              )}
+              <Link href={`/publisher/earnings?id=${encodeURIComponent(id)}`} className="card" style={{ textDecoration: "none", display: "block" }}>
+                <div style={{ fontWeight: 800, color: "var(--text-bright)", marginBottom: 6 }}>Earnings statement →</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Monthly breakdown, fees, and printable PDF.</div>
+              </Link>
+              <Link href="/publisher/estimate" className="card" style={{ textDecoration: "none", display: "block" }}>
+                <div style={{ fontWeight: 800, color: "var(--text-muted)", marginBottom: 6 }}>Revenue estimator</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Public tool — share with partners.</div>
+              </Link>
+            </div>
+          )}
 
           {tab === "overview" && stats && (
             <div className="kpis" style={{ marginBottom: 20, gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
@@ -405,6 +472,34 @@ ${testHtml ? `\n${testHtml}\n` : ""}
               <Link href="/publisher/tags" style={{ color: "var(--accent)", fontWeight: 700, display: "inline-block", marginTop: 10 }}>
                 Open tag generator →
               </Link>
+            </div>
+          )}
+
+          {tab === "supply" && id && pub && (
+            <div className="card" style={{ marginBottom: 20 }}>
+              <h2 style={{ fontSize: 15, margin: "0 0 12px" }}>Supply chain · ads.txt</h2>
+              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12 }}>
+                Add this line to <strong>https://{pub.domain}/ads.txt</strong> (public, HTTPS).
+              </p>
+              <textarea
+                readOnly
+                value={adsLine ?? "Loading…"}
+                style={{ width: "100%", minHeight: 56, fontFamily: "monospace", fontSize: 11, padding: 8 }}
+              />
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
+                <button type="button" disabled={checkingAds} onClick={() => void checkAdsTxtOnDomain()}>
+                  {checkingAds ? "Checking…" : "Check ads.txt"}
+                </button>
+                <a
+                  href={`https://exchange.adsgupta.com/sellers.json`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "var(--accent)", fontSize: 12 }}
+                >
+                  View sellers.json →
+                </a>
+              </div>
+              {adsCheckMsg && <p style={{ marginTop: 10, fontSize: 12, color: "var(--text-muted)" }}>{adsCheckMsg}</p>}
             </div>
           )}
 

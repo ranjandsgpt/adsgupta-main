@@ -38,6 +38,20 @@ function apiAllowed(role: ExchangeRole | undefined, pathname: string, request: N
   return false;
 }
 
+function publisherApiAllowed(role: ExchangeRole | undefined, pathname: string): boolean {
+  if (!role) return false;
+  if (role === "admin") return true;
+  if (role !== "publisher") return false;
+  if (
+    pathname.startsWith("/api/publisher/") ||
+    pathname.startsWith("/api/publisher-floor-analysis/") ||
+    pathname.startsWith("/api/publisher-earnings/")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function isPublicApi(request: NextRequest, pathname: string): boolean {
   const m = request.method;
 
@@ -97,7 +111,8 @@ function isPublicPage(pathname: string): boolean {
     pathname === "/demand/dashboard" ||
     pathname === "/publisher/tags" ||
     pathname === "/status" ||
-    pathname === "/privacy"
+    pathname === "/privacy" ||
+    pathname === "/publisher/estimate"
   );
 }
 
@@ -133,6 +148,9 @@ export async function middleware(request: NextRequest) {
     const role = token?.role as ExchangeRole | undefined;
     if (!token || !role) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
+    if (publisherApiAllowed(role, pathname)) {
+      return NextResponse.next();
     }
     if (!apiAllowed(role, pathname, request)) {
       return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
@@ -204,7 +222,11 @@ export const config = {
     "/api/ping",
     "/api/health",
     "/api/admin/:path*",
+    "/api/publisher/:path*",
+    "/api/publisher-floor-analysis/:path*",
+    "/api/publisher-earnings/:path*",
     "/status",
-    "/privacy"
+    "/privacy",
+    "/sellers.json"
   ]
 };

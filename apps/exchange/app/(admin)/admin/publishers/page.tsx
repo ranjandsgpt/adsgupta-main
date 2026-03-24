@@ -13,6 +13,8 @@ type Publisher = {
   ad_units_count?: number;
   impressions_today?: number;
   revenue_today?: string | null;
+  ads_txt_checked_at?: string | null;
+  ads_txt_status?: string | null;
 };
 
 type AdUnit = { id: string; name: string; sizes: string[]; status: string; publisher_id?: string };
@@ -31,6 +33,20 @@ function badgeColor(st: string) {
   if (st === "active") return "#2ecc71";
   if (st === "pending") return "#ffd32a";
   return "#ff4757";
+}
+
+function adsTxtCell(r: Publisher) {
+  const st = r.ads_txt_status;
+  const label = st === "ok" ? "✓" : st === "missing" ? "✗" : "?";
+  const title = r.ads_txt_checked_at
+    ? `Last check: ${new Date(r.ads_txt_checked_at).toLocaleString()}`
+    : "Not checked yet";
+  const color = st === "ok" ? "#2ecc71" : st === "missing" ? "#ff4757" : "#ffd32a";
+  return (
+    <span style={{ color, fontWeight: 800, cursor: "default" }} title={title}>
+      {label}
+    </span>
+  );
 }
 
 export default function AdminPublishersPage() {
@@ -286,6 +302,7 @@ export default function AdminPublishersPage() {
               <th>Impr today</th>
               <th>Revenue today</th>
               <th>Status</th>
+              <th title="ads.txt verification">ads.txt</th>
               <th>Created</th>
               <th>Actions</th>
             </tr>
@@ -305,6 +322,7 @@ export default function AdminPublishersPage() {
                   <td>
                     <span style={{ color: badgeColor(r.status), fontWeight: 700, fontSize: 11 }}>{r.status}</span>
                   </td>
+                  <td style={{ textAlign: "center" }}>{adsTxtCell(r)}</td>
                   <td style={{ fontSize: 10 }}>{String(r.created_at).slice(0, 10)}</td>
                   <td style={{ whiteSpace: "nowrap", fontSize: 11 }}>
                     <button type="button" className="link-button" onClick={() => toggleUnits(r.id)}>
@@ -345,7 +363,7 @@ export default function AdminPublishersPage() {
                 </tr>
                 {expanded === r.id && (
                   <tr>
-                    <td colSpan={9} style={{ background: "#0c1018", fontSize: 11 }}>
+                    <td colSpan={10} style={{ background: "#0c1018", fontSize: 11 }}>
                       <div style={{ marginBottom: 6, color: "var(--text-muted)" }}>
                         Publisher ID: <code style={{ color: "var(--accent)" }}>{r.id}</code>
                       </div>

@@ -4,7 +4,6 @@
   var VERSION = "1.0.0";
   var AUCTION = "https://exchange.adsgupta.com/api/openrtb/auction";
   var TRACK = "https://exchange.adsgupta.com/api/track";
-  var SCHAIN_API = "https://exchange.adsgupta.com/api/schain";
 
   var mde = (w.mde = w.mde || {});
   var slots = [];
@@ -166,6 +165,22 @@
       source: { tid: reqId() }
     };
 
+    if (cfg.networkCode) {
+      req.source = req.source || {};
+      req.source.schain = {
+        complete: 1,
+        ver: "1.0",
+        nodes: [
+          {
+            asi: "exchange.adsgupta.com",
+            sid: cfg.networkCode,
+            hp: 1,
+            rid: req.id
+          }
+        ]
+      };
+    }
+
     function sendAuction(body) {
       fetchAuctionWithRetry(body)
         .then(function (res) {
@@ -178,27 +193,7 @@
         .catch(function () {});
     }
 
-    if (cfg.networkCode) {
-      fetch(SCHAIN_API + "?publisherId=" + encodeURIComponent(cfg.networkCode), {
-        method: "GET",
-        headers: { Accept: "application/json" }
-      })
-        .then(function (r) {
-          return r.json();
-        })
-        .then(function (schain) {
-          if (schain && schain.nodes) {
-            req.source = req.source || {};
-            req.source.schain = schain;
-          }
-          sendAuction(req);
-        })
-        .catch(function () {
-          sendAuction(req);
-        });
-    } else {
-      sendAuction(req);
-    }
+    sendAuction(req);
   }
 
   mde.init = function (c) {

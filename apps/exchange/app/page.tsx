@@ -26,6 +26,10 @@ export default function PortalHubPage() {
           <h2>Publisher (self-serve)</h2>
           <p>Landing: register your site — no login. MDE tags and OpenRTB once activated.</p>
         </Link>
+        <Link className="portal-card" href="/publisher/estimate">
+          <h2>Revenue estimator</h2>
+          <p>Public calculator: monthly page views, geo, and category — modeled eCPM and earnings range.</p>
+        </Link>
         <Link className="portal-card" href="/demand">
           <h2>Demand (self-serve)</h2>
           <p>Landing: create campaigns, upload creatives to Blob, track by email.</p>
