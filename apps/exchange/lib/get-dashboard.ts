@@ -137,29 +137,29 @@ async function loadDashboardPayload(auth: AuthContext): Promise<DashboardPayload
       sql<{ count: string }>`
         SELECT COUNT(*)::text AS count FROM auction_log al
         JOIN campaigns c ON c.id = al.winning_campaign_id
-        WHERE c.advertiser = ${adv}
+        WHERE COALESCE(c.advertiser_name, c.advertiser) = ${adv}
       `,
       sql<{ count: string }>`
         SELECT COUNT(*)::text AS count FROM impressions i
         JOIN campaigns c ON c.id = i.campaign_id
-        WHERE c.advertiser = ${adv}
+        WHERE COALESCE(c.advertiser_name, c.advertiser) = ${adv}
       `,
       sql<{ count: string }>`
         SELECT COUNT(*)::text AS count FROM clicks k
         JOIN campaigns c ON c.id = k.campaign_id
-        WHERE c.advertiser = ${adv}
+        WHERE COALESCE(c.advertiser_name, c.advertiser) = ${adv}
       `,
       sql<{ revenue: string }>`
         SELECT COALESCE(SUM(al.winning_bid), 0)::text AS revenue
         FROM auction_log al
         JOIN campaigns c ON c.id = al.winning_campaign_id
-        WHERE c.advertiser = ${adv}
+        WHERE COALESCE(c.advertiser_name, c.advertiser) = ${adv}
       `,
       sql`
         SELECT al.auction_id, al.winning_bid, al.bid_count, al.created_at
         FROM auction_log al
         JOIN campaigns c ON c.id = al.winning_campaign_id
-        WHERE c.advertiser = ${adv}
+        WHERE COALESCE(c.advertiser_name, c.advertiser) = ${adv}
         ORDER BY al.created_at DESC
         LIMIT 20
       `

@@ -47,14 +47,24 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (pathname === "/api/creatives" && m === "POST") return true;
   if (/^\/api\/publishers\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (/^\/api\/campaigns\/[^/]+$/.test(pathname) && m === "GET") return true;
+  if (
+    pathname === "/api/creatives" &&
+    m === "GET" &&
+    request.nextUrl.searchParams.get("campaign_id") &&
+    request.nextUrl.searchParams.get("email")
+  ) {
+    return true;
+  }
 
   return false;
 }
 
 function isPublicPage(pathname: string): boolean {
   return (
+    pathname === "/publisher" ||
     pathname === "/publisher/register" ||
     pathname === "/publisher/dashboard" ||
+    pathname === "/demand" ||
     pathname === "/demand/create" ||
     pathname === "/demand/dashboard"
   );

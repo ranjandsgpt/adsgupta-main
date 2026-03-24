@@ -8,6 +8,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  await createTables();
-  return NextResponse.json({ ok: true });
+  try {
+    await createTables();
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[db-init]", e);
+    const message = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
 }

@@ -20,13 +20,13 @@ export default function PortalHubPage() {
           <h2>Exchange admin</h2>
           <p>Full stack: inventory, delivery, yield rules, reporting, protections, AI shell, tag generator, and settings.</p>
         </Link>
-        <Link className="portal-card" href="/publisher/register">
+        <Link className="portal-card" href="/publisher">
           <h2>Publisher (self-serve)</h2>
-          <p>Register your site — no login. Get a publisher ID, then activate with admin to generate tags and ad units.</p>
+          <p>Landing: register your site — no login. MDE tags and OpenRTB once activated.</p>
         </Link>
-        <Link className="portal-card" href="/demand/create">
+        <Link className="portal-card" href="/demand">
           <h2>Demand (self-serve)</h2>
-          <p>Create a campaign with budget and creative — no login. Track status on the dashboard by email.</p>
+          <p>Landing: create campaigns, upload creatives to Blob, track by email.</p>
         </Link>
         <Link className="portal-card" href="/login?portal=publisher&callbackUrl=/publisher">
           <h2>Publisher portal</h2>

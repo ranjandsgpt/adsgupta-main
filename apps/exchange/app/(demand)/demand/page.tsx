@@ -1,38 +1,48 @@
-export const dynamic = "force-dynamic";
+import Link from "next/link";
 
-import { LoadErrorBanner } from "@/components/load-error-banner";
-import { getDashboardPayload } from "@/lib/get-dashboard";
-import { getAuthContextFromSession } from "@/lib/session-auth";
-
-export default async function DemandHomePage() {
-  const auth = await getAuthContextFromSession();
-  const data = auth ? await getDashboardPayload(auth) : null;
-
+export default function DemandLandingPage() {
   return (
-    <div>
-      <LoadErrorBanner message={data?.loadError} />
-      <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Demand overview</h1>
-      <p style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 16 }}>
-        Wins and delivery scoped to your seat
-        {data?.advertiser ? ` (${data.advertiser})` : ""}.
-      </p>
-      <div className="kpis">
-        <div className="card">
-          <div>Auctions (wins logged)</div>
-          <strong>{data?.totalAuctions ?? 0}</strong>
-        </div>
-        <div className="card">
-          <div>Impressions</div>
-          <strong>{data?.totalImpressions ?? 0}</strong>
-        </div>
-        <div className="card">
-          <div>Clicks</div>
-          <strong>{data?.totalClicks ?? 0}</strong>
-        </div>
-        <div className="card">
-          <div>Spend (bid sum)</div>
-          <strong>${Number(data?.totalRevenue ?? 0).toFixed(4)}</strong>
-        </div>
+    <div style={{ maxWidth: 920 }}>
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--text-bright)", margin: "0 0 12px" }}>
+          Start Advertising
+        </h1>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, margin: 0 }}>
+          Upload your creative, set your bid, go live in minutes.
+        </p>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16, marginBottom: 28 }}>
+        <Link
+          href="/demand/create"
+          className="portal-card"
+          style={{ borderColor: "#a855f744", textDecoration: "none", padding: 22 }}
+        >
+          <h2 style={{ color: "#a855f7", margin: "0 0 10px", fontSize: 18 }}>Create Campaign →</h2>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+            Three-step wizard: budget, creative to Blob, confirmation.
+          </p>
+        </Link>
+        <Link
+          href="/demand/dashboard"
+          className="portal-card"
+          style={{ borderColor: "#00d4aa44", textDecoration: "none", padding: 22 }}
+        >
+          <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 18 }}>Manage Campaigns →</h2>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+            Use the email you registered with: <code>?email=you@…</code>
+          </p>
+        </Link>
+      </div>
+      <div style={{ display: "flex", gap: 24, flexWrap: "wrap", fontSize: 12, color: "var(--text-muted)" }}>
+        <span>
+          <strong style={{ color: "var(--accent)" }}>Real OpenRTB</strong> Auctions
+        </span>
+        <span>
+          <strong style={{ color: "var(--accent)" }}>Second-Price</strong> Clearing
+        </span>
+        <span>
+          <strong style={{ color: "var(--accent)" }}>Self-Serve</strong>
+        </span>
       </div>
     </div>
   );

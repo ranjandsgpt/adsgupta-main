@@ -1,83 +1,36 @@
-(function (w) {
-  var slots = [];
-  var config = {};
-
-  function origin() {
-    return (config && config.origin) || "https://exchange.adsgupta.com";
-  }
-
-  function ensureIframe(divId, html) {
-    var el = document.getElementById(divId);
-    if (!el) return;
-    var iframe = document.createElement("iframe");
-    iframe.style.border = "0";
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.setAttribute("scrolling", "no");
-    el.innerHTML = "";
-    el.appendChild(iframe);
-    var doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(html);
-    doc.close();
-  }
-
-  var mde = (w.mde = w.mde || {});
-  mde.cmd = mde.cmd || [];
-
-  mde.init = function (opts) {
-    config = opts || {};
+(function(w,d){'use strict';
+  var A='https://exchange.adsgupta.com/api/openrtb/auction';
+  var T='https://exchange.adsgupta.com/api/track';
+  var mde=w.mde=w.mde||{};
+  var slots=[],cfg={};
+  mde.init=function(c){cfg=c||{};};
+  mde.defineSlot=function(s){slots.push(s);};
+  mde.enableServices=function(){};
+  mde.display=function(divId){
+    var slot=slots.find(function(s){return s.div===divId;});
+    if(!slot)return;
+    var req={id:uid(),imp:[{id:'1',tagid:slot.unitId,bidfloor:slot.floor||0.50,
+      banner:{format:sizes(slot.sizes)},secure:loc()?1:0}],
+      site:{page:location.href,domain:location.hostname},
+      device:{ua:navigator.userAgent,w:screen.width,h:screen.height},at:2,tmax:500};
+    fetch(A,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(req)})
+      .then(function(r){return r.json();})
+      .then(function(res){
+        if(!res.seatbid||!res.seatbid[0])return;
+        var bid=res.seatbid[0].bid[0];
+        var el=d.getElementById(divId);
+        if(!el||!bid.adm)return;
+        var sz=(slot.sizes||['300x250'])[0].split('x');
+        var f=d.createElement('iframe');
+        f.width=sz[0];f.height=sz[1];f.frameBorder='0';f.scrolling='no';
+        f.style.border='none';f.srcdoc=bid.adm;el.appendChild(f);
+        new Image().src=T+'/impression?id='+encodeURIComponent(bid.id);
+        if(bid.nurl)fetch(bid.nurl.replace('${AUCTION_PRICE}',String(bid.price))).catch(function(){});
+      }).catch(function(){});
   };
-
-  mde.defineSlot = function (slot) {
-    slots.push(slot);
-  };
-
-  mde.enableServices = function () {};
-
-  mde.display = async function (divId) {
-    var slot = slots.find(function (s) {
-      return s.div === divId;
-    });
-    if (!slot) return;
-    var req = {
-      id: "auc-" + Math.random().toString(36).slice(2),
-      imp: [
-        {
-          id: "1",
-          tagid: slot.adUnitId || slot.tagid || slot.unitPath,
-          banner: {
-            format: (slot.sizes || []).map(function (x) {
-              var p = String(x).split("x");
-              return { w: Number(p[0]), h: Number(p[1]) };
-            })
-          },
-          bidfloor: slot.floor || 0
-        }
-      ],
-      site: { domain: location.hostname, page: location.href },
-      device: { ua: navigator.userAgent }
-    };
-
-    var base = origin().replace(/\/$/, "");
-    var res = await fetch(base + "/api/openrtb/auction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req)
-    });
-    if (!res.ok) return;
-    var json = await res.json();
-    var bid = json.seatbid && json.seatbid[0] && json.seatbid[0].bid && json.seatbid[0].bid[0];
-    if (!bid) return;
-    ensureIframe(divId, bid.adm);
-    new Image().src = base + "/api/track/impression?auctionId=" + encodeURIComponent(req.id);
-    if (bid.nurl) fetch(bid.nurl).catch(function () {});
-  };
-
-  if (mde.cmd.length) {
-    mde.cmd.forEach(function (fn) {
-      if (typeof fn === "function") fn();
-    });
-    mde.cmd = [];
-  }
-})(window);
+  function uid(){return Math.random().toString(36).substr(2,9)+Date.now().toString(36);}
+  function loc(){return location.protocol==='https:';}
+  function sizes(s){return(s||['300x250']).map(function(x){var p=x.split('x');return{w:+p[0],h:+p[1]};});}
+  var q=mde.cmd||[];mde.cmd={push:function(fn){fn();}};
+  if(q.forEach)q.forEach(function(fn){fn();});
+})(window,document);

@@ -42,7 +42,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const auth = await getAuthFromRequest(request);
   if (!auth) return unauthorized();
-  if (auth.role !== "admin") return forbidden("Only admins can activate publishers");
+  if (auth.role !== "admin") return forbidden("Only admins can update publisher status");
 
   const body = await request.json();
   const result = await sql`

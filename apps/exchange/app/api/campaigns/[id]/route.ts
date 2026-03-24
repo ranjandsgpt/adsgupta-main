@@ -1,13 +1,23 @@
 export const dynamic = "force-dynamic";
 import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
-import { json } from "@/lib/http";
+import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
 import { NextRequest } from "next/server";
 
 async function loadCampaign(id: string) {
-  const result = await sql`SELECT * FROM campaigns WHERE id = ${id} LIMIT 1`;
-  return result.rows[0] as Record<string, unknown> | null;
+  try {
+    const result = await sql`SELECT * FROM campaigns WHERE id = ${id} LIMIT 1`;
+    return result.rows[0] as Record<string, unknown> | null;
+  } catch (e) {
+    console.error("[campaign load]", e);
+    return null;
+  }
+}
+
+function advertiserKey(campaign: Record<string, unknown> | null): string {
+  if (!campaign) return "";
+  return String(campaign.advertiser_name ?? campaign.advertiser ?? "");
 }
 
 function canDemandAccessCampaign(
@@ -18,7 +28,7 @@ function canDemandAccessCampaign(
   if (auth.role !== "demand") return true;
   const adv = demandAdvertiserFilter(auth);
   if (!adv) return true;
-  return campaign.advertiser === adv;
+  return advertiserKey(campaign) === adv;
 }
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -46,54 +56,84 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
   const body = await request.json();
   const adv = demandAdvertiserFilter(auth);
-  if (auth.role === "demand" && adv && body.advertiser !== undefined && body.advertiser !== adv) {
+  const nextAdv = body.advertiser_name ?? body.advertiser;
+  if (auth.role === "demand" && adv && nextAdv !== undefined && nextAdv !== adv) {
     return forbidden("Cannot reassign advertiser outside your seat");
   }
 
-  const result = await sql`
-    UPDATE campaigns SET
-      name = COALESCE(${body.name ?? null}, name),
-      advertiser = COALESCE(${body.advertiser ?? null}, advertiser),
-      budget = COALESCE(${body.budget ?? null}, budget),
-      daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
-      bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
-      target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
-      target_geos = COALESCE(${body.target_geos ?? null}, target_geos),
-      target_devices = COALESCE(${body.target_devices ?? null}, target_devices),
-      status = COALESCE(${body.status ?? null}, status),
-      start_date = COALESCE(${body.start_date ?? null}, start_date),
-      end_date = COALESCE(${body.end_date ?? null}, end_date),
-      contact_email = COALESCE(${body.contact_email ?? null}, contact_email)
-    WHERE id = ${params.id}
-    RETURNING *
-  `;
-  return json(result.rows[0] ?? null);
+  try {
+    const result = await sql`
+      UPDATE campaigns SET
+        campaign_name = COALESCE(${body.campaign_name ?? body.name ?? null}, campaign_name),
+        advertiser_name = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser_name),
+        advertiser_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, advertiser_email),
+        name = COALESCE(${body.campaign_name ?? body.name ?? null}, name),
+        advertiser = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser),
+        contact_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, contact_email),
+        daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
+        bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
+        target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
+        status = COALESCE(${body.status ?? null}, status)
+      WHERE id = ${params.id}
+      RETURNING *
+    `;
+    return json(result.rows[0] ?? null);
+  } catch (e) {
+    console.error("[campaigns PUT]", e);
+    return json({ error: "Update failed" }, 500);
+  }
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const auth = await getAuthFromRequest(request);
   if (!auth) return unauthorized();
-  if (auth.role !== "admin") return forbidden("Only admins can activate campaigns");
+
+  const existing = await loadCampaign(params.id);
+  if (!existing) return json(null);
 
   const body = await request.json();
-  const result = await sql`
-    UPDATE campaigns SET
-      name = COALESCE(${body.name ?? null}, name),
-      advertiser = COALESCE(${body.advertiser ?? null}, advertiser),
-      budget = COALESCE(${body.budget ?? null}, budget),
-      daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
-      bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
-      target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
-      target_geos = COALESCE(${body.target_geos ?? null}, target_geos),
-      target_devices = COALESCE(${body.target_devices ?? null}, target_devices),
-      status = COALESCE(${body.status ?? null}, status),
-      start_date = COALESCE(${body.start_date ?? null}, start_date),
-      end_date = COALESCE(${body.end_date ?? null}, end_date),
-      contact_email = COALESCE(${body.contact_email ?? null}, contact_email)
-    WHERE id = ${params.id}
-    RETURNING *
-  `;
-  return json(result.rows[0] ?? null);
+
+  if (auth.role === "admin") {
+    try {
+      const result = await sql`
+        UPDATE campaigns SET
+          campaign_name = COALESCE(${body.campaign_name ?? body.name ?? null}, campaign_name),
+          advertiser_name = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser_name),
+          advertiser_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, advertiser_email),
+          name = COALESCE(${body.campaign_name ?? body.name ?? null}, name),
+          advertiser = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser),
+          contact_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, contact_email),
+          daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
+          bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
+          target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
+          status = COALESCE(${body.status ?? null}, status)
+        WHERE id = ${params.id}
+        RETURNING *
+      `;
+      return json(result.rows[0] ?? null);
+    } catch (e) {
+      console.error("[campaigns PATCH admin]", e);
+      return json({ error: "Update failed" }, 500);
+    }
+  }
+
+  if (auth.role === "demand" && canDemandAccessCampaign(auth, existing)) {
+    if (body.status == null) return badRequest("status required");
+    if (!["active", "paused", "pending"].includes(body.status)) {
+      return badRequest("Invalid status");
+    }
+    try {
+      const result = await sql`
+        UPDATE campaigns SET status = ${body.status} WHERE id = ${params.id} RETURNING *
+      `;
+      return json(result.rows[0] ?? null);
+    } catch (e) {
+      console.error("[campaigns PATCH demand]", e);
+      return json({ error: "Update failed" }, 500);
+    }
+  }
+
+  return forbidden();
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
@@ -105,6 +145,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   if (!existing) return json({ ok: true });
   if (!canDemandAccessCampaign(auth, existing)) return forbidden();
 
-  await sql`DELETE FROM campaigns WHERE id = ${params.id}`;
-  return json({ ok: true });
+  try {
+    await sql`DELETE FROM campaigns WHERE id = ${params.id}`;
+    return json({ ok: true });
+  } catch (e) {
+    console.error("[campaigns DELETE]", e);
+    return json({ error: "Delete failed" }, 500);
+  }
 }

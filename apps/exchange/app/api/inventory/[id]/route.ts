@@ -28,18 +28,51 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   if (auth.role === "demand") return forbidden();
 
   const body = await request.json();
-  const result = await sql`
-    UPDATE ad_units SET
-      name = COALESCE(${body.name ?? null}, name),
-      sizes = COALESCE(${body.sizes ?? null}, sizes),
-      ad_type = COALESCE(${body.ad_type ?? null}, ad_type),
-      environment = COALESCE(${body.environment ?? null}, environment),
-      floor_price = COALESCE(${body.floor_price ?? null}, floor_price),
-      status = COALESCE(${body.status ?? null}, status)
-    WHERE id = ${params.id}
-    RETURNING *
-  `;
-  return json(result.rows[0] ?? null);
+  try {
+    const result = await sql`
+      UPDATE ad_units SET
+        name = COALESCE(${body.name ?? null}, name),
+        sizes = COALESCE(${body.sizes ?? null}, sizes),
+        ad_type = COALESCE(${body.ad_type ?? null}, ad_type),
+        environment = COALESCE(${body.environment ?? null}, environment),
+        floor_price = COALESCE(${body.floor_price ?? null}, floor_price),
+        status = COALESCE(${body.status ?? null}, status)
+      WHERE id = ${params.id}
+      RETURNING *
+    `;
+    return json(result.rows[0] ?? null);
+  } catch (e) {
+    console.error("[inventory PUT]", e);
+    return json({ error: "Update failed" }, 500);
+  }
+}
+
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  const unit = await loadUnit(params.id);
+  if (!unit) return json(null);
+  if (auth.role === "publisher" && unit.publisher_id !== auth.publisherId) return forbidden();
+  if (auth.role === "demand") return forbidden();
+
+  const body = await request.json();
+  try {
+    const result = await sql`
+      UPDATE ad_units SET
+        name = COALESCE(${body.name ?? null}, name),
+        sizes = COALESCE(${body.sizes ?? null}, sizes),
+        ad_type = COALESCE(${body.ad_type ?? null}, ad_type),
+        environment = COALESCE(${body.environment ?? null}, environment),
+        floor_price = COALESCE(${body.floor_price ?? null}, floor_price),
+        status = COALESCE(${body.status ?? null}, status)
+      WHERE id = ${params.id}
+      RETURNING *
+    `;
+    return json(result.rows[0] ?? null);
+  } catch (e) {
+    console.error("[inventory PATCH]", e);
+    return json({ error: "Update failed" }, 500);
+  }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {

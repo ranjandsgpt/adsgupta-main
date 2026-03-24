@@ -9,65 +9,87 @@ export async function GET(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
   const email = request.nextUrl.searchParams.get("email");
 
-  /** Public dashboard: list self-registered campaigns by contact email */
-  if (!auth && email) {
+  try {
+    if (!auth && email) {
+      const result = await sql`
+        SELECT * FROM campaigns
+        WHERE COALESCE(advertiser_email, contact_email) = ${email}
+        ORDER BY created_at DESC
+      `;
+      return json(result.rows);
+    }
+
+    if (!auth) return unauthorized();
+    if (auth.role === "publisher") return forbidden();
+
+    if (auth.role === "admin") {
+      const result = await sql`SELECT * FROM campaigns ORDER BY created_at DESC`;
+      return json(result.rows);
+    }
+
+    const adv = demandAdvertiserFilter(auth);
+    if (!adv) {
+      const result = await sql`SELECT * FROM campaigns ORDER BY created_at DESC`;
+      return json(result.rows);
+    }
     const result = await sql`
-      SELECT * FROM campaigns WHERE contact_email = ${email} ORDER BY created_at DESC
+      SELECT * FROM campaigns
+      WHERE COALESCE(advertiser_name, advertiser) = ${adv}
+      ORDER BY created_at DESC
     `;
     return json(result.rows);
+  } catch (e) {
+    console.error("[campaigns GET]", e);
+    return json({ error: "Failed to list campaigns" }, 500);
   }
-
-  if (!auth) return unauthorized();
-  if (auth.role === "publisher") return forbidden();
-
-  if (auth.role === "admin") {
-    const result = await sql`SELECT * FROM campaigns ORDER BY created_at DESC`;
-    return json(result.rows);
-  }
-
-  const adv = demandAdvertiserFilter(auth);
-  if (!adv) {
-    const result = await sql`SELECT * FROM campaigns ORDER BY created_at DESC`;
-    return json(result.rows);
-  }
-  const result =
-    await sql`SELECT * FROM campaigns WHERE advertiser = ${adv} ORDER BY created_at DESC`;
-  return json(result.rows);
 }
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
   const body = await request.json();
-  if (!body.name || !body.advertiser || body.bid_price === undefined) {
-    return badRequest("name, advertiser, bid_price are required");
+
+  const advertiserName = body.advertiser_name ?? body.advertiser;
+  const campaignName = body.campaign_name ?? body.name;
+  const advertiserEmail = body.advertiser_email ?? body.contact_email;
+
+  if (!campaignName || !advertiserName || body.bid_price === undefined) {
+    return badRequest("campaign_name, advertiser_name, and bid_price are required");
   }
 
-  /** Self-registration (no auth): pending until admin activates */
-  if (!auth) {
-    if (!body.contact_email) return badRequest("contact_email is required for registration");
+  try {
+    if (!auth) {
+      if (!advertiserEmail) return badRequest("advertiser_email is required for registration");
+      const result = await sql`
+        INSERT INTO campaigns
+        (advertiser_name, advertiser_email, campaign_name, bid_price, daily_budget, target_sizes, status, name, advertiser, contact_email)
+        VALUES
+        (${advertiserName}, ${advertiserEmail}, ${campaignName}, ${body.bid_price},
+          ${body.daily_budget ?? null}, ${body.target_sizes ?? null}, 'pending',
+          ${campaignName}, ${advertiserName}, ${advertiserEmail})
+        RETURNING *
+      `;
+      return json(result.rows[0], 201);
+    }
+
+    if (auth.role === "publisher") return forbidden();
+
+    const adv = demandAdvertiserFilter(auth);
+    if (auth.role === "demand" && adv && advertiserName !== adv) {
+      return forbidden("Advertiser must match your demand seat configuration");
+    }
+
     const result = await sql`
       INSERT INTO campaigns
-      (name, advertiser, budget, daily_budget, bid_price, target_sizes, target_geos, target_devices, status, start_date, end_date, contact_email)
+      (advertiser_name, advertiser_email, campaign_name, bid_price, daily_budget, target_sizes, status, name, advertiser, contact_email)
       VALUES
-      (${body.name}, ${body.advertiser}, ${body.budget ?? null}, ${body.daily_budget ?? null}, ${body.bid_price}, ${body.target_sizes ?? null}, ${body.target_geos ?? null}, ${body.target_devices ?? null}, 'pending', ${body.start_date ?? null}, ${body.end_date ?? null}, ${body.contact_email})
+      (${advertiserName}, ${advertiserEmail ?? null}, ${campaignName}, ${body.bid_price},
+        ${body.daily_budget ?? null}, ${body.target_sizes ?? null}, ${body.status ?? "active"},
+        ${campaignName}, ${advertiserName}, ${advertiserEmail ?? null})
       RETURNING *
     `;
     return json(result.rows[0], 201);
+  } catch (e) {
+    console.error("[campaigns POST]", e);
+    return json({ error: "Failed to create campaign" }, 500);
   }
-
-  if (auth.role === "publisher") return forbidden();
-
-  const adv = demandAdvertiserFilter(auth);
-  if (auth.role === "demand" && adv && body.advertiser !== adv) {
-    return forbidden("Advertiser must match your demand seat configuration");
-  }
-
-  const result = await sql`
-    INSERT INTO campaigns
-    (name, advertiser, budget, daily_budget, bid_price, target_sizes, target_geos, target_devices, status, start_date, end_date, contact_email)
-    VALUES
-    (${body.name}, ${body.advertiser}, ${body.budget ?? null}, ${body.daily_budget ?? null}, ${body.bid_price}, ${body.target_sizes ?? null}, ${body.target_geos ?? null}, ${body.target_devices ?? null}, ${body.status ?? "active"}, ${body.start_date ?? null}, ${body.end_date ?? null}, ${body.contact_email ?? null})
-    RETURNING *
-  `;
-  return json(result.rows[0], 201);
 }

@@ -1,19 +1,16 @@
 "use client";
 
-import { PortalShell } from "@/components/portal-shell";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const PUB_NAV = [
-  ["/publisher", "Dashboard"],
-  ["/publisher/inventory", "Ad units"],
-  ["/publisher/tags", "Tags"],
-  ["/publisher/reporting", "Reporting"]
-] as const;
+const linkStyle = { fontSize: 11, color: "var(--text-muted)", textDecoration: "none", marginRight: 16 };
 
 export default function PublisherLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isPublic = pathname === "/publisher/register" || pathname === "/publisher/dashboard";
+  const isPublic =
+    pathname === "/publisher" ||
+    pathname === "/publisher/register" ||
+    pathname === "/publisher/dashboard";
 
   if (isPublic) {
     return (
@@ -25,15 +22,22 @@ export default function PublisherLayout({ children }: { children: React.ReactNod
             background: "var(--bg-header)",
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center"
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 8
           }}
         >
-          <Link href="/" style={{ fontSize: 12, color: "var(--accent)", fontWeight: 700 }}>
-            MyExchange
+          <Link href="/publisher" style={{ fontSize: 12, color: "var(--accent)", fontWeight: 800 }}>
+            MyExchange · Publisher
           </Link>
-          <Link href="/publisher/register" style={{ fontSize: 11, color: "var(--text-muted)" }}>
-            Register
-          </Link>
+          <div>
+            <Link href="/publisher/register" style={linkStyle}>
+              Register
+            </Link>
+            <Link href="/" style={linkStyle}>
+              Hub
+            </Link>
+          </div>
         </div>
         <div style={{ padding: 24 }}>{children}</div>
       </div>
@@ -41,12 +45,35 @@ export default function PublisherLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <PortalShell
-      portalLabel="Publisher"
-      subtitle="Self-serve supply"
-      nav={PUB_NAV.map(([href, label]) => ({ href, label }))}
-    >
-      {children}
-    </PortalShell>
+    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
+      <div
+        style={{
+          padding: "12px 20px",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--bg-header)",
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12
+        }}
+      >
+        <Link href="/publisher" style={{ fontSize: 12, color: "var(--accent)", fontWeight: 800 }}>
+          Publisher console
+        </Link>
+        <Link href="/publisher/inventory" style={{ ...linkStyle, color: pathname.startsWith("/publisher/inventory") ? "var(--accent)" : undefined }}>
+          Ad units
+        </Link>
+        <Link href="/publisher/tags" style={{ ...linkStyle, color: pathname.startsWith("/publisher/tags") ? "var(--accent)" : undefined }}>
+          Tags
+        </Link>
+        <Link href="/publisher/reporting" style={{ ...linkStyle, color: pathname.startsWith("/publisher/reporting") ? "var(--accent)" : undefined }}>
+          Reporting
+        </Link>
+        <Link href="/" style={{ ...linkStyle, marginLeft: "auto" }}>
+          Hub
+        </Link>
+      </div>
+      <div style={{ padding: 24 }}>{children}</div>
+    </div>
   );
 }
