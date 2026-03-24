@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { LoadErrorBanner } from "@/components/load-error-banner";
 import { getDashboardPayload } from "@/lib/get-dashboard";
 import { getAuthContextFromSession } from "@/lib/session-auth";
 
@@ -9,6 +10,7 @@ export default async function PublisherHomePage() {
 
   return (
     <div>
+      <LoadErrorBanner message={data?.loadError} />
       <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Publisher overview</h1>
       <p style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 16 }}>
         Metrics scoped to your publisher seat{data?.publisherId ? ` (${data.publisherId})` : ""}. Set

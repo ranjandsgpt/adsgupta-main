@@ -48,6 +48,7 @@ function matchUser(email: string | undefined, password: string | undefined): Use
 }
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
@@ -80,8 +81,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.role = (token.role as ExchangeRole) ?? "admin";
+      if (session.user && token.role) {
+        session.user.role = token.role as ExchangeRole;
         session.user.publisherId = (token.publisherId as string | null | undefined) ?? null;
         session.user.demandAdvertiser =
           (token.demandAdvertiser as string | null | undefined) ?? null;

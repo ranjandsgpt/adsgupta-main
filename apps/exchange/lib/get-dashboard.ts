@@ -12,9 +12,24 @@ export type DashboardPayload = {
   totalRevenue: number;
   ctr: number;
   recentAuctions: unknown[];
+  /** Set when SQL fails (missing DB, tables, or connection). */
+  loadError?: string;
 };
 
-export async function getDashboardPayload(auth: AuthContext): Promise<DashboardPayload | null> {
+function unavailablePayload(message: string, scope = "unavailable"): DashboardPayload {
+  return {
+    scope,
+    totalAuctions: 0,
+    totalImpressions: 0,
+    totalClicks: 0,
+    totalRevenue: 0,
+    ctr: 0,
+    recentAuctions: [],
+    loadError: message
+  };
+}
+
+async function loadDashboardPayload(auth: AuthContext): Promise<DashboardPayload | null> {
   if (auth.role === "admin") {
     const [auctions, impressions, clicks, revenue, recent] = await Promise.all([
       sql<{ count: string }>`SELECT COUNT(*)::text AS count FROM auction_log`,
@@ -163,4 +178,21 @@ export async function getDashboardPayload(auth: AuthContext): Promise<DashboardP
   }
 
   return null;
+}
+
+/**
+ * Never throws — avoids Next.js production “Application error” when Postgres or schema is missing.
+ */
+export async function getDashboardPayload(auth: AuthContext): Promise<DashboardPayload | null> {
+  try {
+    return await loadDashboardPayload(auth);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[exchange] dashboard query failed:", err);
+    const hint =
+      /relation .* does not exist/i.test(message) || /does not exist/i.test(message)
+        ? `${message} — Run GET /api/db-init?secret=YOUR_DB_INIT_SECRET once to create tables.`
+        : message;
+    return unavailablePayload(hint);
+  }
 }

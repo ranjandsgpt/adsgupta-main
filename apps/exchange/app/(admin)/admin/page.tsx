@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { LoadErrorBanner } from "@/components/load-error-banner";
 import { getDashboardPayload } from "@/lib/get-dashboard";
 import { getAuthContextFromSession } from "@/lib/session-auth";
 
@@ -9,6 +10,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
+      <LoadErrorBanner message={data?.loadError} />
       <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Exchange overview</h1>
       <p style={{ color: "var(--text-muted)", fontSize: 12, marginBottom: 16 }}>
         Global KPIs across all publishers and demand (scope: {data?.scope ?? "—"}).

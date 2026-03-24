@@ -44,10 +44,16 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
-    const token = await getToken({
-      req: request as never,
-      secret: process.env.NEXTAUTH_SECRET
-    });
+    let token;
+    try {
+      token = await getToken({
+        req: request as never,
+        secret: process.env.NEXTAUTH_SECRET
+      });
+    } catch (e) {
+      console.error("[exchange] middleware getToken (api) failed:", e);
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
     const role = token?.role as ExchangeRole | undefined;
     if (!token || !role) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
@@ -62,10 +68,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({
-    req: request as never,
-    secret: process.env.NEXTAUTH_SECRET
-  });
+  let token;
+  try {
+    token = await getToken({
+      req: request as never,
+      secret: process.env.NEXTAUTH_SECRET
+    });
+  } catch (e) {
+    console.error("[exchange] middleware getToken failed:", e);
+    const portal = portalFromPath(pathname);
+    const login = new URL("/login", request.url);
+    login.searchParams.set("portal", portal);
+    login.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(login);
+  }
   const role = token?.role as ExchangeRole | undefined;
 
   if (!token || !role || !canAccess(role, pathname)) {
