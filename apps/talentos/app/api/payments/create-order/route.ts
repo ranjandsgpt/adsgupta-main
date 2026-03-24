@@ -10,7 +10,7 @@ import type { NextRequest } from "next/server";
 export const runtime = "nodejs";
 
 const schema = z.object({
-  plan: z.enum(["pro"]).default("pro"),
+  plan: z.enum(["pro", "weekly"]).default("pro"),
   currency: z.enum(["INR", "USD", "JPY"]).optional(),
   user_id: z.string().optional(),
 });
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ detail: "Invalid body" }, { status: 400 });
     }
-    const { currency } = parsed.data;
+    const { currency, plan } = parsed.data;
 
     let user_id = parsed.data.user_id ?? "";
     if (!user_id) {
@@ -46,13 +46,19 @@ export async function POST(request: NextRequest) {
     }
 
     const priceKey =
-      currency === "USD" ? "pro_usd_monthly" : currency === "JPY" ? "pro_jpy_monthly" : "pro_inr_monthly";
-    const plan = PRICING[priceKey];
+      plan === "weekly"
+        ? "pro_usd_weekly"
+        : currency === "USD"
+          ? "pro_usd_monthly"
+          : currency === "JPY"
+            ? "pro_jpy_monthly"
+            : "pro_inr_monthly";
+    const selectedPlan = PRICING[priceKey];
     const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret });
 
     const order = await rzp.orders.create({
-      amount: plan.amount,
-      currency: plan.currency,
+      amount: selectedPlan.amount,
+      currency: selectedPlan.currency,
       receipt: `talentos_${user_id}_${generateId("ord")}`,
       notes: {
         user_id,
@@ -65,8 +71,8 @@ export async function POST(request: NextRequest) {
       id: generateId("pay"),
       userId: user_id,
       razorpayOrderId: order.id,
-      amount: plan.amount,
-      currency: plan.currency,
+      amount: selectedPlan.amount,
+      currency: selectedPlan.currency,
       plan: "pro",
       status: "created",
       },
@@ -74,11 +80,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       order_id: order.id,
-      amount: plan.amount,
-      currency: plan.currency,
+      amount: selectedPlan.amount,
+      currency: selectedPlan.currency,
       key_id: keyId,
-      name: plan.name,
-      description: plan.description,
+      name: selectedPlan.name,
+      description: selectedPlan.description,
       prefill: {
         name: user.name ?? "",
         email: user.email,

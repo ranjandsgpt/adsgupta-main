@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserFromRequest } from "@/lib/auth";
 import type { NextRequest } from "next/server";
+import { GUEST_FREE_ANALYSES } from "@/lib/credits";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
           email: `${user_id}@guest.talentos.local`,
           name: "Guest",
           passwordHash: "guest_account_no_password",
-          credits: 3,
+          credits: GUEST_FREE_ANALYSES,
         },
       });
     }

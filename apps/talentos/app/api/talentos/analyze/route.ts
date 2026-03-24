@@ -5,6 +5,7 @@ import { analyzeMatch, analyzeResume } from "@/lib/resume-intelligence";
 import { getCurrentUserFromRequest } from "@/lib/auth";
 import type { NextRequest } from "next/server";
 import { checkCredits, deductCredit } from "@/lib/credits";
+import { GUEST_FREE_ANALYSES } from "@/lib/credits";
 
 async function resolveUserId(request: NextRequest, formData: FormData): Promise<string | null> {
   try {
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
             email: `${userId}@guest.talentos.local`,
             name: "Guest",
             passwordHash: "guest_account_no_password",
-            credits: 3,
+            credits: GUEST_FREE_ANALYSES,
           },
         });
       }
@@ -118,14 +119,15 @@ export async function POST(request: NextRequest) {
         prepAdvice: match.prepAdvice,
         resume: resumeData,
       });
-    } catch {
+    } catch (error) {
+      console.error('Analysis error:', error instanceof Error ? error.message : error);
       return NextResponse.json(
         { error: "Analysis temporarily unavailable. Please try again.", matchScore: null },
         { status: 503 }
       );
     }
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ detail: String(e) }, { status: 500 });
+  } catch (error) {
+    console.error('Analysis error:', error instanceof Error ? error.message : error);
+    return NextResponse.json({ detail: "Analysis request failed" }, { status: 500 });
   }
 }

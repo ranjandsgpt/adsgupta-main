@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createJwtToken, sessionCookieOptions } from "@/lib/auth";
+import { PLANS } from "@/lib/plans";
 
 export const runtime = "nodejs";
 
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
       name,
       passwordHash,
       isSubscribed: false,
-      credits: 3,
+      credits: PLANS.free.limits.analyses,
       },
     });
 

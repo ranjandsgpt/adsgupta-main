@@ -231,15 +231,20 @@ export default function HomePage() {
               <p className="text-3xl font-bold mb-3">$0</p>
               <ul className="space-y-1 text-sm text-zinc-300">{PLANS.free.features.map((f) => <li key={f}>- {f}</li>)}</ul>
             </div>
+            <div className="rounded-xl border border-white/10 bg-[#0A0A0A] p-5">
+              <h3 className="font-semibold mb-2">Starter Weekly</h3>
+              <p className="text-3xl font-bold mb-3">$1/week</p>
+              <ul className="space-y-1 text-sm text-zinc-300">
+                <li>- Unlimited analyses</li>
+                <li>- Unlimited mock interviews</li>
+                <li>- AI recommendations</li>
+                <li>- Prep guides</li>
+              </ul>
+            </div>
             <div className="rounded-xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/10 to-transparent p-5">
               <h3 className="font-semibold mb-2">{PLANS.pro.name}</h3>
               <p className="text-3xl font-bold mb-3">₹{PLANS.pro.priceINR}/mo</p>
               <ul className="space-y-1 text-sm text-zinc-200">{PLANS.pro.features.slice(0, 6).map((f) => <li key={f}>- {f}</li>)}</ul>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-[#0A0A0A] p-5">
-              <h3 className="font-semibold mb-2">{PLANS.enterprise.name}</h3>
-              <p className="text-3xl font-bold mb-3">{String(PLANS.enterprise.price)}</p>
-              <ul className="space-y-1 text-sm text-zinc-300">{PLANS.enterprise.features.map((f) => <li key={f}>- {f}</li>)}</ul>
             </div>
           </div>
           <div className="text-center mt-8">

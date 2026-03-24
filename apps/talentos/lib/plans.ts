@@ -3,8 +3,8 @@ export const PLANS = {
     name: "Explorer",
     price: 0,
     currency: "USD",
-    features: ["3 resume analyses", "1 mock interview", "Basic job search", "Community support"],
-    limits: { analyses: 3, interviews: 1, prepGuides: 0, smartRecommendations: false },
+    features: ["1 resume analysis", "1 mock interview", "Basic job search", "Community support"],
+    limits: { analyses: 1, interviews: 1, prepGuides: 0, smartRecommendations: false },
   },
   pro: {
     name: "Professional",

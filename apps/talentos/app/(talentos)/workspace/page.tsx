@@ -151,9 +151,9 @@ export default function WorkspacePage() {
       setProgress(80);
       setProcessingStep("Generating dynamic match analysis...");
 
-      const result = (await response.json()) as { id?: string; error?: string };
+      const result = (await response.json()) as { id?: string; error?: string; detail?: string; message?: string };
       if (!response.ok || !result.id) {
-        throw new Error(result.error ?? "Analysis failed");
+        throw new Error(result.error ?? result.message ?? result.detail ?? "Analysis failed");
       }
       setProgress(100);
       setProcessingStep("Done. Redirecting...");

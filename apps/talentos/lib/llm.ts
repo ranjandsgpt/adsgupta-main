@@ -1,10 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.Gemini_API_Key || "");
+const apiKey = process.env.GEMINI_API_KEY || process.env.Gemini_API_Key || "";
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export function hasLlm(): boolean {
-  return Boolean(process.env.Gemini_API_Key || process.env.ANTHROPIC_API_KEY);
+  return Boolean(apiKey || process.env.ANTHROPIC_API_KEY);
 }
 
 export async function generateLLMResponse(
@@ -12,7 +13,7 @@ export async function generateLLMResponse(
   userPrompt: string,
   jsonMode?: boolean
 ): Promise<string> {
-  if (!process.env.Gemini_API_Key && !process.env.ANTHROPIC_API_KEY) {
+  if (!apiKey && !process.env.ANTHROPIC_API_KEY) {
     throw new Error("AI features require configuration");
   }
   try {

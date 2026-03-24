@@ -2,6 +2,7 @@ import { prisma } from "./prisma";
 import { PLANS } from "./plans";
 
 export type CreditAction = "analysis" | "interview" | "prep_guide" | "smart_recommendations" | "company_intel";
+export const GUEST_FREE_ANALYSES = 5;
 
 type CreditCheckResult =
   | { allowed: true; subscribed: boolean }
@@ -17,7 +18,7 @@ async function ensureUserRecord(userId: string) {
         email: `${userId}@guest.talentos.local`,
         name: "Guest",
         passwordHash: "guest_account_no_password",
-        credits: PLANS.free.limits.analyses,
+        credits: GUEST_FREE_ANALYSES,
         isSubscribed: false,
       },
     });

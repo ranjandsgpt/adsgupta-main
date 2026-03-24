@@ -34,7 +34,7 @@ export default function PricingPage() {
     })().catch(() => undefined);
   }, []);
 
-  async function handleUpgrade() {
+  async function handleUpgrade(plan: "pro" | "weekly" = "pro") {
     setIsLoading(true);
     setError("");
     try {
@@ -54,7 +54,10 @@ export default function PricingPage() {
       const orderResponse = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "pro", currency }),
+        body: JSON.stringify({
+          plan,
+          currency: plan === "weekly" ? "USD" : currency,
+        }),
       });
       if (!orderResponse.ok) throw new Error("Failed to create order");
       const orderData = (await orderResponse.json()) as {
@@ -169,6 +172,28 @@ export default function PricingPage() {
             </div>
           </div>
 
+          <div className="p-6 rounded-2xl border bg-[#0A0A0A] border-white/10 relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-full bg-white text-black font-semibold">New</div>
+            <h3 className="text-xl font-bold mb-2">Starter Weekly</h3>
+            <p className="text-4xl font-bold mb-4">$1/week</p>
+            <ul className="space-y-2 text-sm text-zinc-200">
+              <li>- Unlimited resume analyses</li>
+              <li>- Unlimited mock interviews</li>
+              <li>- AI recommendations</li>
+              <li>- Prep guides and exports</li>
+            </ul>
+            <button
+              type="button"
+              onClick={() => {
+                void handleUpgrade("weekly");
+              }}
+              disabled={isLoading || isSubscribed || !paymentsEnabled}
+              className="mt-5 w-full px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 disabled:opacity-50"
+            >
+              {isSubscribed ? "Current Plan" : "Upgrade to $1/week"}
+            </button>
+          </div>
+
           <div className="p-6 rounded-2xl border bg-gradient-to-b from-cyan-500/10 to-transparent border-cyan-500/40 relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-full bg-cyan-500 text-black font-semibold">Most Popular</div>
             <h3 className="text-xl font-bold mb-2">{PLANS.pro.name}</h3>
@@ -179,7 +204,7 @@ export default function PricingPage() {
             <button
               type="button"
               onClick={() => {
-                void handleUpgrade();
+                void handleUpgrade("pro");
               }}
               disabled={isLoading || isSubscribed || !paymentsEnabled}
               className="mt-5 w-full px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white disabled:opacity-50 flex items-center justify-center gap-2"
@@ -187,17 +212,6 @@ export default function PricingPage() {
               {isLoading ? <><Loader2 size={16} className="animate-spin" /> Processing</> : isSubscribed ? "Current Plan" : "Upgrade to Pro"}
             </button>
             {!paymentsEnabled ? <p className="text-zinc-500 text-xs mt-2 text-center">Payments coming soon</p> : null}
-          </div>
-
-          <div className="p-6 rounded-2xl border bg-[#0A0A0A] border-white/10">
-            <h3 className="text-xl font-bold mb-2">{PLANS.enterprise.name}</h3>
-            <p className="text-4xl font-bold mb-4">{String(PLANS.enterprise.price)}</p>
-            <ul className="space-y-2 text-sm text-zinc-300">
-              {PLANS.enterprise.features.map((f) => <li key={f}>- {f}</li>)}
-            </ul>
-            <a href="mailto:support@adsgupta.com" className="mt-5 block text-center px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20">
-              Contact Us
-            </a>
           </div>
         </div>
 
@@ -218,8 +232,7 @@ export default function PricingPage() {
                 ["Mock Interviews", "1", "Unlimited", "Unlimited"],
                 ["Company Intelligence", "-", "Yes", "Yes"],
                 ["Prep Guides", "-", "Yes", "Yes"],
-                ["Team Analytics", "-", "-", "Yes"],
-                ["API Access", "-", "-", "Yes"],
+                ["Plan Type", "Free", "$1/week", "Monthly"],
               ].map((row) => (
                 <tr key={row[0]} className="border-b border-white/5">
                   <td className="py-2">{row[0]}</td>
