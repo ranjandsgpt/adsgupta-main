@@ -1,15 +1,52 @@
 export const dynamic = "force-dynamic";
+import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
+import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
 import { NextRequest } from "next/server";
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
-  const result = await sql`SELECT * FROM campaigns WHERE id = ${params.id} LIMIT 1`;
-  return json(result.rows[0] ?? null);
+async function loadCampaign(id: string) {
+  const result = await sql`SELECT * FROM campaigns WHERE id = ${id} LIMIT 1`;
+  return result.rows[0] as Record<string, unknown> | null;
+}
+
+function canDemandAccessCampaign(
+  auth: Awaited<ReturnType<typeof getAuthFromRequest>>,
+  campaign: Record<string, unknown> | null
+): boolean {
+  if (!auth || !campaign) return false;
+  if (auth.role !== "demand") return true;
+  const adv = demandAdvertiserFilter(auth);
+  if (!adv) return true;
+  return campaign.advertiser === adv;
+}
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  if (auth.role === "publisher") return forbidden();
+
+  const campaign = await loadCampaign(params.id);
+  if (!campaign) return json(null);
+  if (!canDemandAccessCampaign(auth, campaign)) return forbidden();
+  return json(campaign);
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  if (auth.role === "publisher") return forbidden();
+
+  const existing = await loadCampaign(params.id);
+  if (!existing) return json(null);
+  if (!canDemandAccessCampaign(auth, existing)) return forbidden();
+
   const body = await request.json();
+  const adv = demandAdvertiserFilter(auth);
+  if (auth.role === "demand" && adv && body.advertiser !== undefined && body.advertiser !== adv) {
+    return forbidden("Cannot reassign advertiser outside your seat");
+  }
+
   const result = await sql`
     UPDATE campaigns SET
       name = COALESCE(${body.name ?? null}, name),
@@ -29,7 +66,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   return json(result.rows[0] ?? null);
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  if (auth.role === "publisher") return forbidden();
+
+  const existing = await loadCampaign(params.id);
+  if (!existing) return json({ ok: true });
+  if (!canDemandAccessCampaign(auth, existing)) return forbidden();
+
   await sql`DELETE FROM campaigns WHERE id = ${params.id}`;
   return json({ ok: true });
 }

@@ -2,6 +2,10 @@
   var slots = [];
   var config = {};
 
+  function origin() {
+    return (config && config.origin) || "https://exchange.adsgupta.com";
+  }
+
   function ensureIframe(divId, html) {
     var el = document.getElementById(divId);
     if (!el) return;
@@ -32,21 +36,31 @@
   mde.enableServices = function () {};
 
   mde.display = async function (divId) {
-    var slot = slots.find(function (s) { return s.div === divId; });
+    var slot = slots.find(function (s) {
+      return s.div === divId;
+    });
     if (!slot) return;
     var req = {
       id: "auc-" + Math.random().toString(36).slice(2),
-      imp: [{
-        id: "1",
-        tagid: slot.adUnitId || slot.tagid || slot.unitPath,
-        banner: { format: (slot.sizes || []).map(function (x) { var p = x.split("x"); return { w: Number(p[0]), h: Number(p[1]) }; }) },
-        bidfloor: slot.floor || 0
-      }],
+      imp: [
+        {
+          id: "1",
+          tagid: slot.adUnitId || slot.tagid || slot.unitPath,
+          banner: {
+            format: (slot.sizes || []).map(function (x) {
+              var p = String(x).split("x");
+              return { w: Number(p[0]), h: Number(p[1]) };
+            })
+          },
+          bidfloor: slot.floor || 0
+        }
+      ],
       site: { domain: location.hostname, page: location.href },
       device: { ua: navigator.userAgent }
     };
 
-    var res = await fetch("https://exchange.adsgupta.com/api/openrtb/auction", {
+    var base = origin().replace(/\/$/, "");
+    var res = await fetch(base + "/api/openrtb/auction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(req)
@@ -56,12 +70,14 @@
     var bid = json.seatbid && json.seatbid[0] && json.seatbid[0].bid && json.seatbid[0].bid[0];
     if (!bid) return;
     ensureIframe(divId, bid.adm);
-    new Image().src = "https://exchange.adsgupta.com/api/track/impression?auctionId=" + encodeURIComponent(req.id);
+    new Image().src = base + "/api/track/impression?auctionId=" + encodeURIComponent(req.id);
     if (bid.nurl) fetch(bid.nurl).catch(function () {});
   };
 
   if (mde.cmd.length) {
-    mde.cmd.forEach(function (fn) { if (typeof fn === "function") fn(); });
+    mde.cmd.forEach(function (fn) {
+      if (typeof fn === "function") fn();
+    });
     mde.cmd = [];
   }
 })(window);

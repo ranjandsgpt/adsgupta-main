@@ -1,14 +1,53 @@
 export const dynamic = "force-dynamic";
+import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
+import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
 import { NextRequest } from "next/server";
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
-  const result = await sql`SELECT * FROM creatives WHERE id = ${params.id} LIMIT 1`;
-  return json(result.rows[0] ?? null);
+async function loadCreativeWithAdvertiser(id: string) {
+  const result = await sql`
+    SELECT cr.*, c.advertiser AS campaign_advertiser
+    FROM creatives cr
+    JOIN campaigns c ON c.id = cr.campaign_id
+    WHERE cr.id = ${id}
+    LIMIT 1
+  `;
+  return result.rows[0] as Record<string, unknown> | null;
+}
+
+function canDemandAccessCreative(
+  auth: Awaited<ReturnType<typeof getAuthFromRequest>>,
+  row: Record<string, unknown> | null
+): boolean {
+  if (!auth || !row) return false;
+  if (auth.role !== "demand") return true;
+  const adv = demandAdvertiserFilter(auth);
+  if (!adv) return true;
+  return row.campaign_advertiser === adv;
+}
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  if (auth.role === "publisher") return forbidden();
+
+  const row = await loadCreativeWithAdvertiser(params.id);
+  if (!row) return json(null);
+  if (!canDemandAccessCreative(auth, row)) return forbidden();
+  const { campaign_advertiser: _omit, ...creative } = row;
+  return json(creative);
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  if (auth.role === "publisher") return forbidden();
+
+  const row = await loadCreativeWithAdvertiser(params.id);
+  if (!row) return json(null);
+  if (!canDemandAccessCreative(auth, row)) return forbidden();
+
   const body = await request.json();
   const result = await sql`
     UPDATE creatives SET
@@ -26,7 +65,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   return json(result.rows[0] ?? null);
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  if (auth.role === "publisher") return forbidden();
+
+  const row = await loadCreativeWithAdvertiser(params.id);
+  if (!row) return json({ ok: true });
+  if (!canDemandAccessCreative(auth, row)) return forbidden();
+
   await sql`DELETE FROM creatives WHERE id = ${params.id}`;
   return json({ ok: true });
 }

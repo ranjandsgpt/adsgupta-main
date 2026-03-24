@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Providers } from "@/components/providers";
 import { JetBrains_Mono } from "next/font/google";
 import type { Metadata } from "next";
 
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={mono.className}>{children}</body>
+      <body className={mono.className}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
