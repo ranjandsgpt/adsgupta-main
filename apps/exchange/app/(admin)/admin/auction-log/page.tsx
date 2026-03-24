@@ -1,83 +1,210 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 
 type Row = Record<string, unknown>;
 
+const C = {
+  green: "#2ecc71",
+  red: "#ff4757",
+  muted: "#5a6d82",
+  bright: "#e8f0f8",
+  border: "#1a2332",
+  card: "#0f1419"
+};
+
+function relTime(iso: string): string {
+  const t = new Date(iso).getTime();
+  const s = Math.floor((Date.now() - t) / 1000);
+  if (s < 5) return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+function bidColor(v: number): string {
+  if (v > 2) return C.green;
+  if (v >= 0.5) return "#ff8c42";
+  return C.muted;
+}
+
 export default function AdminAuctionLogPage() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [pubs, setPubs] = useState<{ id: string; name: string; domain: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [preset, setPreset] = useState<"today" | "yesterday" | "7d" | "custom">("today");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [publisherId, setPublisherId] = useState("");
+  const [cleared, setCleared] = useState<"all" | "true" | "false">("all");
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [live, setLive] = useState(true);
+
+  const qs = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("limit", "200");
+    if (preset === "custom" && from && to) {
+      p.set("dateFrom", from);
+      p.set("dateTo", to);
+    } else {
+      p.set("preset", preset);
+    }
+    if (publisherId) p.set("publisherId", publisherId);
+    if (cleared !== "all") p.set("cleared", cleared);
+    return p.toString();
+  }, [preset, from, to, publisherId, cleared]);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/auction-log?${qs}`, { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(typeof data.error === "string" ? data.error : "Failed to load");
+        return;
+      }
+      setRows(Array.isArray(data) ? data : []);
+      setError(null);
+    } catch {
+      setError("Network error");
+    }
+  }, [qs]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function pull() {
-      try {
-        const res = await fetch("/api/auction-log?limit=200", { credentials: "include" });
-        const data = await res.json();
-        if (cancelled) return;
-        if (!res.ok) {
-          setError(typeof data.error === "string" ? data.error : "Failed to load");
-          return;
-        }
-        setRows(Array.isArray(data) ? data : []);
-        setError(null);
-      } catch {
-        if (!cancelled) setError("Network error");
-      }
-    }
-
-    pull();
-    const id = setInterval(pull, 5000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
+    void fetch("/api/publishers", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d)) setPubs(d.filter((x: { status?: string }) => x.status === "active"));
+      });
   }, []);
 
-  const today = new Date().toISOString().slice(0, 10);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const stats = useMemo(() => {
-    const todayRows = rows.filter((r) => String(r.created_at ?? "").startsWith(today));
+  useEffect(() => {
+    if (!live) return;
+    const id = setInterval(() => void load(), 5000);
+    return () => clearInterval(id);
+  }, [live, load]);
+
+  const todayStats = useMemo(() => {
+    const day = new Date().toISOString().slice(0, 10);
+    const todayRows = rows.filter((r) => String(r.created_at ?? "").slice(0, 10) === day);
     const total = todayRows.length;
-    const cleared = todayRows.filter((r) => r.cleared === true).length;
-    const fill = total > 0 ? (cleared / total) * 100 : 0;
-    const bids = todayRows
-      .map((r) => Number(r.winning_bid))
-      .filter((n) => !Number.isNaN(n) && n > 0);
+    const clearedN = todayRows.filter((r) => r.cleared === true).length;
+    const fill = total > 0 ? (clearedN / total) * 100 : 0;
+    const bids = todayRows.map((r) => Number(r.winning_bid)).filter((n) => !Number.isNaN(n) && n > 0);
     const avgWin = bids.length ? bids.reduce((a, b) => a + b, 0) / bids.length : 0;
-    return { total, fill, avgWin };
-  }, [rows, today]);
+    const rev = todayRows.reduce((s, r) => s + Number(r.winning_bid ?? 0) / 1000, 0);
+    return { total, fill, avgWin, rev, impr: clearedN };
+  }, [rows]);
+
+  function exportCsv() {
+    window.open(`/api/auction-log?${qs}&format=csv`, "_blank");
+  }
 
   return (
     <div>
-      <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Live Telemetry ⚡</h1>
-      <p style={{ fontSize: 12, color: "var(--text-muted)" }}>Refreshes every <strong>5 seconds</strong>.</p>
-
-      <div style={{ display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap", fontSize: 12 }}>
-        <div className="card" style={{ minWidth: 140 }}>
-          <div style={{ color: "var(--text-muted)", fontSize: 10 }}>Auctions today</div>
-          <strong style={{ color: "var(--text-bright)" }}>{stats.total}</strong>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
+        <div>
+          <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Auction log</h1>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>Production telemetry · Table auto-refreshes every 5s when live.</p>
         </div>
-        <div className="card" style={{ minWidth: 140 }}>
-          <div style={{ color: "var(--text-muted)", fontSize: 10 }}>Fill rate today</div>
-          <strong style={{ color: "var(--text-bright)" }}>{stats.fill.toFixed(1)}%</strong>
-        </div>
-        <div className="card" style={{ minWidth: 140 }}>
-          <div style={{ color: "var(--text-muted)", fontSize: 10 }}>Avg winning bid</div>
-          <strong style={{ color: "var(--text-bright)" }}>${stats.avgWin.toFixed(4)}</strong>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.muted, cursor: "pointer" }}>
+            <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
+            LIVE
+          </label>
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: live ? C.green : C.muted,
+              boxShadow: live ? `0 0 10px ${C.green}` : "none",
+              animation: live ? "pulse 1.2s ease-in-out infinite" : "none"
+            }}
+          />
+          <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
+          <button type="button" className="secondary" style={{ fontSize: 11 }} onClick={exportCsv}>
+            Export CSV
+          </button>
         </div>
       </div>
 
-      {error && <p style={{ color: "#ff4757", fontSize: 12 }}>{error}</p>}
-      <div style={{ overflow: "auto", maxHeight: "65vh" }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 12, fontSize: 12 }}>
+        {[
+          ["Auctions today", String(todayStats.total)],
+          ["Fill rate today", `${todayStats.fill.toFixed(1)}%`],
+          ["Avg CPM today", `$${todayStats.avgWin.toFixed(4)}`],
+          ["Revenue today", `$${todayStats.rev.toFixed(2)}`],
+          ["Impressions today", String(todayStats.impr)]
+        ].map(([k, v]) => (
+          <div key={k} className="card" style={{ minWidth: 130, padding: 10 }}>
+            <div style={{ color: "var(--text-muted)", fontSize: 10 }}>{k}</div>
+            <strong style={{ color: "var(--text-bright)" }}>{v}</strong>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="card"
+        style={{ marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "flex-end" }}
+      >
+        <div>
+          <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>Range</div>
+          <select value={preset} onChange={(e) => setPreset(e.target.value as typeof preset)} style={{ fontSize: 11 }}>
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="7d">Last 7 days</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        {preset === "custom" && (
+          <>
+            <div>
+              <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>From</div>
+              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>To</div>
+              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+            </div>
+          </>
+        )}
+        <div>
+          <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>Publisher</div>
+          <select value={publisherId} onChange={(e) => setPublisherId(e.target.value)} style={{ fontSize: 11, minWidth: 160 }}>
+            <option value="">All publishers</option>
+            {pubs.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>Status</div>
+          <select value={cleared} onChange={(e) => setCleared(e.target.value as typeof cleared)} style={{ fontSize: 11 }}>
+            <option value="all">All</option>
+            <option value="true">Cleared</option>
+            <option value="false">No fill</option>
+          </select>
+        </div>
+        <button type="button" style={{ fontSize: 11 }} onClick={() => void load()}>
+          Apply
+        </button>
+      </div>
+
+      {error && <p style={{ color: C.red, fontSize: 12 }}>{error}</p>}
+      <div style={{ overflow: "auto", maxHeight: "70vh" }}>
         <table className="table">
           <thead>
             <tr>
               <th>Time</th>
               <th>Auction ID</th>
-              <th>Publisher</th>
-              <th>Ad unit</th>
+              <th>Domain</th>
+              <th>Unit</th>
               <th>Page</th>
               <th>Bids</th>
               <th>Win bid</th>
@@ -86,35 +213,66 @@ export default function AdminAuctionLogPage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => {
-              const cleared = r.cleared === true;
+            {rows.map((r) => {
+              const clearedOk = r.cleared === true;
+              const id = String(r.id ?? "");
+              const wb = Number(r.winning_bid);
+              const open = expanded === id;
               return (
-                <tr
-                  key={i}
-                  style={{
-                    background: cleared ? "rgba(46, 204, 113, 0.06)" : "rgba(255, 71, 87, 0.05)"
-                  }}
-                >
-                  <td style={{ fontSize: 10 }}>{String(r.created_at ?? "").slice(0, 19)}</td>
-                  <td style={{ fontFamily: "monospace", fontSize: 10 }}>{String(r.auction_id ?? "").slice(0, 10)}…</td>
-                  <td style={{ fontSize: 10 }}>{String(r.publisher_domain ?? "—")}</td>
-                  <td style={{ fontSize: 10 }}>{String(r.ad_unit_name ?? "—")}</td>
-                  <td style={{ fontSize: 9, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {String(r.page_url ?? "—").slice(0, 48)}
-                  </td>
-                  <td>{String(r.bid_count ?? "")}</td>
-                  <td>{String(r.winning_bid ?? "—")}</td>
-                  <td>{String(r.floor_price ?? "—")}</td>
-                  <td>{cleared ? "✓" : "✗"}</td>
-                </tr>
+                <Fragment key={id}>
+                  <tr
+                    onClick={() => setExpanded(open ? null : id)}
+                    style={{
+                      cursor: "pointer",
+                      borderLeft: `4px solid ${clearedOk ? C.green : C.red}`
+                    }}
+                  >
+                    <td style={{ fontSize: 10, whiteSpace: "nowrap" }} title={String(r.created_at ?? "")}>
+                      {relTime(String(r.created_at ?? ""))}
+                    </td>
+                    <td style={{ fontFamily: "ui-monospace,monospace", fontSize: 10 }}>
+                      {String(r.auction_id ?? "").slice(0, 8)}
+                    </td>
+                    <td style={{ fontSize: 10 }}>{String(r.publisher_domain ?? "—")}</td>
+                    <td style={{ fontSize: 10 }}>{String(r.ad_unit_name ?? "—")}</td>
+                    <td
+                      style={{ fontSize: 9, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis" }}
+                      title={String(r.page_url ?? "")}
+                    >
+                      {String(r.page_url ?? "—").slice(0, 40)}
+                    </td>
+                    <td>{String(r.bid_count ?? "")}</td>
+                    <td style={{ color: bidColor(wb), fontWeight: 700 }}>${Number.isFinite(wb) ? wb.toFixed(4) : "—"}</td>
+                    <td style={{ fontSize: 10 }}>{String(r.floor_price ?? "—")}</td>
+                    <td>{clearedOk ? "✓" : "✗"}</td>
+                  </tr>
+                  {open && (
+                    <tr style={{ background: "#0c1018" }}>
+                      <td colSpan={9} style={{ fontSize: 11, padding: 12 }}>
+                        <div style={{ marginBottom: 8 }}>
+                          <strong style={{ color: C.muted }}>URL:</strong>{" "}
+                          <span style={{ wordBreak: "break-all" }}>{String(r.page_url ?? "—")}</span>
+                        </div>
+                        <div style={{ marginBottom: 8 }}>
+                          <strong style={{ color: C.muted }}>User agent:</strong> {String(r.user_agent ?? "—")}
+                        </div>
+                        {r.creative_image_url ? (
+                          <div>
+                            <strong style={{ color: C.muted }}>Creative:</strong>{" "}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={String(r.creative_image_url)} alt="" style={{ maxHeight: 80, marginTop: 6, borderRadius: 4 }} />
+                          </div>
+                        ) : null}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               );
             })}
           </tbody>
         </table>
         {rows.length === 0 && !error && (
-          <p style={{ fontSize: 12, color: "var(--text-muted)", padding: 16, margin: 0 }}>
-            No auctions yet. Activate a publisher and campaign, then embed mde.js on any page.
-          </p>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", padding: 16, margin: 0 }}>No rows for this filter.</p>
         )}
       </div>
     </div>
