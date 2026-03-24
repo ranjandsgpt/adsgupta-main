@@ -48,7 +48,10 @@ export async function POST(request: NextRequest) {
 
   const bidfloor = Math.max(0, Number(imp?.bidfloor ?? 0));
 
-  const runPromise = runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor)
+  const runPromise = runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor, {
+    site: bidRequest.site,
+    device: bidRequest.device
+  })
     .then((r) => ({ kind: "done" as const, r }))
     .catch((e) => {
       console.error("[openrtb] runAuction failed:", e);

@@ -1,5 +1,6 @@
 import { isCampaignOverBudget } from "@/lib/budget-check";
 import { sql } from "@/lib/db";
+import { campaignMatchesTargeting, openRtbDeviceToLabels } from "@/lib/openrtb-targeting";
 
 export type OpenRTBBanner = {
   w?: number;
@@ -38,6 +39,8 @@ export type OpenRTBDevice = {
   ua?: string;
   w?: number;
   h?: number;
+  devicetype?: number;
+  geo?: { country?: string };
 };
 
 /** Result after inserting auction_log. `winner` null = no-fill. */
@@ -128,12 +131,21 @@ type EligibleBid = {
 /**
  * Production auction: publisher + ad unit gates, date window, daily budget, size match on imp banner (fallback ad unit sizes), second price.
  */
+function normalizePubDomain(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  let s = raw.trim().toLowerCase().replace(/^https?:\/\//, "");
+  s = (s.split("/")[0] ?? "").split(":")[0] ?? "";
+  s = s.replace(/^www\./, "");
+  return s || null;
+}
+
 export async function runAuction(
   openrtbRequestId: string,
   adUnitId: string,
   imp: OpenRTBImp | undefined,
   pageUrl: string | null,
-  bidfloorFromImp: number
+  bidfloorFromImp: number,
+  opts?: { site?: OpenRTBSite; device?: OpenRTBDevice }
 ): Promise<RunAuctionOutput | null> {
   try {
     const unitRes = await sql<{
@@ -143,8 +155,11 @@ export async function runAuction(
       sizes: string[];
       unit_status: string;
       pub_status: string;
+      environment: string;
+      publisher_domain: string;
     }>`
-      SELECT u.id, u.publisher_id, u.floor_price::text, u.sizes, u.status AS unit_status, p.status AS pub_status
+      SELECT u.id, u.publisher_id, u.floor_price::text, u.sizes, u.status AS unit_status, p.status AS pub_status,
+        u.environment, p.domain AS publisher_domain
       FROM ad_units u
       INNER JOIN publishers p ON p.id = u.publisher_id
       WHERE u.id = ${adUnitId}
@@ -207,12 +222,29 @@ export async function runAuction(
       formatSizes = adUnit.sizes ?? [];
     }
 
+    const siteDom = normalizePubDomain(opts?.site?.domain);
+    const pubDom = normalizePubDomain(adUnit.publisher_domain);
+    const deviceCountry = opts?.device?.geo?.country?.trim().toUpperCase() ?? null;
+    const deviceLabels = openRtbDeviceToLabels(opts?.device?.devicetype);
+    const targetingCtx = {
+      formatSizes,
+      publisherDomain: pubDom ?? siteDom,
+      adUnitEnvironment: adUnit.environment ?? null,
+      deviceCountry,
+      deviceLabels
+    };
+
     const campaignsRes = await sql<{
       id: string;
       bid_price: string;
       daily_budget: string | null;
+      target_sizes: string[] | null;
+      target_environments: string[] | null;
+      target_domains: string[] | null;
+      target_geos: string[] | null;
+      target_devices: string[] | null;
     }>`
-      SELECT id, bid_price::text, daily_budget::text
+      SELECT id, bid_price::text, daily_budget::text, target_sizes, target_environments, target_domains, target_geos, target_devices
       FROM campaigns
       WHERE status = 'active'
         AND (start_date IS NULL OR start_date <= CURRENT_DATE)
@@ -221,6 +253,7 @@ export async function runAuction(
 
     const eligibleCampaignIds: string[] = [];
     for (const c of campaignsRes.rows) {
+      if (!campaignMatchesTargeting(c, targetingCtx)) continue;
       const budget = c.daily_budget != null ? Number(c.daily_budget) : NaN;
       if (!Number.isNaN(budget) && budget > 0) {
         if (await isCampaignOverBudget(c.id, budget)) continue;

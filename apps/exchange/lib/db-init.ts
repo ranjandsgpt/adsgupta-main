@@ -129,6 +129,8 @@ export async function createTables() {
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS budget NUMERIC(12,2)`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS target_geos TEXT[]`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS target_devices TEXT[]`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS target_domains TEXT[]`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS target_environments TEXT[]`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS start_date DATE`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS end_date DATE`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS advertiser_name TEXT`;
@@ -150,6 +152,12 @@ export async function createTables() {
     await sql`ALTER TABLE auction_log DROP COLUMN IF EXISTS country`;
 
     await sql`UPDATE creatives SET size = '300x250' WHERE size IS NULL OR size = ''`;
+
+    await sql`ALTER TABLE creatives DROP CONSTRAINT IF EXISTS creatives_status_check`;
+    await sql`
+      ALTER TABLE creatives ADD CONSTRAINT creatives_status_check
+      CHECK (status IN ('active', 'paused', 'archived'))
+    `;
 
     await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS auction_log_id UUID REFERENCES auction_log(id) ON DELETE SET NULL`;
     await sql`
