@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Bot } from "lucide-react";
+import { Bot } from "@/components/icons";
 
 export function LoadingState({ label = "Loading..." }: { label?: string }) {
   return (

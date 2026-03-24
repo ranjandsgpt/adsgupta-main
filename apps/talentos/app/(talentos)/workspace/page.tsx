@@ -15,7 +15,7 @@ import {
   AlertCircle,
   ArrowRight,
   CheckCircle2,
-} from "lucide-react";
+} from "@/components/icons";
 import { useDropzone } from "react-dropzone";
 
 type ResumeCard = {
@@ -40,7 +40,7 @@ function ResumeDropzone({ file, onSelect, disabled }: { file: File | null; onSel
 
   return (
     <div
-      {...getRootProps()}
+      {...(getRootProps() as Record<string, unknown>)}
       className={`relative rounded-2xl border-2 border-dashed p-8 transition-all cursor-pointer ${
         isDragActive
           ? "border-cyan-500 bg-cyan-500/10"
@@ -49,7 +49,7 @@ function ResumeDropzone({ file, onSelect, disabled }: { file: File | null; onSel
             : "border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
-      <input {...getInputProps()} />
+      <input {...(getInputProps() as Record<string, unknown>)} />
 
       <div className="text-center">
         {file ? (

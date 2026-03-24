@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AlertCircle, Bot, Check, Crown, Loader2, Sparkles } from "lucide-react";
+import { AlertCircle, Bot, Check, Crown, Loader2, Sparkles } from "@/components/icons";
 import { PLANS } from "@/lib/plans";
 
 export default function PricingPage() {

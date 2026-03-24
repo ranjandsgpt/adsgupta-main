@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Crown, X } from "lucide-react";
+import { Crown, X } from "@/components/icons";
 import { PLANS } from "@/lib/plans";
 
 type Props = {

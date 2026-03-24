@@ -18,7 +18,7 @@ import {
   Star,
   Target,
   type LucideIcon,
-} from "lucide-react";
+} from "@/components/icons";
 import { PLANS } from "@/lib/plans";
 
 const AnimatedCounter = ({ value, suffix }: { value: number; suffix: string }) => {

@@ -14,7 +14,7 @@ import {
   Send,
   Star,
   User,
-} from "lucide-react";
+} from "@/components/icons";
 import { PERSONAS, type PersonaKey } from "@/lib/interview-personas";
 
 type Message = {

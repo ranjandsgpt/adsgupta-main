@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Briefcase, FileText, Mic, TrendingUp } from "lucide-react";
+import { ArrowRight, Briefcase, FileText, Mic, TrendingUp } from "@/components/icons";
 
 type DashboardPayload = {
   user: { name?: string; email: string; currentRole?: string; targetRole?: string; isSubscribed: boolean; credits: number };

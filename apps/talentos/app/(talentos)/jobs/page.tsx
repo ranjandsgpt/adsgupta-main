@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Bot, Bookmark, BookmarkCheck, Briefcase, Building2, ExternalLink, Loader2, MapPin, Search, Sparkles } from "lucide-react";
+import { Bot, Bookmark, BookmarkCheck, Briefcase, Building2, ExternalLink, Loader2, MapPin, Search, Sparkles } from "@/components/icons";
 const Paywall = dynamic(() => import("@/components/Paywall").then((m) => m.Paywall), { ssr: false });
 
 type Job = {

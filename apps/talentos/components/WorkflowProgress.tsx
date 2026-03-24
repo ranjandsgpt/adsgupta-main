@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const STEPS = [
   { label: "Upload Resume", href: "/workspace" },
+  { label: "Audit Resume", href: "/audit" },
   { label: "Analyze Match", href: "/analysis" },
   { label: "Prep Guide", href: "/prep" },
   { label: "Mock Interview", href: "/interview" },
@@ -13,10 +14,11 @@ const STEPS = [
 
 function getCurrentStep(pathname: string): number {
   if (pathname.startsWith("/workspace")) return 0;
-  if (pathname.startsWith("/analysis")) return 1;
-  if (pathname.startsWith("/prep")) return 2;
-  if (pathname.startsWith("/interview")) return 3;
-  if (pathname.startsWith("/jobs")) return 4;
+  if (pathname.startsWith("/audit")) return 1;
+  if (pathname.startsWith("/analysis")) return 2;
+  if (pathname.startsWith("/prep")) return 3;
+  if (pathname.startsWith("/interview")) return 4;
+  if (pathname.startsWith("/jobs")) return 5;
   return -1;
 }
 

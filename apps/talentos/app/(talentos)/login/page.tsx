@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bot, ArrowRight } from "lucide-react";
+import { Bot, ArrowRight } from "@/components/icons";
 
 type Tab = "signin" | "signup";
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
   function continueAsGuest() {
     const guestId = `guest_${Date.now()}`;
     localStorage.setItem("talentos_user_id", guestId);
-    router.push("/workspace");
+    router.push("/audit");
   }
 
   return (
