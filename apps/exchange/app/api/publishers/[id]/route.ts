@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { sendPublisherActivationEmail } from "@/lib/email";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
@@ -44,6 +45,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (!auth) return unauthorized();
   if (auth.role !== "admin") return forbidden("Only admins can update publisher status");
 
+  const before = await sql<{ status: string }>`SELECT status FROM publishers WHERE id = ${params.id} LIMIT 1`;
+  const prevStatus = before.rows[0]?.status;
+
   const body = await request.json();
   const result = await sql`
     UPDATE publishers SET
@@ -55,7 +59,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     WHERE id = ${params.id}
     RETURNING *
   `;
-  return json(result.rows[0] ?? null);
+  const row = result.rows[0] as { status: string; contact_email: string | null; name: string; id: string } | undefined;
+  if (row && prevStatus !== "active" && row.status === "active") {
+    const em = row.contact_email ?? "";
+    if (em) void sendPublisherActivationEmail(em, row.name, row.id);
+  }
+  return json(row ?? null);
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {

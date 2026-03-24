@@ -27,7 +27,7 @@ export async function createTables() {
         ad_type TEXT NOT NULL CHECK (ad_type IN ('display', 'video', 'native')),
         environment TEXT NOT NULL CHECK (environment IN ('web', 'app', 'ctv')),
         floor_price NUMERIC(10,4) DEFAULT 0.50,
-        status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused')),
+        status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused', 'archived')),
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;
@@ -115,6 +115,13 @@ export async function createTables() {
 
     // ── Migrations from older shapes (safe no-ops if columns missing) ─────────
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_verified BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS primary_ad_formats TEXT[]`;
+
+    await sql`ALTER TABLE ad_units DROP CONSTRAINT IF EXISTS ad_units_status_check`;
+    await sql`
+      ALTER TABLE ad_units ADD CONSTRAINT ad_units_status_check
+      CHECK (status IN ('active', 'paused', 'archived'))
+    `;
 
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS name TEXT`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS advertiser TEXT`;

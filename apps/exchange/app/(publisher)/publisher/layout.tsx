@@ -10,6 +10,7 @@ export default function PublisherLayout({ children }: { children: React.ReactNod
   const isPublic =
     pathname === "/publisher" ||
     pathname === "/publisher/register" ||
+    pathname === "/publisher/login" ||
     pathname === "/publisher/dashboard";
 
   if (isPublic) {

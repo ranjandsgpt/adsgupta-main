@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useCallback, useEffect, useState } from "react";
+
+import { IAB_STANDARD_SIZES } from "@/lib/iab-sizes";
 
 type Publisher = {
   id: string;
@@ -19,37 +22,77 @@ type AdUnit = {
   environment: string;
   floor_price: string;
   status: string;
+  impressions_today?: string;
+  impressions_24h?: string;
+  revenue_24h?: string;
 };
 
-const SIZES = ["300x250", "728x90", "160x600", "320x50", "300x600"] as const;
+type PublisherStats = {
+  impressionsTotal: number;
+  impressionsToday: number;
+  revenueTotal: number;
+  revenueToday: number;
+  fillRate: number;
+  activeUnits: number;
+};
 
 function buildTagSnippet(publisherId: string, unit: AdUnit) {
-  const size = unit.sizes[0] ?? "300x250";
+  const sizes = unit.sizes?.length ? unit.sizes : ["300x250"];
+  const size = sizes[0] ?? "300x250";
   const [w, h] = size.split("x");
   const floor = Number(unit.floor_price ?? 0.5);
-  const divId = `mde-${unit.id.replace(/-/g, "")}`;
-  return `<!-- MDE Ad Tag: ${unit.name} | exchange.adsgupta.com -->
-<div id="${divId}" style="width:${w}px;height:${h}px;overflow:hidden;"></div>
+  const unitId = unit.id;
+  const sizesJson = JSON.stringify(sizes);
+  return `<!-- MDE Publisher Tag | ${unit.name} | exchange.adsgupta.com -->
+<div id='mde-${unitId}' style='width:${w}px;height:${h}px;overflow:hidden;'></div>
 <script>
   window.mde=window.mde||{cmd:[]};
   mde.cmd.push(function(){
     mde.init({networkCode:'${publisherId}'});
-    mde.defineSlot({unitId:'${unit.id}',div:'${divId}',sizes:['${size}'],floor:${floor}});
+    mde.defineSlot({unitId:'${unitId}',div:'mde-${unitId}',sizes:${sizesJson},floor:${floor}});
     mde.enableServices();
-    mde.display('${divId}');
+    mde.display('mde-${unitId}');
   });
 </script>
-<script async src="https://exchange.adsgupta.com/mde.js"></script>`;
+<script async src='https://exchange.adsgupta.com/mde.js'></script>`;
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = status.toLowerCase();
+  const cfg =
+    s === "active"
+      ? { bg: "#2ecc7122", border: "#2ecc7155", color: "#2ecc71", label: "Active" }
+      : s === "suspended"
+        ? { bg: "#ff475722", border: "#ff475755", color: "#ff4757", label: "Suspended" }
+        : { bg: "#ffd32a22", border: "#ffd32a55", color: "#ffd32a", label: "Pending" };
+  return (
+    <span
+      style={{
+        fontSize: 10,
+        fontWeight: 800,
+        textTransform: "uppercase",
+        letterSpacing: "0.04em",
+        padding: "4px 10px",
+        borderRadius: 4,
+        background: cfg.bg,
+        border: `1px solid ${cfg.border}`,
+        color: cfg.color
+      }}
+    >
+      {cfg.label}
+    </span>
+  );
 }
 
 function PublisherDashboardInner() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [pub, setPub] = useState<Publisher | null>(null);
+  const [stats, setStats] = useState<PublisherStats | null>(null);
   const [units, setUnits] = useState<AdUnit[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [unitName, setUnitName] = useState("site_leaderboard");
-  const [sizePick, setSizePick] = useState<string>(SIZES[0]);
+  const [sizeSelection, setSizeSelection] = useState<string[]>(["300x250"]);
   const [adType, setAdType] = useState("display");
   const [env, setEnv] = useState("web");
   const [floor, setFloor] = useState("0.50");
@@ -57,10 +100,25 @@ function PublisherDashboardInner() {
   const [modalOpen, setModalOpen] = useState(false);
   const [tagModalUnit, setTagModalUnit] = useState<AdUnit | null>(null);
   const [copied, setCopied] = useState(false);
+  const [editingFloor, setEditingFloor] = useState<{ unitId: string; value: string } | null>(null);
 
   const reloadUnits = useCallback(async (pid: string) => {
-    const ir = await fetch(`/api/inventory?publisher_id=${encodeURIComponent(pid)}`);
-    if (ir.ok) setUnits(await ir.json());
+    const ir = await fetch(`/api/inventory?publisherId=${encodeURIComponent(pid)}`);
+    if (ir.ok) setUnits((await ir.json()) as AdUnit[]);
+  }, []);
+
+  const reloadStats = useCallback(async (pid: string) => {
+    const sr = await fetch(`/api/publisher-stats/${encodeURIComponent(pid)}`);
+    if (!sr.ok) return;
+    const j = (await sr.json()) as Record<string, unknown>;
+    setStats({
+      impressionsTotal: Number(j.impressionsTotal ?? 0),
+      impressionsToday: Number(j.impressionsToday ?? 0),
+      revenueTotal: Number(j.revenueTotal ?? 0),
+      revenueToday: Number(j.revenueToday ?? 0),
+      fillRate: Number(j.fillRate ?? 0),
+      activeUnits: Number(j.activeUnits ?? 0)
+    });
   }, []);
 
   useEffect(() => {
@@ -68,14 +126,28 @@ function PublisherDashboardInner() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`/api/publishers/${id}`);
+        const [res, st] = await Promise.all([
+          fetch(`/api/publishers/${id}`),
+          fetch(`/api/publisher-stats/${encodeURIComponent(id)}`)
+        ]);
         const data = await res.json();
         if (cancelled) return;
         if (!res.ok) {
-          setLoadError(data.error ?? "Failed to load publisher");
+          setLoadError(typeof data.error === "string" ? data.error : "Failed to load publisher");
           return;
         }
-        setPub(data);
+        setPub(data as Publisher);
+        if (st.ok) {
+          const j = (await st.json()) as Record<string, unknown>;
+          setStats({
+            impressionsTotal: Number(j.impressionsTotal ?? 0),
+            impressionsToday: Number(j.impressionsToday ?? 0),
+            revenueTotal: Number(j.revenueTotal ?? 0),
+            revenueToday: Number(j.revenueToday ?? 0),
+            fillRate: Number(j.fillRate ?? 0),
+            activeUnits: Number(j.activeUnits ?? 0)
+          });
+        }
         if (data?.status === "active") {
           await reloadUnits(id);
         }
@@ -88,9 +160,17 @@ function PublisherDashboardInner() {
     };
   }, [id, reloadUnits]);
 
+  function toggleSize(s: string) {
+    setSizeSelection((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+  }
+
   async function createUnit(e: FormEvent) {
     e.preventDefault();
     if (!id || pub?.status !== "active") return;
+    if (sizeSelection.length === 0) {
+      setLoadError("Pick at least one IAB size");
+      return;
+    }
     setCreating(true);
     setLoadError(null);
     try {
@@ -100,7 +180,7 @@ function PublisherDashboardInner() {
         body: JSON.stringify({
           publisher_id: id,
           name: unitName,
-          sizes: [sizePick],
+          sizes: sizeSelection,
           ad_type: adType,
           environment: env,
           floor_price: Number(floor)
@@ -108,12 +188,13 @@ function PublisherDashboardInner() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setLoadError(data.error ?? "Could not create ad unit");
+        setLoadError(typeof data.error === "string" ? data.error : "Could not create ad unit");
         setCreating(false);
         return;
       }
-      setUnits((u) => [...u, data]);
+      setUnits((u) => [...u, data as AdUnit]);
       setModalOpen(false);
+      void reloadStats(id);
     } catch {
       setLoadError("Network error");
     }
@@ -130,13 +211,63 @@ function PublisherDashboardInner() {
     }
   }
 
+  async function saveFloor(unit: AdUnit, value: string) {
+    if (!id) return;
+    setEditingFloor(null);
+    const n = Number(value);
+    if (!Number.isFinite(n) || n <= 0) {
+      setLoadError("Floor must be > 0");
+      return;
+    }
+    const res = await fetch(`/api/inventory/${unit.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ publisher_id: id, floor_price: n })
+    });
+    if (!res.ok) {
+      setLoadError("Could not update floor");
+      return;
+    }
+    const row = (await res.json()) as AdUnit | null;
+    if (row) setUnits((u) => u.map((x) => (x.id === row.id ? row : x)));
+  }
+
+  async function setPaused(unit: AdUnit, paused: boolean) {
+    if (!id) return;
+    const res = await fetch(`/api/inventory/${unit.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ publisher_id: id, status: paused ? "paused" : "active" })
+    });
+    if (!res.ok) {
+      setLoadError("Could not update status");
+      return;
+    }
+    const row = (await res.json()) as AdUnit | null;
+    if (row) setUnits((u) => u.map((x) => (x.id === row.id ? row : x)));
+    void reloadStats(id);
+  }
+
+  async function archiveUnit(unit: AdUnit) {
+    if (!id || !confirm(`Remove (archive) ad unit “${unit.name}”?`)) return;
+    const res = await fetch(`/api/inventory/${encodeURIComponent(unit.id)}?publisherId=${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+    if (!res.ok) {
+      setLoadError("Could not archive unit");
+      return;
+    }
+    setUnits((u) => u.filter((x) => x.id !== unit.id));
+    void reloadStats(id);
+  }
+
   if (!id) {
     return (
       <p style={{ color: "var(--text-muted)" }}>
         Add <code>?id=</code> with your publisher UUID.{" "}
-        <a href="/publisher/register" style={{ color: "var(--accent)" }}>
+        <Link href="/publisher/register" style={{ color: "var(--accent)" }}>
           Register
-        </a>
+        </Link>
       </p>
     );
   }
@@ -150,49 +281,84 @@ function PublisherDashboardInner() {
   }
 
   const testHtml = tagModalUnit && id ? buildTagSnippet(id, tagModalUnit) : "";
+  const testPage = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MDE test — ${tagModalUnit?.name ?? "ad"}</title>
+</head>
+<body style="margin:24px;background:#0a0e17;color:#e8f0f8;font-family:system-ui,sans-serif">
+  <p style="font-size:12px;color:#5a6d82">Local save-and-open test page · replace localhost with your tag host if needed.</p>
+${testHtml ? `\n${testHtml}\n` : ""}
+</body>
+</html>`;
 
   return (
     <div>
-      <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Publisher dashboard</h1>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <h1 style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: "var(--text-bright)", margin: 0, fontSize: 20 }}>
+              {pub.name}
+            </h1>
+            <StatusBadge status={pub.status} />
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>
+            {pub.domain}
+            {pub.contact_email ? ` · ${pub.contact_email}` : ""}
+          </div>
+        </div>
+      </div>
+
       {loadError && <p style={{ color: "#ff4757", fontSize: 12 }}>{loadError}</p>}
 
       {pub.status === "pending" && (
         <div
           className="card"
-          style={{ borderColor: "#ffd32a55", marginBottom: 20, background: "#ffd32a08" }}
+          style={{
+            borderColor: "#ffd32a55",
+            marginBottom: 20,
+            background: "#ffd32a10",
+            color: "var(--text-muted)",
+            fontSize: 13
+          }}
         >
-          <strong style={{ color: "#ffd32a" }}>Account pending activation</strong>
-          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "8px 0 0" }}>
-            The exchange team will activate your account. Once active, you can generate ad tags.
-          </p>
+          <strong style={{ color: "#ffd32a" }}>Account pending activation by the exchange team.</strong>
+          <p style={{ margin: "8px 0 0" }}>Tag generator will be available once activated.</p>
         </div>
       )}
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Publisher ID</div>
-        <div style={{ fontSize: 14, color: "var(--accent)", fontFamily: "monospace", wordBreak: "break-all" }}>
-          {pub.id}
+      {pub.status === "suspended" && (
+        <div
+          className="card"
+          style={{ borderColor: "#ff475755", marginBottom: 20, background: "#ff475710", fontSize: 13, color: "var(--text-muted)" }}
+        >
+          <strong style={{ color: "#ff4757" }}>Account suspended.</strong>
+          <p style={{ margin: "8px 0 0" }}>Contact the exchange team to restore access.</p>
         </div>
-        <div style={{ marginTop: 10, fontSize: 11, color: "var(--text-muted)" }}>Domain · {pub.domain}</div>
-        <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Contact · {pub.contact_email ?? "—"}</div>
-      </div>
+      )}
+
+      {pub.status === "active" && stats && (
+        <div className="kpis" style={{ marginBottom: 20, gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
+          {[
+            ["Total impressions", stats.impressionsTotal],
+            ["Today impressions", stats.impressionsToday],
+            ["Total revenue ($)", stats.revenueTotal.toFixed(4)],
+            ["Fill rate %", `${stats.fillRate.toFixed(1)}%`],
+            ["Active units", stats.activeUnits]
+          ].map(([label, val]) => (
+            <div key={String(label)} className="card">
+              <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{label}</div>
+              <strong style={{ color: "var(--text-bright)" }}>{val}</strong>
+            </div>
+          ))}
+        </div>
+      )}
 
       {pub.status === "active" && (
         <>
-          <div className="kpis" style={{ marginBottom: 20 }}>
-            {["Total impressions", "Revenue", "Fill rate", "Active units"].map((label, i) => (
-              <div key={label} className="card">
-                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{label}</div>
-                <strong style={{ color: i === 3 ? "var(--accent)" : "var(--text-bright)" }}>
-                  {i === 3 ? units.length : "—"}
-                </strong>
-                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>Placeholder</div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 style={{ fontSize: 15, color: "var(--text-bright)", margin: 0 }}>Ad units</h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <h2 style={{ fontSize: 15, color: "var(--text-bright)", margin: 0, fontWeight: 800 }}>Ad units</h2>
             <button type="button" onClick={() => setModalOpen(true)}>
               Create New Ad Unit
             </button>
@@ -203,11 +369,12 @@ function PublisherDashboardInner() {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Size</th>
+                  <th>Sizes</th>
                   <th>Type</th>
                   <th>Floor CPM</th>
                   <th>Status</th>
-                  <th />
+                  <th>Impressions (today)</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -216,11 +383,36 @@ function PublisherDashboardInner() {
                     <td>{u.name}</td>
                     <td style={{ fontFamily: "monospace", fontSize: 11 }}>{(u.sizes ?? []).join(", ")}</td>
                     <td>{u.ad_type}</td>
-                    <td>{u.floor_price}</td>
-                    <td style={{ color: u.status === "active" ? "#2ecc71" : "#ffd32a" }}>{u.status}</td>
-                    <td>
-                      <button type="button" onClick={() => setTagModalUnit(u)}>
+                    <td
+                      style={{ cursor: "pointer", color: "var(--accent)" }}
+                      onClick={() => setEditingFloor({ unitId: u.id, value: String(u.floor_price) })}
+                    >
+                      {editingFloor?.unitId === u.id ? (
+                        <input
+                          autoFocus
+                          style={{ maxWidth: 100 }}
+                          value={editingFloor.value}
+                          onChange={(e) => setEditingFloor({ unitId: u.id, value: e.target.value })}
+                          onBlur={(e) => saveFloor(u, e.currentTarget.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveFloor(u, (e.target as HTMLInputElement).value);
+                          }}
+                        />
+                      ) : (
+                        u.floor_price
+                      )}
+                    </td>
+                    <td>{u.status}</td>
+                    <td>{u.impressions_today ?? "0"}</td>
+                    <td style={{ whiteSpace: "nowrap" }}>
+                      <button type="button" style={{ marginRight: 6 }} onClick={() => setTagModalUnit(u)}>
                         Get Tag
+                      </button>
+                      <button type="button" className="link-button" style={{ marginRight: 6 }} onClick={() => setPaused(u, u.status === "active")}>
+                        {u.status === "active" ? "Pause" : "Resume"}
+                      </button>
+                      <button type="button" className="link-button" onClick={() => archiveUnit(u)}>
+                        Remove
                       </button>
                     </td>
                   </tr>
@@ -245,20 +437,32 @@ function PublisherDashboardInner() {
           }}
           onClick={() => setModalOpen(false)}
         >
-          <div className="card" style={{ width: "100%", maxWidth: 440 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontWeight: 700, color: "#4a9eff", marginBottom: 14 }}>▦ New ad unit</div>
+          <div className="card" style={{ width: "100%", maxWidth: 480, maxHeight: "90vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontWeight: 800, color: "#4a9eff", marginBottom: 14, fontFamily: "'JetBrains Mono', monospace" }}>New ad unit</div>
             <form onSubmit={createUnit}>
               <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Name *</label>
               <input value={unitName} onChange={(e) => setUnitName(e.target.value)} required />
               <div style={{ height: 10 }} />
-              <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Size *</label>
-              <select value={sizePick} onChange={(e) => setSizePick(e.target.value)}>
-                {SIZES.map((s) => (
-                  <option key={s} value={s}>
+              <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Sizes * (IAB, multi-select)</label>
+              <div
+                style={{
+                  maxHeight: 160,
+                  overflow: "auto",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6,
+                  padding: 8,
+                  marginTop: 6,
+                  display: "grid",
+                  gap: 6
+                }}
+              >
+                {IAB_STANDARD_SIZES.map((s) => (
+                  <label key={s} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, cursor: "pointer" }}>
+                    <input type="checkbox" checked={sizeSelection.includes(s)} onChange={() => toggleSize(s)} />
                     {s}
-                  </option>
+                  </label>
                 ))}
-              </select>
+              </div>
               <div style={{ height: 10 }} />
               <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Ad type *</label>
               <select value={adType} onChange={(e) => setAdType(e.target.value)}>
@@ -274,8 +478,8 @@ function PublisherDashboardInner() {
                 <option value="ctv">ctv</option>
               </select>
               <div style={{ height: 10 }} />
-              <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Floor CPM</label>
-              <input value={floor} onChange={(e) => setFloor(e.target.value)} type="number" step="0.0001" />
+              <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Floor CPM *</label>
+              <input value={floor} onChange={(e) => setFloor(e.target.value)} type="number" step="0.0001" min="0.0001" required />
               <div style={{ height: 16, display: "flex", gap: 8 }}>
                 <button type="submit" disabled={creating}>
                   {creating ? "…" : "Create"}
@@ -303,8 +507,11 @@ function PublisherDashboardInner() {
           }}
           onClick={() => setTagModalUnit(null)}
         >
-          <div className="card" style={{ width: "100%", maxWidth: 640 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontWeight: 700, color: "var(--accent)", marginBottom: 10 }}>MDE tag · {tagModalUnit.name}</div>
+          <div className="card" style={{ width: "100%", maxWidth: 640, maxHeight: "92vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>MDE tag · {tagModalUnit.name}</div>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
+              Paste before <code>&lt;/body&gt;</code>. Ensure the container <code>mde-{tagModalUnit.id}</code> is visible for lazy-loaded auctions.
+            </p>
             <pre
               style={{
                 fontSize: 10,
@@ -314,15 +521,19 @@ function PublisherDashboardInner() {
                 borderRadius: 6,
                 border: "1px solid var(--border)",
                 whiteSpace: "pre-wrap",
-                maxHeight: 280
+                maxHeight: 260
               }}
             >
               {testHtml}
             </pre>
-            <button type="button" style={{ marginTop: 12, background: "#143d28", borderColor: "#2ecc7155", color: "#2ecc71" }} onClick={() => copyTag(testHtml)}>
-              {copied ? "Copied" : "Copy Tag"}
+            <button
+              type="button"
+              style={{ marginTop: 12, background: "#143d28", borderColor: "#2ecc7155", color: "#2ecc71" }}
+              onClick={() => copyTag(testHtml)}
+            >
+              Copy tag
             </button>
-            <div style={{ marginTop: 16, fontSize: 11, color: "var(--text-muted)" }}>Test HTML page</div>
+            <div style={{ marginTop: 16, fontSize: 11, color: "var(--text-muted)" }}>Complete test HTML (save as .html and open locally)</div>
             <pre
               style={{
                 fontSize: 10,
@@ -330,15 +541,38 @@ function PublisherDashboardInner() {
                 background: "#0c1018",
                 borderRadius: 6,
                 border: "1px solid var(--border)",
-                whiteSpace: "pre-wrap"
+                whiteSpace: "pre-wrap",
+                maxHeight: 200,
+                overflow: "auto"
               }}
             >
-              {`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ad test</title></head><body style="background:#0a0e17;color:#fff;font-family:monospace">\n${testHtml}\n</body></html>`}
+              {testPage}
             </pre>
             <button type="button" className="link-button" style={{ marginTop: 8 }} onClick={() => setTagModalUnit(null)}>
               Close
             </button>
           </div>
+        </div>
+      )}
+
+      {copied && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            background: "#143d28",
+            border: "1px solid #2ecc7155",
+            color: "#2ecc71",
+            padding: "10px 16px",
+            borderRadius: 8,
+            fontSize: 12,
+            fontWeight: 700,
+            zIndex: 200,
+            boxShadow: "0 8px 24px #000e"
+          }}
+        >
+          Copied!
         </div>
       )}
     </div>

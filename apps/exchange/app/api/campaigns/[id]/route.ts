@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { sendDemandActivationEmail } from "@/lib/email";
 import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
@@ -94,6 +95,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const body = await request.json();
 
   if (auth.role === "admin") {
+    const prevStatus = String(existing.status ?? "");
     try {
       const result = await sql`
         UPDATE campaigns SET
@@ -110,7 +112,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         WHERE id = ${params.id}
         RETURNING *
       `;
-      return json(result.rows[0] ?? null);
+      const row = result.rows[0] as Record<string, unknown> | undefined;
+      if (row && prevStatus !== "active" && String(row.status ?? "") === "active") {
+        const em = String(row.advertiser_email ?? row.contact_email ?? "");
+        const cn = String(row.campaign_name ?? row.name ?? "Campaign");
+        if (em) void sendDemandActivationEmail(em, cn, params.id);
+      }
+      return json(row ?? null);
     } catch (e) {
       console.error("[campaigns PATCH admin]", e);
       return json({ error: "Update failed" }, 500);
@@ -122,11 +130,18 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (!["active", "paused", "pending"].includes(body.status)) {
       return badRequest("Invalid status");
     }
+    const prevStatus = String(existing.status ?? "");
     try {
       const result = await sql`
         UPDATE campaigns SET status = ${body.status} WHERE id = ${params.id} RETURNING *
       `;
-      return json(result.rows[0] ?? null);
+      const row = result.rows[0] as Record<string, unknown> | undefined;
+      if (row && prevStatus !== "active" && String(row.status ?? "") === "active") {
+        const em = String(row.advertiser_email ?? row.contact_email ?? "");
+        const cn = String(row.campaign_name ?? row.name ?? "Campaign");
+        if (em) void sendDemandActivationEmail(em, cn, params.id);
+      }
+      return json(row ?? null);
     } catch (e) {
       console.error("[campaigns PATCH demand]", e);
       return json({ error: "Update failed" }, 500);

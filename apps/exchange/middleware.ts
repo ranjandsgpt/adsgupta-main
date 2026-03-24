@@ -37,7 +37,17 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
 
   if (pathname === "/api/publishers" && m === "POST") return true;
   if (pathname === "/api/inventory" && m === "POST") return true;
-  if (pathname === "/api/inventory" && m === "GET" && request.nextUrl.searchParams.get("publisher_id")) {
+  if (
+    pathname === "/api/inventory" &&
+    m === "GET" &&
+    (request.nextUrl.searchParams.get("publisher_id") || request.nextUrl.searchParams.get("publisherId"))
+  ) {
+    return true;
+  }
+  if (/^\/api\/publisher-stats\/[^/]+$/.test(pathname) && m === "GET") {
+    return true;
+  }
+  if (/^\/api\/inventory\/[^/]+$/.test(pathname) && (m === "PATCH" || m === "DELETE")) {
     return true;
   }
   if (pathname === "/api/campaigns" && m === "POST") return true;
@@ -63,6 +73,7 @@ function isPublicPage(pathname: string): boolean {
   return (
     pathname === "/publisher" ||
     pathname === "/publisher/register" ||
+    pathname === "/publisher/login" ||
     pathname === "/publisher/dashboard" ||
     pathname === "/demand" ||
     pathname === "/demand/create" ||
@@ -159,6 +170,8 @@ export const config = {
     "/api/pricing-rules/:path*",
     "/api/reports",
     "/api/reports/:path*",
+    "/api/publisher-stats",
+    "/api/publisher-stats/:path*",
     "/api/auction-log",
     "/api/auction-log/:path*"
   ]
