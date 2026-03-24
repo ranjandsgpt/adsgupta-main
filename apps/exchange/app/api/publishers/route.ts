@@ -24,11 +24,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
-  if (!auth) return unauthorized();
-  if (auth.role !== "admin") return forbidden("Only exchange admins can create publishers");
-
   const body = await request.json();
+
   if (!body.name || !body.domain) return badRequest("name and domain are required");
+
+  /** Self-registration (no auth): always pending */
+  if (!auth) {
+    const result = await sql`
+      INSERT INTO publishers (name, domain, contact_email, ads_txt_verified, status)
+      VALUES (${body.name}, ${body.domain}, ${body.contact_email ?? null}, false, 'pending')
+      RETURNING *
+    `;
+    return json(result.rows[0], 201);
+  }
+
+  if (auth.role !== "admin") return forbidden("Only exchange admins can create publishers here");
+
   const result = await sql`
     INSERT INTO publishers (name, domain, contact_email, ads_txt_verified, status)
     VALUES (${body.name}, ${body.domain}, ${body.contact_email ?? null}, ${Boolean(body.ads_txt_verified)}, ${body.status ?? "active"})

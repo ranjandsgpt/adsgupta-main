@@ -2,9 +2,11 @@ import { PortalShell } from "@/components/portal-shell";
 
 const ADMIN_NAV = [
   ["/admin", "Dashboard"],
+  ["/admin/publishers", "Publishers"],
+  ["/admin/demand", "Demand campaigns"],
+  ["/admin/auction-log", "Auction log"],
   ["/admin/inventory", "Inventory"],
   ["/admin/delivery", "Delivery"],
-  ["/admin/demand", "Demand Partners"],
   ["/admin/yield", "Yield & Pricing"],
   ["/admin/reporting", "Reporting"],
   ["/admin/ai", "AI Studio"],

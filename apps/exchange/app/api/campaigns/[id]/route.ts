@@ -23,11 +23,14 @@ function canDemandAccessCampaign(
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const auth = await getAuthFromRequest(request);
-  if (!auth) return unauthorized();
-  if (auth.role === "publisher") return forbidden();
-
   const campaign = await loadCampaign(params.id);
   if (!campaign) return json(null);
+
+  if (!auth) {
+    return json(campaign);
+  }
+
+  if (auth.role === "publisher") return forbidden();
   if (!canDemandAccessCampaign(auth, campaign)) return forbidden();
   return json(campaign);
 }
@@ -59,7 +62,34 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       target_devices = COALESCE(${body.target_devices ?? null}, target_devices),
       status = COALESCE(${body.status ?? null}, status),
       start_date = COALESCE(${body.start_date ?? null}, start_date),
-      end_date = COALESCE(${body.end_date ?? null}, end_date)
+      end_date = COALESCE(${body.end_date ?? null}, end_date),
+      contact_email = COALESCE(${body.contact_email ?? null}, contact_email)
+    WHERE id = ${params.id}
+    RETURNING *
+  `;
+  return json(result.rows[0] ?? null);
+}
+
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await getAuthFromRequest(request);
+  if (!auth) return unauthorized();
+  if (auth.role !== "admin") return forbidden("Only admins can activate campaigns");
+
+  const body = await request.json();
+  const result = await sql`
+    UPDATE campaigns SET
+      name = COALESCE(${body.name ?? null}, name),
+      advertiser = COALESCE(${body.advertiser ?? null}, advertiser),
+      budget = COALESCE(${body.budget ?? null}, budget),
+      daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
+      bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
+      target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
+      target_geos = COALESCE(${body.target_geos ?? null}, target_geos),
+      target_devices = COALESCE(${body.target_devices ?? null}, target_devices),
+      status = COALESCE(${body.status ?? null}, status),
+      start_date = COALESCE(${body.start_date ?? null}, start_date),
+      end_date = COALESCE(${body.end_date ?? null}, end_date),
+      contact_email = COALESCE(${body.contact_email ?? null}, contact_email)
     WHERE id = ${params.id}
     RETURNING *
   `;

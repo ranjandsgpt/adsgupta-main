@@ -6,6 +6,16 @@ import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
+  const publisherId = request.nextUrl.searchParams.get("publisher_id");
+
+  if (!auth && publisherId) {
+    const pub = await sql`SELECT status FROM publishers WHERE id = ${publisherId} LIMIT 1`;
+    if (pub.rows[0]?.status !== "active") return forbidden();
+    const result =
+      await sql`SELECT id, name, sizes, ad_type, environment, floor_price, status, created_at, publisher_id FROM ad_units WHERE publisher_id = ${publisherId} ORDER BY created_at DESC`;
+    return json(result.rows);
+  }
+
   if (!auth) return unauthorized();
 
   if (auth.role === "admin") {
@@ -25,13 +35,29 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
-  if (!auth) return unauthorized();
-  if (auth.role !== "admin" && auth.role !== "publisher") return forbidden();
-
   const body = await request.json();
+
   if (!body.publisher_id || !body.name || !body.ad_type || !body.environment) {
     return badRequest("publisher_id, name, ad_type, environment are required");
   }
+
+  /** Public: only if publisher is active */
+  if (!auth) {
+    const pub = await sql`SELECT status FROM publishers WHERE id = ${body.publisher_id} LIMIT 1`;
+    const status = pub.rows[0]?.status as string | undefined;
+    if (status !== "active") {
+      return forbidden("Publisher must be active before creating ad units");
+    }
+    const result = await sql`
+      INSERT INTO ad_units (publisher_id, name, sizes, ad_type, environment, floor_price, status)
+      VALUES (${body.publisher_id}, ${body.name}, ${body.sizes ?? ["300x250"]}, ${body.ad_type}, ${body.environment}, ${body.floor_price ?? 0.5}, ${body.status ?? "active"})
+      RETURNING *
+    `;
+    return json(result.rows[0], 201);
+  }
+
+  if (auth.role !== "admin" && auth.role !== "publisher") return forbidden();
+
   if (auth.role === "publisher") {
     if (!auth.publisherId || body.publisher_id !== auth.publisherId) {
       return forbidden("Cannot create inventory for another publisher");

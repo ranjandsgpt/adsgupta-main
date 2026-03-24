@@ -101,5 +101,7 @@ export async function createTables() {
       active BOOLEAN DEFAULT true,
       created_at TIMESTAMPTZ DEFAULT now()
     );
+
+    ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS contact_email TEXT;
   `;
 }

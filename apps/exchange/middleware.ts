@@ -18,10 +18,11 @@ function canAccess(role: ExchangeRole | undefined, pathname: string): boolean {
   return false;
 }
 
-function apiAllowed(role: ExchangeRole | undefined, pathname: string): boolean {
+function apiAllowed(role: ExchangeRole | undefined, pathname: string, request: NextRequest): boolean {
   if (!role) return false;
   if (role === "admin") return true;
   if (pathname.startsWith("/api/pricing-rules")) return false;
+  if (pathname.startsWith("/api/auction-log")) return false;
   if (pathname.startsWith("/api/publishers")) return role === "publisher";
   if (pathname.startsWith("/api/inventory")) return role === "publisher";
   if (pathname.startsWith("/api/campaigns") || pathname.startsWith("/api/creatives")) {
@@ -29,6 +30,34 @@ function apiAllowed(role: ExchangeRole | undefined, pathname: string): boolean {
   }
   if (pathname.startsWith("/api/reports")) return true;
   return false;
+}
+
+function isPublicApi(request: NextRequest, pathname: string): boolean {
+  const m = request.method;
+
+  if (pathname === "/api/publishers" && m === "POST") return true;
+  if (pathname === "/api/inventory" && m === "POST") return true;
+  if (pathname === "/api/inventory" && m === "GET" && request.nextUrl.searchParams.get("publisher_id")) {
+    return true;
+  }
+  if (pathname === "/api/campaigns" && m === "POST") return true;
+  if (pathname === "/api/campaigns" && m === "GET" && request.nextUrl.searchParams.get("email")) {
+    return true;
+  }
+  if (pathname === "/api/creatives" && m === "POST") return true;
+  if (/^\/api\/publishers\/[^/]+$/.test(pathname) && m === "GET") return true;
+  if (/^\/api\/campaigns\/[^/]+$/.test(pathname) && m === "GET") return true;
+
+  return false;
+}
+
+function isPublicPage(pathname: string): boolean {
+  return (
+    pathname === "/publisher/register" ||
+    pathname === "/publisher/dashboard" ||
+    pathname === "/demand/create" ||
+    pathname === "/demand/dashboard"
+  );
 }
 
 export async function middleware(request: NextRequest) {
@@ -40,6 +69,10 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api/track") ||
     pathname.startsWith("/api/db-init")
   ) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api/") && isPublicApi(request, pathname)) {
     return NextResponse.next();
   }
 
@@ -58,13 +91,17 @@ export async function middleware(request: NextRequest) {
     if (!token || !role) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
     }
-    if (!apiAllowed(role, pathname)) {
+    if (!apiAllowed(role, pathname, request)) {
       return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
     }
     return NextResponse.next();
   }
 
   if (pathname === "/" || pathname.startsWith("/login")) {
+    return NextResponse.next();
+  }
+
+  if (isPublicPage(pathname)) {
     return NextResponse.next();
   }
 
@@ -111,6 +148,8 @@ export const config = {
     "/api/pricing-rules",
     "/api/pricing-rules/:path*",
     "/api/reports",
-    "/api/reports/:path*"
+    "/api/reports/:path*",
+    "/api/auction-log",
+    "/api/auction-log/:path*"
   ]
 };

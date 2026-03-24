@@ -18,15 +18,23 @@ export default function PortalHubPage() {
       <div className="portal-grid">
         <Link className="portal-card" href="/login?portal=admin&callbackUrl=/admin">
           <h2>Exchange admin</h2>
-          <p>Full stack: inventory, delivery, demand partner catalog, yield rules, reporting, protections, AI shell, tag generator, and settings.</p>
+          <p>Full stack: inventory, delivery, yield rules, reporting, protections, AI shell, tag generator, and settings.</p>
+        </Link>
+        <Link className="portal-card" href="/publisher/register">
+          <h2>Publisher (self-serve)</h2>
+          <p>Register your site — no login. Get a publisher ID, then activate with admin to generate tags and ad units.</p>
+        </Link>
+        <Link className="portal-card" href="/demand/create">
+          <h2>Demand (self-serve)</h2>
+          <p>Create a campaign with budget and creative — no login. Track status on the dashboard by email.</p>
         </Link>
         <Link className="portal-card" href="/login?portal=publisher&callbackUrl=/publisher">
-          <h2>Publisher</h2>
-          <p>Your sites and ad units, embeddable tags, and performance scoped to your publisher account.</p>
+          <h2>Publisher portal</h2>
+          <p>Logged-in console: sites, ad units, embeddable tags, and performance for your account.</p>
         </Link>
         <Link className="portal-card" href="/login?portal=demand&callbackUrl=/demand">
-          <h2>Demand</h2>
-          <p>Campaigns, creatives, and win/imp metrics for your seat (optional advertiser lock via env).</p>
+          <h2>Demand portal</h2>
+          <p>Logged-in seat: campaigns, creatives, and win/imp metrics (optional advertiser lock via env).</p>
         </Link>
       </div>
     </div>

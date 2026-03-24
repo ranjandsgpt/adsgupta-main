@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { put } from "@vercel/blob";
 import { sql } from "@/lib/db";
-import { json } from "@/lib/http";
+import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
 import { NextRequest } from "next/server";
 
@@ -36,9 +36,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
-  if (!auth) return unauthorized();
-  if (auth.role === "publisher") return forbidden();
-
   const formData = await request.formData();
   const campaignId = formData.get("campaign_id") as string;
   const name = formData.get("name") as string;
@@ -49,7 +46,21 @@ export async function POST(request: NextRequest) {
   const vastUrl = (formData.get("vast_url") as string) ?? null;
   const file = formData.get("file") as File | null;
 
-  if (auth.role === "demand") {
+  if (!campaignId || !name) {
+    return badRequest("campaign_id and name are required");
+  }
+
+  /** Public wizard: only for pending self-registered campaigns */
+  if (!auth) {
+    const camp =
+      await sql`SELECT status FROM campaigns WHERE id = ${campaignId} LIMIT 1`;
+    const row = camp.rows[0] as { status: string } | undefined;
+    if (!row || row.status !== "pending") {
+      return forbidden("Creative upload is only allowed for pending registration campaigns");
+    }
+  } else if (auth.role === "publisher") {
+    return forbidden();
+  } else if (auth.role === "demand") {
     const camp = await sql`SELECT advertiser FROM campaigns WHERE id = ${campaignId} LIMIT 1`;
     const row = camp.rows[0] as { advertiser: string } | undefined;
     if (!row) return forbidden("Invalid campaign");
