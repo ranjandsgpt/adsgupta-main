@@ -1,5 +1,6 @@
 "use client";
 
+import { DemandAnalyticsTab } from "@/components/demand-analytics-tab";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
@@ -85,6 +86,7 @@ function Inner() {
   const [bidModal, setBidModal] = useState<Campaign | null>(null);
   const [bidInput, setBidInput] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [tab, setTab] = useState<"campaigns" | "analytics" | "creatives">("campaigns");
 
   const refresh = useCallback(async () => {
     if (!email) return;
@@ -133,6 +135,11 @@ function Inner() {
     }
     return { impr, spend, active };
   }, [rows]);
+
+  const hasAnyCreative = useMemo(
+    () => rows.some((r) => (creativesByCamp[r.id] ?? []).length > 0),
+    [rows, creativesByCamp]
+  );
 
   async function patchCampaign(id: string, body: Record<string, unknown>) {
     if (!email) return;
@@ -224,29 +231,51 @@ function Inner() {
         </p>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))",
-          gap: 12,
-          marginTop: 20,
-          marginBottom: 28
-        }}
-      >
-        {[
-          { k: "Active campaigns", v: String(totals.active) },
-          { k: "Impressions today", v: totals.impr.toLocaleString() },
-          { k: "Spend today (USD)", v: `$${totals.spend.toFixed(2)}` }
-        ].map((x) => (
-          <div key={x.k} className="portal-card" style={{ padding: 14, borderColor: "#00d4aa33" }}>
-            <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{x.k}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "#00d4aa", marginTop: 6 }}>{x.v}</div>
-          </div>
+      <div style={{ display: "flex", gap: 8, marginTop: 16, marginBottom: 8, flexWrap: "wrap" }}>
+        {(
+          [
+            ["campaigns", "Campaigns"],
+            ["analytics", "Analytics"],
+            ["creatives", "Creatives"]
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            className={tab === key ? undefined : "secondary"}
+            style={{ fontSize: 12 }}
+            onClick={() => setTab(key)}
+          >
+            {label}
+          </button>
         ))}
       </div>
 
-      <div style={{ display: "grid", gap: 18 }}>
-        {rows.map((r) => {
+      {tab === "campaigns" && (
+        <>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))",
+              gap: 12,
+              marginTop: 12,
+              marginBottom: 28
+            }}
+          >
+            {[
+              { k: "Active campaigns", v: String(totals.active) },
+              { k: "Impressions today", v: totals.impr.toLocaleString() },
+              { k: "Spend today (USD)", v: `$${totals.spend.toFixed(2)}` }
+            ].map((x) => (
+              <div key={x.k} className="portal-card" style={{ padding: 14, borderColor: "#00d4aa33" }}>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{x.k}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: "#00d4aa", marginTop: 6 }}>{x.v}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "grid", gap: 18 }}>
+            {rows.map((r) => {
           const title = String(r.campaign_name ?? r.name ?? r.id);
           const adv = String(r.advertiser_name ?? r.advertiser ?? "—");
           const creatives = creativesByCamp[r.id] ?? [];
@@ -428,15 +457,128 @@ function Inner() {
               )}
             </div>
           );
-        })}
-      </div>
+            })}
+          </div>
 
-      {rows.length === 0 && !error && (
-        <div style={{ marginTop: 32, textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
-          No campaigns yet.{" "}
-          <Link href="/demand/create" style={{ color: "#00d4aa", fontWeight: 700 }}>
-            Create your first campaign →
-          </Link>
+          {rows.length === 0 && !error && (
+            <div style={{ marginTop: 32, textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
+              No campaigns yet.{" "}
+              <Link href="/demand/create" style={{ color: "#00d4aa", fontWeight: 700 }}>
+                Create your first campaign →
+              </Link>
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === "analytics" && <DemandAnalyticsTab email={email} />}
+
+      {tab === "creatives" && (
+        <div style={{ display: "grid", gap: 18 }}>
+          {rows.map((r) => {
+            const creatives = creativesByCamp[r.id] ?? [];
+            if (creatives.length === 0) return null;
+            const title = String(r.campaign_name ?? r.name ?? r.id);
+            return (
+              <div key={r.id} className="card" style={{ borderLeft: "3px solid var(--accent)" }}>
+                <div style={{ fontWeight: 700, color: "var(--text-bright)", marginBottom: 12 }}>{title}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {creatives.map((cr) => {
+                    const ic = Number(cr.impression_count ?? 0);
+                    const cc = Number(cr.click_count ?? 0);
+                    const ctr = ic > 0 ? (cc / ic) * 100 : 0;
+                    return (
+                      <div
+                        key={cr.id}
+                        style={{
+                          display: "flex",
+                          gap: 12,
+                          flexWrap: "wrap",
+                          padding: 10,
+                          borderRadius: 8,
+                          border: "1px solid var(--border)",
+                          alignItems: "flex-start"
+                        }}
+                      >
+                        <div style={{ width: 72, flexShrink: 0 }}>
+                          {cr.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={cr.image_url}
+                              alt=""
+                              style={{ width: "100%", borderRadius: 4, border: "1px solid var(--border)" }}
+                            />
+                          ) : (
+                            <div style={{ height: 56, background: "#0c1018", borderRadius: 4 }} />
+                          )}
+                          <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 4 }}>{cr.size}</div>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 200 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-bright)" }}>{cr.name}</div>
+                          <div style={{ marginTop: 6, fontSize: 10, display: "flex", flexWrap: "wrap", gap: 8 }}>
+                            <span style={{ background: "#1a3a52", padding: "2px 6px", borderRadius: 4 }}>Imp {ic}</span>
+                            <span style={{ background: "#1a3a52", padding: "2px 6px", borderRadius: 4 }}>Click {cc}</span>
+                            <span style={{ background: "#1a3a52", padding: "2px 6px", borderRadius: 4 }}>CTR {ctr.toFixed(2)}%</span>
+                            <span style={{ color: statusColor(cr.status), fontWeight: 700 }}>{cr.status}</span>
+                          </div>
+                          <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block", marginTop: 8 }}>Click URL</label>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                            <input
+                              style={{ flex: 1, minWidth: 180, fontSize: 11 }}
+                              defaultValue={cr.click_url ?? ""}
+                              key={cr.id + (cr.click_url ?? "")}
+                              id={`url-cr-tab-${cr.id}`}
+                            />
+                            <button
+                              type="button"
+                              className="secondary"
+                              style={{ fontSize: 10 }}
+                              disabled={busyId === `cr-${cr.id}`}
+                              onClick={() => {
+                                const el = document.getElementById(`url-cr-tab-${cr.id}`) as HTMLInputElement | null;
+                                const v = el?.value?.trim() ?? "";
+                                if (!v) return;
+                                void patchCreative(cr.id, { click_url: v });
+                              }}
+                            >
+                              Save URL
+                            </button>
+                            <button
+                              type="button"
+                              className="secondary"
+                              style={{ fontSize: 10 }}
+                              disabled={busyId === `cr-${cr.id}` || cr.status === "archived"}
+                              onClick={() =>
+                                void patchCreative(cr.id, {
+                                  status: cr.status === "active" ? "paused" : "active"
+                                })
+                              }
+                            >
+                              {cr.status === "active" ? "Pause" : "Resume"}
+                            </button>
+                            <button
+                              type="button"
+                              className="secondary"
+                              style={{ fontSize: 10, color: "#ff6b6b" }}
+                              disabled={busyId === `del-${cr.id}`}
+                              onClick={() => void deleteCreative(cr.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+          {!hasAnyCreative && !error && (
+            <p style={{ color: "var(--text-muted)", fontSize: 13 }}>
+              No creatives yet. Add creatives from the Campaigns tab or when creating a campaign.
+            </p>
+          )}
         </div>
       )}
 
