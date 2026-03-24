@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useCallback, useEffect, useState } from "react";
 
+import { PublisherAnalyticsTab } from "@/components/publisher-analytics-tab";
 import { IAB_STANDARD_SIZES } from "@/lib/iab-sizes";
 
 type Publisher = {
@@ -101,6 +102,7 @@ function PublisherDashboardInner() {
   const [tagModalUnit, setTagModalUnit] = useState<AdUnit | null>(null);
   const [copied, setCopied] = useState(false);
   const [editingFloor, setEditingFloor] = useState<{ unitId: string; value: string } | null>(null);
+  const [tab, setTab] = useState<"overview" | "analytics" | "units" | "tags">("overview");
 
   const reloadUnits = useCallback(async (pid: string) => {
     const ir = await fetch(`/api/inventory?publisherId=${encodeURIComponent(pid)}`);
@@ -338,25 +340,54 @@ ${testHtml ? `\n${testHtml}\n` : ""}
         </div>
       )}
 
-      {pub.status === "active" && stats && (
-        <div className="kpis" style={{ marginBottom: 20, gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
-          {[
-            ["Total impressions", stats.impressionsTotal],
-            ["Today impressions", stats.impressionsToday],
-            ["Total revenue ($)", stats.revenueTotal.toFixed(4)],
-            ["Fill rate %", `${stats.fillRate.toFixed(1)}%`],
-            ["Active units", stats.activeUnits]
-          ].map(([label, val]) => (
-            <div key={String(label)} className="card">
-              <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{label}</div>
-              <strong style={{ color: "var(--text-bright)" }}>{val}</strong>
-            </div>
-          ))}
-        </div>
-      )}
-
       {pub.status === "active" && (
         <>
+          <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+            {(["overview", "analytics", "units", "tags"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                className={tab === t ? "" : "secondary"}
+                style={{ textTransform: "capitalize" }}
+                onClick={() => setTab(t)}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
+          {tab === "overview" && stats && (
+            <div className="kpis" style={{ marginBottom: 20, gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
+              {[
+                ["Total impressions", stats.impressionsTotal],
+                ["Today impressions", stats.impressionsToday],
+                ["Total revenue ($)", stats.revenueTotal.toFixed(4)],
+                ["Fill rate %", `${stats.fillRate.toFixed(1)}%`],
+                ["Active units", stats.activeUnits]
+              ].map(([label, val]) => (
+                <div key={String(label)} className="card">
+                  <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{label}</div>
+                  <strong style={{ color: "var(--text-bright)" }}>{val}</strong>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {tab === "analytics" && id && <PublisherAnalyticsTab publisherId={id} />}
+
+          {tab === "tags" && id && (
+            <div className="card" style={{ marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
+                Generate MDE and Prebid snippets from the tag workspace.
+              </p>
+              <Link href="/publisher/tags" style={{ color: "var(--accent)", fontWeight: 700, display: "inline-block", marginTop: 10 }}>
+                Open tag generator →
+              </Link>
+            </div>
+          )}
+
+          {tab === "units" && (
+            <>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
             <h2 style={{ fontSize: 15, color: "var(--text-bright)", margin: 0, fontWeight: 800 }}>Ad units</h2>
             <button type="button" onClick={() => setModalOpen(true)}>
@@ -420,6 +451,8 @@ ${testHtml ? `\n${testHtml}\n` : ""}
               </tbody>
             </table>
           </div>
+            </>
+          )}
         </>
       )}
 
