@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { recordAuctionLatencyMs } from "@/lib/auction-latency";
 import { runAuction, type OpenRTBBidRequest } from "@/lib/auction-engine";
 import type { OpenRTB26Bid } from "@/lib/openrtb-types";
 import { NextRequest, NextResponse } from "next/server";
@@ -29,13 +30,17 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   const started = Date.now();
+  const finish = (res: NextResponse) => {
+    recordAuctionLatencyMs(Date.now() - started);
+    return res;
+  };
 
   let bidRequest: OpenRTBBidRequest;
   try {
     bidRequest = (await request.json()) as OpenRTBBidRequest;
   } catch {
     const ms = Date.now() - started;
-    return NextResponse.json({ nbr: 1 }, { status: 200, headers: responseHeaders(ms) });
+    return finish(NextResponse.json({ nbr: 1 }, { status: 200, headers: responseHeaders(ms) }));
   }
 
   const imp = bidRequest.imp?.[0];
@@ -66,7 +71,7 @@ export async function POST(request: NextRequest) {
 
   if (!bidRequest.id || !adUnitId) {
     const ms = Date.now() - started;
-    return NextResponse.json({ id: bidRequest.id ?? "", nbr: 2 }, { status: 200, headers: responseHeaders(ms) });
+    return finish(NextResponse.json({ id: bidRequest.id ?? "", nbr: 2 }, { status: 200, headers: responseHeaders(ms) }));
   }
 
   const bidfloor = Math.max(0, Number(imp?.bidfloor ?? 0));
@@ -93,9 +98,8 @@ export async function POST(request: NextRequest) {
   const ms = Date.now() - started;
 
   if (raced.kind === "timeout") {
-    return NextResponse.json(
-      { id: bidRequest.id, nbr: 104 },
-      { status: 200, headers: responseHeaders(ms) }
+    return finish(
+      NextResponse.json({ id: bidRequest.id, nbr: 104 }, { status: 200, headers: responseHeaders(ms) })
     );
   }
 
@@ -103,9 +107,8 @@ export async function POST(request: NextRequest) {
   const auctionHeader = result?.auctionLogId ?? null;
 
   if (!result?.winner) {
-    return NextResponse.json(
-      { id: bidRequest.id, nbr: 2 },
-      { status: 200, headers: responseHeaders(ms, auctionHeader) }
+    return finish(
+      NextResponse.json({ id: bidRequest.id, nbr: 2 }, { status: 200, headers: responseHeaders(ms, auctionHeader) })
     );
   }
 
@@ -131,18 +134,20 @@ export async function POST(request: NextRequest) {
     api: w.api
   };
 
-  return NextResponse.json(
-    {
-      id: bidRequest.id,
-      seatbid: [
-        {
-          bid: [bidOut],
-          seat: "mde"
-        }
-      ],
-      bidid: auctionId,
-      cur: "USD"
-    },
-    { status: 200, headers: responseHeaders(ms, auctionId) }
+  return finish(
+    NextResponse.json(
+      {
+        id: bidRequest.id,
+        seatbid: [
+          {
+            bid: [bidOut],
+            seat: "mde"
+          }
+        ],
+        bidid: auctionId,
+        cur: "USD"
+      },
+      { status: 200, headers: responseHeaders(ms, auctionId) }
+    )
   );
 }
