@@ -86,13 +86,53 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await getAuthFromRequest(request);
-  if (!auth) return unauthorized();
-
   const existing = await loadCampaign(params.id);
   if (!existing) return json(null);
-
   const body = await request.json();
+  const auth = await getAuthFromRequest(request);
+
+  /** Self-serve dashboard (no session): verify contact email matches campaign. */
+  if (!auth) {
+    const em = String(body.advertiser_email ?? "").trim().toLowerCase();
+    const campEm = String(existing.advertiser_email ?? existing.contact_email ?? "")
+      .trim()
+      .toLowerCase();
+    if (!em || em !== campEm) return unauthorized();
+
+    if (body.bid_price != null && body.status != null) {
+      return badRequest("Update only bid_price or status per request");
+    }
+    if (body.bid_price != null) {
+      const bp = Number(body.bid_price);
+      if (!Number.isFinite(bp) || bp < 0.1) {
+        return badRequest("bid_price must be at least 0.10");
+      }
+      try {
+        const result = await sql`
+          UPDATE campaigns SET bid_price = ${bp} WHERE id = ${params.id} RETURNING *
+        `;
+        return json(result.rows[0] ?? null);
+      } catch (e) {
+        console.error("[campaigns PATCH public bid]", e);
+        return json({ error: "Update failed" }, 500);
+      }
+    }
+    if (body.status != null) {
+      if (!["active", "paused"].includes(String(body.status))) {
+        return badRequest("Only active or paused allowed from dashboard");
+      }
+      try {
+        const result = await sql`
+          UPDATE campaigns SET status = ${body.status} WHERE id = ${params.id} RETURNING *
+        `;
+        return json(result.rows[0] ?? null);
+      } catch (e) {
+        console.error("[campaigns PATCH public status]", e);
+        return json({ error: "Update failed" }, 500);
+      }
+    }
+    return badRequest("bid_price or status required");
+  }
 
   if (auth.role === "admin") {
     const prevStatus = String(existing.status ?? "");

@@ -65,6 +65,17 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   ) {
     return true;
   }
+  if (
+    pathname === "/api/creatives" &&
+    m === "GET" &&
+    request.nextUrl.searchParams.get("email") &&
+    !request.nextUrl.searchParams.get("campaign_id") &&
+    !request.nextUrl.searchParams.get("campaignId")
+  ) {
+    return true;
+  }
+  if (/^\/api\/campaigns\/[^/]+$/.test(pathname) && m === "PATCH") return true;
+  if (/^\/api\/creatives\/[^/]+$/.test(pathname) && (m === "PATCH" || m === "DELETE")) return true;
 
   return false;
 }

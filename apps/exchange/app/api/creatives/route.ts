@@ -15,47 +15,92 @@ function normType(t: string): string {
   return x === "banner" ? "banner" : "banner";
 }
 
+async function verifyCampaignForPublic(campaignId: string, advertiserEmail: string) {
+  const result = await sql`
+    SELECT id, status, COALESCE(advertiser_email, contact_email) AS em
+    FROM campaigns WHERE id = ${campaignId} LIMIT 1
+  `;
+  const row = result.rows[0] as { id: string; status: string; em: string | null } | undefined;
+  if (!row) return { ok: false as const, error: forbidden("Invalid campaign") };
+  const em = String(row.em ?? "").trim().toLowerCase();
+  const want = advertiserEmail.trim().toLowerCase();
+  if (!want || em !== want) return { ok: false as const, error: forbidden() };
+  if (row.status !== "pending" && row.status !== "active") {
+    return { ok: false as const, error: forbidden("Creative upload is not allowed for this campaign") };
+  }
+  return { ok: true as const, status: row.status };
+}
+
 export async function GET(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
-  const campId = request.nextUrl.searchParams.get("campaign_id");
+  const campId =
+    request.nextUrl.searchParams.get("campaign_id") ?? request.nextUrl.searchParams.get("campaignId");
   const emailQ = request.nextUrl.searchParams.get("email");
 
-  if (!auth && campId && emailQ) {
-    try {
+  try {
+    if (!auth && emailQ && campId) {
       const own = await sql`
         SELECT id FROM campaigns
         WHERE id = ${campId} AND COALESCE(advertiser_email, contact_email) = ${emailQ}
         LIMIT 1
       `;
       if (!own.rows[0]) return forbidden();
-      const result = await sql`SELECT * FROM creatives WHERE campaign_id = ${campId} ORDER BY created_at DESC`;
+      const result = await sql`
+        SELECT cr.*,
+        (SELECT COUNT(*)::int FROM impressions WHERE creative_id = cr.id) AS impression_count,
+        (SELECT COUNT(*)::int FROM clicks ck INNER JOIN impressions i ON i.id = ck.impression_id WHERE i.creative_id = cr.id) AS click_count
+        FROM creatives cr
+        WHERE cr.campaign_id = ${campId} AND cr.status <> 'archived'
+        ORDER BY cr.created_at DESC
+      `;
       return json(result.rows);
-    } catch (e) {
-      console.error("[creatives GET public]", e);
-      return json({ error: "Failed to load creatives" }, 500);
     }
-  }
 
-  if (!auth) return unauthorized();
-  if (auth.role === "publisher") return forbidden();
+    if (!auth && emailQ && !campId) {
+      const result = await sql`
+        SELECT cr.*,
+        (SELECT COUNT(*)::int FROM impressions WHERE creative_id = cr.id) AS impression_count,
+        (SELECT COUNT(*)::int FROM clicks ck INNER JOIN impressions i ON i.id = ck.impression_id WHERE i.creative_id = cr.id) AS click_count
+        FROM creatives cr
+        JOIN campaigns c ON c.id = cr.campaign_id
+        WHERE COALESCE(c.advertiser_email, c.contact_email) = ${emailQ}
+          AND cr.status <> 'archived'
+        ORDER BY cr.created_at DESC
+      `;
+      return json(result.rows);
+    }
 
-  try {
+    if (!auth) return unauthorized();
+    if (auth.role === "publisher") return forbidden();
+
     if (auth.role === "admin") {
-      const result = await sql`SELECT * FROM creatives ORDER BY created_at DESC`;
+      const result = await sql`
+        SELECT cr.*,
+        (SELECT COUNT(*)::int FROM impressions WHERE creative_id = cr.id) AS impression_count,
+        (SELECT COUNT(*)::int FROM clicks ck INNER JOIN impressions i ON i.id = ck.impression_id WHERE i.creative_id = cr.id) AS click_count
+        FROM creatives cr
+        ORDER BY cr.created_at DESC
+      `;
       return json(result.rows);
     }
 
     const adv = demandAdvertiserFilter(auth);
     if (!adv) {
       const result = await sql`
-        SELECT cr.* FROM creatives cr
+        SELECT cr.*,
+        (SELECT COUNT(*)::int FROM impressions WHERE creative_id = cr.id) AS impression_count,
+        (SELECT COUNT(*)::int FROM clicks ck INNER JOIN impressions i ON i.id = ck.impression_id WHERE i.creative_id = cr.id) AS click_count
+        FROM creatives cr
         JOIN campaigns c ON c.id = cr.campaign_id
         ORDER BY cr.created_at DESC
       `;
       return json(result.rows);
     }
     const result = await sql`
-      SELECT cr.* FROM creatives cr
+      SELECT cr.*,
+      (SELECT COUNT(*)::int FROM impressions WHERE creative_id = cr.id) AS impression_count,
+      (SELECT COUNT(*)::int FROM clicks ck INNER JOIN impressions i ON i.id = ck.impression_id WHERE i.creative_id = cr.id) AS click_count
+      FROM creatives cr
       JOIN campaigns c ON c.id = cr.campaign_id
       WHERE COALESCE(c.advertiser_name, c.advertiser) = ${adv}
       ORDER BY cr.created_at DESC
@@ -79,6 +124,7 @@ export async function POST(request: NextRequest) {
   const vastUrl = (formData.get("vast_url") as string) ?? null;
   const typ = normType(typeIn);
   const file = formData.get("file") as File | null;
+  const publicEmail = (formData.get("advertiser_email") as string) ?? null;
 
   if (!campaignId || !name) {
     return badRequest("campaign_id and name are required");
@@ -86,15 +132,17 @@ export async function POST(request: NextRequest) {
   if (!size) {
     return badRequest("size is required (e.g. 300x250)");
   }
+  if (!clickUrl || !String(clickUrl).trim()) {
+    return badRequest("click_url is required");
+  }
 
   try {
     if (!auth) {
-      const camp =
-        await sql`SELECT status FROM campaigns WHERE id = ${campaignId} LIMIT 1`;
-      const row = camp.rows[0] as { status: string } | undefined;
-      if (!row || row.status !== "pending") {
-        return forbidden("Creative upload is only allowed for pending registration campaigns");
+      if (!publicEmail?.trim()) {
+        return badRequest("advertiser_email is required to verify campaign ownership");
       }
+      const gate = await verifyCampaignForPublic(campaignId, publicEmail);
+      if (!gate.ok) return gate.error;
     } else if (auth.role === "publisher") {
       return forbidden();
     } else if (auth.role === "demand") {
@@ -116,14 +164,32 @@ export async function POST(request: NextRequest) {
       }
       const blob = await put(file.name, file, { access: "public" });
       imageUrl = blob.url;
+    } else if (!auth || (!htmlSnippet && !vastUrl)) {
+      return badRequest("Image file is required");
     }
 
     const result = await sql`
       INSERT INTO creatives (campaign_id, name, type, size, click_url, image_url, html_snippet, vast_url, status)
       VALUES (${campaignId}, ${name}, ${typ}, ${size}, ${clickUrl}, ${imageUrl}, ${htmlSnippet}, ${vastUrl}, 'active')
-      RETURNING *
+      RETURNING id, image_url, size, name, status
     `;
-    return json(result.rows[0], 201);
+    const row = result.rows[0] as {
+      id: string;
+      image_url: string | null;
+      size: string;
+      name: string;
+      status: string;
+    };
+    return json(
+      {
+        id: row.id,
+        image_url: row.image_url,
+        size: row.size,
+        name: row.name,
+        status: row.status
+      },
+      201
+    );
   } catch (e) {
     console.error("[creatives POST]", e);
     return json({ error: "Failed to save creative" }, 500);

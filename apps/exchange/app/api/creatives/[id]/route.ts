@@ -1,13 +1,16 @@
 export const dynamic = "force-dynamic";
 import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
-import { json } from "@/lib/http";
+import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { del } from "@vercel/blob";
 import { NextRequest } from "next/server";
 
-async function loadCreativeWithAdvertiser(id: string) {
+async function loadCreativeRow(id: string) {
   const result = await sql`
-    SELECT cr.*, COALESCE(c.advertiser_name, c.advertiser) AS campaign_advertiser
+    SELECT cr.*,
+      COALESCE(c.advertiser_name, c.advertiser) AS campaign_advertiser,
+      COALESCE(c.advertiser_email, c.contact_email) AS campaign_contact_email
     FROM creatives cr
     JOIN campaigns c ON c.id = cr.campaign_id
     WHERE cr.id = ${id}
@@ -27,16 +30,35 @@ function canDemandAccessCreative(
   return row.campaign_advertiser === adv;
 }
 
+function emailMatches(row: Record<string, unknown>, bodyEmail: string): boolean {
+  const em = String(bodyEmail ?? "")
+    .trim()
+    .toLowerCase();
+  const campEm = String(row.campaign_contact_email ?? "")
+    .trim()
+    .toLowerCase();
+  return Boolean(em && campEm && em === campEm);
+}
+
+async function deleteBlobSafe(url: string | null | undefined) {
+  if (!url || typeof url !== "string") return;
+  try {
+    await del(url);
+  } catch (e) {
+    console.warn("[creative] blob delete skipped/failed:", e);
+  }
+}
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const auth = await getAuthFromRequest(request);
   if (!auth) return unauthorized();
   if (auth.role === "publisher") return forbidden();
 
   try {
-    const row = await loadCreativeWithAdvertiser(params.id);
+    const row = await loadCreativeRow(params.id);
     if (!row) return json(null);
     if (!canDemandAccessCreative(auth, row)) return forbidden();
-    const { campaign_advertiser: _omit, ...creative } = row;
+    const { campaign_advertiser: _a, campaign_contact_email: _e, ...creative } = row;
     return json(creative);
   } catch (e) {
     console.error("[creative GET]", e);
@@ -49,7 +71,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   if (!auth) return unauthorized();
   if (auth.role === "publisher") return forbidden();
 
-  const row = await loadCreativeWithAdvertiser(params.id);
+  const row = await loadCreativeRow(params.id);
   if (!row) return json(null);
   if (!canDemandAccessCreative(auth, row)) return forbidden();
 
@@ -76,16 +98,46 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await getAuthFromRequest(request);
-  if (!auth) return unauthorized();
-  if (auth.role === "publisher") return forbidden();
-
-  const row = await loadCreativeWithAdvertiser(params.id);
+  const row = await loadCreativeRow(params.id);
   if (!row) return json(null);
+  const body = await request.json();
+  const auth = await getAuthFromRequest(request);
+
+  if (!auth) {
+    if (!emailMatches(row, String(body.advertiser_email ?? ""))) return unauthorized();
+    if (String(row.status ?? "") === "archived") return badRequest("Creative is archived");
+
+    const nextName = body.name !== undefined ? body.name : null;
+    const nextClick = body.click_url !== undefined ? body.click_url : null;
+    const nextStatus = body.status !== undefined ? body.status : null;
+
+    if (nextStatus != null && !["active", "paused"].includes(String(nextStatus))) {
+      return badRequest("status must be active or paused");
+    }
+    if (nextName == null && nextClick == null && nextStatus == null) {
+      return badRequest("name, click_url, or status required");
+    }
+
+    try {
+      const result = await sql`
+        UPDATE creatives SET
+          name = COALESCE(${nextName}, name),
+          click_url = COALESCE(${nextClick}, click_url),
+          status = COALESCE(${nextStatus}, status)
+        WHERE id = ${params.id}
+        RETURNING id, image_url, size, name, status, click_url
+      `;
+      return json(result.rows[0] ?? null);
+    } catch (e) {
+      console.error("[creative PATCH public]", e);
+      return json({ error: "Update failed" }, 500);
+    }
+  }
+
+  if (auth.role === "publisher") return forbidden();
   if (auth.role === "demand" && !canDemandAccessCreative(auth, row)) return forbidden();
   if (auth.role !== "admin" && auth.role !== "demand") return forbidden();
 
-  const body = await request.json();
   try {
     const result = await sql`
       UPDATE creatives SET
@@ -106,19 +158,34 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const auth = await getAuthFromRequest(request);
-  if (!auth) return unauthorized();
-  if (auth.role === "publisher") return forbidden();
+  const row0 = await loadCreativeRow(params.id);
+  if (!row0) return json({ ok: true });
 
-  const row = await loadCreativeWithAdvertiser(params.id);
-  if (!row) return json({ ok: true });
-  if (!canDemandAccessCreative(auth, row)) return forbidden();
+  let body: { advertiser_email?: string } = {};
+  try {
+    body = await request.json();
+  } catch {
+    body = {};
+  }
+  const auth = await getAuthFromRequest(request);
+
+  if (!auth) {
+    if (!emailMatches(row0, String(body.advertiser_email ?? ""))) return unauthorized();
+  } else {
+    if (auth.role === "publisher") return forbidden();
+    if (!canDemandAccessCreative(auth, row0)) return forbidden();
+  }
+
+  const imageUrl = row0.image_url as string | null | undefined;
 
   try {
-    await sql`DELETE FROM creatives WHERE id = ${params.id}`;
-    return json({ ok: true });
+    await deleteBlobSafe(imageUrl ?? null);
+    await sql`
+      UPDATE creatives SET status = 'archived' WHERE id = ${params.id}
+    `;
   } catch (e) {
     console.error("[creative DELETE]", e);
     return json({ error: "Delete failed" }, 500);
   }
+  return json({ ok: true });
 }
