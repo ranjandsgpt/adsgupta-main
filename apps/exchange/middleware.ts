@@ -20,6 +20,11 @@ function canAccess(role: ExchangeRole | undefined, pathname: string): boolean {
 
 function apiAllowed(role: ExchangeRole | undefined, pathname: string, request: NextRequest): boolean {
   if (!role) return false;
+  if (pathname.startsWith("/api/analytics")) return role === "admin";
+  if (pathname.startsWith("/api/auction-stream")) return role === "admin";
+  if (pathname.startsWith("/api/publisher-analytics")) return role === "admin" || role === "publisher";
+  if (pathname.startsWith("/api/demand-analytics")) return role === "admin" || role === "demand";
+  if (pathname.startsWith("/api/pricing/")) return role === "admin";
   if (role === "admin") return true;
   if (pathname.startsWith("/api/pricing-rules")) return false;
   if (pathname.startsWith("/api/auction-log")) return false;
@@ -88,7 +93,9 @@ function isPublicPage(pathname: string): boolean {
     pathname === "/publisher/dashboard" ||
     pathname === "/demand" ||
     pathname === "/demand/create" ||
-    pathname === "/demand/dashboard"
+    pathname === "/demand/dashboard" ||
+    pathname === "/publisher/tags" ||
+    pathname === "/status"
   );
 }
 
@@ -99,7 +106,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/openrtb") ||
     pathname.startsWith("/api/track") ||
-    pathname.startsWith("/api/db-init")
+    pathname.startsWith("/api/db-init") ||
+    pathname === "/api/ping" ||
+    pathname === "/api/health"
   ) {
     return NextResponse.next();
   }
@@ -184,6 +193,14 @@ export const config = {
     "/api/publisher-stats",
     "/api/publisher-stats/:path*",
     "/api/auction-log",
-    "/api/auction-log/:path*"
+    "/api/auction-log/:path*",
+    "/api/auction-stream",
+    "/api/analytics",
+    "/api/publisher-analytics/:path*",
+    "/api/demand-analytics",
+    "/api/pricing/:path*",
+    "/api/ping",
+    "/api/health",
+    "/status"
   ]
 };

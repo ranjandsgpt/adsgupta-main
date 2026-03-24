@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 
 type Row = Record<string, unknown>;
 
@@ -39,6 +39,19 @@ export default function AdminAuctionLogPage() {
   const [cleared, setCleared] = useState<"all" | "true" | "false">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [live, setLive] = useState(true);
+  /** off = live disabled; connecting = first open; connected = SSE open; reconnecting = backing off after error */
+  const [sseConn, setSseConn] = useState<"off" | "connecting" | "connected" | "reconnecting">("off");
+  const flashIds = useRef(new Set<string>());
+  const [, flashTick] = useReducer((n: number) => n + 1, 0);
+
+  function flashRow(id: string) {
+    flashIds.current.add(id);
+    flashTick();
+    window.setTimeout(() => {
+      flashIds.current.delete(id);
+      flashTick();
+    }, 2000);
+  }
 
   const qs = useMemo(() => {
     const p = new URLSearchParams();
@@ -82,10 +95,68 @@ export default function AdminAuctionLogPage() {
   }, [load]);
 
   useEffect(() => {
-    if (!live) return;
-    const id = setInterval(() => void load(), 5000);
-    return () => clearInterval(id);
-  }, [live, load]);
+    if (!live || typeof window === "undefined") {
+      setSseConn("off");
+      return;
+    }
+
+    let cancelled = false;
+    let attempt = 0;
+    let reconnectTimer: number | undefined;
+    let es: EventSource | null = null;
+
+    const closeEs = () => {
+      if (reconnectTimer !== undefined) window.clearTimeout(reconnectTimer);
+      es?.close();
+      es = null;
+    };
+
+    function connect() {
+      if (cancelled) return;
+      const url = new URL("/api/auction-stream", window.location.origin);
+      if (publisherId) url.searchParams.set("publisherId", publisherId);
+      setSseConn((c) => (c === "connected" ? "reconnecting" : "connecting"));
+      es = new EventSource(url.toString(), { withCredentials: true } as EventSourceInit);
+      es.onopen = () => {
+        if (!cancelled) {
+          attempt = 0;
+          setSseConn("connected");
+        }
+      };
+      es.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data) as { type?: string; row?: Row };
+          if (msg.type === "auction" && msg.row && typeof msg.row === "object") {
+            const row = msg.row;
+            const rid = String(row.id ?? "");
+            if (!rid) return;
+            setRows((prev) => {
+              if (prev.some((r) => String(r.id) === rid)) return prev;
+              return [row, ...prev];
+            });
+            flashRow(rid);
+          }
+        } catch {
+          /* ignore malformed */
+        }
+      };
+      es.onerror = () => {
+        if (cancelled) return;
+        closeEs();
+        setSseConn("reconnecting");
+        const delay = Math.min(30_000, 800 * Math.pow(2, attempt));
+        attempt += 1;
+        reconnectTimer = window.setTimeout(connect, delay);
+      };
+    }
+
+    connect();
+
+    return () => {
+      cancelled = true;
+      closeEs();
+    };
+  }, [live, publisherId]);
 
   const todayStats = useMemo(() => {
     const day = new Date().toISOString().slice(0, 10);
@@ -108,23 +179,30 @@ export default function AdminAuctionLogPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
         <div>
           <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Auction log</h1>
-          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>Production telemetry · Table auto-refreshes every 5s when live.</p>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
+            Production telemetry · Live updates stream via SSE when enabled.
+          </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.muted, cursor: "pointer" }}>
             <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
             LIVE
           </label>
-          <span
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              background: live ? C.green : C.muted,
-              boxShadow: live ? `0 0 10px ${C.green}` : "none",
-              animation: live ? "pulse 1.2s ease-in-out infinite" : "none"
-            }}
-          />
+          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.muted }}>
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background:
+                  !live ? C.muted : sseConn === "connected" ? C.green : sseConn === "reconnecting" ? C.red : "#ff8c42",
+                boxShadow:
+                  live && sseConn === "connected" ? `0 0 10px ${C.green}` : live && sseConn === "reconnecting" ? `0 0 8px ${C.red}` : "none",
+                animation: live && sseConn !== "connected" ? "pulse 1.2s ease-in-out infinite" : "none"
+              }}
+            />
+            {!live ? "Stopped" : sseConn === "connected" ? "Connected" : sseConn === "reconnecting" ? "Reconnecting" : "Connecting"}
+          </span>
           <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
           <button type="button" className="secondary" style={{ fontSize: 11 }} onClick={exportCsv}>
             Export CSV
@@ -218,13 +296,16 @@ export default function AdminAuctionLogPage() {
               const id = String(r.id ?? "");
               const wb = Number(r.winning_bid);
               const open = expanded === id;
+              const isFlash = flashIds.current.has(id);
               return (
                 <Fragment key={id}>
                   <tr
                     onClick={() => setExpanded(open ? null : id)}
                     style={{
                       cursor: "pointer",
-                      borderLeft: `4px solid ${clearedOk ? C.green : C.red}`
+                      borderLeft: `4px solid ${clearedOk ? C.green : C.red}`,
+                      animation: isFlash ? "auctionFlash 1.8s ease-out 1" : undefined,
+                      background: isFlash ? "rgba(74, 158, 255, 0.12)" : undefined
                     }}
                   >
                     <td style={{ fontSize: 10, whiteSpace: "nowrap" }} title={String(r.created_at ?? "")}>
@@ -271,6 +352,12 @@ export default function AdminAuctionLogPage() {
             })}
           </tbody>
         </table>
+        <style>{`
+          @keyframes auctionFlash {
+            0% { background: rgba(74, 158, 255, 0.35); }
+            100% { background: transparent; }
+          }
+        `}</style>
         {rows.length === 0 && !error && (
           <p style={{ fontSize: 12, color: "var(--text-muted)", padding: 16, margin: 0 }}>No rows for this filter.</p>
         )}

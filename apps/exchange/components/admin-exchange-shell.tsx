@@ -1,5 +1,6 @@
 "use client";
 
+import { LiveAuctionTicker } from "@/components/live-auction-ticker";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -23,10 +24,12 @@ const C = {
 
 const NAV = [
   { href: "/admin", icon: "◉", label: "Dashboard", color: C.accent },
+  { href: "/admin/analytics", icon: "📈", label: "Analytics", color: C.green },
   { href: "/admin/publishers", icon: "▦", label: "Publishers", color: C.blue },
   { href: "/admin/demand", icon: "⚡", label: "Demand", color: C.purple },
   { href: "/admin/inventory", icon: "▦", label: "Inventory", color: C.blue },
   { href: "/admin/pricing", icon: "△", label: "Yield", color: C.green },
+  { href: "/admin/health", icon: "♥", label: "Health", color: C.red },
   { href: "/admin/auction-log", icon: "◧", label: "Auction Log", color: C.yellow },
   { href: "/admin/tags", icon: "⟨/⟩", label: "Tags", color: C.blue },
   { href: "/admin/protections", icon: "◈", label: "Protections", color: C.red },
@@ -169,7 +172,8 @@ export function AdminExchangeShell({ children }: { children: React.ReactNode }) 
           <div style={{ fontSize: 14, fontWeight: 700, color: C.textBright }}>
             {current?.icon} {current?.label}
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flex: 1, minWidth: 0, justifyContent: "flex-end" }}>
+            <LiveAuctionTicker />
             <div
               style={{
                 background: C.green + "18",
@@ -178,7 +182,8 @@ export function AdminExchangeShell({ children }: { children: React.ReactNode }) 
                 padding: "2px 8px",
                 fontSize: 10,
                 fontWeight: 600,
-                color: C.green
+                color: C.green,
+                flexShrink: 0
               }}
             >
               ● LIVE
