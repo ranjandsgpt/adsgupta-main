@@ -8,37 +8,80 @@ const cors = {
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
+const AUCTION_TIMEOUT_MS = 2000;
+const WIN_BASE = "https://exchange.adsgupta.com/api/openrtb/win";
+
+function responseHeaders(ms: number, auctionId?: string | null): HeadersInit {
+  const h: Record<string, string> = {
+    ...cors,
+    "X-Response-Time": String(ms)
+  };
+  if (auctionId) h["X-Auction-Id"] = auctionId;
+  return h;
+}
+
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: cors });
+  return new NextResponse(null, { status: 200, headers: cors });
 }
 
 export async function POST(request: NextRequest) {
+  const started = Date.now();
+
   let bidRequest: OpenRTBBidRequest;
   try {
     bidRequest = (await request.json()) as OpenRTBBidRequest;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400, headers: cors });
+    const ms = Date.now() - started;
+    return NextResponse.json({ nbr: 1 }, { status: 200, headers: responseHeaders(ms) });
   }
 
   const imp = bidRequest.imp?.[0];
-  const adUnitId = imp?.tagid;
+  const adUnitId = imp?.tagid?.trim() || imp?.id?.trim() || "";
+  const pageUrl = bidRequest.site?.page ?? null;
+
+  console.log("[openrtb]", bidRequest.id, "unit:", adUnitId || "(missing)", "page:", bidRequest.site?.page);
+
   if (!bidRequest.id || !adUnitId) {
-    return NextResponse.json({ id: bidRequest.id ?? "", nbr: 2 }, { headers: cors });
+    const ms = Date.now() - started;
+    return NextResponse.json({ id: bidRequest.id ?? "", nbr: 2 }, { status: 200, headers: responseHeaders(ms) });
   }
 
-  const pageUrl = bidRequest.site?.page ?? null;
   const bidfloor = Math.max(0, Number(imp?.bidfloor ?? 0));
 
-  const result = await runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor);
+  const runPromise = runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor)
+    .then((r) => ({ kind: "done" as const, r }))
+    .catch((e) => {
+      console.error("[openrtb] runAuction failed:", e);
+      return { kind: "done" as const, r: null as Awaited<ReturnType<typeof runAuction>> };
+    });
 
-  if (!result?.winner) {
-    return NextResponse.json({ id: bidRequest.id, nbr: 2 }, { headers: cors });
+  const raced = await Promise.race([
+    runPromise,
+    new Promise<{ kind: "timeout" }>((resolve) => setTimeout(() => resolve({ kind: "timeout" }), AUCTION_TIMEOUT_MS))
+  ]);
+
+  const ms = Date.now() - started;
+
+  if (raced.kind === "timeout") {
+    return NextResponse.json(
+      { id: bidRequest.id, nbr: 104 },
+      { status: 200, headers: responseHeaders(ms) }
+    );
   }
 
-  const base = request.nextUrl.origin;
+  const result = raced.r;
+  const auctionHeader = result?.auctionLogId ?? null;
+
+  if (!result?.winner) {
+    return NextResponse.json(
+      { id: bidRequest.id, nbr: 2 },
+      { status: 200, headers: responseHeaders(ms, auctionHeader) }
+    );
+  }
+
   const w = result.winner;
-  const bidId = result.auctionLogId;
-  const nurl = `${base}/api/openrtb/win?auctionId=${encodeURIComponent(bidRequest.id)}&price=\${AUCTION_PRICE}`;
+  const auctionId = w.auctionId;
+  const nurl = `${WIN_BASE}?auctionId=${encodeURIComponent(auctionId)}&price=\${AUCTION_PRICE}`;
 
   return NextResponse.json(
     {
@@ -47,21 +90,24 @@ export async function POST(request: NextRequest) {
         {
           bid: [
             {
-              id: bidId,
+              id: auctionId,
               impid: imp?.id ?? "1",
               price: w.clearingPrice,
               adm: w.adm,
-              adid: w.campaignId,
-              crid: w.creativeId,
               nurl,
+              adid: w.winnerId,
+              cid: w.winnerId,
+              crid: w.creativeId,
               w: w.w,
               h: w.h
             }
-          ]
+          ],
+          seat: "mde"
         }
       ],
+      bidid: auctionId,
       cur: "USD"
     },
-    { headers: cors }
+    { status: 200, headers: responseHeaders(ms, auctionId) }
   );
 }
