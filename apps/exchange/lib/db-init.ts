@@ -148,8 +148,16 @@ export async function createTables() {
 
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS html_snippet TEXT`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS vast_url TEXT`;
-    await sql`ALTER TABLE auction_log DROP COLUMN IF EXISTS user_agent`;
-    await sql`ALTER TABLE auction_log DROP COLUMN IF EXISTS country`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS user_agent TEXT`;
+
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS rejection_reason TEXT`;
+    await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
+    await sql`
+      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+      CHECK (status IN ('pending', 'active', 'paused', 'rejected'))
+    `;
+
+    await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS rule_type TEXT DEFAULT 'unified'`;
 
     await sql`UPDATE creatives SET size = '300x250' WHERE size IS NULL OR size = ''`;
 

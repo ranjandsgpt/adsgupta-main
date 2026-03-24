@@ -24,7 +24,23 @@ export async function GET(request: NextRequest) {
   if (!auth) return unauthorized();
 
   if (auth.role === "admin") {
-    const result = await sql`SELECT * FROM publishers ORDER BY created_at DESC`;
+    const result = await sql`
+      SELECT
+        p.*,
+        (SELECT COUNT(*)::int FROM ad_units u WHERE u.publisher_id = p.id AND u.status <> 'archived') AS ad_units_count,
+        (
+          SELECT COUNT(*)::int FROM impressions i
+          INNER JOIN ad_units u ON u.id = i.ad_unit_id
+          WHERE u.publisher_id = p.id AND i.created_at::date = CURRENT_DATE
+        ) AS impressions_today,
+        (
+          SELECT (COALESCE(SUM(i.winning_bid), 0) / 1000)::text FROM impressions i
+          INNER JOIN ad_units u ON u.id = i.ad_unit_id
+          WHERE u.publisher_id = p.id AND i.created_at::date = CURRENT_DATE
+        ) AS revenue_today
+      FROM publishers p
+      ORDER BY p.created_at DESC
+    `;
     return json(result.rows);
   }
 

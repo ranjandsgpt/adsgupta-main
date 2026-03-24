@@ -37,8 +37,22 @@ export async function GET(request: NextRequest) {
     if (auth.role === "publisher") return forbidden();
 
     if (auth.role === "admin") {
-      const result = await sql`SELECT * FROM campaigns ORDER BY created_at DESC`;
-      return json(result.rows);
+      const result = await sql<CampaignRow>`
+        SELECT
+          c.*,
+          (SELECT COUNT(*)::int FROM impressions i WHERE i.campaign_id = c.id AND i.created_at::date = CURRENT_DATE) AS impressions_today,
+          (SELECT COALESCE(SUM(i.winning_bid), 0) / 1000 FROM impressions i WHERE i.campaign_id = c.id AND i.created_at::date = CURRENT_DATE)::text AS spend_today,
+          (SELECT COUNT(*)::int FROM creatives cr WHERE cr.campaign_id = c.id AND cr.status <> 'archived') AS creative_count
+        FROM campaigns c
+        ORDER BY c.created_at DESC
+      `;
+      const enriched = result.rows.map((row) => {
+        const daily = row.daily_budget != null ? Number(row.daily_budget) : 0;
+        const spend = Number(row.spend_today ?? 0);
+        const rem = daily > 0 ? Math.max(0, daily - spend) : null;
+        return { ...row, remaining_budget_today: rem };
+      });
+      return json(enriched);
     }
 
     const adv = demandAdvertiserFilter(auth);

@@ -136,22 +136,47 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
   if (auth.role === "admin") {
     const prevStatus = String(existing.status ?? "");
+    const nextSt = body.status != null ? String(body.status) : null;
+    const rejReason =
+      nextSt === "rejected"
+        ? (body.rejection_reason != null ? String(body.rejection_reason).slice(0, 2000) : null)
+        : nextSt != null && nextSt !== "rejected"
+          ? null
+          : undefined;
     try {
-      const result = await sql`
-        UPDATE campaigns SET
-          campaign_name = COALESCE(${body.campaign_name ?? body.name ?? null}, campaign_name),
-          advertiser_name = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser_name),
-          advertiser_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, advertiser_email),
-          name = COALESCE(${body.campaign_name ?? body.name ?? null}, name),
-          advertiser = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser),
-          contact_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, contact_email),
-          daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
-          bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
-          target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
-          status = COALESCE(${body.status ?? null}, status)
-        WHERE id = ${params.id}
-        RETURNING *
-      `;
+      const result =
+        rejReason !== undefined
+          ? await sql`
+            UPDATE campaigns SET
+              campaign_name = COALESCE(${body.campaign_name ?? body.name ?? null}, campaign_name),
+              advertiser_name = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser_name),
+              advertiser_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, advertiser_email),
+              name = COALESCE(${body.campaign_name ?? body.name ?? null}, name),
+              advertiser = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser),
+              contact_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, contact_email),
+              daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
+              bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
+              target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
+              status = COALESCE(${body.status ?? null}, status),
+              rejection_reason = ${rejReason}
+            WHERE id = ${params.id}
+            RETURNING *
+          `
+          : await sql`
+            UPDATE campaigns SET
+              campaign_name = COALESCE(${body.campaign_name ?? body.name ?? null}, campaign_name),
+              advertiser_name = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser_name),
+              advertiser_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, advertiser_email),
+              name = COALESCE(${body.campaign_name ?? body.name ?? null}, name),
+              advertiser = COALESCE(${body.advertiser_name ?? body.advertiser ?? null}, advertiser),
+              contact_email = COALESCE(${body.advertiser_email ?? body.contact_email ?? null}, contact_email),
+              daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
+              bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
+              target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
+              status = COALESCE(${body.status ?? null}, status)
+            WHERE id = ${params.id}
+            RETURNING *
+          `;
       const row = result.rows[0] as Record<string, unknown> | undefined;
       if (row && prevStatus !== "active" && String(row.status ?? "") === "active") {
         const em = String(row.advertiser_email ?? row.contact_email ?? "");

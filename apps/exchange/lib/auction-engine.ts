@@ -1,6 +1,7 @@
 import { isCampaignOverBudget } from "@/lib/budget-check";
 import { sql } from "@/lib/db";
 import { campaignMatchesTargeting, openRtbDeviceToLabels } from "@/lib/openrtb-targeting";
+import { getEffectiveRuleFloor } from "@/lib/pricing-floor";
 
 export type OpenRTBBanner = {
   w?: number;
@@ -97,10 +98,11 @@ async function insertAuctionLog(args: {
   floorPrice: number;
   bidCount: number;
   pageUrl: string | null;
+  userAgent?: string | null;
 }): Promise<string | null> {
   const ins = await sql<{ id: string }>`
     INSERT INTO auction_log
-    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url)
+    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent)
     VALUES
     (
       ${args.openrtbRequestId},
@@ -112,7 +114,8 @@ async function insertAuctionLog(args: {
       ${args.floorPrice},
       ${args.bidCount},
       false,
-      ${args.pageUrl}
+      ${args.pageUrl},
+      ${args.userAgent ?? null}
     )
     RETURNING id
   `;
@@ -166,6 +169,7 @@ export async function runAuction(
       LIMIT 1
     `;
     const adUnit = unitRes.rows[0];
+    const ua = opts?.device?.ua ? String(opts.device.ua).slice(0, 2000) : null;
 
     if (!adUnit) {
       const id = await insertAuctionLog({
@@ -177,11 +181,15 @@ export async function runAuction(
         winningBid: null,
         floorPrice: bidfloorFromImp,
         bidCount: 0,
-        pageUrl
+        pageUrl,
+        userAgent: ua
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
     }
+
+    const ruleFloor = await getEffectiveRuleFloor(adUnit.sizes ?? [], adUnit.environment ?? "web");
+    const floor = Math.max(Number(adUnit.floor_price), bidfloorFromImp, ruleFloor);
 
     if (adUnit.pub_status !== "active") {
       const id = await insertAuctionLog({
@@ -191,9 +199,10 @@ export async function runAuction(
         winnerCampaignId: null,
         winnerCreativeId: null,
         winningBid: null,
-        floorPrice: Math.max(Number(adUnit.floor_price), bidfloorFromImp),
+        floorPrice: floor,
         bidCount: 0,
-        pageUrl
+        pageUrl,
+        userAgent: ua
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -207,15 +216,14 @@ export async function runAuction(
         winnerCampaignId: null,
         winnerCreativeId: null,
         winningBid: null,
-        floorPrice: Math.max(Number(adUnit.floor_price), bidfloorFromImp),
+        floorPrice: floor,
         bidCount: 0,
-        pageUrl
+        pageUrl,
+        userAgent: ua
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
     }
-
-    const floor = Math.max(Number(adUnit.floor_price), bidfloorFromImp);
 
     let formatSizes = impBannerSizes(imp);
     if (formatSizes.length === 0) {
@@ -271,7 +279,8 @@ export async function runAuction(
         winningBid: null,
         floorPrice: floor,
         bidCount: 0,
-        pageUrl
+        pageUrl,
+        userAgent: ua
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -334,7 +343,8 @@ export async function runAuction(
         winningBid: null,
         floorPrice: floor,
         bidCount: 0,
-        pageUrl
+        pageUrl,
+        userAgent: ua
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -355,7 +365,8 @@ export async function runAuction(
       winningBid: clearingPrice,
       floorPrice: floor,
       bidCount: eligible.length,
-      pageUrl
+      pageUrl,
+      userAgent: ua
     });
 
     if (!auctionLogId) return null;

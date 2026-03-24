@@ -14,6 +14,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  return PATCH(request, { params });
+}
+
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const auth = await getAuthFromRequest(request);
   if (!auth) return unauthorized();
   if (auth.role !== "admin") return forbidden();
@@ -25,7 +29,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       floor_cpm = COALESCE(${body.floor_cpm ?? null}, floor_cpm),
       applies_to_sizes = COALESCE(${body.applies_to_sizes ?? null}, applies_to_sizes),
       applies_to_env = COALESCE(${body.applies_to_env ?? null}, applies_to_env),
-      active = COALESCE(${body.active ?? null}, active)
+      active = COALESCE(${body.active ?? null}, active),
+      rule_type = COALESCE(${body.rule_type ?? null}, rule_type)
     WHERE id = ${params.id}
     RETURNING *
   `;

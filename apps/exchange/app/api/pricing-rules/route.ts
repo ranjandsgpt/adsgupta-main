@@ -20,8 +20,15 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const result = await sql`
-    INSERT INTO pricing_rules (name, floor_cpm, applies_to_sizes, applies_to_env, active)
-    VALUES (${body.name}, ${body.floor_cpm}, ${body.applies_to_sizes ?? null}, ${body.applies_to_env ?? null}, ${body.active ?? true})
+    INSERT INTO pricing_rules (name, floor_cpm, applies_to_sizes, applies_to_env, active, rule_type)
+    VALUES (
+      ${body.name},
+      ${body.floor_cpm},
+      ${body.applies_to_sizes ?? null},
+      ${body.applies_to_env ?? null},
+      ${body.active ?? true},
+      ${body.rule_type ?? "unified"}
+    )
     RETURNING *
   `;
   return json(result.rows[0], 201);
