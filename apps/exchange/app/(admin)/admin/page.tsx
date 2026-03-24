@@ -32,6 +32,8 @@ type Dash = {
   activePublishers: number;
   activeCampaigns: number;
   pendingReviewTotal: number;
+  ivtAuctionsToday?: number;
+  ivtRateToday?: number;
 };
 
 type AuctionRow = Record<string, unknown>;
@@ -186,6 +188,19 @@ export default function AdminDashboardPage() {
               `${d.fillRateToday.toFixed(1)}%`,
               fmtDeltaPp(d.fillRateDeltaPp),
               C.green
+            ),
+            card(
+              "IVT rate today",
+              `${(d.ivtRateToday ?? 0).toFixed(1)}%`,
+              {
+                text:
+                  (d.ivtRateToday ?? 0) > 10
+                    ? "Elevated — review auction log IVT filter"
+                    : "share of auctions flagged IVT",
+                pos: (d.ivtRateToday ?? 0) <= 10
+              },
+              (d.ivtRateToday ?? 0) > 10 ? C.red : C.textMuted,
+              (d.ivtRateToday ?? 0) > 10
             ),
             card(
               "Total Revenue $",

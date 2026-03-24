@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { cacheDelete } from "@/lib/cache";
 import { validateIabSizes } from "@/lib/iab-sizes";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
@@ -59,6 +60,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       WHERE id = ${params.id}
       RETURNING *
     `;
+    cacheDelete(`unit:${unit.publisher_id}:${params.id}`);
     return json(result.rows[0] ?? null);
   } catch (e) {
     console.error("[inventory PUT]", e);
@@ -102,6 +104,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       WHERE id = ${params.id}
       RETURNING *
     `;
+    cacheDelete(`unit:${unit.publisher_id}:${params.id}`);
     return json(result.rows[0] ?? null);
   } catch (e) {
     console.error("[inventory PATCH]", e);

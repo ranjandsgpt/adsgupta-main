@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(Number(sp.get("limit") ?? "200"), 2000);
   const publisherId = sp.get("publisherId") ?? sp.get("publisher_id");
   const clearedParam = sp.get("cleared") ?? "all";
+  const ivtOnly = sp.get("ivt") === "only";
   const dateFrom = sp.get("dateFrom") ?? sp.get("from");
   const dateTo = sp.get("dateTo") ?? sp.get("to");
   const preset = sp.get("preset");
@@ -62,6 +63,7 @@ export async function GET(request: NextRequest) {
               al.page_url,
               al.user_agent,
               al.demand_source,
+              al.is_ivt,
               al.created_at,
               p.domain AS publisher_domain,
               u.name AS ad_unit_name,
@@ -73,6 +75,7 @@ export async function GET(request: NextRequest) {
             WHERE al.created_at::date >= ${fromD}::date
               AND al.created_at::date <= ${toD}::date
               AND al.cleared = true
+              AND (${ivtOnly}::boolean IS NOT TRUE OR COALESCE(al.is_ivt, false) = true)
               AND (${publisherId}::text IS NULL OR ${publisherId}::text = '' OR al.publisher_id = ${publisherId}::uuid)
             ORDER BY al.created_at DESC
             LIMIT ${limit}
@@ -93,6 +96,7 @@ export async function GET(request: NextRequest) {
                 al.page_url,
                 al.user_agent,
                 al.demand_source,
+                al.is_ivt,
                 al.created_at,
                 p.domain AS publisher_domain,
                 u.name AS ad_unit_name,
@@ -104,6 +108,7 @@ export async function GET(request: NextRequest) {
               WHERE al.created_at::date >= ${fromD}::date
                 AND al.created_at::date <= ${toD}::date
                 AND al.cleared = false
+                AND (${ivtOnly}::boolean IS NOT TRUE OR COALESCE(al.is_ivt, false) = true)
                 AND (${publisherId}::text IS NULL OR ${publisherId}::text = '' OR al.publisher_id = ${publisherId}::uuid)
               ORDER BY al.created_at DESC
               LIMIT ${limit}
@@ -123,6 +128,7 @@ export async function GET(request: NextRequest) {
                 al.page_url,
                 al.user_agent,
                 al.demand_source,
+                al.is_ivt,
                 al.created_at,
                 p.domain AS publisher_domain,
                 u.name AS ad_unit_name,
@@ -133,6 +139,7 @@ export async function GET(request: NextRequest) {
               LEFT JOIN creatives cr ON cr.id = al.winning_creative_id
               WHERE al.created_at::date >= ${fromD}::date
                 AND al.created_at::date <= ${toD}::date
+                AND (${ivtOnly}::boolean IS NOT TRUE OR COALESCE(al.is_ivt, false) = true)
                 AND (${publisherId}::text IS NULL OR ${publisherId}::text = '' OR al.publisher_id = ${publisherId}::uuid)
               ORDER BY al.created_at DESC
               LIMIT ${limit}

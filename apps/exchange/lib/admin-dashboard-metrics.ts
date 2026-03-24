@@ -26,6 +26,8 @@ export type AdminDashboardPayload = {
   pendingPublishers: number;
   pendingCampaigns: number;
   pendingReviewTotal: number;
+  ivtAuctionsToday: number;
+  ivtRateToday: number;
 };
 
 export async function computeAdminDashboardMetrics(): Promise<AdminDashboardPayload> {
@@ -45,7 +47,8 @@ export async function computeAdminDashboardMetrics(): Promise<AdminDashboardPayl
     activePublishers,
     activeCampaigns,
     pendingPublishers,
-    pendingCampaigns
+    pendingCampaigns,
+    ivtAuctionsToday
   ] = await Promise.all([
     sql<{ c: number }>`SELECT COUNT(*)::int AS c FROM auction_log WHERE created_at::date = CURRENT_DATE`,
     sql<{ c: number }>`SELECT COUNT(*)::int AS c FROM auction_log WHERE created_at::date = CURRENT_DATE - 1`,
@@ -78,7 +81,12 @@ export async function computeAdminDashboardMetrics(): Promise<AdminDashboardPayl
     sql<{ c: number }>`SELECT COUNT(*)::int AS c FROM publishers WHERE status = 'active'`,
     sql<{ c: number }>`SELECT COUNT(*)::int AS c FROM campaigns WHERE status = 'active'`,
     sql<{ c: number }>`SELECT COUNT(*)::int AS c FROM publishers WHERE status = 'pending'`,
-    sql<{ c: number }>`SELECT COUNT(*)::int AS c FROM campaigns WHERE status = 'pending'`
+    sql<{ c: number }>`SELECT COUNT(*)::int AS c FROM campaigns WHERE status = 'pending'`,
+    sql<{ c: number }>`
+      SELECT COUNT(*)::int AS c
+      FROM auction_log
+      WHERE created_at::date = CURRENT_DATE AND COALESCE(is_ivt, false) = true
+    `
   ]);
 
   const at = Number(auctionsToday.rows[0]?.c ?? 0);
@@ -96,6 +104,8 @@ export async function computeAdminDashboardMetrics(): Promise<AdminDashboardPayl
 
   const pp = Number(pendingPublishers.rows[0]?.c ?? 0);
   const pc = Number(pendingCampaigns.rows[0]?.c ?? 0);
+  const ivtN = Number(ivtAuctionsToday.rows[0]?.c ?? 0);
+  const ivtRate = at > 0 ? (ivtN / at) * 100 : 0;
 
   return {
     auctionsToday: at,
@@ -117,6 +127,8 @@ export async function computeAdminDashboardMetrics(): Promise<AdminDashboardPayl
     activeCampaigns: Number(activeCampaigns.rows[0]?.c ?? 0),
     pendingPublishers: pp,
     pendingCampaigns: pc,
-    pendingReviewTotal: pp + pc
+    pendingReviewTotal: pp + pc,
+    ivtAuctionsToday: ivtN,
+    ivtRateToday: ivtRate
   };
 }

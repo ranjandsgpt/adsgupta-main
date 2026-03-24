@@ -1,16 +1,29 @@
-import { neon } from "@neondatabase/serverless";
+import { neon, Pool } from "@neondatabase/serverless";
 
 let rawSql: ReturnType<typeof neon> | null = null;
+let pool: Pool | null = null;
 
-function getRawSql() {
+function connectionString() {
   const url = process.env.POSTGRES_URL ?? process.env.DATABASE_URL;
   if (!url) {
     throw new Error("POSTGRES_URL or DATABASE_URL is required");
   }
+  return url;
+}
+
+function getRawSql() {
   if (!rawSql) {
-    rawSql = neon(url);
+    rawSql = neon(connectionString());
   }
   return rawSql;
+}
+
+/** Pooled client for high-frequency auction reads (Node runtime). */
+export function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({ connectionString: connectionString() });
+  }
+  return pool;
 }
 
 /**
@@ -37,7 +50,7 @@ export async function sql<T extends Record<string, unknown> = Record<string, unk
   }
 }
 
-/** Expose raw neon client for advanced use (still uses same pool). */
+/** Single-query HTTP driver for admin CRUD and tagged `sql` template. */
 export function getDb() {
   return getRawSql();
 }

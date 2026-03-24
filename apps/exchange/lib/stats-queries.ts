@@ -23,6 +23,9 @@ export type ExchangeStatsPayload = {
   activeUnits: number;
   totalAuctions: number;
   totalAuctionsToday: number;
+  /** Publisher-scoped only */
+  ivtAuctionsToday?: number;
+  ivtRateToday?: number;
   topUnits: TopUnitRow[];
 };
 
@@ -271,6 +274,22 @@ export async function computeExchangeStats(publisherId: string | null): Promise<
     `;
   }
 
+  let ivtAuctionsToday = 0;
+  let ivtRateToday = 0;
+  if (pid) {
+    ivtAuctionsToday = await queryNumber(() =>
+      db`
+        SELECT COUNT(*)::text AS v
+        FROM auction_log
+        WHERE publisher_id = ${pid}
+          AND created_at::date = CURRENT_DATE
+          AND COALESCE(is_ivt, false) = true
+      `
+    );
+    ivtRateToday =
+      totalAuctionsToday > 0 ? (ivtAuctionsToday / totalAuctionsToday) * 100 : 0;
+  }
+
   const topRows = Array.isArray(topRowsArr) ? topRowsArr : [];
   const topUnits: TopUnitRow[] = topRows.map((row) => {
     const r = row as {
@@ -307,6 +326,8 @@ export async function computeExchangeStats(publisherId: string | null): Promise<
     activeUnits,
     totalAuctions,
     totalAuctionsToday,
+    ivtAuctionsToday: pid ? ivtAuctionsToday : undefined,
+    ivtRateToday: pid ? ivtRateToday : undefined,
     topUnits
   };
 }

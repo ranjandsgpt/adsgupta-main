@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { cacheClear } from "@/lib/cache";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
@@ -31,5 +32,6 @@ export async function POST(request: NextRequest) {
     )
     RETURNING *
   `;
+  cacheClear("pricing:");
   return json(result.rows[0], 201);
 }

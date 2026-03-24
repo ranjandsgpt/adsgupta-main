@@ -3,6 +3,8 @@ import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { rateLimitResponse } from "@/lib/rate-limit-http";
+import { validateCpm, validateEmail } from "@/lib/validate";
 import { NextRequest } from "next/server";
 
 type CampaignRow = Record<string, unknown>;
@@ -73,6 +75,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const started = Date.now();
+  const limited = rateLimitResponse(request, "post:campaigns", 10, 60_000);
+  if (limited) return limited;
+
   const auth = await getAuthFromRequest(request);
   const body = await request.json();
 
@@ -81,17 +87,25 @@ export async function POST(request: NextRequest) {
   const advertiserEmail = body.advertiser_email ?? body.contact_email;
 
   if (!campaignName || !advertiserName || body.bid_price === undefined) {
-    return badRequest("campaign_name, advertiser_name, and bid_price are required");
+    return badRequest("campaign_name, advertiser_name, and bid_price are required", { startedAt: started });
+  }
+  if (body.daily_budget === undefined || body.daily_budget === null) {
+    return badRequest("daily_budget is required", { startedAt: started });
   }
 
   const bidNum = Number(body.bid_price);
-  if (!Number.isFinite(bidNum) || bidNum < 0.1) {
-    return badRequest("bid_price must be at least 0.10 USD CPM");
+  if (!Number.isFinite(bidNum) || !validateCpm(bidNum)) {
+    return badRequest("bid_price must be between 0.01 and 1000 USD CPM", { startedAt: started });
   }
 
   const budgetNum = body.daily_budget != null ? Number(body.daily_budget) : NaN;
-  if (!Number.isFinite(budgetNum) || budgetNum < 5) {
-    return badRequest("daily_budget must be at least 5 USD");
+  if (!Number.isFinite(budgetNum) || budgetNum < 1) {
+    return badRequest("daily_budget must be at least 1.00 USD", { startedAt: started });
+  }
+
+  const em = advertiserEmail != null ? String(advertiserEmail) : "";
+  if (em && !validateEmail(em)) {
+    return badRequest("Invalid advertiser_email", { startedAt: started });
   }
 
   const targetSizes = Array.isArray(body.target_sizes) ? body.target_sizes : null;

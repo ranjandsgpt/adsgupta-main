@@ -29,6 +29,8 @@ type Creative = {
   click_url: string | null;
   status: string;
   impression_count?: number;
+  scan_passed?: boolean | null;
+  scan_issues?: string[] | null;
 };
 
 function timeAgo(iso: string): string {
@@ -396,8 +398,49 @@ export default function AdminDemandCampaignsPage() {
                                 <div style={{ height: 90, background: "#080c14" }} />
                               )}
                               <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 4 }}>{c.size}</div>
+                              <div
+                                style={{
+                                  fontSize: 9,
+                                  fontWeight: 800,
+                                  marginTop: 4,
+                                  color:
+                                    c.status === "flagged"
+                                      ? "#ff4757"
+                                      : c.scan_passed === false
+                                        ? "#ff8c42"
+                                        : "#2ecc71"
+                                }}
+                              >
+                                {c.status === "flagged"
+                                  ? "FLAGGED"
+                                  : c.status === "approved"
+                                    ? "APPROVED"
+                                    : c.scan_passed === false
+                                      ? "SCAN ISSUE"
+                                      : "SCAN OK"}
+                              </div>
                               <div style={{ fontSize: 9, wordBreak: "break-all" }}>{c.click_url ?? "—"}</div>
                               <div style={{ fontSize: 9 }}>Imp: {c.impression_count ?? 0}</div>
+                              {c.status === "flagged" && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6 }}>
+                                  <button
+                                    type="button"
+                                    className="secondary"
+                                    style={{ fontSize: 9 }}
+                                    onClick={() => patchCreative(c.id, { status: "approved" })}
+                                  >
+                                    Override & Approve
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="secondary"
+                                    style={{ fontSize: 9, color: "#ff4757" }}
+                                    onClick={() => patchCreative(c.id, { status: "archived" })}
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              )}
                               <button type="button" style={{ fontSize: 10, marginTop: 4 }} onClick={() => patchCreative(c.id, { status: c.status === "active" ? "paused" : "active" })}>
                                 {c.status === "active" ? "Pause creative" : "Resume"}
                               </button>

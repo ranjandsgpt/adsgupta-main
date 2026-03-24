@@ -34,6 +34,9 @@ type Creative = {
   status: string;
   impression_count?: number;
   click_count?: number;
+  scan_passed?: boolean | null;
+  scan_issues?: string[] | null;
+  scan_warnings?: string[] | null;
 };
 
 function chip(label: string) {
@@ -177,6 +180,23 @@ function Inner() {
       setError("Network error");
     }
     setBusyId(null);
+  }
+
+  async function rescanCreative(id: string) {
+    setBusyId(`scan-${id}`);
+    try {
+      const res = await fetch(`/api/creatives/${id}/scan`, { method: "POST", credentials: "include" });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setError(typeof (j as { error?: string }).error === "string" ? (j as { error: string }).error : "Rescan failed");
+        return;
+      }
+      void refresh();
+    } catch {
+      setError("Network error");
+    } finally {
+      setBusyId(null);
+    }
   }
 
   async function deleteCreative(id: string) {
@@ -402,7 +422,31 @@ function Inner() {
                               <span style={{ background: "#1a3a52", padding: "2px 6px", borderRadius: 4 }}>Click {cc}</span>
                               <span style={{ background: "#1a3a52", padding: "2px 6px", borderRadius: 4 }}>CTR {ctr.toFixed(2)}%</span>
                               <span style={{ color: statusColor(cr.status), fontWeight: 700 }}>{cr.status}</span>
+                              <span
+                                style={{
+                                  background:
+                                    cr.status === "flagged"
+                                      ? "#ff475722"
+                                      : cr.scan_passed === false
+                                        ? "#ff8c4222"
+                                        : "#2ecc7122",
+                                  padding: "2px 6px",
+                                  borderRadius: 4,
+                                  fontWeight: 700,
+                                  color:
+                                    cr.status === "flagged" ? "#ff4757" : cr.scan_passed === false ? "#ff8c42" : "#2ecc71"
+                                }}
+                              >
+                                {cr.status === "flagged" ? "Scan: flagged" : cr.scan_passed === false ? "Scan: issue" : "Scan: passed"}
+                              </span>
                             </div>
+                            {(cr.scan_issues?.length ?? 0) > 0 && (
+                              <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 10, color: "#ff8c42" }}>
+                                {(cr.scan_issues ?? []).map((x) => (
+                                  <li key={x}>{x}</li>
+                                ))}
+                              </ul>
+                            )}
                             <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block", marginTop: 8 }}>Click URL</label>
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                               <input
@@ -437,6 +481,15 @@ function Inner() {
                                 }
                               >
                                 {cr.status === "active" ? "Pause" : "Resume"}
+                              </button>
+                              <button
+                                type="button"
+                                className="secondary"
+                                style={{ fontSize: 10 }}
+                                disabled={busyId === `scan-${cr.id}` || !cr.image_url}
+                                onClick={() => void rescanCreative(cr.id)}
+                              >
+                                Rescan
                               </button>
                               <button
                                 type="button"
@@ -520,7 +573,31 @@ function Inner() {
                             <span style={{ background: "#1a3a52", padding: "2px 6px", borderRadius: 4 }}>Click {cc}</span>
                             <span style={{ background: "#1a3a52", padding: "2px 6px", borderRadius: 4 }}>CTR {ctr.toFixed(2)}%</span>
                             <span style={{ color: statusColor(cr.status), fontWeight: 700 }}>{cr.status}</span>
+                            <span
+                              style={{
+                                background:
+                                  cr.status === "flagged"
+                                    ? "#ff475722"
+                                    : cr.scan_passed === false
+                                      ? "#ff8c4222"
+                                      : "#2ecc7122",
+                                padding: "2px 6px",
+                                borderRadius: 4,
+                                fontWeight: 700,
+                                color:
+                                  cr.status === "flagged" ? "#ff4757" : cr.scan_passed === false ? "#ff8c42" : "#2ecc71"
+                              }}
+                            >
+                              {cr.status === "flagged" ? "Scan: flagged" : cr.scan_passed === false ? "Scan: issue" : "Scan: passed"}
+                            </span>
                           </div>
+                          {(cr.scan_issues?.length ?? 0) > 0 && (
+                            <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 10, color: "#ff8c42" }}>
+                              {(cr.scan_issues ?? []).map((x) => (
+                                <li key={x}>{x}</li>
+                              ))}
+                            </ul>
+                          )}
                           <label style={{ fontSize: 9, color: "var(--text-muted)", display: "block", marginTop: 8 }}>Click URL</label>
                           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                             <input
@@ -555,6 +632,15 @@ function Inner() {
                               }
                             >
                               {cr.status === "active" ? "Pause" : "Resume"}
+                            </button>
+                            <button
+                              type="button"
+                              className="secondary"
+                              style={{ fontSize: 10 }}
+                              disabled={busyId === `scan-${cr.id}` || !cr.image_url}
+                              onClick={() => void rescanCreative(cr.id)}
+                            >
+                              Rescan
                             </button>
                             <button
                               type="button"

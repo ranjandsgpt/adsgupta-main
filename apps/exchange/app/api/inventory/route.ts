@@ -3,6 +3,7 @@ import { validateIabSizes } from "@/lib/iab-sizes";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { validateRequired } from "@/lib/validate";
 import { NextRequest } from "next/server";
 
 const AD_TYPES = new Set(["display", "video", "native"]);
@@ -155,24 +156,24 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const started = Date.now();
   const auth = await getAuthFromRequest(request);
-  const body = await request.json();
+  const body = await request.json() as Record<string, unknown>;
 
-  if (!body.publisher_id || !body.name || !body.ad_type || !body.environment) {
-    return badRequest("publisher_id, name, ad_type, environment are required");
-  }
+  const miss = validateRequired(body, ["publisher_id", "name", "ad_type", "environment", "sizes", "floor_price"]);
+  if (miss) return badRequest(miss, { startedAt: started });
 
   if (!validateIabSizes(body.sizes)) {
-    return badRequest("sizes must be a non-empty array of valid IAB standard sizes");
+    return badRequest("sizes must be a non-empty array of valid IAB standard sizes", { startedAt: started });
   }
 
   const floorNum = Number(body.floor_price);
-  if (!Number.isFinite(floorNum) || floorNum <= 0) {
-    return badRequest("floor_price must be greater than 0");
+  if (!Number.isFinite(floorNum) || floorNum < 0.01 || floorNum > 100) {
+    return badRequest("floor_price must be between 0.01 and 100", { startedAt: started });
   }
 
-  const adType = normAdType(body.ad_type);
-  const env = normEnv(body.environment);
+  const adType = normAdType(String(body.ad_type ?? ""));
+  const env = normEnv(String(body.environment ?? ""));
   if (!AD_TYPES.has(adType)) return badRequest("ad_type must be display, video, or native");
   if (!ENVS.has(env)) return badRequest("environment must be web, app, or ctv");
 

@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { cacheClear } from "@/lib/cache";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
@@ -34,6 +35,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     WHERE id = ${params.id}
     RETURNING *
   `;
+  cacheClear("pricing:");
   return json(result.rows[0] ?? null);
 }
 
@@ -43,5 +45,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   if (auth.role !== "admin") return forbidden();
 
   await sql`DELETE FROM pricing_rules WHERE id = ${params.id}`;
+  cacheClear("pricing:");
   return json({ ok: true });
 }

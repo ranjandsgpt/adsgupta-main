@@ -1,9 +1,11 @@
 export const dynamic = "force-dynamic";
 import { sendPublisherWelcomeEmail } from "@/lib/email";
-import { isValidEmail, normalizeDomain } from "@/lib/domain";
+import { normalizeDomain } from "@/lib/domain";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { rateLimitResponse } from "@/lib/rate-limit-http";
+import { validateDomain, validateEmail, validateRequired } from "@/lib/validate";
 import { NextRequest } from "next/server";
 
 function normalizePrimaryFormats(body: Record<string, unknown>): string[] {
@@ -54,17 +56,27 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const started = Date.now();
+  const limited = rateLimitResponse(request, "post:publishers", 10, 60_000);
+  if (limited) return limited;
+
   const auth = await getAuthFromRequest(request);
   const body = (await request.json()) as Record<string, unknown>;
 
-  if (!body.name || !body.domain) return badRequest("name and domain are required");
+  const miss = validateRequired(body, ["name", "domain"]);
+  if (miss) return badRequest(miss, { startedAt: started });
 
   /** Self-registration (no auth): always pending */
   if (!auth) {
+    const ce = body.contact_email != null ? String(body.contact_email) : "";
+    const missPub = validateRequired(body, ["contact_email"]);
+    if (missPub) return badRequest(missPub, { startedAt: started });
+    if (!validateEmail(ce)) return badRequest("Invalid contact_email format", { startedAt: started });
+    const domainNorm = String(body.domain).trim().toLowerCase();
+    if (!validateDomain(domainNorm)) return badRequest("Invalid domain format", { startedAt: started });
     const domain = normalizeDomain(String(body.domain));
-    if (!domain) return badRequest("Invalid domain format");
-    const email = body.contact_email != null ? String(body.contact_email) : "";
-    if (!isValidEmail(email)) return badRequest("Valid contact email is required");
+    if (!domain) return badRequest("Invalid domain format", { startedAt: started });
+    const email = ce;
     const primaryFormats = normalizePrimaryFormats(body);
     if (primaryFormats.length === 0) {
       return badRequest("Select at least one primary ad format");
@@ -76,11 +88,15 @@ export async function POST(request: NextRequest) {
     `;
     const row = result.rows[0] as { id: string; name: string; contact_email: string | null };
     void sendPublisherWelcomeEmail(email, String(body.name), row.id);
-    return json(row, 201);
+    return json(row, 201, { startedAt: started });
   }
 
   if (auth.role !== "admin") return forbidden("Only exchange admins can create publishers here");
 
+  const ceAdmin = body.contact_email != null ? String(body.contact_email) : "";
+  if (ceAdmin && !validateEmail(ceAdmin)) return badRequest("Invalid contact_email format", { startedAt: started });
+  const domainRaw = String(body.domain).trim().toLowerCase();
+  if (!validateDomain(domainRaw)) return badRequest("Invalid domain format", { startedAt: started });
   const domain = normalizeDomain(String(body.domain)) ?? String(body.domain);
   const adminFormats = normalizePrimaryFormats(body);
   const formatsSql = adminFormats.length > 0 ? adminFormats : null;
@@ -97,5 +113,5 @@ export async function POST(request: NextRequest) {
     )
     RETURNING *
   `;
-  return json(result.rows[0], 201);
+  return json(result.rows[0], 201, { startedAt: started });
 }

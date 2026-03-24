@@ -1,7 +1,14 @@
 import { isCampaignOverBudget } from "@/lib/budget-check";
+import { cacheGet, cacheSet } from "@/lib/cache";
 import { requestAllDspBids, type DspBid } from "@/lib/dsp-bidder";
-import { sql } from "@/lib/db";
+import { sql, getPool } from "@/lib/db";
 import { getEffectiveFloor } from "@/lib/floor-engine";
+import {
+  parseCoppa,
+  parseGdprConsent,
+  parseUsp,
+  shouldRedactUserFieldsInAuctionLog
+} from "@/lib/privacy";
 import type {
   OpenRTB26App,
   OpenRTB26BidRequest,
@@ -36,6 +43,8 @@ export type AuctionEngineOpts = {
   /** Full OpenRTB request (for DSP clone, regs, bcat, badv) */
   fullRequest?: OpenRTB26BidRequest;
   ipForLog?: string | null;
+  /** Datacenter / high-risk IVT — auction runs but auction_log.is_ivt = true */
+  markIvt?: boolean;
 };
 
 /** Result after inserting auction_log. `winner` null = no-fill. */
@@ -134,10 +143,12 @@ async function insertAuctionLog(args: {
   userAgent?: string | null;
   demandSource?: string | null;
   deviceIp?: string | null;
+  privacySuppressed?: boolean;
+  isIvt?: boolean;
 }): Promise<string | null> {
   const ins = await sql<{ id: string }>`
     INSERT INTO auction_log
-    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip)
+    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip, privacy_suppressed, is_ivt)
     VALUES
     (
       ${args.openrtbRequestId},
@@ -152,7 +163,9 @@ async function insertAuctionLog(args: {
       ${args.pageUrl},
       ${args.userAgent ?? null},
       ${args.demandSource ?? "internal"},
-      ${args.deviceIp ?? null}
+      ${args.deviceIp ?? null},
+      ${args.privacySuppressed ?? false},
+      ${args.isIvt ?? false}
     )
     RETURNING id
   `;
@@ -188,6 +201,67 @@ function normalizePubDomain(raw: string | null | undefined): string | null {
   return s || null;
 }
 
+type JoinRow = {
+  campaign_id: string;
+  bid_price: string;
+  daily_budget: string | null;
+  target_sizes: string[] | null;
+  target_environments: string[] | null;
+  target_domains: string[] | null;
+  target_geos: string[] | null;
+  target_devices: string[] | null;
+  advertiser_domain: string | null;
+  advertiser_name: string | null;
+  iab_cat: string[] | null;
+  creative_api: number[] | null;
+  creative_id: string;
+  image_url: string;
+  click_url: string;
+  creative_size: string;
+};
+
+async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
+  const key = "campaigns:active";
+  const cached = cacheGet<JoinRow[]>(key);
+  if (cached) {
+    console.log("[cache]", key, "HIT");
+    return cached;
+  }
+  console.log("[cache]", key, "MISS");
+  const pool = getPool();
+  const { rows } = await pool.query<JoinRow>(`
+    SELECT
+      c.id AS campaign_id,
+      c.bid_price::text AS bid_price,
+      c.daily_budget::text AS daily_budget,
+      c.target_sizes,
+      c.target_environments,
+      c.target_domains,
+      c.target_geos,
+      c.target_devices,
+      c.advertiser_domain,
+      COALESCE(c.advertiser_name, c.advertiser) AS advertiser_name,
+      c.iab_cat,
+      c.creative_api,
+      cr.id AS creative_id,
+      cr.image_url,
+      cr.click_url,
+      cr.size AS creative_size
+    FROM campaigns c
+    INNER JOIN creatives cr ON cr.campaign_id = c.id
+    WHERE c.status = 'active'
+      AND (c.start_date IS NULL OR c.start_date <= CURRENT_DATE)
+      AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
+      AND cr.status IN ('active', 'approved')
+      AND cr.image_url IS NOT NULL
+      AND cr.click_url IS NOT NULL
+      AND (COALESCE(cr.scan_passed, true) = true OR cr.status = 'approved')
+  `);
+  const list = rows as JoinRow[];
+  cacheSet(key, list, 30_000);
+  return list;
+}
+
 /**
  * Production auction: gates, floor engine, internal + DSP bids, OpenRTB auction type (1/2).
  */
@@ -199,27 +273,20 @@ export async function runAuction(
   bidfloorFromImp: number,
   opts?: AuctionEngineOpts
 ): Promise<RunAuctionOutput | null> {
+  const auctionStart = typeof performance !== "undefined" ? performance.now() : Date.now();
   try {
+    const ua = opts?.device?.ua ? String(opts.device.ua).slice(0, 2000) : null;
+    const devIp = opts?.ipForLog ?? opts?.device?.ip ?? null;
+    if (devIp) console.log("[openrtb] device.ip (log):", devIp);
+
     const regs = opts?.fullRequest?.regs;
-    const userConsent = opts?.fullRequest?.user?.consent?.trim();
-    if (regs?.gdpr === 1 && !userConsent) {
-      const id = await insertAuctionLog({
-        openrtbRequestId,
-        adUnitId: null,
-        publisherId: null,
-        winnerCampaignId: null,
-        winnerCreativeId: null,
-        winningBid: null,
-        floorPrice: bidfloorFromImp,
-        bidCount: 0,
-        pageUrl,
-        userAgent: opts?.device?.ua ? String(opts.device.ua).slice(0, 2000) : null,
-        demandSource: null,
-        deviceIp: opts?.ipForLog ?? opts?.device?.ip ?? null
-      });
-      if (id) console.log("[auction]", id, "gdpr: no consent — no fill");
-      return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
-    }
+    const consent = parseGdprConsent({ gdpr: regs?.gdpr }, { consent: opts?.fullRequest?.user?.consent });
+    const coppaRegs = parseCoppa(regs ?? {});
+    const { redact, privacySuppressed } = shouldRedactUserFieldsInAuctionLog(consent, coppaRegs);
+    const logUa = redact ? null : ua;
+    const logIp = redact ? null : devIp;
+    const usp = parseUsp(regs ?? {});
+    const markIvt = opts?.markIvt === true;
 
     const unitRes = await sql<{
       id: string;
@@ -240,9 +307,6 @@ export async function runAuction(
       LIMIT 1
     `;
     const adUnit = unitRes.rows[0];
-    const ua = opts?.device?.ua ? String(opts.device.ua).slice(0, 2000) : null;
-    const devIp = opts?.ipForLog ?? opts?.device?.ip ?? null;
-    if (devIp) console.log("[openrtb] device.ip (log):", devIp);
 
     if (!adUnit) {
       const id = await insertAuctionLog({
@@ -255,8 +319,10 @@ export async function runAuction(
         floorPrice: bidfloorFromImp,
         bidCount: 0,
         pageUrl,
-        userAgent: ua,
-        deviceIp: devIp
+        userAgent: logUa,
+        deviceIp: logIp,
+        privacySuppressed,
+        isIvt: markIvt
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -290,8 +356,10 @@ export async function runAuction(
         floorPrice: floor,
         bidCount: 0,
         pageUrl,
-        userAgent: ua,
-        deviceIp: devIp
+        userAgent: logUa,
+        deviceIp: logIp,
+        privacySuppressed,
+        isIvt: markIvt
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -308,8 +376,10 @@ export async function runAuction(
         floorPrice: floor,
         bidCount: 0,
         pageUrl,
-        userAgent: ua,
-        deviceIp: devIp
+        userAgent: logUa,
+        deviceIp: logIp,
+        privacySuppressed,
+        isIvt: markIvt
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -334,84 +404,41 @@ export async function runAuction(
     const badv = opts?.fullRequest?.badv;
     const requireSecure = imp?.secure === 1;
 
-    const campaignsRes = await sql<{
-      id: string;
-      bid_price: string;
-      daily_budget: string | null;
-      target_sizes: string[] | null;
-      target_environments: string[] | null;
-      target_domains: string[] | null;
-      target_geos: string[] | null;
-      target_devices: string[] | null;
-      advertiser_domain: string | null;
-      advertiser_name: string | null;
-      iab_cat: string[] | null;
-      creative_api: number[] | null;
-    }>`
-      SELECT id, bid_price::text, daily_budget::text, target_sizes, target_environments, target_domains, target_geos, target_devices,
-        advertiser_domain, COALESCE(advertiser_name, advertiser) AS advertiser_name, iab_cat, creative_api
-      FROM campaigns
-      WHERE status = 'active'
-        AND (start_date IS NULL OR start_date <= CURRENT_DATE)
-        AND (end_date IS NULL OR end_date >= CURRENT_DATE)
-    `;
-
-    const eligibleCampaignIds: string[] = [];
-    for (const c of campaignsRes.rows) {
-      if (regs?.coppa === 1 && c.target_geos && c.target_geos.length > 0) continue;
-      if (campaignBlockedByBcat(c.iab_cat, bcat)) continue;
-      const advDom = c.advertiser_domain ?? null;
-      if (advDom && campaignBlockedByBadv(advDom, badv)) continue;
-      if (!campaignMatchesTargeting(c, targetingCtx)) continue;
-      const budget = c.daily_budget != null ? Number(c.daily_budget) : NaN;
-      if (!Number.isNaN(budget) && budget > 0) {
-        if (await isCampaignOverBudget(c.id, budget)) continue;
-      }
-      eligibleCampaignIds.push(c.id);
+    const joinRows = await loadActiveCampaignCreativesJoin();
+    const byCampaign = new Map<string, JoinRow[]>();
+    for (const r of joinRows) {
+      const arr = byCampaign.get(r.campaign_id) ?? [];
+      arr.push(r);
+      byCampaign.set(r.campaign_id, arr);
     }
 
     const internalPool: InternalBid[] = [];
 
-    if (eligibleCampaignIds.length > 0) {
-      const creativeRows: Array<{
-        campaign_id: string;
-        creative_id: string;
-        bid_price: string;
-        image_url: string | null;
-        click_url: string | null;
-        creative_size: string;
-        advertiser_domain: string | null;
-        advertiser_name: string | null;
-        iab_cat: string[] | null;
-        creative_api: number[] | null;
-      }> = [];
-
-      for (const cid of eligibleCampaignIds) {
-        const crRes = await sql<{
-          campaign_id: string;
-          creative_id: string;
-          bid_price: string;
-          image_url: string | null;
-          click_url: string | null;
-          creative_size: string;
-          advertiser_domain: string | null;
-          advertiser_name: string | null;
-          iab_cat: string[] | null;
-          creative_api: number[] | null;
-        }>`
-          SELECT c.id AS campaign_id, cr.id AS creative_id, c.bid_price::text, cr.image_url, cr.click_url, cr.size AS creative_size,
-            c.advertiser_domain, COALESCE(c.advertiser_name, c.advertiser) AS advertiser_name, c.iab_cat, c.creative_api
-          FROM campaigns c
-          INNER JOIN creatives cr ON cr.campaign_id = c.id
-          WHERE c.id = ${cid}
-            AND cr.status = 'active'
-            AND cr.image_url IS NOT NULL
-            AND cr.click_url IS NOT NULL
-        `;
-        creativeRows.push(...crRes.rows);
+    for (const [campaignId, rows] of byCampaign) {
+      const c0 = rows[0];
+      if (!c0) continue;
+      const c = {
+        id: campaignId,
+        target_sizes: c0.target_sizes,
+        target_environments: c0.target_environments,
+        target_domains: c0.target_domains,
+        target_geos: c0.target_geos,
+        target_devices: c0.target_devices,
+        advertiser_domain: c0.advertiser_domain,
+        advertiser_name: c0.advertiser_name,
+        iab_cat: c0.iab_cat,
+        creative_api: c0.creative_api
+      };
+      if (regs?.coppa === 1 && c.target_geos && c.target_geos.length > 0) continue;
+      if (campaignBlockedByBcat(c.iab_cat, bcat)) continue;
+      const advDom = c0.advertiser_domain ?? null;
+      if (advDom && campaignBlockedByBadv(advDom, badv)) continue;
+      if (!campaignMatchesTargeting(c, targetingCtx)) continue;
+      const budget = c0.daily_budget != null ? Number(c0.daily_budget) : NaN;
+      if (!Number.isNaN(budget) && budget > 0) {
+        if (await isCampaignOverBudget(campaignId, budget)) continue;
       }
-
-      for (const r of creativeRows) {
+      for (const r of rows) {
         const bidPrice = Number(r.bid_price);
         if (bidPrice < floor) continue;
         const crSize = r.creative_size;
@@ -436,11 +463,7 @@ export async function runAuction(
     const pool: PoolBid[] = internalPool.map((b) => ({ kind: "internal" as const, ...b }));
 
     if (opts?.fullRequest) {
-      const dspRequest = JSON.parse(JSON.stringify(opts.fullRequest)) as OpenRTB26BidRequest;
-      if (opts.fullRequest.user?.buyeruid && dspRequest.user) {
-        dspRequest.user.buyeruid = opts.fullRequest.user.buyeruid;
-      }
-      const dspBids = await requestAllDspBids(dspRequest);
+      const dspBids = await requestAllDspBids(opts.fullRequest, { stripUserIdentity: usp.optedOut });
       for (const d of dspBids) {
         if (d.price >= floor) pool.push({ kind: "dsp", dspBid: d, bidPrice: d.price });
       }
@@ -459,8 +482,10 @@ export async function runAuction(
         floorPrice: floor,
         bidCount: 0,
         pageUrl,
-        userAgent: ua,
-        deviceIp: devIp
+        userAgent: logUa,
+        deviceIp: logIp,
+        privacySuppressed,
+        isIvt: markIvt
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -470,11 +495,7 @@ export async function runAuction(
     const second = pool[1];
     const at = opts?.fullRequest?.at === 1 ? 1 : 2;
     const clearingPrice =
-      at === 1
-        ? winner.bidPrice
-        : second
-          ? second.bidPrice + 0.01
-          : winner.bidPrice;
+      at === 1 ? winner.bidPrice : second ? second.bidPrice + 0.01 : winner.bidPrice;
 
     if (winner.kind === "internal") {
       const { w, h } = parseSize(winner.size);
@@ -491,9 +512,11 @@ export async function runAuction(
         floorPrice: floor,
         bidCount: pool.length,
         pageUrl,
-        userAgent: ua,
+        userAgent: logUa,
         demandSource: "internal",
-        deviceIp: devIp
+        deviceIp: logIp,
+        privacySuppressed,
+        isIvt: markIvt
       });
 
       if (!auctionLogId) return null;
@@ -535,9 +558,11 @@ export async function runAuction(
       floorPrice: floor,
       bidCount: pool.length,
       pageUrl,
-      userAgent: ua,
+      userAgent: logUa,
       demandSource: d.dsp.name,
-      deviceIp: devIp
+      deviceIp: logIp,
+      privacySuppressed,
+      isIvt: markIvt
     });
 
     if (!auctionLogId) return null;
@@ -569,5 +594,11 @@ export async function runAuction(
   } catch (e) {
     console.error("[auction-engine] runAuction failed:", e);
     throw e;
+  } finally {
+    const auctionMs =
+      (typeof performance !== "undefined" ? performance.now() : Date.now()) - auctionStart;
+    if (auctionMs > 100) {
+      console.warn("[auction] SLOW", auctionMs.toFixed(1), "ms — target is <100ms");
+    }
   }
 }

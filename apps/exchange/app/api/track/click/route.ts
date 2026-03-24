@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
+import { isClickFraud } from "@/lib/ivt-detector";
 import { sql } from "@/lib/db";
+import { getClientIp } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
 /** `id` = impression UUID; `url` = encoded destination. */
@@ -21,6 +23,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const ip = getClientIp(request);
+    if (isClickFraud(ip)) {
+      return NextResponse.redirect(destination, 302);
+    }
     const imp = await sql<{ id: string; campaign_id: string | null }>`
       SELECT id, campaign_id FROM impressions WHERE id = ${impressionId} LIMIT 1
     `;

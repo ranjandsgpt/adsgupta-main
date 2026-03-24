@@ -87,7 +87,19 @@ export async function requestDspBid(dsp: DSP, bidRequest: OpenRTB26BidRequest): 
   }
 }
 
-export async function requestAllDspBids(bidRequest: OpenRTB26BidRequest): Promise<DspBid[]> {
+export async function requestAllDspBids(
+  bidRequest: OpenRTB26BidRequest,
+  opts?: { stripUserIdentity?: boolean }
+): Promise<DspBid[]> {
+  let outbound: OpenRTB26BidRequest = bidRequest;
+  if (opts?.stripUserIdentity) {
+    outbound = JSON.parse(JSON.stringify(bidRequest)) as OpenRTB26BidRequest;
+    if (outbound.user) {
+      delete outbound.user.buyeruid;
+      delete (outbound.user as { id?: string }).id;
+    }
+  }
+
   let dsps: DSP[] = [];
   try {
     const r = await sql<DSP>`
@@ -103,7 +115,7 @@ export async function requestAllDspBids(bidRequest: OpenRTB26BidRequest): Promis
     return [];
   }
 
-  const settled = await Promise.allSettled(dsps.map((d) => requestDspBid(d, bidRequest)));
+  const settled = await Promise.allSettled(dsps.map((d) => requestDspBid(d, outbound)));
   const out: DspBid[] = [];
   for (const s of settled) {
     if (s.status === "fulfilled" && s.value) out.push(s.value);

@@ -1,3 +1,4 @@
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import Link from "next/link";
 
 const heroFont = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 as const };
@@ -5,6 +6,7 @@ const heroFont = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", font
 export default function PublisherLandingPage() {
   return (
     <div style={{ maxWidth: 960 }}>
+      <CookieConsentBanner />
       <section style={{ marginBottom: 40 }}>
         <h1
           style={{

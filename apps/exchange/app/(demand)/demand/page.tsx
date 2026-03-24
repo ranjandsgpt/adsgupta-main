@@ -1,3 +1,4 @@
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import Link from "next/link";
 
 export default function DemandLandingPage() {
@@ -9,6 +10,7 @@ export default function DemandLandingPage() {
   ];
   return (
     <div style={{ maxWidth: 960 }}>
+      <CookieConsentBanner />
       <div style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 32, fontWeight: 800, color: "var(--text-bright)", margin: "0 0 14px", letterSpacing: "-0.02em" }}>
           Start Advertising

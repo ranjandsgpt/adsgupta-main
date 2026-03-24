@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { cacheDelete } from "@/lib/cache";
 import { sendDemandActivationEmail } from "@/lib/email";
 import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
@@ -78,6 +79,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       WHERE id = ${params.id}
       RETURNING *
     `;
+    cacheDelete("campaigns:active");
     return json(result.rows[0] ?? null);
   } catch (e) {
     console.error("[campaigns PUT]", e);
@@ -111,6 +113,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const result = await sql`
           UPDATE campaigns SET bid_price = ${bp} WHERE id = ${params.id} RETURNING *
         `;
+        cacheDelete("campaigns:active");
         return json(result.rows[0] ?? null);
       } catch (e) {
         console.error("[campaigns PATCH public bid]", e);
@@ -125,6 +128,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const result = await sql`
           UPDATE campaigns SET status = ${body.status} WHERE id = ${params.id} RETURNING *
         `;
+        cacheDelete("campaigns:active");
         return json(result.rows[0] ?? null);
       } catch (e) {
         console.error("[campaigns PATCH public status]", e);
@@ -183,6 +187,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const cn = String(row.campaign_name ?? row.name ?? "Campaign");
         if (em) void sendDemandActivationEmail(em, cn, params.id);
       }
+      cacheDelete("campaigns:active");
       return json(row ?? null);
     } catch (e) {
       console.error("[campaigns PATCH admin]", e);
@@ -206,6 +211,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const cn = String(row.campaign_name ?? row.name ?? "Campaign");
         if (em) void sendDemandActivationEmail(em, cn, params.id);
       }
+      cacheDelete("campaigns:active");
       return json(row ?? null);
     } catch (e) {
       console.error("[campaigns PATCH demand]", e);
@@ -227,6 +233,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
   try {
     await sql`DELETE FROM campaigns WHERE id = ${params.id}`;
+    cacheDelete("campaigns:active");
     return json({ ok: true });
   } catch (e) {
     console.error("[campaigns DELETE]", e);

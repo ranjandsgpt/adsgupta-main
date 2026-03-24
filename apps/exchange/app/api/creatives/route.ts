@@ -1,9 +1,13 @@
 export const dynamic = "force-dynamic";
+import { scanCreativeUrl } from "@/lib/creative-scanner";
 import { demandAdvertiserFilter } from "@/lib/demand-scope";
+import { isValidIabSize } from "@/lib/iab-sizes";
 import { put } from "@vercel/blob";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { rateLimitResponse } from "@/lib/rate-limit-http";
+import { validateUrl } from "@/lib/validate";
 import { NextRequest } from "next/server";
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -113,6 +117,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = rateLimitResponse(request, "post:creatives", 20, 60_000);
+  if (limited) return limited;
+
   const auth = await getAuthFromRequest(request);
   const formData = await request.formData();
   const campaignId = formData.get("campaign_id") as string;
@@ -134,6 +141,12 @@ export async function POST(request: NextRequest) {
   }
   if (!clickUrl || !String(clickUrl).trim()) {
     return badRequest("click_url is required");
+  }
+  if (!validateUrl(String(clickUrl).trim())) {
+    return badRequest("click_url must be a valid URL");
+  }
+  if (!size || !isValidIabSize(String(size))) {
+    return badRequest("size must be a standard IAB size (e.g. 300x250)");
   }
 
   try {
@@ -168,10 +181,29 @@ export async function POST(request: NextRequest) {
       return badRequest("Image file is required");
     }
 
+    let scanPassed = true;
+    let scanIssues: string[] = [];
+    let scanWarnings: string[] = [];
+    let creativeStatus = "active";
+    const scannedAt = new Date().toISOString();
+    if (imageUrl) {
+      const scan = await scanCreativeUrl(imageUrl, String(size));
+      scanPassed = scan.passed;
+      scanIssues = scan.issues;
+      scanWarnings = scan.warnings;
+      if (!scan.passed) creativeStatus = "flagged";
+    }
+
     const result = await sql`
-      INSERT INTO creatives (campaign_id, name, type, size, click_url, image_url, html_snippet, vast_url, status)
-      VALUES (${campaignId}, ${name}, ${typ}, ${size}, ${clickUrl}, ${imageUrl}, ${htmlSnippet}, ${vastUrl}, 'active')
-      RETURNING id, image_url, size, name, status
+      INSERT INTO creatives (
+        campaign_id, name, type, size, click_url, image_url, html_snippet, vast_url, status,
+        scan_passed, scan_issues, scan_warnings, scanned_at
+      )
+      VALUES (
+        ${campaignId}, ${name}, ${typ}, ${size}, ${clickUrl}, ${imageUrl}, ${htmlSnippet}, ${vastUrl}, ${creativeStatus},
+        ${scanPassed}, ${scanIssues}, ${scanWarnings}, ${scannedAt}::timestamptz
+      )
+      RETURNING id, image_url, size, name, status, scan_passed, scan_issues, scan_warnings
     `;
     const row = result.rows[0] as {
       id: string;
@@ -179,6 +211,9 @@ export async function POST(request: NextRequest) {
       size: string;
       name: string;
       status: string;
+      scan_passed: boolean;
+      scan_issues: string[] | null;
+      scan_warnings: string[] | null;
     };
     return json(
       {
@@ -186,7 +221,12 @@ export async function POST(request: NextRequest) {
         image_url: row.image_url,
         size: row.size,
         name: row.name,
-        status: row.status
+        status: row.status,
+        scan: {
+          passed: row.scan_passed,
+          issues: row.scan_issues ?? [],
+          warnings: row.scan_warnings ?? []
+        }
       },
       201
     );

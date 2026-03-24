@@ -191,6 +191,20 @@ export async function createTables() {
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS advertiser_domain TEXT`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS iab_cat TEXT[]`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS creative_api INTEGER[]`;
+
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS privacy_suppressed BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS is_ivt BOOLEAN DEFAULT false`;
+
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scan_passed BOOLEAN DEFAULT true`;
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scan_issues TEXT[]`;
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scan_warnings TEXT[]`;
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scanned_at TIMESTAMPTZ`;
+
+    await sql`ALTER TABLE creatives DROP CONSTRAINT IF EXISTS creatives_status_check`;
+    await sql`
+      ALTER TABLE creatives ADD CONSTRAINT creatives_status_check
+      CHECK (status IN ('active', 'paused', 'archived', 'flagged', 'approved'))
+    `;
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;

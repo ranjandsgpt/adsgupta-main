@@ -21,6 +21,7 @@ function canAccess(role: ExchangeRole | undefined, pathname: string): boolean {
 function apiAllowed(role: ExchangeRole | undefined, pathname: string, request: NextRequest): boolean {
   if (!role) return false;
   if (pathname.startsWith("/api/analytics")) return role === "admin";
+  if (pathname.startsWith("/api/admin")) return role === "admin";
   if (pathname.startsWith("/api/auction-stream")) return role === "admin";
   if (pathname.startsWith("/api/publisher-analytics")) return role === "admin" || role === "publisher";
   if (pathname.startsWith("/api/demand-analytics")) return role === "admin" || role === "demand";
@@ -95,7 +96,8 @@ function isPublicPage(pathname: string): boolean {
     pathname === "/demand/create" ||
     pathname === "/demand/dashboard" ||
     pathname === "/publisher/tags" ||
-    pathname === "/status"
+    pathname === "/status" ||
+    pathname === "/privacy"
   );
 }
 
@@ -201,6 +203,8 @@ export const config = {
     "/api/pricing/:path*",
     "/api/ping",
     "/api/health",
-    "/status"
+    "/api/admin/:path*",
+    "/status",
+    "/privacy"
   ]
 };

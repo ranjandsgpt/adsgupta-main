@@ -37,6 +37,7 @@ export default function AdminAuctionLogPage() {
   const [to, setTo] = useState("");
   const [publisherId, setPublisherId] = useState("");
   const [cleared, setCleared] = useState<"all" | "true" | "false">("all");
+  const [ivtOnly, setIvtOnly] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [live, setLive] = useState(true);
   /** off = live disabled; connecting = first open; connected = SSE open; reconnecting = backing off after error */
@@ -64,8 +65,9 @@ export default function AdminAuctionLogPage() {
     }
     if (publisherId) p.set("publisherId", publisherId);
     if (cleared !== "all") p.set("cleared", cleared);
+    if (ivtOnly) p.set("ivt", "only");
     return p.toString();
-  }, [preset, from, to, publisherId, cleared]);
+  }, [preset, from, to, publisherId, cleared, ivtOnly]);
 
   const load = useCallback(async () => {
     try {
@@ -269,6 +271,10 @@ export default function AdminAuctionLogPage() {
             <option value="false">No fill</option>
           </select>
         </div>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.muted, cursor: "pointer" }}>
+          <input type="checkbox" checked={ivtOnly} onChange={(e) => setIvtOnly(e.target.checked)} />
+          IVT only
+        </label>
         <button type="button" style={{ fontSize: 11 }} onClick={() => void load()}>
           Apply
         </button>
@@ -288,6 +294,7 @@ export default function AdminAuctionLogPage() {
               <th>Win bid</th>
               <th>Floor</th>
               <th>Cleared</th>
+              <th>IVT</th>
             </tr>
           </thead>
           <tbody>
@@ -326,10 +333,13 @@ export default function AdminAuctionLogPage() {
                     <td style={{ color: bidColor(wb), fontWeight: 700 }}>${Number.isFinite(wb) ? wb.toFixed(4) : "—"}</td>
                     <td style={{ fontSize: 10 }}>{String(r.floor_price ?? "—")}</td>
                     <td>{clearedOk ? "✓" : "✗"}</td>
+                    <td style={{ color: r.is_ivt === true ? C.red : C.muted, fontWeight: 700 }}>
+                      {r.is_ivt === true ? "IVT" : "—"}
+                    </td>
                   </tr>
                   {open && (
                     <tr style={{ background: "#0c1018" }}>
-                      <td colSpan={9} style={{ fontSize: 11, padding: 12 }}>
+                      <td colSpan={10} style={{ fontSize: 11, padding: 12 }}>
                         <div style={{ marginBottom: 8 }}>
                           <strong style={{ color: C.muted }}>URL:</strong>{" "}
                           <span style={{ wordBreak: "break-all" }}>{String(r.page_url ?? "—")}</span>

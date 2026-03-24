@@ -1,8 +1,10 @@
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import Link from "next/link";
 
 export default function PortalHubPage() {
   return (
     <div className="portal-hub">
+      <CookieConsentBanner />
       <div className="card">
         <h1 style={{ margin: "0 0 8px", color: "var(--text-bright)", fontSize: 22 }}>
           MyExchange · Portals

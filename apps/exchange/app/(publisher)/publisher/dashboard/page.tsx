@@ -35,6 +35,7 @@ type PublisherStats = {
   revenueToday: number;
   fillRate: number;
   activeUnits: number;
+  ivtRateToday: number;
 };
 
 function buildTagSnippet(publisherId: string, unit: AdUnit) {
@@ -119,7 +120,8 @@ function PublisherDashboardInner() {
       revenueTotal: Number(j.revenueTotal ?? 0),
       revenueToday: Number(j.revenueToday ?? 0),
       fillRate: Number(j.fillRate ?? 0),
-      activeUnits: Number(j.activeUnits ?? 0)
+      activeUnits: Number(j.activeUnits ?? 0),
+      ivtRateToday: Number(j.ivtRateToday ?? 0)
     });
   }, []);
 
@@ -147,7 +149,8 @@ function PublisherDashboardInner() {
             revenueTotal: Number(j.revenueTotal ?? 0),
             revenueToday: Number(j.revenueToday ?? 0),
             fillRate: Number(j.fillRate ?? 0),
-            activeUnits: Number(j.activeUnits ?? 0)
+            activeUnits: Number(j.activeUnits ?? 0),
+            ivtRateToday: Number(j.ivtRateToday ?? 0)
           });
         }
         if (data?.status === "active") {
@@ -370,6 +373,25 @@ ${testHtml ? `\n${testHtml}\n` : ""}
                   <strong style={{ color: "var(--text-bright)" }}>{val}</strong>
                 </div>
               ))}
+            </div>
+          )}
+
+          {tab === "overview" && stats && (
+            <div
+              className="card"
+              style={{
+                marginBottom: 20,
+                borderLeft: stats.ivtRateToday > 10 ? "4px solid #ff4757" : "4px solid var(--border)"
+              }}
+            >
+              <div style={{ fontWeight: 800, color: "var(--text-bright)", marginBottom: 8 }}>Invalid traffic (IVT)</div>
+              <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                Estimated IVT share of today&apos;s auctions on your inventory:{" "}
+                <strong style={{ color: "var(--text-bright)" }}>{stats.ivtRateToday.toFixed(1)}%</strong>.{" "}
+                {stats.ivtRateToday > 10
+                  ? "This exceeds the 10% guideline — review bot filtering, ad implementation, and referrers."
+                  : "Within normal range. Continue monitoring as volume grows."}
+              </p>
             </div>
           )}
 

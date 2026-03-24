@@ -1,13 +1,16 @@
 export const dynamic = "force-dynamic";
 import { recordAuctionLatencyMs } from "@/lib/auction-latency";
 import { runAuction, type OpenRTBBidRequest } from "@/lib/auction-engine";
+import { detectIVT } from "@/lib/ivt-detector";
 import type { OpenRTB26Bid } from "@/lib/openrtb-types";
+import { rateLimitResponse } from "@/lib/rate-limit-http";
+import { getClientIp } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type"
+  "Access-Control-Allow-Headers": "Content-Type, X-MDE-Version"
 };
 
 const DEFAULT_TMAX = 500;
@@ -34,6 +37,9 @@ export async function POST(request: NextRequest) {
     recordAuctionLatencyMs(Date.now() - started);
     return res;
   };
+
+  const limited = rateLimitResponse(request, "openrtb:auction", 500, 60_000);
+  if (limited) return finish(limited);
 
   let bidRequest: OpenRTBBidRequest;
   try {
@@ -74,6 +80,15 @@ export async function POST(request: NextRequest) {
     return finish(NextResponse.json({ id: bidRequest.id ?? "", nbr: 2 }, { status: 200, headers: responseHeaders(ms) }));
   }
 
+  const uaForIvt = bidRequest.device?.ua ? String(bidRequest.device.ua) : "";
+  const referer = request.headers.get("referer") ?? "";
+  const ivt = detectIVT(uaForIvt, getClientIp(request), referer);
+  if (ivt.givtScore >= 100) {
+    const ms = Date.now() - started;
+    return finish(NextResponse.json({ id: bidRequest.id, nbr: 2 }, { status: 200, headers: responseHeaders(ms) }));
+  }
+  const markIvt = ivt.givtScore >= 80;
+
   const bidfloor = Math.max(0, Number(imp?.bidfloor ?? 0));
 
   const runPromise = runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor, {
@@ -82,7 +97,8 @@ export async function POST(request: NextRequest) {
     device: bidRequest.device,
     user: bidRequest.user,
     fullRequest: bidRequest,
-    ipForLog
+    ipForLog,
+    markIvt
   })
     .then((r) => ({ kind: "done" as const, r }))
     .catch((e) => {

@@ -1,3 +1,4 @@
+import { cacheGet, cacheSet } from "@/lib/cache";
 import { sql } from "@/lib/db";
 
 type RuleRow = {
@@ -55,13 +56,23 @@ export async function explainEffectiveFloor(params: {
 }): Promise<FloorExplanation> {
   const sizes = params.sizes.length ? params.sizes : ["300x250"];
   let unitFloor = 0;
+  const unitKey = `unit:${params.publisherId}:${params.adUnitId}`;
   try {
-    const u = await sql<{ floor_price: string }>`
-      SELECT floor_price::text FROM ad_units
-      WHERE id = ${params.adUnitId} AND publisher_id = ${params.publisherId}
-      LIMIT 1
-    `;
-    unitFloor = u.rows[0] ? Number(u.rows[0].floor_price) : 0;
+    const cachedUnit = cacheGet<string>(unitKey);
+    if (cachedUnit != null) {
+      console.log("[cache]", unitKey, "HIT");
+      unitFloor = Number(cachedUnit);
+    } else {
+      console.log("[cache]", unitKey, "MISS");
+      const u = await sql<{ floor_price: string }>`
+        SELECT floor_price::text FROM ad_units
+        WHERE id = ${params.adUnitId} AND publisher_id = ${params.publisherId}
+        LIMIT 1
+      `;
+      const fp = u.rows[0] ? u.rows[0].floor_price : "0";
+      unitFloor = u.rows[0] ? Number(fp) : 0;
+      cacheSet(unitKey, fp, 60_000);
+    }
   } catch {
     unitFloor = 0;
   }
@@ -69,10 +80,20 @@ export async function explainEffectiveFloor(params: {
   const ruleFloors: Array<{ name: string; floor: number }> = [];
   let ruleMax = 0;
   try {
-    const result = await sql<RuleRow>`
-      SELECT id, name, floor_cpm::text, applies_to_sizes, applies_to_env
-      FROM pricing_rules WHERE active = true
-    `;
+    const rulesKey = "pricing:rules:active";
+    let rows: RuleRow[] | null = cacheGet<RuleRow[]>(rulesKey);
+    if (rows) {
+      console.log("[cache]", rulesKey, "HIT");
+    } else {
+      console.log("[cache]", rulesKey, "MISS");
+      const result = await sql<RuleRow>`
+        SELECT id, name, floor_cpm::text, applies_to_sizes, applies_to_env
+        FROM pricing_rules WHERE active = true
+      `;
+      rows = result.rows;
+      cacheSet(rulesKey, rows, 60_000);
+    }
+    const result = { rows: rows ?? [] };
     for (const r of result.rows) {
       if (!ruleApplies(r, sizes, params.environment)) continue;
       const v = Number(r.floor_cpm);

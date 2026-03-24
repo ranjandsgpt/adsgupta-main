@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { isDuplicateImpression } from "@/lib/ivt-detector";
 import { sql } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,6 +21,9 @@ export async function GET(request: NextRequest) {
 
   try {
     if (logId) {
+      if (isDuplicateImpression(logId)) {
+        return new NextResponse(GIF_1X1, { headers });
+      }
       const log = await sql<{
         id: string;
         auction_id: string;
