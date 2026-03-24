@@ -2,27 +2,35 @@ export const dynamic = "force-dynamic";
 import { sql } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
-/** `id` = impression id (optional); `url` = destination. */
+/** `id` = impression UUID; `url` = encoded destination. */
 export async function GET(request: NextRequest) {
   const impressionId = request.nextUrl.searchParams.get("id");
-  const urlLegacy = request.nextUrl.searchParams.get("url");
-  const destParam = request.nextUrl.searchParams.get("dest");
-  const destinationRaw = urlLegacy ?? destParam ?? "https://adsgupta.com";
+  const urlRaw = request.nextUrl.searchParams.get("url");
 
-  let destination: string;
-  try {
-    destination = decodeURIComponent(destinationRaw);
-  } catch {
-    destination = destinationRaw;
+  let destination = "https://adsgupta.com";
+  if (urlRaw != null && urlRaw !== "") {
+    try {
+      destination = decodeURIComponent(urlRaw);
+    } catch {
+      destination = urlRaw;
+    }
   }
 
-  const campaignId = request.nextUrl.searchParams.get("campaignId");
+  if (!impressionId) {
+    return NextResponse.redirect(destination, 302);
+  }
 
   try {
-    await sql`
-      INSERT INTO clicks (impression_id, campaign_id, click_url)
-      VALUES (${impressionId}, ${campaignId}, ${destination})
+    const imp = await sql<{ id: string; campaign_id: string | null }>`
+      SELECT id, campaign_id FROM impressions WHERE id = ${impressionId} LIMIT 1
     `;
+    const row = imp.rows[0];
+    if (row) {
+      await sql`
+        INSERT INTO clicks (impression_id, campaign_id, click_url)
+        VALUES (${row.id}, ${row.campaign_id}, ${destination})
+      `;
+    }
   } catch (e) {
     console.error("[click]", e);
   }

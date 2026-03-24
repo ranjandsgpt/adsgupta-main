@@ -81,6 +81,7 @@ export async function createTables() {
       CREATE TABLE IF NOT EXISTS impressions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         auction_id TEXT NOT NULL,
+        auction_log_id UUID REFERENCES auction_log(id) ON DELETE SET NULL,
         ad_unit_id UUID REFERENCES ad_units(id),
         campaign_id UUID REFERENCES campaigns(id),
         creative_id UUID REFERENCES creatives(id),
@@ -142,6 +143,13 @@ export async function createTables() {
     await sql`ALTER TABLE auction_log DROP COLUMN IF EXISTS country`;
 
     await sql`UPDATE creatives SET size = '300x250' WHERE size IS NULL OR size = ''`;
+
+    await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS auction_log_id UUID REFERENCES auction_log(id) ON DELETE SET NULL`;
+    await sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS impressions_auction_log_id_uidx
+      ON impressions (auction_log_id)
+      WHERE auction_log_id IS NOT NULL
+    `;
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;
