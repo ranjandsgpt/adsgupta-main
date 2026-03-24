@@ -19,6 +19,8 @@ export default function AdminTagsPage() {
   const [copied, setCopied] = useState(false);
   const [copiedPb, setCopiedPb] = useState(false);
   const [testOpen, setTestOpen] = useState(false);
+  const [tab, setTab] = useState<"mde" | "prebid">("mde");
+  const [prebidCfg, setPrebidCfg] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -47,6 +49,17 @@ export default function AdminTagsPage() {
       setUnitId(nu[0].id);
     }
   }, [pubId, units, unitId]);
+
+  useEffect(() => {
+    if (!pubId || !unitId || tab !== "prebid") return;
+    (async () => {
+      const r = await fetch(`/api/prebid/config?publisherId=${encodeURIComponent(pubId)}&unitId=${encodeURIComponent(unitId)}`, {
+        credentials: "include"
+      });
+      const j = await r.json();
+      setPrebidCfg(r.ok ? JSON.stringify(j, null, 2) : JSON.stringify(j));
+    })();
+  }, [pubId, unitId, tab]);
 
   const filtered = units.filter((u) => u.publisher_id === pubId);
   const unit = units.find((u) => u.id === unitId);
@@ -82,21 +95,6 @@ ${lazy}${ref}    });
 </script>
 <script async src="https://exchange.adsgupta.com/mde.js"></script>`;
   }, [unit, pubId, divId, lazyLoad, autoRefresh, refreshSec, showSize]);
-
-  const prebid = useMemo(() => {
-    if (!unit) return "// Select unit";
-    return JSON.stringify(
-      {
-        code: divId,
-        mediaTypes: {
-          banner: { sizes: (unit.sizes ?? ["300x250"]).map((s) => s.split("x").map(Number)) }
-        },
-        bids: [{ bidder: "mde", params: { publisherId: pubId, unitId: unit.id, floor: Number(unit.floor_price ?? 0.5) } }]
-      },
-      null,
-      2
-    );
-  }, [unit, pubId, divId]);
 
   const testSrcDoc = useMemo(() => {
     if (!unit || !pubId) return "<!DOCTYPE html><html><body>Select unit</body></html>";
@@ -134,6 +132,15 @@ ${tag}
           </div>
         </div>
       )}
+
+      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <button type="button" className={tab === "mde" ? "" : "secondary"} onClick={() => setTab("mde")}>
+          MDE tag
+        </button>
+        <button type="button" className={tab === "prebid" ? "" : "secondary"} onClick={() => setTab("prebid")}>
+          Prebid config
+        </button>
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(240px,320px) 1fr", gap: 20, marginTop: 16 }}>
         <div className="card">
@@ -186,62 +193,74 @@ ${tag}
           </button>
         </div>
         <div className="card" style={{ borderColor: "#00d4aa33" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)" }}>GENERATED TAG</span>
-            <button
-              type="button"
-              onClick={async () => {
-                await navigator.clipboard.writeText(tag);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              }}
-            >
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-          <pre
-            style={{
-              background: "#0c1018",
-              borderRadius: 6,
-              padding: 14,
-              fontSize: 10,
-              color: "var(--accent)",
-              overflow: "auto",
-              maxHeight: 280,
-              whiteSpace: "pre-wrap",
-              border: "1px solid var(--border)"
-            }}
-          >
-            {tag}
-          </pre>
-          <div style={{ marginTop: 14, fontSize: 10, fontWeight: 700, color: "var(--text-muted)" }}>PREBID.JS ADAPTER (MDE)</div>
-          <pre
-            style={{
-              background: "#0c1018",
-              borderRadius: 6,
-              padding: 14,
-              fontSize: 10,
-              color: "#4a9eff",
-              overflow: "auto",
-              maxHeight: 200,
-              whiteSpace: "pre-wrap",
-              border: "1px solid var(--border)"
-            }}
-          >
-            {prebid}
-          </pre>
-          <button
-            type="button"
-            className="secondary"
-            style={{ marginTop: 8 }}
-            onClick={async () => {
-              await navigator.clipboard.writeText(prebid);
-              setCopiedPb(true);
-              setTimeout(() => setCopiedPb(false), 2000);
-            }}
-          >
-            {copiedPb ? "Copied" : "Copy Prebid JSON"}
-          </button>
+          {tab === "mde" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--accent)" }}>GENERATED TAG</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(tag);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
+              <pre
+                style={{
+                  background: "#0c1018",
+                  borderRadius: 6,
+                  padding: 14,
+                  fontSize: 10,
+                  color: "var(--accent)",
+                  overflow: "auto",
+                  maxHeight: 360,
+                  whiteSpace: "pre-wrap",
+                  border: "1px solid var(--border)"
+                }}
+              >
+                {tag}
+              </pre>
+            </>
+          )}
+          {tab === "prebid" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#4a9eff" }}>PREBID CONFIG (API)</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(prebidCfg);
+                    setCopiedPb(true);
+                    setTimeout(() => setCopiedPb(false), 2000);
+                  }}
+                >
+                  {copiedPb ? "Copied" : "Copy JSON"}
+                </button>
+              </div>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 0 }}>
+                From <code>/api/prebid/config</code>. Load <code>mde-prebid.js</code> before calling{" "}
+                <code>pbjs.requestBids</code>.
+              </p>
+              <pre
+                style={{
+                  background: "#0c1018",
+                  borderRadius: 6,
+                  padding: 14,
+                  fontSize: 10,
+                  color: "#4a9eff",
+                  overflow: "auto",
+                  maxHeight: 420,
+                  whiteSpace: "pre-wrap",
+                  border: "1px solid var(--border)"
+                }}
+              >
+                {prebidCfg || "// Loading…"}
+              </pre>
+            </>
+          )}
         </div>
       </div>
 

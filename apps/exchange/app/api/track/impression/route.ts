@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         LIMIT 1
       `;
       const row = log.rows[0];
-      if (row?.ad_unit_id && row.winning_campaign_id && row.winning_creative_id) {
+      if (row?.ad_unit_id) {
         const exists = await sql<{ c: string }>`
           SELECT COUNT(*)::text AS c FROM impressions WHERE auction_log_id = ${row.id}
         `;

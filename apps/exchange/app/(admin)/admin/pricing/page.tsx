@@ -25,6 +25,9 @@ const C = {
 
 const SIZE_OPTS = ["300x250", "728x90", "160x600", "320x50", "300x600", "970x250"];
 
+type Pub = { id: string; name: string; status: string };
+type InvUnit = { id: string; name: string; publisher_id: string; sizes: string[]; environment: string };
+
 export default function AdminPricingPage() {
   const [rules, setRules] = useState<Rule[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +39,14 @@ export default function AdminPricingPage() {
   const [env, setEnv] = useState<string>("all");
   const [ruleType, setRuleType] = useState<"unified" | "first_look">("unified");
   const [busy, setBusy] = useState<string | null>(null);
+
+  const [pubs, setPubs] = useState<Pub[]>([]);
+  const [inv, setInv] = useState<InvUnit[]>([]);
+  const [testPub, setTestPub] = useState("");
+  const [testUnit, setTestUnit] = useState("");
+  const [testSizes, setTestSizes] = useState("300x250");
+  const [testEnv, setTestEnv] = useState("web");
+  const [floorPreview, setFloorPreview] = useState<Record<string, unknown> | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -54,6 +65,29 @@ export default function AdminPricingPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    (async () => {
+      const [p, i] = await Promise.all([
+        fetch("/api/publishers", { credentials: "include" }),
+        fetch("/api/inventory", { credentials: "include" })
+      ]);
+      const pj = await p.json();
+      const ij = await i.json();
+      if (p.ok && Array.isArray(pj)) {
+        const act = pj.filter((x: Pub) => x.status === "active");
+        setPubs(act);
+        if (act.length) setTestPub((t) => t || act[0].id);
+      }
+      if (i.ok && Array.isArray(ij)) setInv(ij);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!testPub || !inv.length) return;
+    const nu = inv.filter((u) => u.publisher_id === testPub);
+    if (nu.length && !nu.some((u) => u.id === testUnit)) setTestUnit(nu[0].id);
+  }, [testPub, inv, testUnit]);
 
   function openNew() {
     setName("New rule");
@@ -202,6 +236,68 @@ export default function AdminPricingPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div style={{ marginTop: 24, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: C.blue, marginBottom: 10 }}>Floor testing tool</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10, alignItems: "end" }}>
+          <div>
+            <label style={{ fontSize: 10, color: C.textMuted }}>Publisher</label>
+            <select value={testPub} onChange={(e) => setTestPub(e.target.value)} style={{ width: "100%" }}>
+              {pubs.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 10, color: C.textMuted }}>Ad unit</label>
+            <select value={testUnit} onChange={(e) => setTestUnit(e.target.value)} style={{ width: "100%" }}>
+              {inv
+                .filter((u) => u.publisher_id === testPub)
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 10, color: C.textMuted }}>Sizes (comma)</label>
+            <input value={testSizes} onChange={(e) => setTestSizes(e.target.value)} />
+          </div>
+          <div>
+            <label style={{ fontSize: 10, color: C.textMuted }}>Environment</label>
+            <select value={testEnv} onChange={(e) => setTestEnv(e.target.value)}>
+              <option value="web">web</option>
+              <option value="app">app</option>
+              <option value="ctv">ctv</option>
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              setFloorPreview(null);
+              const sp = new URLSearchParams({
+                publisherId: testPub,
+                adUnitId: testUnit,
+                sizes: testSizes,
+                environment: testEnv
+              });
+              const res = await fetch(`/api/pricing/floor-preview?${sp}`, { credentials: "include" });
+              const j = await res.json();
+              setFloorPreview(j);
+            }}
+          >
+            Evaluate
+          </button>
+        </div>
+        {floorPreview && (
+          <pre style={{ marginTop: 12, fontSize: 10, color: C.yellow, whiteSpace: "pre-wrap", background: "#0a0e12", padding: 12, borderRadius: 6 }}>
+            {JSON.stringify(floorPreview, null, 2)}
+          </pre>
+        )}
       </div>
 
       <div

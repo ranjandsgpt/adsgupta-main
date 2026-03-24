@@ -50,6 +50,20 @@ export default function AdminDemandCampaignsPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [imgZoom, setImgZoom] = useState<string | null>(null);
   const [deleteCamp, setDeleteCamp] = useState<Campaign | null>(null);
+  const [subtab, setSubtab] = useState<"campaigns" | "dsp">("campaigns");
+  type DspRow = { id: string; name: string; endpoint_url: string; has_auth_token: boolean; bid_timeout_ms: number; active: boolean };
+  const [dsps, setDsps] = useState<DspRow[]>([]);
+  const [dspModal, setDspModal] = useState<Partial<DspRow> | null>(null);
+  const [dspName, setDspName] = useState("");
+  const [dspUrl, setDspUrl] = useState("");
+  const [dspToken, setDspToken] = useState("");
+  const [dspTmo, setDspTmo] = useState(150);
+
+  const loadDsps = useCallback(async () => {
+    const r = await fetch("/api/dsps", { credentials: "include" });
+    const j = await r.json();
+    if (r.ok && Array.isArray(j)) setDsps(j);
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -73,6 +87,10 @@ export default function AdminDemandCampaignsPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (subtab === "dsp") void loadDsps();
+  }, [subtab, loadDsps]);
 
   async function patchCampaign(id: string, body: Record<string, unknown>) {
     setBusy(id);
@@ -139,6 +157,79 @@ export default function AdminDemandCampaignsPage() {
   return (
     <div>
       <AdminToast message={toast} onClear={() => setToast(null)} />
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <button type="button" className={subtab === "campaigns" ? "" : "secondary"} onClick={() => setSubtab("campaigns")}>
+          Campaigns
+        </button>
+        <button type="button" className={subtab === "dsp" ? "" : "secondary"} onClick={() => setSubtab("dsp")}>
+          DSP partners
+        </button>
+      </div>
+
+      {subtab === "dsp" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h1 style={{ color: "var(--text-bright)", margin: 0 }}>DSP partners</h1>
+            <button
+              type="button"
+              onClick={() => {
+                setDspName("");
+                setDspUrl("");
+                setDspToken("");
+                setDspModal({});
+                setDspTmo(150);
+              }}
+            >
+              Connect DSP
+            </button>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            Outbound OpenRTB POST on each auction. Timeout default 150ms (editable per partner).
+          </p>
+          <table className="table" style={{ marginTop: 12 }}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Endpoint</th>
+                <th>Timeout ms</th>
+                <th>Auth</th>
+                <th>Active</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {dsps.map((d) => (
+                <tr key={d.id}>
+                  <td>{d.name}</td>
+                  <td style={{ fontSize: 10, wordBreak: "break-all" }}>{d.endpoint_url}</td>
+                  <td>{d.bid_timeout_ms}</td>
+                  <td>{d.has_auth_token ? "yes" : "no"}</td>
+                  <td>{d.active ? "on" : "off"}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="link-button"
+                      style={{ fontSize: 11 }}
+                      onClick={() => {
+                        setDspModal(d);
+                        setDspName(d.name);
+                        setDspUrl(d.endpoint_url);
+                        setDspToken("");
+                        setDspTmo(d.bid_timeout_ms);
+                      }}
+                    >
+                      Configure
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {subtab === "campaigns" && (
+        <>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ color: "var(--text-bright)", margin: 0 }}>Demand Management</h1>
@@ -387,6 +478,84 @@ export default function AdminDemandCampaignsPage() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imgZoom} alt="" style={{ maxWidth: "90vw", maxHeight: "90vh" }} />
+        </div>
+      )}
+        </>
+      )}
+
+      {dspModal != null && (
+        <div
+          style={{ position: "fixed", inset: 0, background: "#000a", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 140 }}
+          onClick={() => setDspModal(null)}
+        >
+          <div className="card" style={{ width: 460 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontWeight: 700, marginBottom: 10 }}>{dspModal.id ? "Configure DSP" : "Connect DSP"}</div>
+            <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Name</label>
+            <input value={dspName} onChange={(e) => setDspName(e.target.value)} />
+            <label style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 8, display: "block" }}>OpenRTB POST URL</label>
+            <input value={dspUrl} onChange={(e) => setDspUrl(e.target.value)} placeholder="https://dsp.example/rtb" />
+            <label style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 8, display: "block" }}>Bearer token (optional)</label>
+            <input value={dspToken} onChange={(e) => setDspToken(e.target.value)} type="password" autoComplete="off" placeholder={dspModal.id ? "••• leave blank to keep" : ""} />
+            <label style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 8, display: "block" }}>Bid timeout (ms)</label>
+            <input type="number" min={50} max={2000} value={dspTmo} onChange={(e) => setDspTmo(Number(e.target.value))} />
+            <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!dspModal.id) {
+                    const res = await fetch("/api/dsps", {
+                      method: "POST",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ name: dspName, endpoint_url: dspUrl, auth_token: dspToken || null, bid_timeout_ms: dspTmo })
+                    });
+                    if (res.ok) {
+                      setToast("DSP connected");
+                      setDspModal(null);
+                      await loadDsps();
+                    }
+                  } else {
+                    const body: Record<string, unknown> = { name: dspName, endpoint_url: dspUrl, bid_timeout_ms: dspTmo };
+                    if (dspToken) body.auth_token = dspToken;
+                    const res = await fetch(`/api/dsps/${dspModal.id}`, {
+                      method: "PATCH",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(body)
+                    });
+                    if (res.ok) {
+                      setToast("DSP updated");
+                      setDspModal(null);
+                      await loadDsps();
+                    }
+                  }
+                }}
+              >
+                Save
+              </button>
+              {dspModal.id && (
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={async () => {
+                    await fetch(`/api/dsps/${dspModal.id}`, {
+                      method: "PATCH",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ active: !dsps.find((x) => x.id === dspModal.id)?.active })
+                    });
+                    await loadDsps();
+                    setDspModal(null);
+                  }}
+                >
+                  Toggle active
+                </button>
+              )}
+              <button type="button" className="secondary" onClick={() => setDspModal(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
               al.cleared,
               al.page_url,
               al.user_agent,
+              al.demand_source,
               al.created_at,
               p.domain AS publisher_domain,
               u.name AS ad_unit_name,
@@ -91,6 +92,7 @@ export async function GET(request: NextRequest) {
                 al.cleared,
                 al.page_url,
                 al.user_agent,
+                al.demand_source,
                 al.created_at,
                 p.domain AS publisher_domain,
                 u.name AS ad_unit_name,
@@ -120,6 +122,7 @@ export async function GET(request: NextRequest) {
                 al.cleared,
                 al.page_url,
                 al.user_agent,
+                al.demand_source,
                 al.created_at,
                 p.domain AS publisher_domain,
                 u.name AS ad_unit_name,
@@ -147,7 +150,8 @@ export async function GET(request: NextRequest) {
         "winning_bid",
         "floor_price",
         "cleared",
-        "user_agent"
+        "user_agent",
+        "demand_source"
       ];
       const lines = [header.join(",")];
       for (const r of rows.rows as Record<string, unknown>[]) {
@@ -163,7 +167,8 @@ export async function GET(request: NextRequest) {
             escCsv(r.winning_bid),
             escCsv(r.floor_price),
             escCsv(r.cleared),
-            escCsv(r.user_agent)
+            escCsv(r.user_agent),
+            escCsv(r.demand_source)
           ].join(",")
         );
       }

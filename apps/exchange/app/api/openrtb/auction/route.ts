@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
-import { OpenRTBBidRequest, runAuction } from "@/lib/auction-engine";
+import { runAuction, type OpenRTBBidRequest } from "@/lib/auction-engine";
+import type { OpenRTB26Bid } from "@/lib/openrtb-types";
 import { NextRequest, NextResponse } from "next/server";
 
 const cors = {
@@ -8,7 +9,9 @@ const cors = {
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
-const AUCTION_TIMEOUT_MS = 2000;
+const DEFAULT_TMAX = 500;
+const MAX_TMAX = 5000;
+
 const WIN_BASE = "https://exchange.adsgupta.com/api/openrtb/win";
 
 function responseHeaders(ms: number, auctionId?: string | null): HeadersInit {
@@ -37,9 +40,29 @@ export async function POST(request: NextRequest) {
 
   const imp = bidRequest.imp?.[0];
   const adUnitId = imp?.tagid?.trim() || imp?.id?.trim() || "";
-  const pageUrl = bidRequest.site?.page ?? null;
+  const pageUrl = bidRequest.site?.page ?? bidRequest.app?.storeurl ?? null;
 
-  console.log("[openrtb]", bidRequest.id, "unit:", adUnitId || "(missing)", "page:", bidRequest.site?.page);
+  const tmaxRaw = bidRequest.tmax != null ? Number(bidRequest.tmax) : DEFAULT_TMAX;
+  const auctionTimeoutMs = Math.min(
+    MAX_TMAX,
+    Math.max(50, Number.isFinite(tmaxRaw) ? tmaxRaw : DEFAULT_TMAX)
+  );
+
+  const forwardFor = request.headers.get("x-forwarded-for");
+  const ipForLog = forwardFor?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || bidRequest.device?.ip || null;
+
+  console.log(
+    "[openrtb]",
+    bidRequest.id,
+    "unit:",
+    adUnitId || "(missing)",
+    "page:",
+    bidRequest.site?.page,
+    "at:",
+    bidRequest.at,
+    "tmax:",
+    auctionTimeoutMs
+  );
 
   if (!bidRequest.id || !adUnitId) {
     const ms = Date.now() - started;
@@ -50,7 +73,11 @@ export async function POST(request: NextRequest) {
 
   const runPromise = runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor, {
     site: bidRequest.site,
-    device: bidRequest.device
+    app: bidRequest.app,
+    device: bidRequest.device,
+    user: bidRequest.user,
+    fullRequest: bidRequest,
+    ipForLog
   })
     .then((r) => ({ kind: "done" as const, r }))
     .catch((e) => {
@@ -60,7 +87,7 @@ export async function POST(request: NextRequest) {
 
   const raced = await Promise.race([
     runPromise,
-    new Promise<{ kind: "timeout" }>((resolve) => setTimeout(() => resolve({ kind: "timeout" }), AUCTION_TIMEOUT_MS))
+    new Promise<{ kind: "timeout" }>((resolve) => setTimeout(() => resolve({ kind: "timeout" }), auctionTimeoutMs))
   ]);
 
   const ms = Date.now() - started;
@@ -86,25 +113,30 @@ export async function POST(request: NextRequest) {
   const auctionId = w.auctionId;
   const nurl = `${WIN_BASE}?auctionId=${encodeURIComponent(auctionId)}&price=\${AUCTION_PRICE}`;
 
+  const bidOut: OpenRTB26Bid = {
+    id: auctionId,
+    impid: imp?.id ?? "1",
+    price: w.clearingPrice,
+    adm: w.adm,
+    nurl,
+    adid: w.creativeId,
+    cid: w.cid,
+    crid: w.crid,
+    adomain: w.adomain,
+    iurl: w.iurl,
+    w: w.w,
+    h: w.h,
+    cat: w.cat,
+    cattax: w.cattax,
+    api: w.api
+  };
+
   return NextResponse.json(
     {
       id: bidRequest.id,
       seatbid: [
         {
-          bid: [
-            {
-              id: auctionId,
-              impid: imp?.id ?? "1",
-              price: w.clearingPrice,
-              adm: w.adm,
-              nurl,
-              adid: w.winnerId,
-              cid: w.winnerId,
-              crid: w.creativeId,
-              w: w.w,
-              h: w.h
-            }
-          ],
+          bid: [bidOut],
           seat: "mde"
         }
       ],

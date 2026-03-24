@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       WHERE id = ${row.id}
     `;
 
-    if (row.ad_unit_id && row.winning_campaign_id && row.winning_creative_id) {
+    if (row.ad_unit_id) {
       await sql`
         INSERT INTO impressions (auction_log_id, auction_id, ad_unit_id, campaign_id, creative_id, winning_bid, page_url)
         SELECT ${row.id}, ${row.auction_id}, ${row.ad_unit_id}, ${row.winning_campaign_id}, ${row.winning_creative_id}, ${winningBid}, ${row.page_url}

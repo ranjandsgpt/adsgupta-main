@@ -4,6 +4,7 @@
   var VERSION = "1.0.0";
   var AUCTION = "https://exchange.adsgupta.com/api/openrtb/auction";
   var TRACK = "https://exchange.adsgupta.com/api/track";
+  var SCHAIN_API = "https://exchange.adsgupta.com/api/schain";
 
   var mde = (w.mde = w.mde || {});
   var slots = [];
@@ -161,18 +162,43 @@
       user: { id: sessionId() },
       device: { ua: navigator.userAgent, w: screen.width, h: screen.height },
       at: 2,
-      tmax: 3000
+      tmax: 3000,
+      source: { tid: reqId() }
     };
 
-    fetchAuctionWithRetry(req)
-      .then(function (res) {
-        if (!res || !res.seatbid || !res.seatbid[0]) return;
-        var sb = res.seatbid[0];
-        if (!sb.bid || !sb.bid[0]) return;
-        var bid = sb.bid[0];
-        renderAd(divId, slot, bid, unitId);
+    function sendAuction(body) {
+      fetchAuctionWithRetry(body)
+        .then(function (res) {
+          if (!res || !res.seatbid || !res.seatbid[0]) return;
+          var sb = res.seatbid[0];
+          if (!sb.bid || !sb.bid[0]) return;
+          var bid = sb.bid[0];
+          renderAd(divId, slot, bid, unitId);
+        })
+        .catch(function () {});
+    }
+
+    if (cfg.networkCode) {
+      fetch(SCHAIN_API + "?publisherId=" + encodeURIComponent(cfg.networkCode), {
+        method: "GET",
+        headers: { Accept: "application/json" }
       })
-      .catch(function () {});
+        .then(function (r) {
+          return r.json();
+        })
+        .then(function (schain) {
+          if (schain && schain.nodes) {
+            req.source = req.source || {};
+            req.source.schain = schain;
+          }
+          sendAuction(req);
+        })
+        .catch(function () {
+          sendAuction(req);
+        });
+    } else {
+      sendAuction(req);
+    }
   }
 
   mde.init = function (c) {

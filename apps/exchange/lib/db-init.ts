@@ -173,6 +173,24 @@ export async function createTables() {
       ON impressions (auction_log_id)
       WHERE auction_log_id IS NOT NULL
     `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS dsps (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        endpoint_url TEXT NOT NULL,
+        auth_token TEXT,
+        bid_timeout_ms INTEGER NOT NULL DEFAULT 150,
+        active BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS demand_source TEXT`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS device_ip TEXT`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS advertiser_domain TEXT`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS iab_cat TEXT[]`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS creative_api INTEGER[]`;
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;
