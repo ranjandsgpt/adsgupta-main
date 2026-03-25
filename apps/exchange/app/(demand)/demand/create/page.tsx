@@ -224,7 +224,7 @@ function DemandCreateInner() {
         setFileDims({ w, h });
         const tag = `${w}x${h}`;
         if (!targetSizes.includes(tag)) {
-          setDimensionWarn(`Image size ${w}×${h} doesn't match your selected sizes. Ad may be distorted.`);
+          setDimensionWarn(`Image size ${w}x${h} doesn't match your selected sizes. Ad may be distorted.`);
         } else {
           setDimensionWarn(null);
         }
@@ -597,7 +597,7 @@ function DemandCreateInner() {
             {file && previewUrl && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 8 }}>
-                  Preview ({pickedSize} outline){fileDims ? ` · Detected ${fileDims.w}×${fileDims.h}` : ""}
+                  Preview ({pickedSize} outline){fileDims ? ` · Detected ${fileDims.w}x${fileDims.h}` : ""}
                 </div>
                 <div
                   style={{
@@ -716,8 +716,9 @@ function DemandCreateInner() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
               <code
                 style={{
-                  fontSize: 15,
-                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                  fontSize: "clamp(1rem, 3vw, 1.25rem)",
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                  fontWeight: 800,
                   color: "#00d4aa",
                   wordBreak: "break-all"
                 }}
@@ -783,7 +784,7 @@ function DemandCreateInner() {
                 sessionStorage.removeItem(STORAGE_EMAIL);
               }}
             >
-              Create another campaign
+              Create Another Campaign
             </Link>
             <button type="button" onClick={() => router.push(`/demand/dashboard?email=${encodeURIComponent(advertiserEmail)}`)}>
               View Campaign Dashboard →
