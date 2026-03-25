@@ -34,6 +34,10 @@ export default function PortalHubPage() {
           <h2>Demand (self-serve)</h2>
           <p>Landing: create campaigns, upload creatives to Blob, track by email.</p>
         </Link>
+        <Link className="portal-card" href="/stats">
+          <h2>Public exchange stats</h2>
+          <p>Active publishers, recent impression volume, and blended pricing — no login.</p>
+        </Link>
         <Link className="portal-card" href="/login?portal=publisher&callbackUrl=/publisher">
           <h2>Publisher portal</h2>
           <p>Logged-in console: sites, ad units, embeddable tags, and performance for your account.</p>

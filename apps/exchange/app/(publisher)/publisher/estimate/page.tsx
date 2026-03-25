@@ -5,12 +5,22 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const ECPM_TABLE: Record<string, Record<string, number>> = {
-  usa: { finance: 8.5, technology: 6.2, news: 3.8, sports: 4.2, default: 4.5 },
-  uk: { finance: 7.2, technology: 5.4, news: 3.2, default: 3.8 },
-  india: { technology: 1.8, finance: 2.1, news: 0.9, default: 1.2 },
-  europe: { finance: 5.5, technology: 4.2, default: 3.2 },
-  sea: { default: 1.5 },
-  global: { default: 2.8 }
+  usa: {
+    finance: 8.5,
+    technology: 6.2,
+    news: 3.8,
+    sports: 4.2,
+    entertainment: 4.0,
+    shopping: 5.0,
+    travel: 4.6,
+    other: 4.5,
+    default: 4.5
+  },
+  uk: { finance: 7.2, technology: 5.4, news: 3.2, other: 3.8, default: 3.8 },
+  india: { technology: 1.8, finance: 2.1, news: 0.9, other: 1.2, default: 1.2 },
+  europe: { finance: 5.5, technology: 4.2, other: 3.2, default: 3.2 },
+  sea: { other: 1.5, default: 1.5 },
+  global: { other: 2.8, default: 2.8 }
 };
 
 const FILL_RATE = 0.65;
@@ -112,7 +122,7 @@ export default function PublisherEstimatePage() {
             <option value="sports">Sports</option>
             <option value="shopping">Shopping</option>
             <option value="travel">Travel</option>
-            <option value="default">Other</option>
+            <option value="other">Other</option>
           </select>
         </div>
       </div>

@@ -94,7 +94,7 @@ function TesterInner() {
         Integration Tester
       </h1>
       <p style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 24 }}>
-        Verify your MDE tag is correctly installed before going live.
+        Verify your MDE tag is correctly installed on your website before going live.
       </p>
 
       <form onSubmit={runTest} className="card" style={{ marginBottom: 20 }}>
@@ -207,7 +207,7 @@ function TesterInner() {
               </span>
             )}
             <Link href={result.quickLinks.demandStats} style={{ color: "var(--accent)" }}>
-              View demand landing →
+              View public exchange stats and demand →
             </Link>
             <Link href={result.quickLinks.dashboard} style={{ color: "var(--accent)" }}>
               Open publisher dashboard →

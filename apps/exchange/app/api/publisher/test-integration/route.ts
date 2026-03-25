@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
     recommendations,
     quickLinks: {
       contactActivation: p?.status !== "active",
-      demandStats: "/demand",
+      demandStats: "/stats",
       dashboard: `/publisher/dashboard?id=${encodeURIComponent(publisherId)}`
     }
   };

@@ -67,6 +67,24 @@ export async function GET(request: NextRequest) {
     LIMIT 10
   `;
 
+  const all = await sql<{
+    publisher_id: string;
+    name: string;
+    revenue: string;
+  }>`
+    SELECT
+      p.id AS publisher_id,
+      p.name,
+      (COALESCE(SUM(i.winning_bid), 0) / 1000)::text AS revenue
+    FROM publishers p
+    INNER JOIN ad_units u ON u.publisher_id = p.id
+    INNER JOIN impressions i ON i.ad_unit_id = u.id
+    WHERE i.created_at >= ${periodStart}::date
+      AND i.created_at < ${nextMonthStart}::date
+    GROUP BY p.id, p.name
+    ORDER BY SUM(i.winning_bid) DESC NULLS LAST
+  `;
+
   return json({
     period,
     platformRevenueGross: currentRev,
@@ -74,6 +92,11 @@ export async function GET(request: NextRequest) {
     publisherShare: currentRev * 0.85,
     monthOverMonthGrowthPct: momGrowth,
     topPublishers: top.rows.map((r) => ({
+      publisherId: r.publisher_id,
+      name: r.name,
+      revenue: Number(r.revenue)
+    })),
+    allPublishers: all.rows.map((r) => ({
       publisherId: r.publisher_id,
       name: r.name,
       revenue: Number(r.revenue)

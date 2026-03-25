@@ -80,6 +80,18 @@ export default function PublisherLandingPage() {
             Open your dashboard with your publisher UUID to manage ad units, floors, and MDE tags.
           </p>
         </Link>
+        <Link
+          href="/publisher/estimate"
+          className="portal-card"
+          style={{ borderColor: "#00d4aa33", textDecoration: "none", padding: 24 }}
+        >
+          <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 18, ...heroFont }}>
+            Revenue estimator →
+          </h2>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55 }}>
+            No login: model monthly earnings from traffic, geo, and content category.
+          </p>
+        </Link>
       </div>
 
       <section style={{ marginTop: "auto", paddingBottom: 24 }}>

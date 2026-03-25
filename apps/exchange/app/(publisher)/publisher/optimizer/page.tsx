@@ -125,8 +125,8 @@ function OptimizerInner() {
       <div className="card" style={{ marginBottom: 20, borderColor: "#00d4aa44" }}>
         <strong style={{ color: "var(--accent)" }}>Summary</strong>
         <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-          Your current floors are leaving approximately{" "}
-          <strong>${totalLeft.toFixed(2)}</strong> on the table per 1000 auctions (modeled gap vs optimal tier).
+          Your current floors are leaving approximately <strong>${totalLeft.toFixed(2)}</strong> on the table per 1000
+          impressions (modeled from your recent auction sample vs optimal tier).
         </p>
       </div>
 

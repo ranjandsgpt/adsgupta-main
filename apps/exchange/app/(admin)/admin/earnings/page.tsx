@@ -21,6 +21,7 @@ export default function AdminEarningsPage() {
     publisherShare: number;
     monthOverMonthGrowthPct: number;
     topPublishers: Row[];
+    allPublishers?: Row[];
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -43,16 +44,17 @@ export default function AdminEarningsPage() {
 
   function exportCsv() {
     if (!data) return;
+    const rows = data.allPublishers?.length ? data.allPublishers : data.topPublishers;
     const lines = [
       ["period", "publisher_id", "name", "revenue"].join(","),
-      ...data.topPublishers.map((r) =>
+      ...rows.map((r) =>
         [data.period, r.publisherId, JSON.stringify(r.name), r.revenue.toFixed(6)].join(",")
       )
     ];
     const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `mde-earnings-${data.period}.csv`;
+    a.download = `mde-earnings-all-publishers-${data.period}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
     setToast("CSV downloaded");
@@ -73,7 +75,7 @@ export default function AdminEarningsPage() {
           Refresh
         </button>
         <button type="button" onClick={exportCsv} disabled={!data}>
-          Export CSV (top publishers)
+          Export CSV (all publishers)
         </button>
       </div>
 
