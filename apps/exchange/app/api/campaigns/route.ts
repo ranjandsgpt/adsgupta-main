@@ -94,13 +94,25 @@ export async function POST(request: NextRequest) {
   }
 
   const bidNum = Number(body.bid_price);
-  if (!Number.isFinite(bidNum) || !validateCpm(bidNum)) {
-    return badRequest("bid_price must be between 0.01 and 1000 USD CPM", { startedAt: started });
-  }
-
   const budgetNum = body.daily_budget != null ? Number(body.daily_budget) : NaN;
-  if (!Number.isFinite(budgetNum) || budgetNum < 1) {
-    return badRequest("daily_budget must be at least 1.00 USD", { startedAt: started });
+
+  if (!auth) {
+    if (!Number.isFinite(bidNum) || bidNum < 0.1) {
+      return badRequest("bid_price must be at least 0.10 USD CPM", { startedAt: started });
+    }
+    if (!Number.isFinite(bidNum) || !validateCpm(bidNum)) {
+      return badRequest("bid_price must be at most 1000 USD CPM", { startedAt: started });
+    }
+    if (!Number.isFinite(budgetNum) || budgetNum < 5) {
+      return badRequest("daily_budget must be at least 5.00 USD", { startedAt: started });
+    }
+  } else {
+    if (!Number.isFinite(bidNum) || !validateCpm(bidNum)) {
+      return badRequest("bid_price must be between 0.01 and 1000 USD CPM", { startedAt: started });
+    }
+    if (!Number.isFinite(budgetNum) || budgetNum < 1) {
+      return badRequest("daily_budget must be at least 1.00 USD", { startedAt: started });
+    }
   }
 
   const em = advertiserEmail != null ? String(advertiserEmail) : "";

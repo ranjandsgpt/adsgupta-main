@@ -1,6 +1,8 @@
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import Link from "next/link";
 
+const heroFont = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 as const };
+
 export default function DemandLandingPage() {
   const steps = [
     { title: "Create Campaign", desc: "Set budget, bid, targeting, and inventory sizes." },
@@ -9,10 +11,19 @@ export default function DemandLandingPage() {
     { title: "Go Live", desc: "Win real OpenRTB auctions on publisher inventory." }
   ];
   return (
-    <div style={{ maxWidth: 960 }}>
+    <div style={{ minHeight: "calc(100vh - 80px)", maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column" }}>
       <CookieConsentBanner />
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 32, fontWeight: 800, color: "var(--text-bright)", margin: "0 0 14px", letterSpacing: "-0.02em" }}>
+      <div style={{ marginBottom: 32, flex: "0 0 auto" }}>
+        <h1
+          style={{
+            ...heroFont,
+            fontSize: "clamp(2rem, 5vw, 2.75rem)",
+            color: "var(--text-bright)",
+            margin: "0 0 14px",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.12
+          }}
+        >
           Start Advertising
         </h1>
         <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.65, margin: 0, maxWidth: 640 }}>
@@ -20,32 +31,27 @@ export default function DemandLandingPage() {
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginBottom: 36 }}>
-        {[
-          { label: "Second-Price Auctions", sub: "Fair clearing on every impression" },
-          { label: "Real Publisher Inventory", sub: "Web, app, and CTV supply" },
-          { label: "Self-Serve", sub: "Register, upload, and manage in one portal" }
-        ].map((s) => (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 36 }}>
+        {[{ label: "Second-Price Auctions" }, { label: "Real Publisher Inventory" }, { label: "Self-Serve" }].map((s) => (
           <div
             key={s.label}
             className="portal-card"
             style={{ padding: 18, borderColor: "#00d4aa33", background: "linear-gradient(145deg, rgba(0,212,170,0.06), transparent)" }}
           >
-            <div style={{ fontWeight: 700, color: "#00d4aa", fontSize: 14, marginBottom: 6 }}>{s.label}</div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>{s.sub}</div>
+            <div style={{ ...heroFont, fontSize: 14, color: "#00d4aa", lineHeight: 1.35 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16, marginBottom: 40 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 40 }}>
         <Link
           href="/demand/create"
           className="portal-card"
           style={{ borderColor: "#a855f744", textDecoration: "none", padding: 24 }}
         >
-          <h2 style={{ color: "#a855f7", margin: "0 0 10px", fontSize: 19 }}>Create Campaign →</h2>
-          <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)", lineHeight: 1.55 }}>
-            Step one of the wizard: company details, bid CPM, daily budget, sizes, environments, and targeting.
+          <h2 style={{ color: "#a855f7", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Create Campaign →</h2>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55 }}>
+            Step one: company details, bid CPM, daily budget, sizes, environments, and targeting.
           </p>
         </Link>
         <Link
@@ -53,15 +59,17 @@ export default function DemandLandingPage() {
           className="portal-card"
           style={{ borderColor: "#00d4aa44", textDecoration: "none", padding: 24 }}
         >
-          <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 19 }}>Manage Campaigns →</h2>
-          <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)", lineHeight: 1.55 }}>
-            Open the dashboard with the email you registered: add <code style={{ color: "var(--accent)" }}>?email=</code> in the URL.
+          <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Manage Campaigns →</h2>
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55 }}>
+            Use the email you registered with: <code style={{ color: "var(--accent)" }}>?email=</code> on the dashboard URL.
           </p>
         </Link>
       </div>
 
-      <div>
-        <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-bright)", margin: "0 0 18px" }}>How it works</h2>
+      <div style={{ marginTop: "auto", paddingBottom: 24 }}>
+        <h2 style={{ ...heroFont, fontSize: 13, color: "var(--text-bright)", margin: "0 0 18px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          How it works
+        </h2>
         <div style={{ display: "grid", gap: 12 }}>
           {steps.map((st, i) => (
             <div
@@ -94,7 +102,7 @@ export default function DemandLandingPage() {
                 {i + 1}
               </div>
               <div>
-                <div style={{ fontWeight: 700, color: "var(--text-bright)", fontSize: 14, marginBottom: 4 }}>{st.title}</div>
+                <div style={{ ...heroFont, fontSize: 14, color: "var(--text-bright)", marginBottom: 4 }}>{st.title}</div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>{st.desc}</div>
               </div>
             </div>
