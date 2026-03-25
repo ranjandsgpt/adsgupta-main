@@ -36,7 +36,8 @@ const NAV = [
   { href: "/admin/protections", icon: "◈", label: "Protections", color: C.red },
   { href: "/admin/ai", icon: "✦", label: "AI Studio", color: "#ff6b9d" },
   { href: "/admin/settings", icon: "⚙", label: "Settings", color: C.textMuted },
-  { href: "/admin/activity-log", icon: "🕘", label: "Activity Log", color: C.yellow }
+  { href: "/admin/activity-log", icon: "🕘", label: "Activity Log", color: C.yellow },
+  { href: "/admin/test", icon: "✓", label: "E2E Test", color: C.green }
 ] as const;
 
 export function AdminExchangeShell({ children }: { children: React.ReactNode }) {

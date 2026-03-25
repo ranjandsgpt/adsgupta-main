@@ -115,6 +115,7 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (/^\/api\/campaign-ab-results\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (pathname === "/api/public/stats" && m === "GET") return true;
   if (pathname === "/api/public/bid-estimate" && m === "GET") return true;
+  if (pathname === "/api/test/e2e" && m === "GET") return true;
   if (/^\/api\/pixel\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (pathname === "/api/audience/segments" && m === "GET") return true;
 
