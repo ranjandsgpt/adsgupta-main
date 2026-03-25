@@ -304,6 +304,152 @@ export async function createTables() {
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;
+
+    /* Signal layer — idempotent extensions (SYSTEM 1) */
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS raw_signals JSONB`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS signal_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        session_id TEXT,
+        user_id TEXT,
+        publisher_id UUID REFERENCES publishers(id) ON DELETE SET NULL,
+        ad_unit_id UUID REFERENCES ad_units(id) ON DELETE SET NULL,
+        event_type TEXT NOT NULL,
+        url TEXT,
+        referrer TEXT,
+        country TEXT,
+        region TEXT,
+        city TEXT,
+        device_type TEXT,
+        os TEXT,
+        browser TEXT,
+        connection_type TEXT,
+        iab_categories TEXT[],
+        above_fold BOOLEAN,
+        scroll_depth INTEGER,
+        time_on_page INTEGER,
+        session_page_count INTEGER,
+        days_since_first_visit INTEGER,
+        is_new_user BOOLEAN,
+        timezone TEXT,
+        screen_width INTEGER,
+        screen_height INTEGER,
+        device_pixel_ratio NUMERIC(5, 2),
+        is_mobile BOOLEAN,
+        is_proxy BOOLEAN,
+        is_datacenter BOOLEAN,
+        consent_given BOOLEAN,
+        raw_signals JSONB,
+        auction_id TEXT REFERENCES auction_log(auction_id) ON DELETE SET NULL,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS user_profiles (
+        user_id TEXT PRIMARY KEY,
+        first_seen TIMESTAMPTZ DEFAULT now(),
+        last_seen TIMESTAMPTZ DEFAULT now(),
+        total_page_views INTEGER DEFAULT 0,
+        total_sessions INTEGER DEFAULT 0,
+        total_impressions INTEGER DEFAULT 0,
+        total_clicks INTEGER DEFAULT 0,
+        countries TEXT[],
+        cities TEXT[],
+        devices TEXT[],
+        browsers TEXT[],
+        iab_interests TEXT[],
+        iab_frequencies JSONB,
+        publisher_ids TEXT[],
+        recency_days INTEGER,
+        frequency_7d INTEGER,
+        frequency_30d INTEGER,
+        audience_segments TEXT[],
+        raw_profile JSONB
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS audience_segments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        description TEXT,
+        type TEXT NOT NULL,
+        rules JSONB NOT NULL,
+        user_count INTEGER DEFAULT 0,
+        publisher_id UUID REFERENCES publishers(id) ON DELETE SET NULL,
+        is_public BOOLEAN DEFAULT false,
+        estimated_cpm_uplift NUMERIC(5, 2),
+        status TEXT DEFAULT 'active',
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS segment_memberships (
+        user_id TEXT NOT NULL,
+        segment_id UUID NOT NULL REFERENCES audience_segments(id) ON DELETE CASCADE,
+        added_at TIMESTAMPTZ DEFAULT now(),
+        expires_at TIMESTAMPTZ,
+        score NUMERIC(5, 2),
+        PRIMARY KEY (user_id, segment_id)
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS conversion_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id TEXT,
+        session_id TEXT,
+        campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL,
+        creative_id UUID REFERENCES creatives(id) ON DELETE SET NULL,
+        impression_id UUID REFERENCES impressions(id) ON DELETE SET NULL,
+        click_id UUID REFERENCES clicks(id) ON DELETE SET NULL,
+        conversion_type TEXT,
+        conversion_value NUMERIC(10, 2),
+        currency TEXT DEFAULT 'USD',
+        time_to_convert_minutes INTEGER,
+        attribution_window_days INTEGER DEFAULT 30,
+        attributed_to_impression BOOLEAN,
+        attributed_to_click BOOLEAN,
+        raw_data JSONB,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS attribution_touchpoints (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        conversion_id UUID REFERENCES conversion_events(id) ON DELETE CASCADE,
+        touchpoint_type TEXT,
+        impression_id UUID,
+        click_id UUID,
+        campaign_id UUID,
+        creative_id UUID,
+        position INTEGER,
+        is_first_touch BOOLEAN DEFAULT false,
+        is_last_touch BOOLEAN DEFAULT false,
+        time_before_conversion_hours NUMERIC(10, 2),
+        attribution_weight NUMERIC(5, 4),
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS pixel_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        pixel_id TEXT NOT NULL,
+        campaign_id UUID REFERENCES campaigns(id) ON DELETE SET NULL,
+        user_id TEXT,
+        session_id TEXT,
+        event_type TEXT,
+        url TEXT,
+        event_value NUMERIC(10, 2),
+        raw_data JSONB,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;

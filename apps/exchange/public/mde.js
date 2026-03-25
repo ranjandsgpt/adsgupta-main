@@ -1,27 +1,412 @@
+/**
+ * AdsGupta MDE — publisher tag v1.0.0
+ * Collects device, page, session, engagement, viewability, geo, and consent signals
+ * for every OpenRTB bid request. See /docs/mde-js-reference
+ */
 (function (w, d) {
   "use strict";
 
   var VERSION = "1.0.0";
-  var AUCTION = "https://exchange.adsgupta.com/api/openrtb/auction";
-  var TRACK = "https://exchange.adsgupta.com/api/track";
+  var DEFAULT_AUCTION = "https://exchange.adsgupta.com/api/openrtb/auction";
+  var TRACK_BASE = "https://exchange.adsgupta.com/api/track";
 
   var mde = (w.mde = w.mde || {});
   var slots = [];
-  var cfg = {};
+  var cfg = { auctionUrl: DEFAULT_AUCTION };
   var displayed = new Set();
   var inFlight = new Set();
 
-  function sessionId() {
+  /** --- Engagement (page-level, mutable) --- */
+  var engagement = {
+    mouseActivity: false,
+    touchActivity: false,
+    keyboardActivity: false,
+    scrollDepth: 0,
+    timeVisible: 0,
+    idleTime: 0
+  };
+
+  var lastInteract = Date.now();
+  var visibleAccumStart = d.visibilityState === "visible" ? Date.now() : null;
+
+  function bindEngagementOnce() {
+    if (bindEngagementOnce.done) return;
+    bindEngagementOnce.done = true;
+    d.addEventListener(
+      "mousemove",
+      function () {
+        engagement.mouseActivity = true;
+        lastInteract = Date.now();
+      },
+      { passive: true }
+    );
+    d.addEventListener(
+      "touchstart",
+      function () {
+        engagement.touchActivity = true;
+        lastInteract = Date.now();
+      },
+      { passive: true }
+    );
+    d.addEventListener("keydown", function () {
+      engagement.keyboardActivity = true;
+      lastInteract = Date.now();
+    });
+    w.addEventListener(
+      "scroll",
+      function () {
+        var sh = d.documentElement.scrollHeight - w.innerHeight;
+        var pct = sh <= 0 ? 0 : Math.round((w.scrollY / sh) * 100);
+        if (pct > engagement.scrollDepth) engagement.scrollDepth = pct;
+        lastInteract = Date.now();
+      },
+      { passive: true }
+    );
+    d.addEventListener("visibilitychange", function () {
+      if (d.visibilityState === "visible") {
+        visibleAccumStart = Date.now();
+      } else if (visibleAccumStart) {
+        engagement.timeVisible += Math.floor((Date.now() - visibleAccumStart) / 1000);
+        visibleAccumStart = null;
+      }
+    });
+    setInterval(function () {
+      var idle = Math.floor((Date.now() - lastInteract) / 1000);
+      engagement.idleTime = idle;
+      if (d.visibilityState === "visible" && visibleAccumStart) {
+        engagement.timeVisible += 1;
+        visibleAccumStart = Date.now();
+      }
+    }, 1000);
+  }
+
+  function getOrCreateSessionId() {
     try {
-      var k = "mde_sid";
-      var s = sessionStorage.getItem(k);
-      if (s) return s;
-      s = "mde_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      sessionStorage.setItem(k, s);
-      return s;
+      var id = sessionStorage.getItem("mde_sid");
+      if (!id) {
+        id = w.crypto && w.crypto.randomUUID ? w.crypto.randomUUID() : "mde_" + reqId();
+        sessionStorage.setItem("mde_sid", id);
+      }
+      if (!sessionStorage.getItem("mde_session_start")) {
+        sessionStorage.setItem("mde_session_start", String(Date.now()));
+      }
+      return id;
     } catch (_) {
-      return "mde_" + Math.random().toString(36).slice(2);
+      return "mde_sess_" + reqId();
     }
+  }
+
+  function getOrCreateUserId() {
+    try {
+      var id = localStorage.getItem("mde_uid");
+      if (!id) {
+        id = w.crypto && w.crypto.randomUUID ? w.crypto.randomUUID() : "mde_u_" + reqId();
+        localStorage.setItem("mde_uid", id);
+        localStorage.setItem("mde_uid_created", String(Date.now()));
+      }
+      return id;
+    } catch (_) {
+      return "mde_u_" + reqId();
+    }
+  }
+
+  function getDaysSinceFirstVisit() {
+    try {
+      var created = localStorage.getItem("mde_uid_created");
+      if (!created) return 0;
+      return Math.floor((Date.now() - parseInt(created, 10)) / 86400000);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function getTotalPageViews() {
+    try {
+      return parseInt(localStorage.getItem("mde_total_pv") || "0", 10) || 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function bumpTotalPageViews() {
+    try {
+      var n = getTotalPageViews() + 1;
+      localStorage.setItem("mde_total_pv", String(n));
+    } catch (_) {}
+  }
+
+  function getTotalSessions() {
+    try {
+      return parseInt(localStorage.getItem("mde_total_sessions") || "0", 10) || 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function getConsentString() {
+    return new Promise(function (resolve) {
+      if (typeof w.__tcfapi === "function") {
+        try {
+          w.__tcfapi("getTCData", 2, function (data, success) {
+            resolve(success && data && data.tcString ? data.tcString : null);
+          });
+        } catch (_) {
+          resolve(null);
+        }
+      } else resolve(null);
+    });
+  }
+
+  function getUspString() {
+    return new Promise(function (resolve) {
+      if (typeof w.__uspapi === "function") {
+        try {
+          w.__uspapi("getUSPData", 1, function (d, ok) {
+            resolve(ok && d && d.uspString ? d.uspString : null);
+          });
+        } catch (_) {
+          resolve(null);
+        }
+      } else resolve(null);
+    });
+  }
+
+  function getGppString() {
+    return new Promise(function (resolve) {
+      try {
+        if (w.__gpp && typeof w.__gpp === "function") {
+          var s = w.__gpp("getGPPData");
+          resolve(s && s.gppString ? s.gppString : null);
+        } else resolve(null);
+      } catch (_) {
+        resolve(null);
+      }
+    });
+  }
+
+  function hasBasicConsent() {
+    try {
+      return !!(
+        d.cookieEnabled ||
+        localStorage.getItem("mde_uid")
+      );
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function collectDeviceSignals() {
+    var nav = w.navigator || {};
+    var sc = w.screen || {};
+    var conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+    return {
+      screenWidth: sc.width,
+      screenHeight: sc.height,
+      devicePixelRatio: w.devicePixelRatio || 1,
+      colorDepth: sc.colorDepth,
+      orientation:
+        sc.orientation && sc.orientation.type
+          ? sc.orientation.type
+          : w.innerWidth > w.innerHeight
+            ? "landscape"
+            : "portrait",
+      userAgent: nav.userAgent || "",
+      language: nav.language || "",
+      languages: nav.languages ? nav.languages.join(",") : "",
+      platform: nav.platform || "",
+      cookieEnabled: !!nav.cookieEnabled,
+      doNotTrack: nav.doNotTrack,
+      hardwareConcurrency: nav.hardwareConcurrency,
+      deviceMemory: nav.deviceMemory,
+      maxTouchPoints: nav.maxTouchPoints,
+      connectionType: conn && conn.effectiveType,
+      connectionDownlink: conn && conn.downlink,
+      connectionRtt: conn && conn.rtt,
+      connectionSaveData: conn && conn.saveData,
+      isMobile: /Mobi|Android/i.test(nav.userAgent || ""),
+      isTablet: /Tablet|iPad/i.test(nav.userAgent || ""),
+      isCTV: /TV|SmartTV|HbbTV|SMART-TV|CrKey|googletv/i.test(nav.userAgent || ""),
+      isBot: /bot|crawler|spider|headless/i.test((nav.userAgent || "").toLowerCase())
+    };
+  }
+
+  function collectPageSignals() {
+    var nav = w.performance && w.performance.timing;
+    var loadTime = null;
+    var domContentLoaded = null;
+    if (nav && nav.loadEventEnd && nav.navigationStart) {
+      loadTime = nav.loadEventEnd - nav.navigationStart;
+    }
+    if (nav && nav.domContentLoadedEventEnd && nav.navigationStart) {
+      domContentLoaded = nav.domContentLoadedEventEnd - nav.navigationStart;
+    }
+    var isFirst = false;
+    try {
+      isFirst = sessionStorage.getItem("mde_page_count") === null;
+    } catch (_) {}
+    var depth = 0;
+    try {
+      /* incremented per auction in runSlot */
+      depth = parseInt(sessionStorage.getItem("mde_page_count") || "0", 10) || 0;
+    } catch (_) {}
+
+    var kwMeta = d.querySelector('meta[name="keywords"]');
+    var descMeta = d.querySelector('meta[name="description"]');
+    var canonical = d.querySelector('link[rel="canonical"]');
+    return {
+      url: w.location.href,
+      domain: w.location.hostname,
+      path: w.location.pathname,
+      referrer: d.referrer || "",
+      title: d.title || "",
+      charset: d.characterSet || "",
+      canonicalUrl: canonical && canonical.href ? canonical.href : null,
+      keywords: kwMeta && kwMeta.content ? kwMeta.content : null,
+      description: descMeta && descMeta.content ? descMeta.content : null,
+      ogType: metaContent('meta[property="og:type"]'),
+      ogSite: metaContent('meta[property="og:site_name"]'),
+      articleSection: metaContent('meta[property="article:section"]'),
+      articleTags: metaContent('meta[property="article:tag"]'),
+      loadTime: loadTime,
+      domContentLoaded: domContentLoaded,
+      timeOnPage: engagement.timeVisible,
+      isFirstPage: isFirst,
+      pageDepth: depth,
+      documentHidden: d.hidden,
+      visibilityState: d.visibilityState,
+      hasFocus: typeof d.hasFocus === "function" ? d.hasFocus() : null
+    };
+  }
+
+  function metaContent(sel) {
+    var el = d.querySelector(sel);
+    return el && el.content ? el.content : null;
+  }
+
+  function collectGeoSignals() {
+    try {
+      var fmt = Intl.DateTimeFormat();
+      return {
+        timezone: fmt.resolvedOptions().timeZone,
+        timezoneOffset: new Date().getTimezoneOffset(),
+        locale: fmt.resolvedOptions().locale || ""
+      };
+    } catch (_) {
+      return {
+        timezone: null,
+        timezoneOffset: new Date().getTimezoneOffset(),
+        locale: ""
+      };
+    }
+  }
+
+  function measureViewability(slotDiv, timeoutMs) {
+    return new Promise(function (resolve) {
+      if (!slotDiv || !w.IntersectionObserver) {
+        resolve(null);
+        return;
+      }
+      var done = false;
+      var to = w.setTimeout(function () {
+        if (!done) {
+          done = true;
+          resolve(null);
+        }
+      }, timeoutMs || 180);
+      var observer = new w.IntersectionObserver(
+        function (entries) {
+          var entry = entries[0];
+          if (!entry || done) return;
+          done = true;
+          w.clearTimeout(to);
+          var sh = d.documentElement.scrollHeight - w.innerHeight;
+          var scrollPct = sh <= 0 ? 0 : Math.round((w.scrollY / sh) * 100);
+          resolve({
+            inViewport: entry.isIntersecting,
+            intersectionRatio: entry.intersectionRatio,
+            boundingRect: {
+              top: entry.boundingClientRect.top,
+              left: entry.boundingClientRect.left,
+              width: entry.boundingClientRect.width,
+              height: entry.boundingClientRect.height
+            },
+            viewportWidth: w.innerWidth,
+            viewportHeight: w.innerHeight,
+            slotPositionFromTop: entry.boundingClientRect.top + w.scrollY,
+            above_fold: entry.boundingClientRect.top < w.innerHeight,
+            scroll_depth_percent: scrollPct
+          });
+          observer.disconnect();
+        },
+        { threshold: [0, 0.5, 1] }
+      );
+      observer.observe(slotDiv);
+    });
+  }
+
+  function collectAllSignals(slotDiv) {
+    bindEngagementOnce();
+    return Promise.all([
+      getConsentString(),
+      getUspString(),
+      getGppString(),
+      measureViewability(slotDiv, 180)
+    ]).then(function (parts) {
+      var tcfConsent = parts[0];
+      var uspString = parts[1];
+      var gppString = parts[2];
+      var viewability = parts[3];
+
+      var isNewSession = false;
+      try {
+        isNewSession = sessionStorage.getItem("mde_session_start") === null;
+      } catch (_) {
+        isNewSession = true;
+      }
+
+      var sessionId = getOrCreateSessionId();
+      var userId = getOrCreateUserId();
+      var sessionStart = null;
+      try {
+        sessionStart = sessionStorage.getItem("mde_session_start");
+      } catch (_) {}
+      var sessCount = 0;
+      try {
+        sessCount = parseInt(sessionStorage.getItem("mde_page_count") || "0", 10) || 0;
+      } catch (_) {}
+
+      var sessionSignals = {
+        sessionId: sessionId,
+        userId: userId,
+        sessionStart: sessionStart || String(Date.now()),
+        sessionPageCount: sessCount + 1,
+        isNewSession: isNewSession,
+        daysSinceFirstVisit: getDaysSinceFirstVisit(),
+        totalPageViews: getTotalPageViews(),
+        totalSessions: getTotalSessions(),
+        tcfConsent: tcfConsent,
+        uspString: uspString,
+        gppString: gppString,
+        consentGiven: hasBasicConsent()
+      };
+
+      return {
+        device: collectDeviceSignals(),
+        page: collectPageSignals(),
+        session: sessionSignals,
+        engagement: {
+          mouseActivity: engagement.mouseActivity,
+          touchActivity: engagement.touchActivity,
+          keyboardActivity: engagement.keyboardActivity,
+          scrollDepth: engagement.scrollDepth,
+          timeVisible: engagement.timeVisible,
+          idleTime: engagement.idleTime
+        },
+        geo: collectGeoSignals(),
+        viewability: viewability,
+        collectedAt: Date.now()
+      };
+    });
   }
 
   function getFreqCap(campaignId) {
@@ -69,8 +454,8 @@
         if (k.indexOf("mde_freqsess_") === 0) continue;
         var cid = k.slice("mde_freq_".length);
         if (!cid) continue;
-        var d = getFreqCap(cid);
-        day[cid] = d.count;
+        var fd = getFreqCap(cid);
+        day[cid] = fd.count;
       }
     } catch (_) {}
     try {
@@ -87,7 +472,10 @@
   }
 
   function reqId() {
-    return "r_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    return (
+      (w.crypto && w.crypto.randomUUID && w.crypto.randomUUID()) ||
+      "r_" + Math.random().toString(36).slice(2) + Date.now().toString(36)
+    );
   }
 
   function parseSizes(sizes) {
@@ -106,6 +494,14 @@
     return false;
   }
 
+  function auctionUrl() {
+    return cfg.auctionUrl || DEFAULT_AUCTION;
+  }
+
+  function trackBase() {
+    return cfg.trackBase || TRACK_BASE;
+  }
+
   function fetchAuction(body) {
     return new Promise(function (resolve, reject) {
       var ctrl = new AbortController();
@@ -113,7 +509,7 @@
         ctrl.abort();
       }, 3000);
 
-      fetch(AUCTION, {
+      fetch(auctionUrl(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -184,8 +580,9 @@
       incrementSessionFreqCap(bid.cid);
     }
 
+    var tb = trackBase();
     if (bid.id) {
-      new Image().src = TRACK + "/impression?id=" + encodeURIComponent(bid.id);
+      new Image().src = tb + "/impression?id=" + encodeURIComponent(bid.id);
     }
     if (bid.nurl) {
       try {
@@ -193,6 +590,107 @@
         fetch(nu, { method: "GET", mode: "no-cors" }).catch(function () {});
       } catch (_) {}
     }
+  }
+
+  function buildBidRequest(slot, unitId, signals) {
+    var rid = reqId();
+    var fx = buildFreqExt();
+    var impExt = {
+      screenWidth: signals.device.screenWidth,
+      screenHeight: signals.device.screenHeight,
+      devicePixelRatio: signals.device.devicePixelRatio,
+      hardwareConcurrency: signals.device.hardwareConcurrency,
+      connectionType: signals.device.connectionType,
+      url: signals.page.url,
+      referrer: signals.page.referrer,
+      title: signals.page.title,
+      keywords: signals.page.keywords,
+      articleTags: signals.page.articleTags,
+      articleSection: signals.page.articleSection,
+      sessionId: signals.session.sessionId,
+      userId: signals.session.userId,
+      sessionPageCount: signals.session.sessionPageCount,
+      daysSinceFirstVisit: signals.session.daysSinceFirstVisit,
+      isNewSession: signals.session.isNewSession,
+      totalPageViews: signals.session.totalPageViews,
+      scrollDepth: signals.engagement.scrollDepth,
+      timeOnPage: signals.page.timeOnPage,
+      above_fold: signals.viewability && signals.viewability.above_fold,
+      timezone: signals.geo.timezone,
+      locale: signals.geo.locale,
+      consentGiven: signals.session.consentGiven,
+      tcfConsent: signals.session.tcfConsent,
+      uspString: signals.session.uspString,
+      gppString: signals.session.gppString,
+      mde_signals: signals
+    };
+    var net = cfg.networkCode || "";
+    var req = {
+      id: rid,
+      imp: [
+        {
+          id: reqId(),
+          tagid: unitId,
+          bidfloor: slot.floor != null ? slot.floor : 0.5,
+          banner: { format: parseSizes(slot.sizes) },
+          secure: w.location.protocol === "https:" ? 1 : 0,
+          ext: impExt
+        }
+      ],
+      site: {
+        page: w.location.href,
+        domain: w.location.hostname,
+        publisher: net ? { id: net } : undefined
+      },
+      user: {
+        id: signals.session.userId,
+        consent: signals.session.tcfConsent || undefined,
+        ext: {
+          freq_caps: fx.freq_caps,
+          freq_caps_session: fx.freq_caps_session,
+          sessionId: signals.session.sessionId,
+          sessionPageCount: signals.session.sessionPageCount,
+          daysSinceFirstVisit: signals.session.daysSinceFirstVisit,
+          isNewSession: signals.session.isNewSession,
+          totalPageViews: signals.session.totalPageViews,
+          scrollDepth: signals.engagement.scrollDepth,
+          timeOnPage: signals.page.timeOnPage,
+          above_fold: signals.viewability && signals.viewability.above_fold,
+          timezone: signals.geo.timezone,
+          locale: signals.geo.locale,
+          consentGiven: signals.session.consentGiven,
+          tcfConsent: signals.session.tcfConsent,
+          uspString: signals.session.uspString,
+          gppString: signals.session.gppString
+        }
+      },
+      device: { ua: navigator.userAgent, w: screen.width, h: screen.height },
+      at: 2,
+      tmax: 3000,
+      source: {
+        tid: rid,
+        pchain: "mde-exchange-001!" + net,
+        schain: {
+          complete: 1,
+          ver: "1.0",
+          nodes: [
+            {
+              asi: "exchange.adsgupta.com",
+              sid: net,
+              rid: rid,
+              hp: 1,
+              name: "MDE Exchange",
+              domain: "exchange.adsgupta.com"
+            }
+          ]
+        }
+      },
+      regs: {}
+    };
+    if (signals.session.uspString) {
+      req.regs.us_privacy = signals.session.uspString;
+    }
+    return req;
   }
 
   function runSlot(divId, slot) {
@@ -204,74 +702,62 @@
       console.warn("[mde] Non-HTTPS page; some features may be limited.");
     }
 
+    try {
+      var pc = parseInt(sessionStorage.getItem("mde_page_count") || "0", 10) || 0;
+      sessionStorage.setItem("mde_page_count", String(pc + 1));
+      if (pc === 0) {
+        var ts = parseInt(localStorage.getItem("mde_total_sessions") || "0", 10) || 0;
+        localStorage.setItem("mde_total_sessions", String(ts + 1));
+      }
+    } catch (_) {}
+
+    bumpTotalPageViews();
+
     var unitId = slot.unitId;
-    var site = {
-      page: w.location.href,
-      domain: w.location.hostname
-    };
-    if (cfg.networkCode) {
-      site.publisher = { id: cfg.networkCode };
-    }
+    var el = d.getElementById(divId);
 
-    var fx = buildFreqExt();
-    var req = {
-      id: reqId(),
-      imp: [
-        {
-          id: reqId(),
-          tagid: unitId,
-          bidfloor: slot.floor != null ? slot.floor : 0.5,
-          banner: { format: parseSizes(slot.sizes) },
-          secure: w.location.protocol === "https:" ? 1 : 0
-        }
-      ],
-      site: site,
-      user: {
-        id: sessionId(),
-        ext: {
-          freq_caps: fx.freq_caps,
-          freq_caps_session: fx.freq_caps_session
-        }
-      },
-      device: { ua: navigator.userAgent, w: screen.width, h: screen.height },
-      at: 2,
-      tmax: 3000,
-      source: { tid: reqId() }
-    };
-
-    if (cfg.networkCode) {
-      req.source = req.source || {};
-      req.source.schain = {
-        complete: 1,
-        ver: "1.0",
-        nodes: [
-          {
-            asi: "exchange.adsgupta.com",
-            sid: cfg.networkCode,
-            hp: 1,
-            rid: req.id
-          }
-        ]
-      };
-    }
-
-    function sendAuction(body) {
-      fetchAuctionWithRetry(body)
-        .then(function (res) {
-          if (!res || !res.seatbid || !res.seatbid[0]) return;
-          var sb = res.seatbid[0];
-          if (!sb.bid || !sb.bid[0]) return;
-          var bid = sb.bid[0];
-          renderAd(divId, slot, bid, unitId);
-        })
-        .catch(function () {});
-    }
-
-    sendAuction(req);
+    collectAllSignals(el)
+      .then(function (signals) {
+        var body = buildBidRequest(slot, unitId, signals);
+        fetchAuctionWithRetry(body)
+          .then(function (res) {
+            if (!res || !res.seatbid || !res.seatbid[0]) return;
+            var sb = res.seatbid[0];
+            if (!sb.bid || !sb.bid[0]) return;
+            var bid = sb.bid[0];
+            renderAd(divId, slot, bid, unitId);
+          })
+          .catch(function () {});
+      })
+      .catch(function () {
+        collectAllSignals(null).then(function (signals) {
+          var body = buildBidRequest(slot, unitId, signals);
+          fetchAuctionWithRetry(body)
+            .then(function (res) {
+              if (!res || !res.seatbid || !res.seatbid[0]) return;
+              var sb = res.seatbid[0];
+              if (!sb.bid || !sb.bid[0]) return;
+              renderAd(divId, slot, sb.bid[0], unitId);
+            })
+            .catch(function () {});
+        });
+      });
   }
 
   mde.init = function (c) {
     cfg = c || {};
+    if (typeof cfg.auctionUrl === "string" && cfg.auctionUrl) {
+      /* ok */
+    } else if (cfg.auctionEndpoint) {
+      cfg.auctionUrl = cfg.auctionEndpoint;
+    } else {
+      cfg.auctionUrl = DEFAULT_AUCTION;
+    }
+    if (typeof cfg.trackBase === "string" && cfg.trackBase) {
+      /* ok */
+    } else {
+      cfg.trackBase = TRACK_BASE;
+    }
   };
   mde.defineSlot = function (s) {
     slots.push(s);

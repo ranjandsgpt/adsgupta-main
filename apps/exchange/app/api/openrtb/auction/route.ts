@@ -1,10 +1,13 @@
 export const dynamic = "force-dynamic";
 import { recordAuctionLatencyMs } from "@/lib/auction-latency";
 import { runAuction, type OpenRTBBidRequest } from "@/lib/auction-engine";
+import { sql } from "@/lib/db";
 import { detectIVT } from "@/lib/ivt-detector";
 import type { OpenRTB26Bid } from "@/lib/openrtb-types";
 import { rateLimitResponse } from "@/lib/rate-limit-http";
 import { getClientIp } from "@/lib/rate-limiter";
+import { buildAuctionSignalSnapshot, enrichBidRequest } from "@/lib/signal-enricher";
+import { processSignalEvent, signalEventFromAuction } from "@/lib/signal-processor";
 import { NextRequest, NextResponse } from "next/server";
 
 const CORS_HEADERS = {
@@ -104,14 +107,33 @@ export async function POST(request: NextRequest) {
 
   const bidfloor = Math.max(0, Number(imp?.bidfloor ?? 0));
 
-  const runPromise = runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor, {
-    site: bidRequest.site,
-    app: bidRequest.app,
-    device: bidRequest.device,
-    user: bidRequest.user,
-    fullRequest: bidRequest,
+  let enriched = bidRequest;
+  let signalSnapshot: Record<string, unknown> = {};
+  try {
+    enriched = await enrichBidRequest(bidRequest, request);
+    signalSnapshot = buildAuctionSignalSnapshot(bidRequest, enriched);
+  } catch (e) {
+    console.error("[openrtb/auction] enrichBidRequest", e instanceof Error ? e.message : e);
+    enriched = bidRequest;
+    try {
+      signalSnapshot = buildAuctionSignalSnapshot(bidRequest, bidRequest);
+    } catch {
+      signalSnapshot = {};
+    }
+  }
+
+  const impForAuction = enriched.imp?.[0] ?? imp;
+  const pageForAuction = enriched.site?.page ?? enriched.app?.storeurl ?? pageUrl;
+
+  const runPromise = runAuction(enriched.id, adUnitId, impForAuction, pageForAuction, bidfloor, {
+    site: enriched.site,
+    app: enriched.app,
+    device: enriched.device,
+    user: enriched.user,
+    fullRequest: enriched,
     ipForLog,
-    markIvt
+    markIvt,
+    rawSignals: signalSnapshot
   })
     .then((r) => ({ kind: "done" as const, r }))
     .catch((e) => {
@@ -134,6 +156,28 @@ export async function POST(request: NextRequest) {
 
   const result = raced.r;
   const auctionHeader = result?.auctionLogId ?? null;
+
+  if (result?.auctionLogId) {
+    void (async () => {
+      try {
+        const pub = await sql<{ publisher_id: string }>`
+          SELECT publisher_id::text AS publisher_id FROM ad_units WHERE id = ${adUnitId}::uuid LIMIT 1
+        `;
+        const pid = pub.rows[0]?.publisher_id;
+        if (!pid) return;
+        await processSignalEvent(
+          signalEventFromAuction({
+            snapshot: signalSnapshot,
+            auctionId: bidRequest.id,
+            publisherId: pid,
+            adUnitId
+          })
+        );
+      } catch (e) {
+        console.error("[api/openrtb/auction]", e instanceof Error ? e.message : e);
+      }
+    })();
+  }
 
   if (!result?.winner) {
     return finish(

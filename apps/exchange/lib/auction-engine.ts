@@ -47,6 +47,8 @@ export type AuctionEngineOpts = {
   ipForLog?: string | null;
   /** Datacenter / high-risk IVT — auction runs but auction_log.is_ivt = true */
   markIvt?: boolean;
+  /** Client + enriched signal snapshot for `auction_log.raw_signals` */
+  rawSignals?: Record<string, unknown> | null;
 };
 
 /** Result after inserting auction_log. `winner` null = no-fill. */
@@ -238,10 +240,15 @@ async function insertAuctionLog(args: {
   deviceIp?: string | null;
   privacySuppressed?: boolean;
   isIvt?: boolean;
+  rawSignals?: Record<string, unknown> | null;
 }): Promise<string | null> {
+  const rawJson =
+    args.rawSignals != null && Object.keys(args.rawSignals).length
+      ? JSON.stringify(args.rawSignals)
+      : null;
   const ins = await sql<{ id: string }>`
     INSERT INTO auction_log
-    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip, privacy_suppressed, is_ivt)
+    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip, privacy_suppressed, is_ivt, raw_signals)
     VALUES
     (
       ${args.openrtbRequestId},
@@ -258,7 +265,8 @@ async function insertAuctionLog(args: {
       ${args.demandSource ?? "internal"},
       ${args.deviceIp ?? null},
       ${args.privacySuppressed ?? false},
-      ${args.isIvt ?? false}
+      ${args.isIvt ?? false},
+      ${rawJson}::jsonb
     )
     RETURNING id
   `;
@@ -478,7 +486,8 @@ export async function runAuction(
         userAgent: logUa,
         deviceIp: logIp,
         privacySuppressed,
-        isIvt: markIvt
+        isIvt: markIvt,
+        rawSignals: opts?.rawSignals ?? null
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -522,7 +531,8 @@ export async function runAuction(
         userAgent: logUa,
         deviceIp: logIp,
         privacySuppressed,
-        isIvt: markIvt
+        isIvt: markIvt,
+        rawSignals: opts?.rawSignals ?? null
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -542,7 +552,8 @@ export async function runAuction(
         userAgent: logUa,
         deviceIp: logIp,
         privacySuppressed,
-        isIvt: markIvt
+        isIvt: markIvt,
+        rawSignals: opts?.rawSignals ?? null
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -694,7 +705,8 @@ export async function runAuction(
         userAgent: logUa,
         deviceIp: logIp,
         privacySuppressed,
-        isIvt: markIvt
+        isIvt: markIvt,
+        rawSignals: opts?.rawSignals ?? null
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -724,7 +736,8 @@ export async function runAuction(
         demandSource: "internal",
         deviceIp: logIp,
         privacySuppressed,
-        isIvt: markIvt
+        isIvt: markIvt,
+        rawSignals: opts?.rawSignals ?? null
       });
 
       if (!auctionLogId) return null;
@@ -809,7 +822,8 @@ export async function runAuction(
       demandSource: d.dsp.name,
       deviceIp: logIp,
       privacySuppressed,
-      isIvt: markIvt
+      isIvt: markIvt,
+      rawSignals: opts?.rawSignals ?? null
     });
 
     if (!auctionLogId) return null;
