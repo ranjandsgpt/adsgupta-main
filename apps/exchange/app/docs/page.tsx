@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { DocCodeBlock } from "@/components/doc-code-block";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Documentation",
+  description: "Getting started and technical reference for MDE Exchange (mde.js, OpenRTB, and public APIs)."
+};
 
 function EditThisPage({ href }: { href: string }) {
   return (

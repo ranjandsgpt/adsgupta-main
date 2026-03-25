@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Ad Revenue Estimator — How Much Can Your Website Earn? | MDE Exchange",
-  description:
-    "Calculate your website's ad revenue potential. Free tool by MDE Exchange using real OpenRTB auction data.",
+  title: "Ad Revenue Estimator",
+  description: "Estimate your potential ad revenue using real OpenRTB auction signals and MDE Exchange analytics.",
   openGraph: {
     title: "Ad Revenue Estimator | MDE Exchange",
-    description: "Calculate your website's ad revenue potential with MDE Exchange."
+    description: "Estimate your potential ad revenue with MDE Exchange."
   }
 };
 

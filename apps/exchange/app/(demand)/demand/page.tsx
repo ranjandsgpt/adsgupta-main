@@ -2,6 +2,12 @@ import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { DemandLandingStats } from "@/components/demand-landing-stats";
 import { DemandResumeDraft } from "@/components/demand-resume-draft";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Advertiser Self-Serve",
+  description: "Start advertising on premium publisher inventory with real OpenRTB 2.6 auctions."
+};
 
 const heroFont = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 as const };
 

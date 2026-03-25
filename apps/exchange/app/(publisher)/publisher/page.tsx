@@ -1,5 +1,11 @@
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Publisher Monetization",
+  description: "Monetize your website with real OpenRTB auctions and fair, second-price clearing."
+};
 
 const heroFont = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 as const };
 

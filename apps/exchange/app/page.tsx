@@ -14,6 +14,22 @@ type PublicStats = {
 
 const barlow900 = Barlow_Condensed({ subsets: ["latin"], weight: ["900"] });
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "MDE Exchange",
+  applicationCategory: "BusinessApplication",
+  description: "Real-time OpenRTB 2.6 ad exchange for publishers and advertisers",
+  url: "https://exchange.adsgupta.com",
+  author: { "@type": "Person", name: "Ranjan Dasgupta", url: "https://ranjan.adsgupta.com" },
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+    description: "Free to register. Revenue share model."
+  }
+};
+
 function formatMoney(n: number) {
   if (!Number.isFinite(n)) return "$0";
   return `$${n.toFixed(2)}`;
@@ -170,6 +186,10 @@ export default function ExchangeHomepage() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div
         style={{
           backgroundColor: "#0a0e17",
