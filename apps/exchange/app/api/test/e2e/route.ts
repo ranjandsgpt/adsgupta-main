@@ -256,6 +256,36 @@ export async function GET(request: NextRequest): Promise<Response> {
       if (!r.ok) throw new Error(`Auction HTTP ${r.status}`);
       const j = (await r.json()) as any;
 
+      if (j?.nbr === 2) {
+        const last = await sql<{
+          id: string;
+          auction_id: string;
+          ad_unit_id: string | null;
+          cleared: boolean;
+          floor_price: string | null;
+          winning_campaign_id: string | null;
+          winning_creative_id: string | null;
+          winning_bid: string | null;
+          created_at: string;
+        }>`
+          SELECT
+            id,
+            auction_id,
+            ad_unit_id,
+            cleared,
+            floor_price::text,
+            winning_campaign_id::text AS winning_campaign_id,
+            winning_creative_id::text AS winning_creative_id,
+            winning_bid::text AS winning_bid,
+            created_at::text AS created_at
+          FROM auction_log
+          ORDER BY created_at DESC
+          LIMIT 1
+        `;
+        const row = last.rows[0] ?? null;
+        throw new Error(`Auction returned nbr:2. Last auction_log row: ${JSON.stringify(row)}`);
+      }
+
       const seatbid = j?.seatbid;
       const bid = seatbid?.[0]?.bid?.[0];
       if (!seatbid || !Array.isArray(seatbid) || !bid) throw new Error("Missing seatbid/bid");

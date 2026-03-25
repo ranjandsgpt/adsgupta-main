@@ -82,6 +82,9 @@ export function AdminQuickstart({ secret }: { secret: string }) {
     steps: Array<{ step: string; status: "pass" | "fail" | "skip"; durationMs: number; detail: string }>;
   } | null>(null);
   const [e2eError, setE2eError] = useState<string | null>(null);
+  const [debugLoading, setDebugLoading] = useState(false);
+  const [debugError, setDebugError] = useState<string | null>(null);
+  const [debugJson, setDebugJson] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -240,6 +243,29 @@ export function AdminQuickstart({ secret }: { secret: string }) {
 
   const auctionStep = e2e?.steps?.find((s) => s.step.toLowerCase().includes("run auction")) ?? null;
   const auctionFailed = auctionStep?.status === "fail";
+
+  async function runAuctionDebug() {
+    if (!firstActiveUnit) return;
+    setDebugLoading(true);
+    setDebugError(null);
+    setDebugJson(null);
+    try {
+      const r = await fetch(
+        `/api/debug/auction?adUnitId=${encodeURIComponent(firstActiveUnit.id)}&secret=${encodeURIComponent(secret)}`,
+        { cache: "no-store", credentials: "include" }
+      );
+      const t = await r.text();
+      if (!r.ok) {
+        setDebugError(t || `HTTP ${r.status}`);
+        return;
+      }
+      setDebugJson(t);
+    } catch (e) {
+      setDebugError(e instanceof Error ? e.message : "Network error");
+    } finally {
+      setDebugLoading(false);
+    }
+  }
 
   return (
     <div style={{ maxWidth: 1050 }}>
@@ -422,6 +448,32 @@ export function AdminQuickstart({ secret }: { secret: string }) {
                   <div className="card" style={{ background: "#ffd32a12", borderColor: "#ffd32a55" }}>
                     <strong style={{ color: "#b68000" }}>Auction step failed</strong>
                     <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 6 }}>{auctionStep?.detail}</div>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+                      <button type="button" className="secondary" disabled={debugLoading || !firstActiveUnit || !secret} onClick={() => void runAuctionDebug()}>
+                        {debugLoading ? "Debugging…" : "Debug Auction →"}
+                      </button>
+                      {!firstActiveUnit ? (
+                        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>No active ad unit found to debug.</span>
+                      ) : null}
+                    </div>
+                    {debugError ? <div style={{ marginTop: 10, fontSize: 12, color: "#ff4757" }}>{debugError}</div> : null}
+                    {debugJson ? (
+                      <pre
+                        style={{
+                          marginTop: 10,
+                          background: "var(--bg-input)",
+                          border: "1px solid var(--border)",
+                          borderRadius: 10,
+                          padding: 12,
+                          fontSize: 10,
+                          overflow: "auto",
+                          maxHeight: 260,
+                          whiteSpace: "pre-wrap"
+                        }}
+                      >
+                        {debugJson}
+                      </pre>
+                    ) : null}
                   </div>
                 ) : null}
 
