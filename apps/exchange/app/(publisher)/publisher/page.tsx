@@ -5,22 +5,30 @@ const heroFont = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", font
 
 export default function PublisherLandingPage() {
   return (
-    <div style={{ maxWidth: 960 }}>
+    <div
+      style={{
+        minHeight: "calc(100vh - 80px)",
+        maxWidth: 1100,
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
       <CookieConsentBanner />
-      <section style={{ marginBottom: 40 }}>
+      <section style={{ marginBottom: 40, flex: "0 0 auto" }}>
         <h1
           style={{
             ...heroFont,
-            fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
+            fontSize: "clamp(2rem, 5vw, 2.75rem)",
             color: "var(--text-bright)",
             margin: "0 0 16px",
             letterSpacing: "-0.02em",
-            lineHeight: 1.15
+            lineHeight: 1.12
           }}
         >
           Monetize Your Inventory
         </h1>
-        <p style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.65, margin: 0, maxWidth: 520 }}>
+        <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.65, margin: 0, maxWidth: 560 }}>
           Real-time OpenRTB 2.6 auctions. No ads.txt required.
         </p>
       </section>
@@ -30,56 +38,61 @@ export default function PublisherLandingPage() {
           display: "grid",
           gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
           gap: 12,
-          marginBottom: 36
+          marginBottom: 40
         }}
       >
         {[
-          { t: "< 100ms Auction", d: "Low-latency decisioning" },
-          { t: "OpenRTB 2.6", d: "Standard bid request / response" },
-          { t: "Second-Price Clearing", d: "Efficient clearing for buyers" }
+          { t: "< 100ms Auction" },
+          { t: "OpenRTB 2.6" },
+          { t: "Second-Price Clearing" }
         ].map((c) => (
-          <div key={c.t} className="card" style={{ padding: 16 }}>
-            <div style={{ ...heroFont, fontSize: 13, color: "var(--accent)", marginBottom: 6 }}>{c.t}</div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>{c.d}</div>
+          <div key={c.t} className="card" style={{ padding: 18 }}>
+            <div style={{ ...heroFont, fontSize: 14, color: "var(--accent)", lineHeight: 1.35 }}>{c.t}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 44 }}>
-        <Link
-          href="/publisher/estimate"
-          className="portal-card"
-          style={{ borderColor: "#a855f744", textDecoration: "none", padding: 22 }}
-        >
-          <h2 style={{ color: "#a855f7", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Revenue estimator →</h2>
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
-            See modeled monthly earnings before you register — no login required.
-          </p>
-        </Link>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: 16,
+          marginBottom: 48
+        }}
+      >
         <Link
           href="/publisher/register"
           className="portal-card"
-          style={{ borderColor: "#00d4aa44", textDecoration: "none", padding: 22 }}
+          style={{ borderColor: "#00d4aa44", textDecoration: "none", padding: 24 }}
         >
           <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Register Your Site →</h2>
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
-            Create a publisher ID and choose your primary ad formats. We will activate you before traffic runs.
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55 }}>
+            Submit your domain and formats. We issue a publisher ID and activate you before traffic runs.
           </p>
         </Link>
         <Link
           href="/publisher/login"
           className="portal-card"
-          style={{ borderColor: "#4a9eff44", textDecoration: "none", padding: 22 }}
+          style={{ borderColor: "#4a9eff44", textDecoration: "none", padding: 24 }}
         >
           <h2 style={{ color: "#4a9eff", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Publisher Dashboard →</h2>
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
-            Sign in or open your dashboard with your publisher UUID to manage ad units and MDE tags.
+          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55 }}>
+            Open your dashboard with your publisher UUID to manage ad units, floors, and MDE tags.
           </p>
         </Link>
       </div>
 
-      <section>
-        <h2 style={{ ...heroFont, fontSize: 14, color: "var(--text-bright)", margin: "0 0 20px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+      <section style={{ marginTop: "auto", paddingBottom: 24 }}>
+        <h2
+          style={{
+            ...heroFont,
+            fontSize: 13,
+            color: "var(--text-bright)",
+            margin: "0 0 20px",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em"
+          }}
+        >
           How it works
         </h2>
         <div style={{ display: "grid", gap: 14 }}>

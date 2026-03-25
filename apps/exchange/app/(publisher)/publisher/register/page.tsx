@@ -54,7 +54,9 @@ export default function PublisherRegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(typeof data.error === "string" ? data.error : "Registration failed");
+        const msg =
+          typeof data.error === "string" ? data.error : typeof data.message === "string" ? data.message : "Registration failed";
+        setError(msg);
         setLoading(false);
         return;
       }
@@ -88,11 +90,12 @@ export default function PublisherRegisterPage() {
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 8 }}>Publisher ID</div>
           <div
             style={{
-              fontSize: 18,
+              fontSize: "clamp(1.125rem, 3vw, 1.5rem)",
               color: "#00d4aa",
-              fontFamily: "ui-monospace, monospace",
+              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
               wordBreak: "break-all",
-              fontWeight: 700
+              fontWeight: 800,
+              letterSpacing: "-0.02em"
             }}
           >
             {success.id}
@@ -169,11 +172,11 @@ export default function PublisherRegisterPage() {
       )}
 
       <form onSubmit={onSubmit} className="card" style={{ marginTop: 18 }}>
-        <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Publisher / company name *</label>
+        <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Publisher / Company Name *</label>
         <div style={{ height: 6 }} />
         <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="organization" />
         <div style={{ height: 14 }} />
-        <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Website domain *</label>
+        <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Website Domain *</label>
         <div style={{ height: 6 }} />
         <input
           value={domain}
@@ -182,7 +185,7 @@ export default function PublisherRegisterPage() {
           autoComplete="url"
         />
         <div style={{ height: 14 }} />
-        <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Contact email *</label>
+        <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Contact Email *</label>
         <div style={{ height: 6 }} />
         <input
           type="email"
@@ -192,7 +195,7 @@ export default function PublisherRegisterPage() {
           autoComplete="email"
         />
         <div style={{ height: 14 }} />
-        <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 8 }}>Primary ad formats *</div>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 8 }}>Primary ad format *</div>
         <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, marginBottom: 8, cursor: "pointer" }}>
           <input type="checkbox" checked={fmtDisplay} onChange={(e) => setFmtDisplay(e.target.checked)} />
           Display
