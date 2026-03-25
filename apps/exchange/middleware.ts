@@ -140,6 +140,22 @@ function isPublicPage(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const forwarded = new Headers(request.headers);
+  const apiStartMs = pathname.startsWith("/api/") ? Date.now() : null;
+  if (apiStartMs != null) {
+    forwarded.set("x-exchange-req-start", String(apiStartMs));
+  }
+  const pass = () =>
+    apiStartMs != null
+      ? NextResponse.next({ request: { headers: forwarded } })
+      : NextResponse.next();
+  const apiErr = (body: unknown, status: number) =>
+    NextResponse.json(body, {
+      status,
+      headers:
+        apiStartMs != null ? { "X-Response-Time": `${Date.now() - apiStartMs}ms` } : undefined
+    });
+
   if (
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/openrtb") ||
@@ -148,15 +164,15 @@ export async function middleware(request: NextRequest) {
     pathname === "/api/ping" ||
     pathname === "/api/health"
   ) {
-    return NextResponse.next();
+    return pass();
   }
 
   if (pathname.startsWith("/api/") && isPublicApi(request, pathname)) {
-    return NextResponse.next();
+    return pass();
   }
 
   if (pathname.startsWith("/api/prebid/")) {
-    return NextResponse.next();
+    return pass();
   }
 
   if (pathname.startsWith("/api/")) {
@@ -168,19 +184,19 @@ export async function middleware(request: NextRequest) {
       });
     } catch (e) {
       console.error("[exchange] middleware getToken (api) failed:", e);
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+      return apiErr({ ok: false, error: "Unauthorized" }, 401);
     }
     const role = token?.role as ExchangeRole | undefined;
     if (!token || !role) {
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+      return apiErr({ ok: false, error: "Unauthorized" }, 401);
     }
     if (publisherApiAllowed(role, pathname)) {
-      return NextResponse.next();
+      return pass();
     }
     if (!apiAllowed(role, pathname, request)) {
-      return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+      return apiErr({ ok: false, error: "Forbidden" }, 403);
     }
-    return NextResponse.next();
+    return pass();
   }
 
   if (pathname === "/" || pathname.startsWith("/login")) {
@@ -256,6 +272,9 @@ export const config = {
     "/api/pixel/:path*",
     "/api/audience/:path*",
     "/api/prebid/:path*",
+    "/api/openrtb/:path*",
+    "/api/track/:path*",
+    "/api/db-init",
     "/api/ads.txt",
     "/status",
     "/privacy",

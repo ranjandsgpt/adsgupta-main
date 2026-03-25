@@ -168,8 +168,8 @@ export async function POST(request: NextRequest) {
   }
 
   const floorNum = Number(body.floor_price);
-  if (!Number.isFinite(floorNum) || floorNum <= 0) {
-    return badRequest("floor_price must be greater than 0", { startedAt: started });
+  if (!Number.isFinite(floorNum) || floorNum < 0.01) {
+    return badRequest("floor_price must be between 0.01 and 100", { startedAt: started });
   }
   if (floorNum > 100) {
     return badRequest("floor_price must be at most 100", { startedAt: started });
