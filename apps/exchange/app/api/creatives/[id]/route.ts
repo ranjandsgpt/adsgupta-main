@@ -3,6 +3,7 @@ import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { validateUrl } from "@/lib/validate";
 import { del } from "@vercel/blob";
 import { NextRequest } from "next/server";
 
@@ -110,12 +111,24 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const nextName = body.name !== undefined ? body.name : null;
     const nextClick = body.click_url !== undefined ? body.click_url : null;
     const nextStatus = body.status !== undefined ? body.status : null;
+    const nextAbGroup = body.ab_group !== undefined ? String(body.ab_group).toLowerCase().slice(0, 1) : null;
+    const nextAbWeight = body.ab_weight !== undefined ? Number(body.ab_weight) : null;
 
     if (nextStatus != null && !["active", "paused"].includes(String(nextStatus))) {
       return badRequest("status must be active or paused");
     }
-    if (nextName == null && nextClick == null && nextStatus == null) {
-      return badRequest("name, click_url, or status required");
+    if (nextAbGroup != null && nextAbGroup !== "a" && nextAbGroup !== "b") {
+      return badRequest("ab_group must be a or b");
+    }
+    if (nextAbWeight != null && (!Number.isFinite(nextAbWeight) || nextAbWeight < 0 || nextAbWeight > 100)) {
+      return badRequest("ab_weight must be 0–100");
+    }
+    if (nextName == null && nextClick == null && nextStatus == null && nextAbGroup == null && nextAbWeight == null) {
+      return badRequest("name, click_url, status, or A/B fields required");
+    }
+
+    if (nextClick != null && String(nextClick).trim() !== "" && !validateUrl(String(nextClick).trim())) {
+      return badRequest("click_url must be a valid URL");
     }
 
     try {
@@ -123,9 +136,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         UPDATE creatives SET
           name = COALESCE(${nextName}, name),
           click_url = COALESCE(${nextClick}, click_url),
-          status = COALESCE(${nextStatus}, status)
+          status = COALESCE(${nextStatus}, status),
+          ab_group = COALESCE(${nextAbGroup === "a" || nextAbGroup === "b" ? nextAbGroup : null}, ab_group),
+          ab_weight = COALESCE(${nextAbWeight != null && Number.isFinite(nextAbWeight) ? Math.round(nextAbWeight) : null}, ab_weight)
         WHERE id = ${params.id}
-        RETURNING id, image_url, size, name, status, click_url
+        RETURNING id, image_url, size, name, status, click_url, ab_group, ab_weight
       `;
       return json(result.rows[0] ?? null);
     } catch (e) {
@@ -146,7 +161,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         size = COALESCE(${body.size ?? null}, size),
         click_url = COALESCE(${body.click_url ?? null}, click_url),
         image_url = COALESCE(${body.image_url ?? null}, image_url),
-        status = COALESCE(${body.status ?? null}, status)
+        status = COALESCE(${body.status ?? null}, status),
+        ab_group = COALESCE(${body.ab_group !== undefined ? String(body.ab_group).toLowerCase().slice(0, 1) : null}, ab_group),
+        ab_weight = COALESCE(${body.ab_weight !== undefined ? Number(body.ab_weight) : null}, ab_weight)
       WHERE id = ${params.id}
       RETURNING *
     `;
