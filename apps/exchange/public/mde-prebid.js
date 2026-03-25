@@ -1,171 +1,195 @@
 /**
- * MDE (MyExchange) Prebid.js Adapter
- * Bidder code: 'mde'
- * endpoint: https://exchange.adsgupta.com/api/openrtb/auction
+ * MDE (MyExchange) Prebid.js bidder adapter
+ * Bidder code: mde
+ * Endpoint: POST https://exchange.adsgupta.com/api/openrtb/auction
+ *
+ * Load after prebid.js: <script src="https://exchange.adsgupta.com/mde-prebid.js"></script>
+ * then: pbjs.bidderSettings = pbjs.bidderSettings || {}; pbjs.enableAnalytics(...); pbjs.addAdUnits(...); pbjs.requestBids(...);
  */
-/* eslint-disable */
+/* prebid lint: global pbjs */
 (function () {
   "use strict";
 
   var ENDPOINT = "https://exchange.adsgupta.com/api/openrtb/auction";
-  var BIDDER_CODE = "mde";
 
-  function parseJsonSafe(s) {
-    try {
-      return typeof s === "string" ? JSON.parse(s) : s;
-    } catch (e) {
-      return null;
+  function parseSizesToFormat(sizes) {
+    if (!sizes) return [{ w: 300, h: 250 }];
+    var out = [];
+    var list = sizes;
+    if (typeof sizes === "string") {
+      var p = sizes.split("x");
+      if (p.length >= 2) return [{ w: +p[0] || 300, h: +p[1] || 250 }];
+      return [{ w: 300, h: 250 }];
     }
+    if (!Array.isArray(list[0])) list = [list];
+    for (var i = 0; i < list.length; i++) {
+      var s = list[i];
+      if (Array.isArray(s) && s.length >= 2) out.push({ w: +s[0] || 300, h: +s[1] || 250 });
+    }
+    return out.length ? out : [{ w: 300, h: 250 }];
   }
 
-  function impFromBid(bid) {
-    var imp = {
-      id: bid.bidId || String(Math.random()).slice(2),
-      tagid: bid.params.unitId,
-      secure: typeof window !== "undefined" && window.location && window.location.protocol === "https:" ? 1 : 0
-    };
-    if (bid.params.floor != null && bid.params.floor !== "") {
-      imp.bidfloor = Number(bid.params.floor);
+  function pageDomain(page) {
+    try {
+      return page ? new URL(page).hostname : "";
+    } catch (_) {
+      return "";
     }
-    if (bid.mediaTypes && bid.mediaTypes.banner) {
-      var b = bid.mediaTypes.banner;
-      if (b.sizes && b.sizes.length) {
-        imp.banner = {
-          format: b.sizes.map(function (sz) {
-            return { w: sz[0], h: sz[1] };
-          })
-        };
-      }
-    }
-    if (bid.mediaTypes && bid.mediaTypes.video) {
-      var v = bid.mediaTypes.video;
-      imp.video = {};
-      if (v.playerSize && v.playerSize.length) {
-        var ps = v.playerSize[0];
-        imp.video.w = ps[0];
-        imp.video.h = ps[1];
-      }
-      if (v.context) imp.video.placement = v.context === "instream" ? 1 : 3;
-    }
-    return imp;
   }
 
   var spec = {
-    code: BIDDER_CODE,
+    code: "mde",
     supportedMediaTypes: ["banner", "video"],
+
     isBidRequestValid: function (bid) {
-      return !!(bid.params && bid.params.unitId && bid.params.networkCode);
+      return !!(bid && bid.params && bid.params.unitId && bid.params.networkCode);
     },
+
     buildRequests: function (validBidRequests, bidderRequest) {
       if (!validBidRequests || !validBidRequests.length) return [];
 
+      var page =
+        (bidderRequest.refererInfo && (bidderRequest.refererInfo.page || bidderRequest.refererInfo.topmostLocation)) || "";
+      var domain = pageDomain(page);
+      var auctionId = bidderRequest.auctionId || "a_" + String(Date.now());
+
       var imps = [];
       for (var i = 0; i < validBidRequests.length; i++) {
-        var br = validBidRequests[i];
-        var imp = impFromBid(br);
-        imp.id = br.bidId || imp.id;
+        var bid = validBidRequests[i];
+        var params = bid.params || {};
+        var imp = {
+          id: bid.bidId,
+          tagid: String(params.unitId),
+          secure: page.indexOf("https:") === 0 ? 1 : 0,
+          bidfloor: typeof params.floor === "number" ? params.floor : parseFloat(params.floor || "0") || 0,
+          bidfloorcur: "USD"
+        };
+
+        if (bid.mediaTypes && bid.mediaTypes.banner) {
+          var bsizes =
+            bid.mediaTypes.banner.sizes ||
+            (bid.mediaTypes.banner.sizes === undefined && bid.sizes ? bid.sizes : null);
+          imp.banner = { format: parseSizesToFormat(bsizes || [[300, 250]]) };
+        }
+        if (bid.mediaTypes && bid.mediaTypes.video) {
+          var v = bid.mediaTypes.video;
+          var pw = 640;
+          var ph = 360;
+          if (v.playerSize && Array.isArray(v.playerSize[0]) && v.playerSize[0].length >= 2) {
+            pw = +v.playerSize[0][0] || 640;
+            ph = +v.playerSize[0][1] || 360;
+          }
+          imp.video = {
+            mimes: v.mimes || ["video/mp4", "application/javascript"],
+            w: v.w || pw,
+            h: v.h || ph,
+            minduration: v.minduration || 1,
+            maxduration: v.maxduration || 60,
+            protocols: v.protocols || [2, 3, 5, 6]
+          };
+        }
+        if (!imp.banner && !imp.video) {
+          imp.banner = { format: parseSizesToFormat(bid.sizes || [[300, 250]]) };
+        }
         imps.push(imp);
       }
 
-      var first = validBidRequests[0];
-      var site = {
-        page: bidderRequest.refererInfo && bidderRequest.refererInfo.referer,
-        domain: bidderRequest.refererInfo && bidderRequest.refererInfo.domain,
-        publisher: { id: first.params.networkCode }
-      };
+      var firstParams = validBidRequests[0].params || {};
+      var networkCode = String(firstParams.networkCode || "");
 
-      var bidRequest = {
-        id: bidderRequest.bidderRequestId || String(Math.random()).slice(2),
+      var ortb = {
+        id: auctionId,
         imp: imps,
-        site: site,
-        user: {},
-        device: {},
         at: 2,
-        tmax: 800,
+        tmax: 1200,
+        site: {
+          page: page,
+          domain: domain
+        },
+        device: typeof navigator !== "undefined" ? { ua: navigator.userAgent } : {},
+        user: { id: auctionId + "_pb" },
         source: {
-          tid: bidderRequest.auctionId
+          tid: auctionId,
+          schain: {
+            complete: 1,
+            ver: "1.0",
+            nodes: [{ asi: "exchange.adsgupta.com", sid: networkCode, hp: 1, rid: auctionId }]
+          }
         }
       };
 
-      if (bidderRequest && bidderRequest.timeout) {
-        bidRequest.tmax = Math.min(Number(bidderRequest.timeout) || 800, 3000);
+      if (networkCode) {
+        ortb.site.publisher = { id: networkCode };
       }
 
-      if (bidderRequest.gdprConsent) {
-        if (!bidRequest.regs) bidRequest.regs = {};
-        if (bidderRequest.gdprConsent.gdprApplies != null) {
-          bidRequest.regs.gdpr = bidderRequest.gdprConsent.gdprApplies ? 1 : 0;
-        }
-        var cs =
-          bidderRequest.gdprConsent.consentString ||
-          bidderRequest.gdprConsent.vendorData ||
-          "";
-        if (cs) bidRequest.user.consent = cs;
+      var gcs = bidderRequest.gdprConsent;
+      if (gcs && gcs.gdprApplies) {
+        ortb.regs = ortb.regs || {};
+        ortb.regs.gdpr = 1;
+        ortb.user = ortb.user || {};
+        if (gcs.consentString) ortb.user.consent = gcs.consentString;
       }
-
       if (bidderRequest.uspConsent) {
-        if (!bidRequest.regs) bidRequest.regs = {};
-        bidRequest.regs.us_privacy = bidderRequest.uspConsent;
+        ortb.regs = ortb.regs || {};
+        ortb.regs.us_privacy = bidderRequest.uspConsent;
       }
 
       return {
         method: "POST",
         url: ENDPOINT,
-        data: bidRequest,
-        options: { contentType: "application/json" }
+        data: ortb,
+        options: { contentType: "application/json", withCredentials: false }
       };
     },
+
     interpretResponse: function (serverResponse, request) {
-      var response =
-        serverResponse && serverResponse.body != null ? serverResponse.body : serverResponse;
-      response = parseJsonSafe(response) || response;
-      if (!response || !response.seatbid || !response.seatbid.length) return [];
+      var res = serverResponse && serverResponse.body;
+      if (!res || !res.seatbid || !res.seatbid.length) return [];
 
       var bids = [];
-      for (var s = 0; s < response.seatbid.length; s++) {
-        var seat = response.seatbid[s];
-        if (!seat.bid) continue;
-        for (var b = 0; b < seat.bid.length; b++) {
-          var bid = seat.bid[b];
-          if (bid == null) continue;
-          var impid = bid.impid;
+      for (var s = 0; s < res.seatbid.length; s++) {
+        var seat = res.seatbid[s];
+        if (!seat || !seat.bid) continue;
+        for (var i = 0; i < seat.bid.length; i++) {
+          var b = seat.bid[i];
+          if (b == null || b.price == null) continue;
           bids.push({
-            requestId: impid,
-            cpm: Number(bid.price) || 0,
-            currency: response.cur || "USD",
-            width: bid.w,
-            height: bid.h,
-            ad: bid.adm,
-            ttl: 300,
-            creativeId: bid.crid || bid.adid,
+            requestId: b.impid,
+            cpm: Number(b.price),
+            currency: res.cur || "USD",
+            width: b.w || 300,
+            height: b.h || 250,
+            ad: b.adm,
+            ttl: 360,
+            creativeId: b.crid || b.adid,
             netRevenue: true,
-            meta: { advertiserDomains: bid.adomain || [] }
+            adId: b.adid,
+            nurl: b.nurl,
+            meta: { advertiserDomains: b.adomain }
           });
         }
       }
       return bids;
     },
+
     onBidWon: function (bid) {
       if (!bid || !bid.nurl) return;
-      var price = bid.cpm != null ? bid.cpm : bid.originalCpm;
-      var url = String(bid.nurl)
-        .replace(/\$\{AUCTION_PRICE\}/gi, String(price))
-        .replace(/%\24%7BAUCTION_PRICE%7D/gi, String(price));
+      var url = String(bid.nurl);
+      var cpm = typeof bid.cpm !== "undefined" ? bid.cpm : bid.originalCpm || 0;
+      url = url.replace(/\$\{AUCTION_PRICE\}/g, encodeURIComponent(String(cpm))).replace(/\$AUCTION_PRICE/g, String(cpm));
       try {
-        if (typeof pbjs !== "undefined" && pbjs.triggerPixel) {
-          pbjs.triggerPixel(url);
-        } else {
-          new Image().src = url;
-        }
-      } catch (e) {}
+        var img = new Image();
+        img.src = url;
+      } catch (_) {}
     },
+
     getUserSyncs: function () {
       return [];
     }
   };
 
   if (typeof module !== "undefined" && module.exports) module.exports = spec;
-  if (typeof pbjs !== "undefined" && pbjs.registerBidAdapter) {
-    pbjs.registerBidAdapter(spec, BIDDER_CODE);
+  if (typeof window !== "undefined" && window.pbjs && window.pbjs.registerBidAdapter) {
+    window.pbjs.registerBidAdapter(spec, "mde");
   }
 })();

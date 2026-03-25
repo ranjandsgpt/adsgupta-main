@@ -100,6 +100,8 @@ function PublisherDashboardInner() {
   const [creating, setCreating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [tagModalUnit, setTagModalUnit] = useState<AdUnit | null>(null);
+  const [tagModalSub, setTagModalSub] = useState<"mde" | "prebid">("mde");
+  const [prebidJson, setPrebidJson] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [editingFloor, setEditingFloor] = useState<{ unitId: string; value: string } | null>(null);
   const [tab, setTab] = useState<"overview" | "analytics" | "units" | "tags" | "supply">("overview");
@@ -116,6 +118,22 @@ function PublisherDashboardInner() {
     const ir = await fetch(`/api/inventory?publisherId=${encodeURIComponent(pid)}`);
     if (ir.ok) setUnits((await ir.json()) as AdUnit[]);
   }, []);
+
+  useEffect(() => {
+    if (!id || !tagModalUnit || tagModalSub !== "prebid") return;
+    let cancelled = false;
+    (async () => {
+      const r = await fetch(
+        `/api/prebid/config?publisherId=${encodeURIComponent(id)}&unitId=${encodeURIComponent(tagModalUnit.id)}`,
+        { credentials: "include" }
+      );
+      const j = await r.json();
+      if (!cancelled) setPrebidJson(r.ok ? JSON.stringify(j, null, 2) : JSON.stringify(j, null, 2));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, tagModalUnit, tagModalSub]);
 
   const reloadStats = useCallback(async (pid: string) => {
     const sr = await fetch(`/api/publisher-stats/${encodeURIComponent(pid)}`);
@@ -552,7 +570,14 @@ ${testHtml ? `\n${testHtml}\n` : ""}
                     <td>{u.status}</td>
                     <td>{u.impressions_today ?? "0"}</td>
                     <td style={{ whiteSpace: "nowrap" }}>
-                      <button type="button" style={{ marginRight: 6 }} onClick={() => setTagModalUnit(u)}>
+                      <button
+                        type="button"
+                        style={{ marginRight: 6 }}
+                        onClick={() => {
+                          setTagModalSub("mde");
+                          setTagModalUnit(u);
+                        }}
+                      >
                         Get Tag
                       </button>
                       <button type="button" className="link-button" style={{ marginRight: 6 }} onClick={() => setPaused(u, u.status === "active")}>
@@ -657,46 +682,89 @@ ${testHtml ? `\n${testHtml}\n` : ""}
           onClick={() => setTagModalUnit(null)}
         >
           <div className="card" style={{ width: "100%", maxWidth: 640, maxHeight: "92vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>MDE tag · {tagModalUnit.name}</div>
-            <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
-              Paste before <code>&lt;/body&gt;</code>. Ensure the container <code>mde-{tagModalUnit.id}</code> is visible for lazy-loaded auctions.
-            </p>
-            <pre
-              style={{
-                fontSize: 10,
-                overflow: "auto",
-                padding: 12,
-                background: "#0c1018",
-                borderRadius: 6,
-                border: "1px solid var(--border)",
-                whiteSpace: "pre-wrap",
-                maxHeight: 260
-              }}
-            >
-              {testHtml}
-            </pre>
-            <button
-              type="button"
-              style={{ marginTop: 12, background: "#143d28", borderColor: "#2ecc7155", color: "#2ecc71" }}
-              onClick={() => copyTag(testHtml)}
-            >
-              Copy tag
-            </button>
-            <div style={{ marginTop: 16, fontSize: 11, color: "var(--text-muted)" }}>Complete test HTML (save as .html and open locally)</div>
-            <pre
-              style={{
-                fontSize: 10,
-                padding: 12,
-                background: "#0c1018",
-                borderRadius: 6,
-                border: "1px solid var(--border)",
-                whiteSpace: "pre-wrap",
-                maxHeight: 200,
-                overflow: "auto"
-              }}
-            >
-              {testPage}
-            </pre>
+            <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+              <button type="button" className={tagModalSub === "mde" ? "" : "secondary"} onClick={() => setTagModalSub("mde")}>
+                MDE tag
+              </button>
+              <button type="button" className={tagModalSub === "prebid" ? "" : "secondary"} onClick={() => setTagModalSub("prebid")}>
+                Prebid integration
+              </button>
+            </div>
+            <div style={{ fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>
+              {tagModalSub === "mde" ? "MDE tag" : "Prebid.js config"} · {tagModalUnit.name}
+            </div>
+            {tagModalSub === "mde" && (
+              <>
+                <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                  Paste before <code>&lt;/body&gt;</code>. Ensure the container <code>mde-{tagModalUnit.id}</code> is visible for lazy-loaded auctions.
+                </p>
+                <pre
+                  style={{
+                    fontSize: 10,
+                    overflow: "auto",
+                    padding: 12,
+                    background: "#0c1018",
+                    borderRadius: 6,
+                    border: "1px solid var(--border)",
+                    whiteSpace: "pre-wrap",
+                    maxHeight: 260
+                  }}
+                >
+                  {testHtml}
+                </pre>
+                <button
+                  type="button"
+                  style={{ marginTop: 12, background: "#143d28", borderColor: "#2ecc7155", color: "#2ecc71" }}
+                  onClick={() => copyTag(testHtml)}
+                >
+                  Copy tag
+                </button>
+                <div style={{ marginTop: 16, fontSize: 11, color: "var(--text-muted)" }}>Complete test HTML (save as .html and open locally)</div>
+                <pre
+                  style={{
+                    fontSize: 10,
+                    padding: 12,
+                    background: "#0c1018",
+                    borderRadius: 6,
+                    border: "1px solid var(--border)",
+                    whiteSpace: "pre-wrap",
+                    maxHeight: 200,
+                    overflow: "auto"
+                  }}
+                >
+                  {testPage}
+                </pre>
+              </>
+            )}
+            {tagModalSub === "prebid" && (
+              <>
+                <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                  Load <code>prebid.js</code>, then <code>mde-prebid.js</code>. Config from <code>/api/prebid/config</code> (authenticated).
+                </p>
+                <pre
+                  style={{
+                    fontSize: 9,
+                    overflow: "auto",
+                    padding: 12,
+                    background: "#0c1018",
+                    borderRadius: 6,
+                    border: "1px solid var(--border)",
+                    whiteSpace: "pre-wrap",
+                    maxHeight: 320
+                  }}
+                >
+                  {prebidJson || "// Loading…"}
+                </pre>
+                <button
+                  type="button"
+                  style={{ marginTop: 10, background: "#143d28", borderColor: "#2ecc7155", color: "#2ecc71" }}
+                  onClick={() => copyTag(prebidJson)}
+                  disabled={!prebidJson}
+                >
+                  Copy JSON
+                </button>
+              </>
+            )}
             <button type="button" className="link-button" style={{ marginTop: 8 }} onClick={() => setTagModalUnit(null)}>
               Close
             </button>

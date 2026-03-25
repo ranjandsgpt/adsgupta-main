@@ -34,6 +34,12 @@ function apiAllowed(role: ExchangeRole | undefined, pathname: string, request: N
   if (pathname.startsWith("/api/campaigns") || pathname.startsWith("/api/creatives")) {
     return role === "demand";
   }
+  if (pathname.startsWith("/api/campaign-intelligence/") || pathname.startsWith("/api/campaign-ab-results/")) {
+    return role === "demand";
+  }
+  if (pathname.startsWith("/api/audience/")) {
+    return role === "demand";
+  }
   if (pathname.startsWith("/api/reports")) return true;
   return false;
 }
@@ -97,6 +103,21 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (/^\/api\/campaigns\/[^/]+$/.test(pathname) && m === "PATCH") return true;
   if (/^\/api\/creatives\/[^/]+$/.test(pathname) && (m === "PATCH" || m === "DELETE")) return true;
 
+  if (pathname === "/api/campaigns/draft" && m === "POST") return true;
+  if (/^\/api\/campaigns\/[^/]+\/duplicate$/.test(pathname) && m === "POST") return true;
+  if (/^\/api\/campaigns\/[^/]+\/auto-optimize$/.test(pathname) && m === "POST") return true;
+  if (/^\/api\/campaigns\/[^/]+\/ab-declare-winner$/.test(pathname) && m === "POST") return true;
+  if (/^\/api\/campaigns\/[^/]+\/ab-auto-pause$/.test(pathname) && m === "POST") return true;
+  if (pathname === "/api/campaigns/export" && m === "GET" && request.nextUrl.searchParams.get("email")) return true;
+  if (/^\/api\/campaign-intelligence\/[^/]+$/.test(pathname) && m === "GET") return true;
+  if (/^\/api\/campaign-ab-results\/[^/]+$/.test(pathname) && m === "GET") return true;
+  if (pathname === "/api/public/stats" && m === "GET") return true;
+  if (pathname === "/api/public/bid-estimate" && m === "GET") return true;
+  if (/^\/api\/pixel\/[^/]+$/.test(pathname) && m === "GET") return true;
+  if (pathname === "/api/audience/segments" && m === "GET") return true;
+
+  if (pathname === "/api/ads.txt" && m === "GET") return true;
+
   return false;
 }
 
@@ -131,6 +152,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/") && isPublicApi(request, pathname)) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api/prebid/")) {
     return NextResponse.next();
   }
 
@@ -225,6 +250,13 @@ export const config = {
     "/api/publisher/:path*",
     "/api/publisher-floor-analysis/:path*",
     "/api/publisher-earnings/:path*",
+    "/api/campaign-intelligence/:path*",
+    "/api/campaign-ab-results/:path*",
+    "/api/public/:path*",
+    "/api/pixel/:path*",
+    "/api/audience/:path*",
+    "/api/prebid/:path*",
+    "/api/ads.txt",
     "/status",
     "/privacy",
     "/sellers.json"

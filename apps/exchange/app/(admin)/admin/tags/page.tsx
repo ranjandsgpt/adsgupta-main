@@ -138,7 +138,7 @@ ${tag}
           MDE tag
         </button>
         <button type="button" className={tab === "prebid" ? "" : "secondary"} onClick={() => setTab("prebid")}>
-          Prebid config
+          Prebid Config
         </button>
       </div>
 
@@ -228,7 +228,7 @@ ${tag}
           {tab === "prebid" && (
             <>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "#4a9eff" }}>PREBID CONFIG (API)</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#4a9eff" }}>PREBID CONFIG · /api/prebid/config</span>
                 <button
                   type="button"
                   onClick={async () => {
