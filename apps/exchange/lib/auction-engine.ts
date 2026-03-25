@@ -80,41 +80,20 @@ function parseSize(size: string | null | undefined): { w: number; h: number } {
   return { w, h };
 }
 
-/**
- * Creative size matching for OpenRTB: allow exact banner-format match (w/h),
- * or match against ad unit size strings, but don't fail hard if we can't parse.
- */
-function creativeSizeMatchesBanner(
+function sizesOverlap(
   creativeSize: string,
-  bannerFormats: Array<{ w: number; h: number }>,
-  adUnitSizes: string[]
+  adUnitSizes: string[],
+  bannerFormats?: Array<{ w: number; h: number }>
 ): boolean {
-  // Parse creative size '300x250' → {w:300, h:250}
-  const parts = creativeSize.toLowerCase().split("x");
-  const cw = parseInt(parts[0] || "", 10);
-  const ch = parseInt(parts[1] || "", 10);
-  if (isNaN(cw) || isNaN(ch)) return true; // can't parse — don't filter
+  // Always pass if no size constraints
+  if (!creativeSize) return true;
+  if ((!adUnitSizes || adUnitSizes.length === 0) && (!bannerFormats || bannerFormats.length === 0)) return true;
 
-  // Check against banner formats from bid request
-  if (bannerFormats && bannerFormats.length > 0) {
-    if (bannerFormats.some((f) => f.w === cw && f.h === ch)) return true;
-  }
+  const [cw, ch] = creativeSize.split("x").map(Number);
+  if (isNaN(cw)) return true;
 
-  // Check against ad unit sizes
-  if (adUnitSizes && adUnitSizes.length > 0) {
-    if (adUnitSizes.some((s) => s.toLowerCase() === creativeSize.toLowerCase())) return true;
-    if (
-      adUnitSizes.some((s) => {
-        const p = s.split("x");
-        return parseInt(p[0] || "", 10) === cw && parseInt(p[1] || "", 10) === ch;
-      })
-    )
-      return true;
-  }
-
-  // If no formats or sizes to compare against — allow the creative
-  if ((!bannerFormats || bannerFormats.length === 0) && (!adUnitSizes || adUnitSizes.length === 0)) return true;
-
+  if (bannerFormats?.some((f) => f.w === cw && f.h === ch)) return true;
+  if (adUnitSizes?.some((s) => s.toLowerCase() === creativeSize.toLowerCase())) return true;
   return false;
 }
 
@@ -319,7 +298,7 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
   }
   console.log("[cache]", key, "MISS");
   const pool = getPool();
-  const { rows } = await pool.query<JoinRow>(`
+  const joinSql = `
     SELECT
       c.id AS campaign_id,
       c.bid_price::text AS bid_price,
@@ -351,8 +330,11 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
       AND cr.image_url IS NOT NULL
       AND cr.click_url IS NOT NULL
       AND (cr.scan_passed IS NULL OR cr.scan_passed = true OR cr.status = 'approved')
-  `);
+  `;
+  console.log("[auction] campaigns+creatives SQL:\n" + joinSql.trim());
+  const { rows } = await pool.query<JoinRow>(joinSql);
   const list = rows as JoinRow[];
+  console.log("[auction] campaigns+creatives raw rows:", list.length, list.slice(0, 5));
   cacheSet(key, list, 30_000);
   return list;
 }
@@ -507,6 +489,7 @@ export async function runAuction(
     const requireSecure = imp?.secure === 1;
 
     const joinRows = await loadActiveCampaignCreativesJoin();
+    console.log("[auction] raw join rows (pre-filter):", joinRows.length, joinRows.slice(0, 5));
     const byCampaign = new Map<string, JoinRow[]>();
     for (const r of joinRows) {
       const arr = byCampaign.get(r.campaign_id) ?? [];
@@ -525,17 +508,31 @@ export async function runAuction(
         : undefined;
 
     const internalPool: InternalBid[] = [];
+    let rawCampaignCount = 0;
+    let droppedByTargetSizes = 0;
 
     for (const [campaignId, rowsRaw] of byCampaign) {
+      rawCampaignCount++;
       const rows = collapseAbTestRows(rowsRaw);
       const c0 = rows[0];
       if (!c0) continue;
       if (isFreqCapBlocked(campaignId, c0.freq_cap_day, c0.freq_cap_session, freqCapsDay, freqCapsSession)) {
         continue;
       }
+      const ts = c0.target_sizes;
+      const hasTargetSizes = ts && ts.length > 0 && !(ts.length === 1 && ts[0] === "");
+      if (hasTargetSizes) {
+        const adUnitMatchesTarget = adUnit.sizes.some((s: string) => (ts as string[]).includes(s));
+        if (!adUnitMatchesTarget) {
+          droppedByTargetSizes++;
+          continue;
+        }
+      }
+
       const c = {
         id: campaignId,
-        target_sizes: c0.target_sizes,
+        // Size targeting is enforced separately above (and skipped when null/empty/'{}'ish).
+        target_sizes: null,
         target_environments: c0.target_environments,
         target_domains: c0.target_domains,
         target_geos: c0.target_geos,
@@ -563,7 +560,7 @@ export async function runAuction(
         if (bidPrice < floor) continue;
         const crSize = r.creative_size;
         if (!crSize) continue;
-        if (!creativeSizeMatchesBanner(crSize, bannerFormats, adUnitSizes)) continue;
+        if (!sizesOverlap(crSize, adUnitSizes, bannerFormats)) continue;
         const img = r.image_url as string;
         const clk = r.click_url as string;
         if (requireSecure && !urlsSecureEnough(img, clk)) continue;
@@ -593,6 +590,16 @@ export async function runAuction(
     pool.sort((a, b) => b.bidPrice - a.bidPrice);
 
     if (pool.length === 0) {
+      console.log(
+        "[auction] NO ELIGIBLE BIDS — campaigns loaded:",
+        rawCampaignCount,
+        "join rows:",
+        joinRows.length,
+        "droppedByTargetSizes:",
+        droppedByTargetSizes,
+        "after floor/size/security filter:",
+        internalPool.length
+      );
       const id = await insertAuctionLog({
         openrtbRequestId,
         adUnitId: adUnit.id,
