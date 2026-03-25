@@ -255,6 +255,31 @@ export async function createTables() {
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS admin_activity_log (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        admin_email TEXT NOT NULL,
+        action_type TEXT NOT NULL,
+        entity_type TEXT NOT NULL,
+        entity_id TEXT,
+        old_value TEXT,
+        new_value TEXT,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS admin_notifications (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        type TEXT NOT NULL,
+        message TEXT NOT NULL,
+        entity_type TEXT,
+        entity_id TEXT,
+        read BOOLEAN DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;

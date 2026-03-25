@@ -5,6 +5,7 @@ import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { logAdminActivity } from "@/lib/admin-events";
 import { NextRequest } from "next/server";
 
 async function loadCampaign(id: string) {
@@ -208,6 +209,16 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const em = String(row.advertiser_email ?? row.contact_email ?? "");
         const cn = String(row.campaign_name ?? row.name ?? "Campaign");
         if (em) void sendDemandActivationEmail(em, cn, params.id);
+      }
+      if (row && auth.email) {
+        void logAdminActivity({
+          adminEmail: auth.email,
+          actionType: "campaign_status_update",
+          entityType: "campaign",
+          entityId: params.id,
+          oldValue: prevStatus,
+          newValue: row.status ?? null
+        });
       }
       cacheDelete("campaigns:active");
       return json(row ?? null);

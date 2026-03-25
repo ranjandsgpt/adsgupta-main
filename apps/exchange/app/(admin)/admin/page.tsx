@@ -36,6 +36,12 @@ type Dash = {
   ivtRateToday?: number;
 };
 
+type NeedsAction = {
+  pendingPublishers: number;
+  pendingCampaigns: number;
+  flaggedCreatives: number;
+};
+
 type AuctionRow = Record<string, unknown>;
 
 type DpRow = {
@@ -82,17 +88,20 @@ export default function AdminDashboardPage() {
   const [demand, setDemand] = useState<{ rows: DpRow[]; total_auctions_today: number } | null>(null);
   const [auctions, setAuctions] = useState<AuctionRow[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const [needs, setNeeds] = useState<NeedsAction | null>(null);
 
   const load = useCallback(async () => {
     try {
-      const [r, d, a] = await Promise.all([
+      const [r, d, a, n] = await Promise.all([
         fetch("/api/reports/dashboard", { credentials: "include" }),
         fetch("/api/demand-performance", { credentials: "include" }),
-        fetch("/api/auction-log?limit=10&preset=today", { credentials: "include" })
+        fetch("/api/auction-log?limit=10&preset=today", { credentials: "include" }),
+        fetch("/api/admin/needs-action", { credentials: "include" })
       ]);
       const rj = await r.json();
       const dj = await d.json();
       const aj = await a.json();
+      const nj = await n.json();
       if (!r.ok) setErr(rj.error ?? "Reports failed");
       else {
         setErr(null);
@@ -101,6 +110,8 @@ export default function AdminDashboardPage() {
       if (d.ok && dj.rows) setDemand(dj);
       else if (!d.ok) setDemand(null);
       if (a.ok && Array.isArray(aj)) setAuctions(aj);
+      if (n.ok) setNeeds(nj as NeedsAction);
+      else setNeeds(null);
     } catch {
       setErr("Network error");
     }
@@ -202,6 +213,53 @@ export default function AdminDashboardPage() {
           ]}
         {!d && !err && <div style={{ color: C.textMuted, fontSize: 12 }}>Loading KPIs…</div>}
       </div>
+
+      {needs && (
+        <div
+          className="card"
+          style={{
+            marginBottom: 22,
+            borderColor: needs.pendingPublishers + needs.pendingCampaigns + needs.flaggedCreatives === 0 ? "#2ecc71" : "#ff4757"
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 12, color: "var(--text-bright)", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Needs Action
+              </div>
+              <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 6, lineHeight: 1.5 }}>
+                {needs.pendingPublishers > 0 ? (
+                  <span>
+                    {needs.pendingPublishers} publishers pending activation.
+                  </span>
+                ) : null}
+                {needs.pendingCampaigns > 0 ? (
+                  <span>
+                    {needs.pendingCampaigns} campaigns pending activation.
+                  </span>
+                ) : null}
+                {needs.flaggedCreatives > 0 ? (
+                  <span>
+                    {needs.flaggedCreatives} creatives flagged by scanner.
+                  </span>
+                ) : null}
+                {needs.pendingPublishers + needs.pendingCampaigns + needs.flaggedCreatives === 0 ? "Exchange running smoothly ✓" : ""}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Link className="secondary" style={{ fontSize: 12 }} href="/admin/publishers">
+                Review publishers
+              </Link>
+              <Link className="secondary" style={{ fontSize: 12 }} href="/admin/demand">
+                Review campaigns
+              </Link>
+              <Link className="secondary" style={{ fontSize: 12 }} href="/admin/tags">
+                Review creatives
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
       {d != null && d.ivtRateToday != null && d.ivtRateToday > 0 && (
         <div style={{ fontSize: 11, color: C.textMuted, marginTop: -16, marginBottom: 20 }}>
           IVT share today: <span style={{ color: d.ivtRateToday > 10 ? C.red : C.textBright }}>{d.ivtRateToday.toFixed(1)}%</span>

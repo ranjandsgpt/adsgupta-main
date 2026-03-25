@@ -3,6 +3,7 @@ import { demandAdvertiserFilter } from "@/lib/demand-scope";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { pushAdminNotification } from "@/lib/admin-events";
 import { rateLimitResponse } from "@/lib/rate-limit-http";
 import { validateCpm, validateEmail } from "@/lib/validate";
 import { NextRequest } from "next/server";
@@ -165,6 +166,15 @@ export async function POST(request: NextRequest) {
         )
         RETURNING *
       `;
+      const row = result.rows[0] as { id: string; campaign_name: string } | undefined;
+      if (row?.id) {
+        void pushAdminNotification({
+          type: "new_campaign",
+          message: `New campaign submitted (pending activation): ${row.campaign_name}`,
+          entityType: "campaign",
+          entityId: row.id
+        });
+      }
       return json(result.rows[0], 201);
     }
 

@@ -8,16 +8,49 @@ type UserRecord = {
   role: ExchangeRole;
   publisherId?: string | null;
   demandAdvertiser?: string | null;
+  adminAccess?: "admin" | "ops" | "viewer";
 };
+
+const adminUsers: Array<{
+  email: string;
+  password: string;
+  adminAccess: "admin" | "ops" | "viewer";
+}> = [];
+
+for (let i = 1; i <= 5; i++) {
+  const email = process.env[`EXCHANGE_ADMIN_${i}_EMAIL`];
+  const password = process.env[`EXCHANGE_ADMIN_${i}_PASSWORD`];
+  const adminAccess = (process.env[`EXCHANGE_ADMIN_${i}_ROLE`] ?? "admin") as "admin" | "ops" | "viewer";
+  if (email && password) {
+    adminUsers.push({ email, password, adminAccess });
+  }
+}
+
+// Back-compat for legacy single admin env vars.
+if (process.env.EXCHANGE_ADMIN_EMAIL && process.env.EXCHANGE_ADMIN_PASSWORD) {
+  adminUsers.push({
+    email: process.env.EXCHANGE_ADMIN_EMAIL,
+    password: process.env.EXCHANGE_ADMIN_PASSWORD,
+    adminAccess: "admin"
+  });
+}
+
+// Ops user: treated as read-only for all privileged UI actions.
+if (process.env.EXCHANGE_OPS_EMAIL && process.env.EXCHANGE_OPS_PASSWORD) {
+  adminUsers.push({
+    email: process.env.EXCHANGE_OPS_EMAIL,
+    password: process.env.EXCHANGE_OPS_PASSWORD,
+    adminAccess: "viewer"
+  });
+}
 
 function matchUser(email: string | undefined, password: string | undefined): UserRecord | null {
   if (!email || password === undefined) return null;
 
-  if (
-    email === process.env.EXCHANGE_ADMIN_EMAIL &&
-    password === process.env.EXCHANGE_ADMIN_PASSWORD
-  ) {
-    return { id: "admin", email, role: "admin" };
+  for (const u of adminUsers) {
+    if (email === u.email && password === u.password) {
+      return { id: "admin", email, role: "admin", adminAccess: u.adminAccess };
+    }
   }
 
   if (
@@ -66,7 +99,8 @@ export const authOptions: NextAuthOptions = {
           email: record.email,
           role: record.role,
           publisherId: record.publisherId,
-          demandAdvertiser: record.demandAdvertiser
+          demandAdvertiser: record.demandAdvertiser,
+          adminAccess: record.adminAccess
         };
       }
     })
@@ -77,6 +111,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role as ExchangeRole;
         token.publisherId = user.publisherId ?? null;
         token.demandAdvertiser = user.demandAdvertiser ?? null;
+        token.adminAccess = (user as unknown as { adminAccess?: UserRecord["adminAccess"] }).adminAccess ?? null;
       }
       return token;
     },
@@ -86,6 +121,8 @@ export const authOptions: NextAuthOptions = {
         session.user.publisherId = (token.publisherId as string | null | undefined) ?? null;
         session.user.demandAdvertiser =
           (token.demandAdvertiser as string | null | undefined) ?? null;
+        (session.user as { adminAccess?: UserRecord["adminAccess"] | null }).adminAccess =
+          (token.adminAccess as UserRecord["adminAccess"] | null | undefined) ?? null;
       }
       return session;
     }

@@ -1,6 +1,7 @@
 import type { DefaultSession } from "next-auth";
 
 type ExchangeRole = "admin" | "publisher" | "demand";
+type AdminAccess = "admin" | "ops" | "viewer";
 
 declare module "next-auth" {
   interface Session {
@@ -8,6 +9,7 @@ declare module "next-auth" {
       role: ExchangeRole;
       publisherId?: string | null;
       demandAdvertiser?: string | null;
+      adminAccess?: AdminAccess | null;
     };
   }
 
@@ -15,6 +17,7 @@ declare module "next-auth" {
     role: ExchangeRole;
     publisherId?: string | null;
     demandAdvertiser?: string | null;
+    adminAccess?: AdminAccess | null;
   }
 }
 
@@ -23,5 +26,6 @@ declare module "next-auth/jwt" {
     role?: ExchangeRole;
     publisherId?: string | null;
     demandAdvertiser?: string | null;
+    adminAccess?: AdminAccess | null;
   }
 }

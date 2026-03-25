@@ -6,6 +6,8 @@ export type AuthContext = {
   role: ExchangeRole;
   publisherId: string | null;
   demandAdvertiser: string | null;
+  adminAccess?: "admin" | "ops" | "viewer" | null;
+  email?: string | null;
 };
 
 export async function getAuthFromRequest(request: NextRequest): Promise<AuthContext | null> {
@@ -17,7 +19,9 @@ export async function getAuthFromRequest(request: NextRequest): Promise<AuthCont
   return {
     role: token.role as ExchangeRole,
     publisherId: (token.publisherId as string | null | undefined) ?? null,
-    demandAdvertiser: (token.demandAdvertiser as string | null | undefined) ?? null
+    demandAdvertiser: (token.demandAdvertiser as string | null | undefined) ?? null,
+    adminAccess: (token.adminAccess as "admin" | "ops" | "viewer" | null | undefined) ?? null,
+    email: token.email ? String(token.email) : null
   };
 }
 

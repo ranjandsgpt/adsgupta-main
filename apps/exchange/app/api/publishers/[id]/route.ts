@@ -3,6 +3,7 @@ import { sendPublisherActivationEmail } from "@/lib/email";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { logAdminActivity } from "@/lib/admin-events";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -64,6 +65,16 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const em = row.contact_email ?? "";
     if (em) void sendPublisherActivationEmail(em, row.name, row.id);
   }
+  if (row && auth.email) {
+    void logAdminActivity({
+      adminEmail: auth.email,
+      actionType: "publisher_status_update",
+      entityType: "publisher",
+      entityId: params.id,
+      oldValue: prevStatus,
+      newValue: row.status
+    });
+  }
   return json(row ?? null);
 }
 
@@ -73,5 +84,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   if (auth.role !== "admin") return forbidden("Only admins can delete publishers");
 
   await sql`DELETE FROM publishers WHERE id = ${params.id}`;
+  if (auth.email) {
+    void logAdminActivity({
+      adminEmail: auth.email,
+      actionType: "publisher_delete",
+      entityType: "publisher",
+      entityId: params.id
+    });
+  }
   return json({ ok: true });
 }

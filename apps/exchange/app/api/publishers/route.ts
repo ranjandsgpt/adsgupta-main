@@ -4,6 +4,7 @@ import { normalizeDomain } from "@/lib/domain";
 import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
+import { pushAdminNotification } from "@/lib/admin-events";
 import { rateLimitResponse } from "@/lib/rate-limit-http";
 import { validateDomain, validateEmail, validateRequired } from "@/lib/validate";
 import { NextRequest } from "next/server";
@@ -87,6 +88,12 @@ export async function POST(request: NextRequest) {
       RETURNING *
     `;
     const row = result.rows[0] as { id: string; name: string; contact_email: string | null };
+    void pushAdminNotification({
+      type: "new_publisher",
+      message: `New publisher registration pending activation: ${row.name}`,
+      entityType: "publisher",
+      entityId: row.id
+    });
     void sendPublisherWelcomeEmail(email, String(body.name), row.id);
     return json(row, 201, { startedAt: started });
   }
