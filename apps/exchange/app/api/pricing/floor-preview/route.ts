@@ -23,11 +23,12 @@ export async function GET(request: NextRequest) {
   if (auth.role !== "admin" && auth.role !== "publisher") return forbidden();
 
   const sizes = sizesParam.split(",").map((s) => s.trim()).filter(Boolean);
+  const adType = request.nextUrl.searchParams.get("adType")?.trim() || "display";
   const ex = await explainEffectiveFloor({
     adUnitId,
     publisherId,
     sizes: sizes.length ? sizes : ["300x250"],
-    adType: "display",
+    adType,
     environment,
     pageUrl,
     country

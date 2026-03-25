@@ -26,7 +26,14 @@ const C = {
 const SIZE_OPTS = ["300x250", "728x90", "160x600", "320x50", "300x600", "970x250"];
 
 type Pub = { id: string; name: string; status: string };
-type InvUnit = { id: string; name: string; publisher_id: string; sizes: string[]; environment: string };
+type InvUnit = {
+  id: string;
+  name: string;
+  publisher_id: string;
+  sizes: string[];
+  environment: string;
+  ad_type?: string;
+};
 
 export default function AdminPricingPage() {
   const [rules, setRules] = useState<Rule[]>([]);
@@ -279,11 +286,13 @@ export default function AdminPricingPage() {
             type="button"
             onClick={async () => {
               setFloorPreview(null);
+              const u = inv.find((x) => x.id === testUnit);
               const sp = new URLSearchParams({
                 publisherId: testPub,
                 adUnitId: testUnit,
                 sizes: testSizes,
-                environment: testEnv
+                environment: testEnv,
+                ...(u?.ad_type ? { adType: u.ad_type } : {})
               });
               const res = await fetch(`/api/pricing/floor-preview?${sp}`, { credentials: "include" });
               const j = await res.json();
