@@ -15,8 +15,9 @@ const C = {
 
 function relTime(iso: string): string {
   const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return "—";
   const s = Math.floor((Date.now() - t) / 1000);
-  if (s < 5) return `${s}s ago`;
+  if (s < 60) return `${s}s ago`;
   if (s < 3600) return `${Math.floor(s / 60)}m ago`;
   if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
   return `${Math.floor(s / 86400)}d ago`;
@@ -88,13 +89,19 @@ export default function AdminAuctionLogPage() {
     void fetch("/api/publishers", { credentials: "include" })
       .then((r) => r.json())
       .then((d) => {
-        if (Array.isArray(d)) setPubs(d.filter((x: { status?: string }) => x.status === "active"));
+        if (Array.isArray(d)) setPubs(d);
       });
   }, []);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (!live) return;
+    const id = window.setInterval(() => void load(), 5000);
+    return () => window.clearInterval(id);
+  }, [live, load]);
 
   useEffect(() => {
     if (!live || typeof window === "undefined") {
@@ -188,22 +195,29 @@ export default function AdminAuctionLogPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.muted, cursor: "pointer" }}>
             <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
-            LIVE
+            Auto-refresh
           </label>
-          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.muted }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: C.muted }}>
             <span
               style={{
                 width: 10,
                 height: 10,
                 borderRadius: "50%",
                 background:
-                  !live ? C.muted : sseConn === "connected" ? C.green : sseConn === "reconnecting" ? C.red : "#ff8c42",
+                  !live ? C.muted : sseConn === "connected" || sseConn === "reconnecting" ? C.green : "#ff8c42",
                 boxShadow:
-                  live && sseConn === "connected" ? `0 0 10px ${C.green}` : live && sseConn === "reconnecting" ? `0 0 8px ${C.red}` : "none",
-                animation: live && sseConn !== "connected" ? "pulse 1.2s ease-in-out infinite" : "none"
+                  live && (sseConn === "connected" || sseConn === "reconnecting")
+                    ? `0 0 10px ${C.green}`
+                    : live
+                      ? `0 0 8px #ff8c42`
+                      : "none",
+                animation: live ? "pulse 1.2s ease-in-out infinite" : "none"
               }}
             />
-            {!live ? "Stopped" : sseConn === "connected" ? "Connected" : sseConn === "reconnecting" ? "Reconnecting" : "Connecting"}
+            <span style={{ fontWeight: 800, color: live ? C.green : C.muted }}>LIVE</span>
+            <span style={{ color: C.muted }}>
+              {!live ? "off" : sseConn === "connected" ? "stream" : sseConn === "reconnecting" ? "stream …" : "connecting"}
+            </span>
           </span>
           <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
           <button type="button" className="secondary" style={{ fontSize: 11 }} onClick={exportCsv}>
@@ -214,11 +228,11 @@ export default function AdminAuctionLogPage() {
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 12, fontSize: 12 }}>
         {[
-          ["Auctions today", String(todayStats.total)],
-          ["Fill rate today", `${todayStats.fill.toFixed(1)}%`],
-          ["Avg CPM today", `$${todayStats.avgWin.toFixed(4)}`],
-          ["Revenue today", `$${todayStats.rev.toFixed(2)}`],
-          ["Impressions today", String(todayStats.impr)]
+          ["Auctions Today", String(todayStats.total)],
+          ["Fill Rate Today", `${todayStats.fill.toFixed(1)}%`],
+          ["Avg CPM Today", `$${todayStats.avgWin.toFixed(4)}`],
+          ["Revenue Today", `$${todayStats.rev.toFixed(2)}`],
+          ["Impressions Today", String(todayStats.impr)]
         ].map(([k, v]) => (
           <div key={k} className="card" style={{ minWidth: 130, padding: 10 }}>
             <div style={{ color: "var(--text-muted)", fontSize: 10 }}>{k}</div>
@@ -287,14 +301,13 @@ export default function AdminAuctionLogPage() {
             <tr>
               <th>Time</th>
               <th>Auction ID</th>
-              <th>Domain</th>
-              <th>Unit</th>
-              <th>Page</th>
+              <th>Publisher domain</th>
+              <th>Ad unit</th>
+              <th>Page URL</th>
               <th>Bids</th>
               <th>Win bid</th>
               <th>Floor</th>
               <th>Cleared</th>
-              <th>IVT</th>
             </tr>
           </thead>
           <tbody>
@@ -324,7 +337,7 @@ export default function AdminAuctionLogPage() {
                     <td style={{ fontSize: 10 }}>{String(r.publisher_domain ?? "—")}</td>
                     <td style={{ fontSize: 10 }}>{String(r.ad_unit_name ?? "—")}</td>
                     <td
-                      style={{ fontSize: 9, maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis" }}
+                      style={{ fontSize: 9, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }}
                       title={String(r.page_url ?? "")}
                     >
                       {String(r.page_url ?? "—").slice(0, 40)}
@@ -333,13 +346,10 @@ export default function AdminAuctionLogPage() {
                     <td style={{ color: bidColor(wb), fontWeight: 700 }}>${Number.isFinite(wb) ? wb.toFixed(4) : "—"}</td>
                     <td style={{ fontSize: 10 }}>{String(r.floor_price ?? "—")}</td>
                     <td>{clearedOk ? "✓" : "✗"}</td>
-                    <td style={{ color: r.is_ivt === true ? C.red : C.muted, fontWeight: 700 }}>
-                      {r.is_ivt === true ? "IVT" : "—"}
-                    </td>
                   </tr>
                   {open && (
                     <tr style={{ background: "#0c1018" }}>
-                      <td colSpan={10} style={{ fontSize: 11, padding: 12 }}>
+                      <td colSpan={9} style={{ fontSize: 11, padding: 12 }}>
                         <div style={{ marginBottom: 8 }}>
                           <strong style={{ color: C.muted }}>URL:</strong>{" "}
                           <span style={{ wordBreak: "break-all" }}>{String(r.page_url ?? "—")}</span>
@@ -347,6 +357,11 @@ export default function AdminAuctionLogPage() {
                         <div style={{ marginBottom: 8 }}>
                           <strong style={{ color: C.muted }}>User agent:</strong> {String(r.user_agent ?? "—")}
                         </div>
+                        {r.is_ivt === true ? (
+                          <div style={{ marginBottom: 8, color: C.red, fontWeight: 700 }}>
+                            Flagged IVT — included because IVT-only filter or row metadata
+                          </div>
+                        ) : null}
                         {r.creative_image_url ? (
                           <div>
                             <strong style={{ color: C.muted }}>Creative:</strong>{" "}

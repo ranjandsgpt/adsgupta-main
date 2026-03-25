@@ -17,7 +17,14 @@ type Publisher = {
   ads_txt_status?: string | null;
 };
 
-type AdUnit = { id: string; name: string; sizes: string[]; status: string; publisher_id?: string };
+type AdUnit = {
+  id: string;
+  name: string;
+  sizes: string[];
+  status: string;
+  publisher_id?: string;
+  impressions_today?: string | number | null;
+};
 
 const PAGE = 20;
 
@@ -375,6 +382,7 @@ export default function AdminPublishersPage() {
                             <tr>
                               <th>Unit</th>
                               <th>Sizes</th>
+                              <th>Impressions today</th>
                               <th>Status</th>
                             </tr>
                           </thead>
@@ -383,6 +391,7 @@ export default function AdminPublishersPage() {
                               <tr key={u.id}>
                                 <td>{u.name}</td>
                                 <td>{(u.sizes ?? []).join(", ")}</td>
+                                <td>{u.impressions_today ?? "—"}</td>
                                 <td>{u.status}</td>
                               </tr>
                             ))}

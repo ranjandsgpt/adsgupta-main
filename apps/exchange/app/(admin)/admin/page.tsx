@@ -67,6 +67,16 @@ function fmtDeltaPp(pp: number): { text: string; pos: boolean } {
   return { text: `${pos ? "+" : ""}${pp.toFixed(1)}pp vs prev`, pos };
 }
 
+function relTime(iso: string): string {
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return "—";
+  const s = Math.floor((Date.now() - t) / 1000);
+  if (s < 60) return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
 export default function AdminDashboardPage() {
   const [dash, setDash] = useState<Dash | null>(null);
   const [demand, setDemand] = useState<{ rows: DpRow[]; total_auctions_today: number } | null>(null);
@@ -171,43 +181,10 @@ export default function AdminDashboardPage() {
       >
         {d &&
           [
-            card(
-              "Total Auctions",
-              fmtCompact(d.auctionsToday),
-              fmtDeltaPct(d.auctionsDeltaPct),
-              C.blue
-            ),
-            card(
-              "Total Impressions",
-              fmtCompact(d.impressionsToday),
-              fmtDeltaPct(d.impressionsDeltaPct),
-              C.accent
-            ),
-            card(
-              "Fill Rate %",
-              `${d.fillRateToday.toFixed(1)}%`,
-              fmtDeltaPp(d.fillRateDeltaPp),
-              C.green
-            ),
-            card(
-              "IVT rate today",
-              `${(d.ivtRateToday ?? 0).toFixed(1)}%`,
-              {
-                text:
-                  (d.ivtRateToday ?? 0) > 10
-                    ? "Elevated — review auction log IVT filter"
-                    : "share of auctions flagged IVT",
-                pos: (d.ivtRateToday ?? 0) <= 10
-              },
-              (d.ivtRateToday ?? 0) > 10 ? C.red : C.textMuted,
-              (d.ivtRateToday ?? 0) > 10
-            ),
-            card(
-              "Total Revenue $",
-              `$${d.revenueToday.toFixed(2)}`,
-              fmtDeltaPct(d.revenueDeltaPct),
-              C.yellow
-            ),
+            card("Total Auctions", fmtCompact(d.auctionsToday), fmtDeltaPct(d.auctionsDeltaPct), C.blue),
+            card("Total Impressions", fmtCompact(d.impressionsToday), fmtDeltaPct(d.impressionsDeltaPct), C.accent),
+            card("Fill Rate %", `${d.fillRateToday.toFixed(1)}%`, fmtDeltaPp(d.fillRateDeltaPp), C.green),
+            card("Total Revenue $", `$${d.revenueToday.toFixed(2)}`, fmtDeltaPct(d.revenueDeltaPct), C.yellow),
             card("Avg eCPM $", `$${d.avgCpmToday.toFixed(4)}`, fmtDeltaPct(d.avgCpmDeltaPct), C.orange),
             card("Active Publishers", String(d.activePublishers), { text: "—", pos: true }, C.purple),
             card("Active Campaigns", String(d.activeCampaigns), { text: "—", pos: true }, C.accent),
@@ -221,6 +198,11 @@ export default function AdminDashboardPage() {
           ]}
         {!d && !err && <div style={{ color: C.textMuted, fontSize: 12 }}>Loading KPIs…</div>}
       </div>
+      {d != null && d.ivtRateToday != null && d.ivtRateToday > 0 && (
+        <div style={{ fontSize: 11, color: C.textMuted, marginTop: -16, marginBottom: 20 }}>
+          IVT share today: <span style={{ color: d.ivtRateToday > 10 ? C.red : C.textBright }}>{d.ivtRateToday.toFixed(1)}%</span>
+        </div>
+      )}
 
       <div
         style={{
@@ -238,22 +220,21 @@ export default function AdminDashboardPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 1fr",
+            gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr",
             gap: 8,
             padding: "8px 12px",
             borderBottom: `1px solid ${C.border}`,
             fontSize: 10,
             fontWeight: 700,
             color: C.textMuted,
-            minWidth: 720
+            minWidth: 640
           }}
         >
           <div>PARTNER</div>
-          <div>WINS</div>
-          <div>BIDS Σ</div>
-          <div>BID SHARE</div>
+          <div>REQUESTS</div>
+          <div>BIDS</div>
+          <div>BID RATE</div>
           <div>WIN RATE</div>
-          <div>IMP</div>
           <div>REVENUE</div>
         </div>
         {(demand?.rows ?? []).map((row) => (
@@ -261,24 +242,25 @@ export default function AdminDashboardPage() {
             key={row.campaign_id}
             style={{
               display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr 1fr",
+              gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr",
               gap: 8,
               padding: "10px 12px",
               borderBottom: `1px solid ${C.border}08`,
               alignItems: "center",
               fontSize: 11,
-              minWidth: 720
+              minWidth: 640
             }}
           >
             <div>
               <div style={{ fontWeight: 600, color: C.textBright }}>{row.campaign_name}</div>
               <div style={{ fontSize: 9, color: C.textMuted }}>{row.advertiser_name}</div>
             </div>
-            <div style={{ color: C.textBright }}>{row.wins}</div>
+            <div style={{ color: C.textBright }} title="Cleared auctions attributed to this campaign">
+              {row.wins}
+            </div>
             <div style={{ color: C.textBright }}>{Math.round(row.sum_bid_count)}</div>
             <div style={{ color: C.green }}>{row.bid_share_pct.toFixed(1)}%</div>
             <div style={{ color: C.orange }}>{row.win_rate_pct.toFixed(1)}%</div>
-            <div style={{ color: C.textBright }}>{row.impressions_today}</div>
             <div style={{ fontWeight: 700, color: C.yellow }}>${row.revenue.toFixed(2)}</div>
           </div>
         ))}
@@ -300,26 +282,50 @@ export default function AdminDashboardPage() {
         RECENT AUCTIONS (10)
       </div>
       <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, overflow: "auto", marginBottom: 24 }}>
-        <table className="table" style={{ margin: 0, minWidth: 640 }}>
+        <table className="table" style={{ margin: 0, minWidth: 900 }}>
           <thead>
             <tr>
               <th>Time</th>
+              <th>Auction ID</th>
               <th>Publisher</th>
               <th>Unit</th>
+              <th>Page URL</th>
+              <th>Bids</th>
               <th>Win bid</th>
+              <th>Floor</th>
               <th>Cleared</th>
             </tr>
           </thead>
           <tbody>
-            {auctions.map((row, i) => (
-              <tr key={i}>
-                <td style={{ fontSize: 10 }}>{String(row.created_at ?? "").slice(0, 19)}</td>
-                <td style={{ fontSize: 10 }}>{String(row.publisher_domain ?? "—")}</td>
-                <td style={{ fontSize: 10 }}>{String(row.ad_unit_name ?? "—")}</td>
-                <td style={{ fontSize: 10 }}>{String(row.winning_bid ?? "—")}</td>
-                <td>{row.cleared ? "✓" : "✗"}</td>
-              </tr>
-            ))}
+            {auctions.map((row, i) => {
+              const wb = Number(row.winning_bid);
+              const bidCol =
+                Number.isFinite(wb) && wb > 2 ? C.green : Number.isFinite(wb) && wb >= 0.5 ? C.orange : C.textMuted;
+              return (
+                <tr key={i}>
+                  <td style={{ fontSize: 10, whiteSpace: "nowrap" }} title={String(row.created_at ?? "")}>
+                    {relTime(String(row.created_at ?? ""))}
+                  </td>
+                  <td style={{ fontFamily: "ui-monospace,monospace", fontSize: 10 }}>
+                    {String(row.auction_id ?? "").slice(0, 8)}
+                  </td>
+                  <td style={{ fontSize: 10 }}>{String(row.publisher_domain ?? "—")}</td>
+                  <td style={{ fontSize: 10 }}>{String(row.ad_unit_name ?? "—")}</td>
+                  <td
+                    style={{ fontSize: 9, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}
+                    title={String(row.page_url ?? "")}
+                  >
+                    {String(row.page_url ?? "—").slice(0, 40)}
+                  </td>
+                  <td style={{ fontSize: 10 }}>{String(row.bid_count ?? "—")}</td>
+                  <td style={{ fontSize: 10, color: bidCol, fontWeight: 700 }}>
+                    {Number.isFinite(wb) ? `$${wb.toFixed(4)}` : "—"}
+                  </td>
+                  <td style={{ fontSize: 10 }}>{row.floor_price != null ? String(row.floor_price) : "—"}</td>
+                  <td>{row.cleared ? "✓" : "✗"}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         {auctions.length === 0 && (
