@@ -86,6 +86,8 @@ export default function AdminDemandCampaignsPage() {
     }
   }, []);
 
+  const toastSuccess = (msg: string) => setToast(msg);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -97,6 +99,8 @@ export default function AdminDemandCampaignsPage() {
   async function patchCampaign(id: string, body: Record<string, unknown>) {
     setBusy(id);
     setError(null);
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, ...body } : r)));
     try {
       const res = await fetch(`/api/campaigns/${id}`, {
         method: "PATCH",
@@ -107,13 +111,15 @@ export default function AdminDemandCampaignsPage() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Failed");
+        setRows(prev);
         return;
       }
-      if (body.status === "active") setToast("Campaign is now live — auctions begin immediately");
-      if (body.status === "rejected") setToast("Campaign rejected");
-      await load();
+      if (body.status === "active") toastSuccess("Campaign activated");
+      else if (body.status === "rejected") toastSuccess("Campaign rejected");
+      else toastSuccess("Campaign updated");
     } catch {
       setError("Network error");
+      setRows(prev);
     } finally {
       setBusy(null);
     }
@@ -263,7 +269,7 @@ export default function AdminDemandCampaignsPage() {
                   key={r.id}
                   style={{
                     padding: 12,
-                    background: "#0c1018",
+                    background: "var(--bg-input)",
                     borderRadius: 6,
                     display: "flex",
                     flexWrap: "wrap",
@@ -387,7 +393,7 @@ export default function AdminDemandCampaignsPage() {
                   </tr>
                   {expanded === r.id && (
                     <tr>
-                      <td colSpan={10} style={{ background: "#0c1018", padding: 12 }}>
+                      <td colSpan={10} style={{ background: "var(--bg-input)", padding: 12 }}>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                           {crFor(r.id).map((c) => (
                             <div key={c.id} style={{ width: 160 }}>
@@ -395,7 +401,7 @@ export default function AdminDemandCampaignsPage() {
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={c.image_url} alt="" style={{ width: "100%", borderRadius: 4 }} />
                               ) : (
-                                <div style={{ height: 90, background: "#f1f3f5" }} />
+                                <div style={{ height: 90, background: "var(--bg-input)" }} />
                               )}
                               <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 4 }}>{c.size}</div>
                               <div

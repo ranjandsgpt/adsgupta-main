@@ -74,6 +74,8 @@ export default function AdminPublishersPage() {
   const [newDomain, setNewDomain] = useState("");
   const [newEmail, setNewEmail] = useState("");
 
+  const toastSuccess = (msg: string) => setToast(msg);
+
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/publishers", { credentials: "include" });
@@ -123,6 +125,8 @@ export default function AdminPublishersPage() {
   async function patchStatus(id: string, status: string) {
     setBusy(id);
     setError(null);
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, status } : r)));
     try {
       const res = await fetch(`/api/publishers/${id}`, {
         method: "PATCH",
@@ -133,19 +137,14 @@ export default function AdminPublishersPage() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Update failed");
+        setRows(prev);
         setBusy(null);
         return;
       }
-      setToast(
-        status === "active"
-          ? "Publisher activated — welcome email sent"
-          : status === "suspended"
-            ? "Publisher suspended"
-            : "Updated"
-      );
-      await load();
+      toastSuccess(status === "active" ? "Publisher activated" : status === "suspended" ? "Publisher suspended" : "Publisher updated");
     } catch {
       setError("Network error");
+      setRows(prev);
     }
     setBusy(null);
   }
@@ -267,7 +266,7 @@ export default function AdminPublishersPage() {
                   gap: 10,
                   justifyContent: "space-between",
                   padding: 10,
-                  background: "#0c1018",
+                  background: "var(--bg-input)",
                   borderRadius: 6
                 }}
               >
@@ -370,7 +369,7 @@ export default function AdminPublishersPage() {
                 </tr>
                 {expanded === r.id && (
                   <tr>
-                    <td colSpan={10} style={{ background: "#0c1018", fontSize: 11 }}>
+                    <td colSpan={10} style={{ background: "var(--bg-input)", fontSize: 11 }}>
                       <div style={{ marginBottom: 6, color: "var(--text-muted)" }}>
                         Publisher ID: <code style={{ color: "var(--accent)" }}>{r.id}</code>
                       </div>

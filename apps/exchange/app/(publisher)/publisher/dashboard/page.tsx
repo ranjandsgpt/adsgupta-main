@@ -695,6 +695,21 @@ ${testHtml ? `\n${testHtml}\n` : ""}
             <div style={{ fontWeight: 800, color: "var(--accent)", marginBottom: 10 }}>
               {tagModalSub === "mde" ? "MDE tag" : "Prebid.js config"} · {tagModalUnit.name}
             </div>
+            <label style={{ fontSize: 10, color: "var(--text-muted)" }}>Ad unit</label>
+            <select
+              value={tagModalUnit.id}
+              onChange={(e) => {
+                const next = units.find((u) => u.id === e.target.value);
+                if (next) setTagModalUnit(next);
+              }}
+              style={{ width: "100%", marginBottom: 12 }}
+            >
+              {units.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
             {tagModalSub === "mde" && (
               <>
                 <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
@@ -705,7 +720,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
                     fontSize: 10,
                     overflow: "auto",
                     padding: 12,
-                    background: "#0c1018",
+                    background: "var(--bg-input)",
                     borderRadius: 6,
                     border: "1px solid var(--border)",
                     whiteSpace: "pre-wrap",
@@ -716,7 +731,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
                 </pre>
                 <button
                   type="button"
-                  style={{ marginTop: 12, background: "#143d28", borderColor: "#2ecc7155", color: "#2ecc71" }}
+                  style={{ marginTop: 12 }}
                   onClick={() => copyTag(testHtml)}
                 >
                   Copy tag
@@ -726,7 +741,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
                   style={{
                     fontSize: 10,
                     padding: 12,
-                    background: "#0c1018",
+                    background: "var(--bg-input)",
                     borderRadius: 6,
                     border: "1px solid var(--border)",
                     whiteSpace: "pre-wrap",
@@ -748,7 +763,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
                     fontSize: 9,
                     overflow: "auto",
                     padding: 12,
-                    background: "#0c1018",
+                    background: "var(--bg-input)",
                     borderRadius: 6,
                     border: "1px solid var(--border)",
                     whiteSpace: "pre-wrap",
@@ -759,7 +774,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
                 </pre>
                 <button
                   type="button"
-                  style={{ marginTop: 10, background: "#143d28", borderColor: "#2ecc7155", color: "#2ecc71" }}
+                  style={{ marginTop: 10 }}
                   onClick={() => copyTag(prebidJson)}
                   disabled={!prebidJson}
                 >

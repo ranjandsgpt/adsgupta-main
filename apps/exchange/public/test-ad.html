@@ -15,8 +15,23 @@
 </head>
 <body>
   <h1>MDE Exchange — Tag Test</h1>
-  <p>Publisher ID: <strong id="pub-id">REPLACE_WITH_YOUR_PUBLISHER_ID</strong></p>
-  <p>Ad Unit ID: <strong id="unit-id">REPLACE_WITH_YOUR_AD_UNIT_ID</strong></p>
+  <p style="margin-top:10px;color:#718096;font-size:12px;max-width:820px;line-height:1.6">
+    Enter your Publisher ID and Ad Unit ID, then click <strong>Run Test</strong>. This page will request a bid via <code>mde.js</code> and log the response.
+  </p>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:14px">
+    <div style="min-width:320px;flex:1">
+      <label style="display:block;font-size:12px;color:#718096;margin-bottom:6px">Publisher ID</label>
+      <input id="pubInput" placeholder="publisher UUID" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-family:monospace" />
+    </div>
+    <div style="min-width:320px;flex:1">
+      <label style="display:block;font-size:12px;color:#718096;margin-bottom:6px">Ad Unit ID</label>
+      <input id="unitInput" placeholder="ad unit UUID" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-family:monospace" />
+    </div>
+    <button id="runBtn" style="padding:10px 16px;border-radius:8px;border:1px solid #0066cc55;background:#0066cc;color:#fff;font-weight:700;cursor:pointer">
+      Run Test
+    </button>
+  </div>
 
   <div class="ad-container">
     <div id="mde-test-unit" style="width:300px;height:250px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;color:#718096;font-size:11px;">
@@ -30,12 +45,73 @@
 
   <script>
     const log = document.getElementById('log');
+    const pubInput = document.getElementById('pubInput');
+    const unitInput = document.getElementById('unitInput');
+    const runBtn = document.getElementById('runBtn');
+    const slotHost = document.getElementById('mde-test-unit');
+    let runCounter = 0;
+
     function addLog(msg, type='info') {
       const el = document.createElement('div');
       el.className = 'log-entry ' + type;
       el.textContent = '[' + new Date().toISOString().slice(11,23) + '] ' + msg;
       log.appendChild(el);
     }
+
+    function safeParseJson(text) {
+      try { return JSON.parse(text); } catch { return null; }
+    }
+
+    function extractCreativeImageUrl(bid) {
+      if (!bid || !bid.adm) return null;
+      const m = String(bid.adm).match(/<img[^>]+src=['"]([^'"]+)['"]/i);
+      return m ? m[1] : null;
+    }
+
+    // Intercept auction responses so we can log nbr vs seatbid.
+    (function wrapFetch() {
+      const orig = window.fetch;
+      if (!orig) return;
+      window.fetch = function(input, init) {
+        const url = typeof input === 'string' ? input : (input && input.url) ? input.url : '';
+        const isAuction = url && url.indexOf('/api/openrtb/auction') !== -1;
+        if (!isAuction) return orig(input, init);
+
+        addLog('Bid request sent (OpenRTB auction)', 'info');
+        return orig(input, init).then(function(res) {
+          try {
+            const clone = res.clone();
+            return clone.text().then(function(t) {
+              const j = safeParseJson(t);
+              if (j && typeof j === 'object') {
+                if (j.nbr === 2) {
+                  addLog('No fill — check that publisher and campaign are both active and campaign bid >= floor price', 'error');
+                } else if (j.seatbid && j.seatbid[0] && j.seatbid[0].bid && j.seatbid[0].bid[0]) {
+                  const bid = j.seatbid[0].bid[0];
+                  const price = (bid && bid.price != null) ? Number(bid.price) : null;
+                  const img = extractCreativeImageUrl(bid);
+                  addLog('Bid response received (seatbid)', 'success');
+                  addLog('Ad served — price: $' + (price != null && !isNaN(price) ? price.toFixed(2) : '—') + ', creative: ' + (img || '—'), 'success');
+                } else {
+                  addLog('Bid response received (no seatbid)', 'info');
+                }
+              } else {
+                addLog('Bid response received (non-JSON)', 'info');
+              }
+              return res;
+            }).catch(function() {
+              addLog('Bid response received (could not read body)', 'info');
+              return res;
+            });
+          } catch (_) {
+            return res;
+          }
+        }).catch(function(err) {
+          addLog('ERROR: auction request failed: ' + (err && err.message ? err.message : String(err)), 'error');
+          throw err;
+        });
+      }
+    })();
 
     window.addEventListener('message', function(e) {
       if (e.data && e.data.type === 'mde:impression') {
@@ -46,16 +122,32 @@
     window.mde = window.mde || { cmd: [] };
     mde.cmd.push(function() {
       addLog('mde.js loaded', 'success');
-      mde.init({ networkCode: 'REPLACE_WITH_YOUR_PUBLISHER_ID' });
-      mde.defineSlot({
-        unitId: 'REPLACE_WITH_YOUR_AD_UNIT_ID',
-        div: 'mde-test-unit',
-        sizes: ['300x250'],
-        floor: 0.10
-      });
-      mde.enableServices();
-      addLog('Sending bid request...', 'info');
-      mde.display('mde-test-unit');
+      runBtn.disabled = false;
+    });
+
+    runBtn.disabled = true;
+    runBtn.addEventListener('click', function() {
+      const pubId = (pubInput.value || '').trim();
+      const unitId = (unitInput.value || '').trim();
+      if (!pubId || !unitId) {
+        addLog('ERROR: enter both Publisher ID and Ad Unit ID', 'error');
+        return;
+      }
+
+      runCounter++;
+      const divId = 'mde-test-slot-' + runCounter;
+      slotHost.innerHTML = '<div id=\"' + divId + '\" style=\"width:300px;height:250px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;color:#718096;font-size:11px;\">Loading ad...</div>';
+
+      try {
+        addLog('Initializing slot — pub=' + pubId.slice(0,8) + '… unit=' + unitId.slice(0,8) + '…', 'info');
+        mde.init({ networkCode: pubId });
+        mde.defineSlot({ unitId: unitId, div: divId, sizes: ['300x250'], floor: 0.10 });
+        mde.enableServices();
+        mde.display(divId);
+        addLog('mde.display() called', 'info');
+      } catch (e) {
+        addLog('ERROR: mde.js threw: ' + (e && e.message ? e.message : String(e)), 'error');
+      }
     });
   </script>
   <script async src="https://exchange.adsgupta.com/mde.js"

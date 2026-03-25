@@ -98,6 +98,13 @@ export default function AdminAuctionLogPage() {
   }, [load]);
 
   useEffect(() => {
+    const t = window.setInterval(() => {
+      void load();
+    }, 10_000);
+    return () => window.clearInterval(t);
+  }, [load]);
+
+  useEffect(() => {
     if (!live || typeof window === "undefined") {
       setSseConn("off");
       return;
@@ -183,7 +190,7 @@ export default function AdminAuctionLogPage() {
         <div>
           <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Auction log</h1>
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
-            Production telemetry · When live is on, new rows arrive via Server-Sent Events only (no polling).
+            Production telemetry · Auto-refresh every 10 seconds.
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -376,7 +383,9 @@ export default function AdminAuctionLogPage() {
           }
         `}</style>
         {rows.length === 0 && !error && (
-          <p style={{ fontSize: 12, color: "var(--text-muted)", padding: 16, margin: 0 }}>No rows for this filter.</p>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", padding: 16, margin: 0 }}>
+            No auctions yet. Embed <code>mde.js</code> on a publisher page and visit it to trigger your first auction.
+          </p>
         )}
       </div>
     </div>
