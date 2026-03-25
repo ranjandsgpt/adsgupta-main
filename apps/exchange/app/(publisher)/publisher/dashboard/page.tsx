@@ -405,15 +405,17 @@ ${testHtml ? `\n${testHtml}\n` : ""}
       {pub.status === "active" && (
         <>
           <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-            {(["overview", "analytics", "units", "tags", "supply"] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                className={tab === t ? "" : "secondary"}
-                style={{ textTransform: "capitalize" }}
-                onClick={() => setTab(t)}
-              >
-                {t}
+            {(
+              [
+                ["overview", "Overview"],
+                ["analytics", "Analytics"],
+                ["units", "Units"],
+                ["tags", "Tags"],
+                ["supply", "Supply chain"]
+              ] as const
+            ).map(([t, label]) => (
+              <button key={t} type="button" className={tab === t ? "" : "secondary"} onClick={() => setTab(t)}>
+                {label}
               </button>
             ))}
           </div>

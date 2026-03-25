@@ -68,7 +68,8 @@ export default function AdminHealthPage() {
     })) ?? [];
 
   const dot = (st: string) => {
-    const c = st === "up" || st === "configured" ? "#2ecc71" : st === "degraded" ? "#ffd32a" : "#ff4757";
+    const c =
+      st === "up" || st === "configured" || st === "healthy" ? "#2ecc71" : st === "degraded" ? "#ffd32a" : "#ff4757";
     return <span style={{ color: c, fontSize: 18 }}>●</span>;
   };
 
@@ -84,7 +85,7 @@ export default function AdminHealthPage() {
               {dot(h.checks.auction.status)} Auction p95 {h.checks.auction.p95LatencyMs}ms · samples {h.checks.auction.samples}
             </div>
             <div className="card">
-              {dot(h.checks.blob.status === "configured" ? "up" : "degraded")} Blob {h.checks.blob.status}
+              {dot(h.checks.blob.status)} Blob {h.checks.blob.status}
             </div>
             <div className="card">SSE clients: {h.metrics.activeSseConnections}</div>
           </div>

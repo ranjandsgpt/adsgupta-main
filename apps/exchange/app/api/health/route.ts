@@ -7,10 +7,14 @@ import { getActiveSseConnections } from "@/lib/sse-metrics";
 export async function GET() {
   const timestamp = new Date().toISOString();
   const dbStarted = Date.now();
-  let database: { status: "up" | "down"; latencyMs: number } = { status: "up", latencyMs: 0 };
+  let database: { status: "healthy" | "degraded" | "down"; latencyMs: number } = { status: "healthy", latencyMs: 0 };
   try {
     await sql`SELECT 1`;
-    database = { status: "up", latencyMs: Date.now() - dbStarted };
+    const lat = Date.now() - dbStarted;
+    database = {
+      status: lat > 800 ? "degraded" : "healthy",
+      latencyMs: lat
+    };
   } catch {
     database = { status: "down", latencyMs: Date.now() - dbStarted };
   }
@@ -26,10 +30,11 @@ export async function GET() {
   const fillRate1h = Number(fillRow.rows[0]?.fr ?? 0);
   const auctionsLast1h = Number(fillRow.rows[0]?.c ?? 0);
 
-  const auctionStatus = lat.samples === 0 ? "up" : lat.p95Ms < 2500 ? "up" : "degraded";
+  const auctionCheckStatus: "healthy" | "degraded" | "down" =
+    lat.samples === 0 ? "healthy" : lat.p95Ms < 2500 ? "healthy" : "degraded";
 
   const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
-  const blob = { status: blobConfigured ? "configured" : "not_configured" as const };
+  const blob = { status: (blobConfigured ? "healthy" : "degraded") as "healthy" | "degraded" };
 
   const impr1h = await sql<{ c: string }>`
     SELECT COUNT(*)::text AS c FROM impressions WHERE created_at > now() - interval '1 hour'
@@ -68,7 +73,7 @@ export async function GET() {
 
   let status: "healthy" | "degraded" | "down" = "healthy";
   if (database.status === "down") status = "down";
-  else if (database.latencyMs > 800 || auctionStatus === "degraded") status = "degraded";
+  else if (database.status === "degraded" || auctionCheckStatus === "degraded" || blob.status === "degraded") status = "degraded";
 
   return Response.json({
     status,
@@ -76,7 +81,7 @@ export async function GET() {
     checks: {
       database,
       auction: {
-        status: auctionStatus,
+        status: auctionCheckStatus,
         avgLatencyMs: Math.round(lat.avgMs * 10) / 10,
         p95LatencyMs: lat.p95Ms,
         fillRate1h: Math.round(fillRate1h * 100) / 100,
@@ -96,6 +101,6 @@ export async function GET() {
       auctionsSpark24h,
       fillSpark24h
     },
-    recentErrors: getRecentErrors()
+    recentErrors: getRecentErrors().slice(0, 20)
   });
 }

@@ -37,7 +37,8 @@ export function LiveAuctionTicker() {
         try {
           const msg = JSON.parse(ev.data) as { type?: string; row?: Record<string, unknown> };
           if (msg.type !== "auction" || !msg.row) return;
-          const id = String(msg.row.id ?? msg.row.auction_id ?? "").slice(0, 8);
+          const aid = msg.row.auction_id;
+          const id = String(aid != null && String(aid).length > 0 ? aid : msg.row.id ?? "").slice(0, 8);
           const wb = msg.row.winning_bid;
           const price =
             wb != null && Number.isFinite(Number(wb)) ? `$${Number(wb).toFixed(2)}` : "—";

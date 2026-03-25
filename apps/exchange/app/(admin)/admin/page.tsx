@@ -169,6 +169,10 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
+      <p style={{ fontSize: 11, color: C.textMuted, margin: "-8px 0 20px" }}>
+        Live auction IDs and clearing prices scroll in the <strong style={{ color: C.textBright }}>admin header</strong> (SSE).
+      </p>
+
       {err && <p style={{ color: C.red, fontSize: 12 }}>{err}</p>}
 
       <div

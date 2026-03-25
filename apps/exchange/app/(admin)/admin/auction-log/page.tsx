@@ -98,12 +98,6 @@ export default function AdminAuctionLogPage() {
   }, [load]);
 
   useEffect(() => {
-    if (!live) return;
-    const id = window.setInterval(() => void load(), 5000);
-    return () => window.clearInterval(id);
-  }, [live, load]);
-
-  useEffect(() => {
     if (!live || typeof window === "undefined") {
       setSseConn("off");
       return;
@@ -189,13 +183,13 @@ export default function AdminAuctionLogPage() {
         <div>
           <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Auction log</h1>
           <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>
-            Production telemetry · Live updates stream via SSE when enabled.
+            Production telemetry · When live is on, new rows arrive via Server-Sent Events only (no polling).
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.muted, cursor: "pointer" }}>
             <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
-            Auto-refresh
+            Live stream (SSE)
           </label>
           <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: C.muted }}>
             <span
@@ -203,20 +197,18 @@ export default function AdminAuctionLogPage() {
                 width: 10,
                 height: 10,
                 borderRadius: "50%",
-                background:
-                  !live ? C.muted : sseConn === "connected" || sseConn === "reconnecting" ? C.green : "#ff8c42",
+                background: !live ? C.muted : sseConn === "connected" ? C.green : C.red,
                 boxShadow:
-                  live && (sseConn === "connected" || sseConn === "reconnecting")
+                  live && sseConn === "connected"
                     ? `0 0 10px ${C.green}`
-                    : live
-                      ? `0 0 8px #ff8c42`
+                    : live && sseConn === "reconnecting"
+                      ? `0 0 8px ${C.red}`
                       : "none",
-                animation: live ? "pulse 1.2s ease-in-out infinite" : "none"
+                animation: live && sseConn !== "connected" ? "pulse 1.2s ease-in-out infinite" : "none"
               }}
             />
-            <span style={{ fontWeight: 800, color: live ? C.green : C.muted }}>LIVE</span>
-            <span style={{ color: C.muted }}>
-              {!live ? "off" : sseConn === "connected" ? "stream" : sseConn === "reconnecting" ? "stream …" : "connecting"}
+            <span style={{ fontWeight: 700, color: !live ? C.muted : sseConn === "connected" ? C.green : C.red }}>
+              {!live ? "Off" : sseConn === "connected" ? "Connected" : sseConn === "reconnecting" ? "Reconnecting" : "Connecting"}
             </span>
           </span>
           <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>

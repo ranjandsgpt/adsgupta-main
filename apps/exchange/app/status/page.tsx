@@ -7,10 +7,10 @@ type Health = {
   timestamp: string;
   checks: {
     database: { status: string; latencyMs: number };
-    auction: { status: string; avgLatencyMs: number; p95LatencyMs: number; fillRate1h: number };
+    auction: { status: string; avgLatencyMs?: number; p95LatencyMs: number; fillRate1h: number };
     blob: { status: string };
   };
-  metrics: Record<string, unknown>;
+  metrics?: Record<string, unknown>;
 };
 
 export default function StatusPage() {
