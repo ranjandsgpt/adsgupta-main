@@ -60,10 +60,12 @@ export function campaignMatchesTargeting(
   }
 
   if (campaign.target_domains && campaign.target_domains.length > 0) {
-    if (!publisherDomain) return false;
-    const pd = norm(publisherDomain);
-    const ok = campaign.target_domains.some((d) => norm(String(d)) === pd);
-    if (!ok) return false;
+    const domains = campaign.target_domains.map((d) => norm(String(d))).filter(Boolean);
+    if (domains.length > 0) {
+      if (!publisherDomain) return false;
+      const pd = norm(publisherDomain);
+      if (!domains.some((d) => d === pd)) return false;
+    }
   }
 
   if (campaign.target_geos && campaign.target_geos.length > 0) {
