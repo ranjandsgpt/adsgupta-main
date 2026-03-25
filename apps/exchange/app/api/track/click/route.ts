@@ -4,7 +4,17 @@ import { sql } from "@/lib/db";
 import { getClientIp } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-MDE-Version"
+};
+
 /** `id` = impression UUID; `url` = encoded destination. */
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
+}
+
 export async function GET(request: NextRequest) {
   const impressionId = request.nextUrl.searchParams.get("id");
   const urlRaw = request.nextUrl.searchParams.get("url");
@@ -19,13 +29,17 @@ export async function GET(request: NextRequest) {
   }
 
   if (!impressionId) {
-    return NextResponse.redirect(destination, 302);
+    const res = NextResponse.redirect(destination, 302);
+    for (const [k, v] of Object.entries(CORS_HEADERS)) res.headers.set(k, v);
+    return res;
   }
 
   try {
     const ip = getClientIp(request);
     if (isClickFraud(ip)) {
-      return NextResponse.redirect(destination, 302);
+      const res = NextResponse.redirect(destination, 302);
+      for (const [k, v] of Object.entries(CORS_HEADERS)) res.headers.set(k, v);
+      return res;
     }
     const imp = await sql<{ id: string; campaign_id: string | null }>`
       SELECT id, campaign_id FROM impressions WHERE id = ${impressionId} LIMIT 1
@@ -42,6 +56,6 @@ export async function GET(request: NextRequest) {
   }
 
   const res = NextResponse.redirect(destination, 302);
-  res.headers.set("Access-Control-Allow-Origin", "*");
+  for (const [k, v] of Object.entries(CORS_HEADERS)) res.headers.set(k, v);
   return res;
 }

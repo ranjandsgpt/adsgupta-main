@@ -2,6 +2,12 @@ export const dynamic = "force-dynamic";
 import { sql } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-MDE-Version"
+};
+
 export type PublicStatsPayload = {
   auctionsToday: number;
   activePublishers: number;
@@ -13,6 +19,10 @@ export type PublicStatsPayload = {
   avgCpm?: number;
   topCategories: Array<{ name: string; icon: string }>;
 };
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
+}
 
 export async function GET() {
   try {
@@ -62,7 +72,7 @@ export async function GET() {
         { name: "Entertainment", icon: "🎬" }
       ]
     };
-    return NextResponse.json(payload);
+    return NextResponse.json(payload, { headers: CORS_HEADERS });
   } catch (e) {
     console.error("[public/stats]", e instanceof Error ? e.message : e);
     const fallback: PublicStatsPayload = {
@@ -75,6 +85,6 @@ export async function GET() {
       avgCpm: 0,
       topCategories: []
     };
-    return NextResponse.json(fallback, { status: 200 });
+    return NextResponse.json(fallback, { status: 200, headers: CORS_HEADERS });
   }
 }

@@ -3,6 +3,12 @@ import { isDuplicateImpression } from "@/lib/ivt-detector";
 import { sql } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, X-MDE-Version"
+};
+
 /** 1x1 transparent GIF (exact spec). */
 const GIF_1X1 = Buffer.from(
   "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
@@ -13,10 +19,14 @@ const headers = {
   "Content-Type": "image/gif",
   "Cache-Control": "no-cache, no-store",
   Pragma: "no-cache",
-  "Access-Control-Allow-Origin": "*"
+  ...CORS_HEADERS
 };
 
 /** `id` = `auction_log.id` (UUID). Inserts impression once per log row. */
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
+}
+
 export async function GET(request: NextRequest) {
   const logId = request.nextUrl.searchParams.get("id");
 

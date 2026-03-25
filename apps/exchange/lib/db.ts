@@ -3,6 +3,10 @@ import { neon, Pool } from "@neondatabase/serverless";
 let rawSql: ReturnType<typeof neon> | null = null;
 let pool: Pool | null = null;
 
+if (typeof window === "undefined" && !process.env.POSTGRES_URL && !process.env.DATABASE_URL) {
+  console.error("[FATAL] POSTGRES_URL is not set. Exchange cannot function.");
+}
+
 function connectionString() {
   const url = process.env.POSTGRES_URL ?? process.env.DATABASE_URL;
   if (!url) {
