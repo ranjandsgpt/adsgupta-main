@@ -23,6 +23,7 @@ const C = {
 };
 
 const NAV = [
+  { href: "/admin/quickstart", icon: "⚡", label: "Quick Start", color: C.accent },
   { href: "/admin", icon: "◉", label: "Dashboard", color: C.accent },
   { href: "/admin/analytics", icon: "📈", label: "Analytics", color: C.green },
   { href: "/admin/publishers", icon: "▦", label: "Publishers", color: C.blue },
