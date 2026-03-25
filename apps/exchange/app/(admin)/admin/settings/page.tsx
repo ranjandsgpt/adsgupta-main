@@ -19,7 +19,7 @@ export default function AdminSettingsPage() {
               display: "flex",
               justifyContent: "space-between",
               padding: "10px 0",
-              borderBottom: "1px solid #1a233233",
+              borderBottom: "1px solid #e2e8f033",
               fontSize: 11
             }}
           >

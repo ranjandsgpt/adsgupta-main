@@ -23,8 +23,8 @@ export default function PublisherLoginPage() {
             style={{
               display: "inline-block",
               padding: "10px 16px",
-              background: "#00d4aa22",
-              border: "1px solid #00d4aa55",
+              background: "#0066cc22",
+              border: "1px solid #0066cc55",
               color: "var(--accent)",
               borderRadius: 6,
               fontSize: 12,

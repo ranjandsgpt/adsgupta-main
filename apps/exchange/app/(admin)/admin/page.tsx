@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 const C = {
-  bg: "#0a0e17",
-  bgCard: "#0f1419",
-  border: "#1a2332",
-  textMuted: "#5a6d82",
+  bg: "#ffffff",
+  bgCard: "#f8f9fa",
+  border: "#e2e8f0",
+  textMuted: "#718096",
   textBright: "#e8f0f8",
-  accent: "#00d4aa",
+  accent: "#0066cc",
   blue: "#4a9eff",
   green: "#2ecc71",
   yellow: "#ffd32a",

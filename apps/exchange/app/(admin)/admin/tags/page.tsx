@@ -98,7 +98,7 @@ ${lazy}${ref}    });
 
   const testSrcDoc = useMemo(() => {
     if (!unit || !pubId) return "<!DOCTYPE html><html><body>Select unit</body></html>";
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>MDE test</title></head><body style="margin:16px;background:#0a0e17;color:#c8d6e5;font-family:system-ui,sans-serif;">
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>MDE test</title></head><body style="margin:16px;background:#ffffff;color:#1a202c;font-family:system-ui,sans-serif;">
 <h3 style="margin-top:0;font-size:14px;">Local test iframe</h3>
 ${tag}
 <p style="font-size:11px;opacity:0.7;margin-top:12px;">If the tag does not execute, check browser console and mde.js availability.</p>
@@ -121,9 +121,9 @@ ${tag}
                   fontSize: 10,
                   padding: "4px 10px",
                   borderRadius: 999,
-                  background: "#00d4aa18",
-                  border: "1px solid #00d4aa44",
-                  color: "#00d4aa"
+                  background: "#0066cc18",
+                  border: "1px solid #0066cc44",
+                  color: "#0066cc"
                 }}
               >
                 {String(c.advertiser_name ?? c.campaign_name ?? c.name ?? c.id).slice(0, 24)}
@@ -192,7 +192,7 @@ ${tag}
             Test Tag
           </button>
         </div>
-        <div className="card" style={{ borderColor: "#00d4aa33" }}>
+        <div className="card" style={{ borderColor: "#0066cc33" }}>
           {tab === "mde" && (
             <>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>

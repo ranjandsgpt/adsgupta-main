@@ -93,19 +93,19 @@ export function AdminE2eRunner({ secret }: { secret: string }) {
               <tbody>
                 {result.steps.map((s) => (
                   <tr key={s.step}>
-                    <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233", width: 340 }}>{s.step}</td>
+                    <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033", width: 340 }}>{s.step}</td>
                     <td
                       style={{
                         padding: "10px 12px",
-                        borderBottom: "1px solid #1a233233",
+                        borderBottom: "1px solid #e2e8f033",
                         color: s.status === "pass" ? "#2ecc71" : s.status === "fail" ? "#ff4757" : "var(--text-muted)",
                         fontWeight: 900
                       }}
                     >
                       {s.status}
                     </td>
-                    <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233" }}>{s.durationMs}ms</td>
-                    <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233", color: "var(--text-muted)" }}>
+                    <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033" }}>{s.durationMs}ms</td>
+                    <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033", color: "var(--text-muted)" }}>
                       {s.detail}
                     </td>
                   </tr>

@@ -79,7 +79,7 @@ Dashboard: ${dash(publisherId)}
 — MDE Exchange`,
       html: `<p>Hi ${esc(name)},</p>
 <p><strong>Your publisher registration is pending review.</strong></p>
-<p>Publisher ID: <code style="color:#00d4aa">${esc(publisherId)}</code></p>
+<p>Publisher ID: <code style="color:#0066cc">${esc(publisherId)}</code></p>
 <p>What happens next: the MDE exchange team will review and activate your account. You will receive ad tags once activated.</p>
 <p><a href="${dash(publisherId)}">View your dashboard</a></p>
 <p>— MDE Exchange</p>`
@@ -95,7 +95,7 @@ export async function sendPublisherActivationEmail(email: string, name: string, 
   const tag = await loadFirstUnitTag(publisherId);
   try {
     const tagHtml = tag
-      ? `<pre style="background:#0f1419;padding:12px;overflow:auto;font-size:11px;border:1px solid #1a2332">${esc(tag)}</pre>`
+      ? `<pre style="background:#f8f9fa;padding:12px;overflow:auto;font-size:11px;border:1px solid #e2e8f0">${esc(tag)}</pre>`
       : "<p>Create ad units in your dashboard to generate tags.</p>";
     await client.emails.send({
       from: FROM,
@@ -114,7 +114,7 @@ Dashboard: ${dash(publisherId)}
 — MDE Exchange`,
       html: `<p>Hi ${esc(name)},</p>
 <p><strong>Your MDE publisher account is now active.</strong></p>
-<p>Publisher ID: <code style="color:#00d4aa">${esc(publisherId)}</code></p>
+<p>Publisher ID: <code style="color:#0066cc">${esc(publisherId)}</code></p>
 <p><a href="${dash(publisherId)}">Open your dashboard</a></p>
 ${tagHtml}
 <p>— MDE Exchange</p>`

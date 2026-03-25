@@ -9,7 +9,7 @@ export default function OpenGraphImage() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#0a0e17",
+          background: "#ffffff",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
@@ -30,7 +30,7 @@ export default function OpenGraphImage() {
           </div>
           <div
             style={{
-              color: "#c8d6e5",
+              color: "#1a202c",
               fontSize: 26,
               fontWeight: 700,
               fontFamily: "JetBrains Mono, ui-monospace, monospace",
@@ -40,7 +40,7 @@ export default function OpenGraphImage() {
             Real-Time OpenRTB Ad Exchange
           </div>
         </div>
-        <div style={{ height: 10, width: "100%", background: "#00d4aa", borderRadius: 6 }} />
+        <div style={{ height: 10, width: "100%", background: "#0066cc", borderRadius: 6 }} />
       </div>
     ),
     { width: 1200, height: 630 }

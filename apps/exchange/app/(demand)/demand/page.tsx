@@ -48,9 +48,9 @@ export default function DemandLandingPage() {
           <div
             key={s.label}
             className="portal-card"
-            style={{ padding: 18, borderColor: "#00d4aa33", background: "linear-gradient(145deg, rgba(0,212,170,0.06), transparent)" }}
+            style={{ padding: 18, borderColor: "#0066cc33", background: "linear-gradient(145deg, rgba(0,212,170,0.06), transparent)" }}
           >
-            <div style={{ ...heroFont, fontSize: 14, color: "#00d4aa", lineHeight: 1.35 }}>{s.label}</div>
+            <div style={{ ...heroFont, fontSize: 14, color: "#0066cc", lineHeight: 1.35 }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -69,7 +69,7 @@ export default function DemandLandingPage() {
         <Link
           href="/demand/dashboard"
           className="portal-card"
-          style={{ borderColor: "#00d4aa44", textDecoration: "none", padding: 24 }}
+          style={{ borderColor: "#0066cc44", textDecoration: "none", padding: 24 }}
         >
           <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Manage Campaigns →</h2>
           <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55 }}>
@@ -102,8 +102,8 @@ export default function DemandLandingPage() {
                   width: 28,
                   height: 28,
                   borderRadius: "50%",
-                  background: "#00d4aa22",
-                  color: "#00d4aa",
+                  background: "#0066cc22",
+                  color: "#0066cc",
                   fontWeight: 800,
                   fontSize: 13,
                   display: "flex",

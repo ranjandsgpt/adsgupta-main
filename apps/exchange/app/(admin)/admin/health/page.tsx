@@ -95,10 +95,10 @@ export default function AdminHealthPage() {
               <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>24h auction volume (by hour UTC)</div>
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={volData}>
-                  <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
                   <YAxis tick={{ fontSize: 9 }} />
-                  <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid #1a2332" }} />
+                  <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid #e2e8f0" }} />
                   <Bar dataKey="auctions" fill="#4a9eff" />
                 </BarChart>
               </ResponsiveContainer>
@@ -107,11 +107,11 @@ export default function AdminHealthPage() {
               <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>24h fill rate % (by hour)</div>
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={fillData}>
-                  <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
                   <YAxis tick={{ fontSize: 9 }} domain={[0, 100]} />
-                  <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid #1a2332" }} />
-                  <Bar dataKey="fill" fill="#00d4aa" />
+                  <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid #e2e8f0" }} />
+                  <Bar dataKey="fill" fill="#0066cc" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -119,10 +119,10 @@ export default function AdminHealthPage() {
               <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>Response time histogram (samples)</div>
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={histData}>
-                  <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <XAxis dataKey="bucket" tick={{ fontSize: 9 }} />
                   <YAxis tick={{ fontSize: 9 }} />
-                  <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid #1a2332" }} />
+                  <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid #e2e8f0" }} />
                   <Bar dataKey="count" fill="#ff8c42" />
                 </BarChart>
               </ResponsiveContainer>
@@ -146,7 +146,7 @@ export default function AdminHealthPage() {
               <ul style={{ fontSize: 11, margin: 0, paddingLeft: 18 }}>
                 {h.recentErrors.map((e, i) => (
                   <li key={i} style={{ marginBottom: 6 }}>
-                    <span style={{ color: "#5a6d82" }}>{e.ts}</span> [{e.source}] {e.message}
+                    <span style={{ color: "#718096" }}>{e.ts}</span> [{e.source}] {e.message}
                   </li>
                 ))}
               </ul>

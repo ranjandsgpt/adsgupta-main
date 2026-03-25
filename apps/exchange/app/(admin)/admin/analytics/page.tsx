@@ -18,11 +18,11 @@ import {
 } from "recharts";
 
 const C = {
-  card: "#0f1419",
-  border: "#1a2332",
-  muted: "#5a6d82",
+  card: "#f8f9fa",
+  border: "#e2e8f0",
+  muted: "#718096",
   bright: "#e8f0f8",
-  accent: "#00d4aa",
+  accent: "#0066cc",
   blue: "#4a9eff",
   yellow: "#ffd32a"
 };
@@ -210,7 +210,7 @@ export default function AdminAnalyticsPage() {
               <div style={{ fontSize: 11, fontWeight: 700, color: C.accent, marginBottom: 8 }}>Revenue over time</div>
               <ResponsiveContainer width="100%" height={260}>
                 <AreaChart data={data.timeseries}>
-                  <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                   <YAxis tick={{ fontSize: 9 }} />
                   <Tooltip contentStyle={{ background: "#0c1018", border: `1px solid ${C.border}` }} />
@@ -222,7 +222,7 @@ export default function AdminAnalyticsPage() {
               <div style={{ fontSize: 11, fontWeight: 700, color: C.blue, marginBottom: 8 }}>Auctions vs impressions</div>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={data.timeseries}>
-                  <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                   <YAxis tick={{ fontSize: 9 }} />
                   <Tooltip contentStyle={{ background: "#0c1018", border: `1px solid ${C.border}` }} />
@@ -236,7 +236,7 @@ export default function AdminAnalyticsPage() {
               <div style={{ fontSize: 11, fontWeight: 700, color: "#ff8c42", marginBottom: 8 }}>Fill rate trend</div>
               <ResponsiveContainer width="100%" height={260}>
                 <AreaChart data={data.fillRateTrend}>
-                  <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={{ fontSize: 9 }} />
                   <YAxis tick={{ fontSize: 9 }} domain={[0, 100]} />
                   <Tooltip contentStyle={{ background: "#0c1018", border: `1px solid ${C.border}` }} />
@@ -250,7 +250,7 @@ export default function AdminAnalyticsPage() {
             <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 10 }}>Hourly auction distribution (UTC)</div>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={data.hourlyDistribution}>
-                <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+                <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
                 <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
                 <YAxis tick={{ fontSize: 9 }} />
                 <Tooltip contentStyle={{ background: "#0c1018", border: `1px solid ${C.border}` }} />

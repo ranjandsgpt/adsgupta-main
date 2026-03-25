@@ -718,7 +718,7 @@ function DemandCreateInner() {
         <div className="card" style={{ marginTop: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-bright)", marginBottom: 6 }}>{campaignName || "Your campaign"}</div>
           <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 14 }}>
-            Campaign ID <code style={{ color: "#00d4aa" }}>{campaignId}</code>
+            Campaign ID <code style={{ color: "#0066cc" }}>{campaignId}</code>
           </div>
 
           <p style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55, marginTop: 0 }}>
@@ -767,7 +767,7 @@ function DemandCreateInner() {
                     acceptFileForSize(size, e.dataTransfer.files?.[0]);
                   }}
                   style={{
-                    border: `2px dashed ${dragOverSize === size ? "#00d4aa" : "var(--border)"}`,
+                    border: `2px dashed ${dragOverSize === size ? "#0066cc" : "var(--border)"}`,
                     borderRadius: 10,
                     padding: 20,
                     textAlign: "center",
@@ -796,7 +796,7 @@ function DemandCreateInner() {
                         position: "relative",
                         width: outlineW,
                         height: outlineH,
-                        border: "2px solid #00d4aa",
+                        border: "2px solid #0066cc",
                         borderRadius: 6,
                         overflow: "hidden",
                         background: "#0c1018"
@@ -831,7 +831,7 @@ function DemandCreateInner() {
           {uploadPct > 0 && uploadPct < 100 && (
             <div style={{ marginTop: 12 }}>
               <div style={{ height: 6, borderRadius: 3, background: "#1a222e", overflow: "hidden" }}>
-                <div style={{ width: `${uploadPct}%`, height: "100%", background: "#00d4aa", transition: "width 0.15s ease" }} />
+                <div style={{ width: `${uploadPct}%`, height: "100%", background: "#0066cc", transition: "width 0.15s ease" }} />
               </div>
               <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>Uploading {uploadPct}%</div>
             </div>
@@ -900,7 +900,7 @@ function DemandCreateInner() {
                   fontSize: "clamp(1rem, 3vw, 1.25rem)",
                   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
                   fontWeight: 800,
-                  color: "#00d4aa",
+                  color: "#0066cc",
                   wordBreak: "break-all"
                 }}
               >

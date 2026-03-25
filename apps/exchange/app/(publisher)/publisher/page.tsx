@@ -69,7 +69,7 @@ export default function PublisherLandingPage() {
         <Link
           href="/publisher/register"
           className="portal-card"
-          style={{ borderColor: "#00d4aa44", textDecoration: "none", padding: 24 }}
+        style={{ borderColor: "#0066cc44", textDecoration: "none", padding: 24 }}
         >
           <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 18, ...heroFont }}>Register Your Site →</h2>
           <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55 }}>
@@ -89,7 +89,7 @@ export default function PublisherLandingPage() {
         <Link
           href="/publisher/estimate"
           className="portal-card"
-          style={{ borderColor: "#00d4aa33", textDecoration: "none", padding: 24 }}
+        style={{ borderColor: "#0066cc33", textDecoration: "none", padding: 24 }}
         >
           <h2 style={{ color: "var(--accent)", margin: "0 0 10px", fontSize: 18, ...heroFont }}>
             Revenue estimator →
@@ -125,8 +125,8 @@ export default function PublisherLandingPage() {
                   width: 32,
                   height: 32,
                   borderRadius: 8,
-                  background: "#00d4aa18",
-                  border: "1px solid #00d4aa44",
+                  background: "#0066cc18",
+                  border: "1px solid #0066cc44",
                   color: "var(--accent)",
                   display: "flex",
                   alignItems: "center",

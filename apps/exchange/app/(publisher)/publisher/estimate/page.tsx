@@ -130,7 +130,7 @@ export default function PublisherEstimatePage() {
       <div
         className="card"
         style={{
-          borderColor: "#00d4aa44",
+          borderColor: "#0066cc44",
           textAlign: "center",
           padding: "28px 20px"
         }}

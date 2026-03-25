@@ -91,7 +91,7 @@ export default function PublisherRegisterPage() {
           <div
             style={{
               fontSize: "clamp(1.125rem, 3vw, 1.5rem)",
-              color: "#00d4aa",
+                color: "#0066cc",
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
               wordBreak: "break-all",
               fontWeight: 800,
@@ -110,7 +110,7 @@ export default function PublisherRegisterPage() {
                 fontWeight: 800,
                 textTransform: "uppercase",
                 letterSpacing: "0.04em",
-                color: "#0a0e17",
+                color: "#ffffff",
                 background: "#ffd32a",
                 padding: "4px 10px",
                 borderRadius: 4
@@ -129,8 +129,8 @@ export default function PublisherRegisterPage() {
               style={{
                 display: "inline-block",
                 padding: "10px 18px",
-                background: "#00d4aa22",
-                border: "1px solid #00d4aa55",
+                background: "#0066cc22",
+                border: "1px solid #0066cc55",
                 color: "var(--accent)",
                 borderRadius: 6,
                 fontSize: 13,

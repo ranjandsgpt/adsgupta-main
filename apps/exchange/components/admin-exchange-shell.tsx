@@ -6,14 +6,14 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 const C = {
-  bg: "#0a0e17",
-  bgCard: "#0f1419",
-  bgSide: "#080c14",
-  border: "#1a2332",
-  text: "#c8d6e5",
-  textMuted: "#5a6d82",
+  bg: "#ffffff",
+  bgCard: "#f8f9fa",
+  bgSide: "#f1f3f5",
+  border: "#e2e8f0",
+  text: "#1a202c",
+  textMuted: "#718096",
   textBright: "#e8f0f8",
-  accent: "#00d4aa",
+  accent: "#0066cc",
   blue: "#4a9eff",
   orange: "#ff8c42",
   red: "#ff4757",
@@ -131,13 +131,13 @@ export function AdminExchangeShell({ children }: { children: React.ReactNode }) 
               width: 28,
               height: 28,
               borderRadius: 6,
-              background: "linear-gradient(135deg,#00d4aa,#4a9eff)",
+              background: "linear-gradient(135deg,#0066cc,#4a9eff)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 14,
               fontWeight: 900,
-              color: "#080c14",
+              color: "#f1f3f5",
               flexShrink: 0,
               textDecoration: "none"
             }}

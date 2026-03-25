@@ -53,11 +53,11 @@ export function PublisherAnalyticsTab({ publisherId }: { publisherId: string }) 
           <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>Revenue</div>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={data.timeseries}>
-              <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid var(--border)" }} />
-              <Area type="monotone" dataKey="revenue" stroke="var(--accent)" fill="#00d4aa33" />
+              <Area type="monotone" dataKey="revenue" stroke="var(--accent)" fill="#0066cc33" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -65,7 +65,7 @@ export function PublisherAnalyticsTab({ publisherId }: { publisherId: string }) 
           <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>Impressions</div>
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={data.timeseries}>
-              <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid var(--border)" }} />
@@ -77,7 +77,7 @@ export function PublisherAnalyticsTab({ publisherId }: { publisherId: string }) 
           <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>Fill rate %</div>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={data.timeseries}>
-              <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} domain={[0, 100]} />
               <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid var(--border)" }} />

@@ -84,7 +84,7 @@ function LiveStatBar({ stats }: { stats: PublicStats | null }) {
         justifyContent: "center"
       }}
     >
-      <div className="portal-card" style={{ padding: "10px 14px", borderColor: "#00d4aa55", minWidth: 260 }}>
+      <div className="portal-card" style={{ padding: "10px 14px", borderColor: "#0066cc55", minWidth: 260 }}>
         <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
           Live exchange stats
         </div>
@@ -105,7 +105,7 @@ function StepsColumn({
 }) {
   return (
     <div>
-      <div style={{ fontSize: 12, fontWeight: 900, color: "#00d4aa", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10 }}>
+      <div style={{ fontSize: 12, fontWeight: 900, color: "#0066cc", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 10 }}>
         {title}
       </div>
       <div style={{ display: "grid", gap: 12 }}>
@@ -125,8 +125,8 @@ function StepsColumn({
                   width: 34,
                   height: 34,
                   borderRadius: 10,
-                  background: idx === 0 ? "#00d4aa18" : idx === 1 ? "#4a9eff18" : "#2ecc7118",
-                  border: idx === 0 ? "1px solid #00d4aa55" : "1px solid var(--border)",
+                  background: idx === 0 ? "#0066cc18" : idx === 1 ? "#4a9eff18" : "#2ecc7118",
+                  border: idx === 0 ? "1px solid #0066cc55" : "1px solid var(--border)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -192,7 +192,7 @@ export default function ExchangeHomepage() {
       />
       <div
         style={{
-          backgroundColor: "#0a0e17",
+          backgroundColor: "#ffffff",
           backgroundImage:
             "linear-gradient(to right, rgba(0,212,170,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,212,170,0.05) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
@@ -215,7 +215,7 @@ export default function ExchangeHomepage() {
                 marginBottom: 16
               }}
             >
-              <span style={{ color: "#00d4aa", fontWeight: 900 }}>MDE Exchange</span>
+              <span style={{ color: "#0066cc", fontWeight: 900 }}>MDE Exchange</span>
               <span style={{ color: "var(--text-muted)", fontSize: 12 }}>OpenRTB 2.6 · second-price · sub-100ms</span>
             </div>
 
@@ -245,11 +245,11 @@ export default function ExchangeHomepage() {
                   justifyContent: "center",
                   padding: "12px 18px",
                   borderRadius: 10,
-                  background: "#00d4aa",
+                  background: "#0066cc",
                   color: "#071018",
                   fontWeight: 900,
                   textDecoration: "none",
-                  border: "1px solid #00d4aa55",
+                  border: "1px solid #0066cc55",
                   boxShadow: "0 10px 32px rgba(0,212,170,0.18)"
                 }}
               >
@@ -264,10 +264,10 @@ export default function ExchangeHomepage() {
                   padding: "12px 18px",
                   borderRadius: 10,
                   background: "transparent",
-                  color: "#00d4aa",
+                  color: "#0066cc",
                   fontWeight: 900,
                   textDecoration: "none",
-                  border: "1px solid #00d4aa66"
+                  border: "1px solid #0066cc66"
                 }}
               >
                 Start Advertising →
@@ -283,7 +283,7 @@ export default function ExchangeHomepage() {
         <section style={{ marginBottom: 34 }}>
           <div style={{ display: "flex", gap: 12, alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap" }}>
             <div>
-              <div style={{ color: "#00d4aa", fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12 }}>
+              <div style={{ color: "#0066cc", fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase", fontSize: 12 }}>
                 How it works
               </div>
               <div style={{ color: "var(--text-bright)", fontWeight: 900, fontSize: 20, marginTop: 6 }}>
@@ -335,8 +335,8 @@ export default function ExchangeHomepage() {
                       width: 40,
                       height: 40,
                       borderRadius: 12,
-                      background: "#00d4aa12",
-                      border: "1px solid #00d4aa55",
+                      background: "#0066cc12",
+                      border: "1px solid #0066cc55",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -367,11 +367,11 @@ export default function ExchangeHomepage() {
               { k: "Active campaigns", v: campaignsText },
               { k: "Average eCPM", v: avgCpmText }
             ].map((x) => (
-              <div key={x.k} className="portal-card" style={{ padding: 16, borderColor: "#00d4aa33" }}>
+              <div key={x.k} className="portal-card" style={{ padding: 16, borderColor: "#0066cc33" }}>
                 <div style={{ color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 10 }}>
                   {x.k}
                 </div>
-                <div style={{ color: "#00d4aa", fontWeight: 900, fontSize: 26, marginTop: 8 }}>{x.v}</div>
+                <div style={{ color: "#0066cc", fontWeight: 900, fontSize: 26, marginTop: 8 }}>{x.v}</div>
               </div>
             ))}
           </div>
@@ -420,11 +420,11 @@ export default function ExchangeHomepage() {
             className="portal-card"
             style={{
               padding: 18,
-              borderColor: "#00d4aa",
+              borderColor: "#0066cc",
               background: "linear-gradient(145deg, rgba(0,212,170,0.10), transparent)"
             }}
           >
-            <div style={{ fontSize: 12, color: "#00d4aa", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <div style={{ fontSize: 12, color: "#0066cc", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               Advertiser
             </div>
             <div style={{ marginTop: 8, color: "var(--text-bright)", fontWeight: 900, fontSize: 22 }}>
@@ -442,7 +442,7 @@ export default function ExchangeHomepage() {
                   justifyContent: "center",
                   padding: "12px 16px",
                   borderRadius: 10,
-                  background: "#00d4aa",
+                  background: "#0066cc",
                   border: "1px solid rgba(0,212,170,0.5)",
                   color: "#071018",
                   fontWeight: 900,

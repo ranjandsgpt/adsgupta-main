@@ -33,7 +33,7 @@ export function DocCodeBlock({ code, language }: { code: string; language?: stri
           justifyContent: "space-between",
           gap: 10,
           padding: "8px 10px",
-          borderBottom: "1px solid #1a2332"
+          borderBottom: "1px solid #e2e8f0"
         }}
       >
         <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{prettyLang}</div>

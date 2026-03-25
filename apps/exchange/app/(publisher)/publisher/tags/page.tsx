@@ -75,7 +75,7 @@ ${lazy}    });
 
   const testSrcDoc = useMemo(() => {
     if (!unit || !pubId) return "<!DOCTYPE html><html><body>Select unit</body></html>";
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>MDE test</title></head><body style="margin:16px;background:#0a0e17;color:#c8d6e5;font-family:system-ui,sans-serif;">
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>MDE test</title></head><body style="margin:16px;background:#ffffff;color:#1a202c;font-family:system-ui,sans-serif;">
 ${tag}
 </body></html>`;
   }, [tag, unit, pubId]);

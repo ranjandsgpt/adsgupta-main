@@ -1,38 +1,57 @@
 :root {
-  --bg: #0a0e17;
-  --bg-card: #0f1419;
-  --bg-header: #080c14;
-  --border: #1a2332;
-  --text: #c8d6e5;
-  --text-muted: #5a6d82;
-  --text-bright: #e8f0f8;
-  --accent: #00d4aa;
+  --bg: #ffffff;
+  --bg2: #f8f9fa;
+  --bg3: #f1f3f5;
+  --bg-card: #ffffff;
+  --bg-hover: #f8f9fa;
+  --bg-input: #ffffff;
+  --border: #e2e8f0;
+  --border-light: #edf2f7;
+  --border-accent: #bee3f8;
+  --text: #1a202c;
+  --text-muted: #718096;
+  --text-bright: #0d1117;
+  --accent: #0066cc;
+  --accent-dim: #0066cc15;
+  --accent-border: #0066cc40;
+  --green: #0a7c3e;
+  --green-dim: #0a7c3e15;
+  --red: #c53030;
+  --red-dim: #c5303015;
+  --yellow: #b7791f;
+  --yellow-dim: #b7791f15;
+  --orange: #c05621;
+  --blue: #2b6cb0;
+  --blue-dim: #2b6cb015;
+  --purple: #553c9a;
+  --font: 'JetBrains Mono', 'SF Mono', monospace;
+  --bg-header: #f8f9fa;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: "JetBrains Mono", "SF Mono", monospace; }
+html, body { margin: 0; padding: 0; background: #ffffff; color: #1a202c; font-family: var(--font); }
 a { color: inherit; text-decoration: none; }
 .shell { min-height: 100vh; display: flex; }
 .sidebar { width: 220px; background: var(--bg-header); border-right: 1px solid var(--border); padding: 12px; }
 .brand { font-weight: 800; color: var(--accent); font-size: 14px; margin-bottom: 16px; }
 .nav { display: grid; gap: 6px; }
 .nav a { padding: 8px 10px; border-radius: 6px; color: var(--text-muted); border: 1px solid transparent; font-size: 12px; }
-.nav a.active { border-color: #00d4aa55; color: var(--accent); background: #00d4aa12; }
+.nav a.active { border-color: #0066cc55; color: var(--accent); background: #0066cc12; }
 .main { flex: 1; }
 .top { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg-header); padding: 10px 16px; }
 .page { padding: 16px; }
 .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .table { width: 100%; border-collapse: collapse; }
-.table th, .table td { border-bottom: 1px solid #1a233233; padding: 8px; font-size: 12px; text-align: left; }
+.table th, .table td { border-bottom: 1px solid #e2e8f033; padding: 8px; font-size: 12px; text-align: left; }
 input, select, textarea, button { font-family: inherit; }
-input, select, textarea { width: 100%; background: #0c1018; border: 1px solid var(--border); border-radius: 6px; color: var(--text-bright); padding: 8px 10px; }
-button { background: #00d4aa22; border: 1px solid #00d4aa55; color: var(--accent); border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 12px; }
+input, select, textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text-bright); padding: 8px 10px; }
+button { background: #0066cc22; border: 1px solid #0066cc55; color: var(--accent); border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 12px; }
 .nav-minor { font-size: 11px; color: var(--text-muted); padding: 6px 10px; border-radius: 6px; border: 1px dashed var(--border); text-align: center; }
 .link-button { background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 11px; }
 .pill-live { font-size: 11px; color: #2ecc71; font-weight: 700; }
 .portal-hub { max-width: 960px; margin: 48px auto; padding: 0 16px; }
 .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 24px; }
 .portal-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; display: block; transition: border-color 0.15s; }
-.portal-card:hover { border-color: #00d4aa55; }
+.portal-card:hover { border-color: #0066cc55; }
 .portal-card h2 { margin: 0 0 8px; color: var(--text-bright); font-size: 16px; }
 .portal-card p { margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.5; }

@@ -351,8 +351,8 @@ function PublisherDashboardInner() {
   <meta charset="utf-8" />
   <title>MDE test — ${tagModalUnit?.name ?? "ad"}</title>
 </head>
-<body style="margin:24px;background:#0a0e17;color:#e8f0f8;font-family:system-ui,sans-serif">
-  <p style="font-size:12px;color:#5a6d82">Local save-and-open test page · replace localhost with your tag host if needed.</p>
+<body style="margin:24px;background:#ffffff;color:#e8f0f8;font-family:system-ui,sans-serif">
+  <p style="font-size:12px;color:#718096">Local save-and-open test page · replace localhost with your tag host if needed.</p>
 ${testHtml ? `\n${testHtml}\n` : ""}
 </body>
 </html>`;

@@ -83,7 +83,7 @@ export function LiveAuctionTicker() {
           overflow: "hidden",
           whiteSpace: "nowrap",
           fontSize: 10,
-          color: "#5a6d82",
+          color: "#718096",
           maskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)"
         }}
       >

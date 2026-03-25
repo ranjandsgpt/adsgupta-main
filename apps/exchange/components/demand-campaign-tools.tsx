@@ -29,7 +29,7 @@ function WinRateGauge({ pct }: { pct: number }) {
   const gid = `wg-${Math.round(p)}`;
   return (
     <svg width={96} height={56} viewBox="0 0 96 56" aria-label={`Win rate ${p.toFixed(0)} percent`}>
-      <path d={d} fill="none" stroke="#1a2332" strokeWidth={8} strokeLinecap="round" />
+      <path d={d} fill="none" stroke="#e2e8f0" strokeWidth={8} strokeLinecap="round" />
       <path
         d={d}
         fill="none"
@@ -41,7 +41,7 @@ function WinRateGauge({ pct }: { pct: number }) {
       <defs>
         <linearGradient id={gid} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#4a9eff" />
-          <stop offset="100%" stopColor="#00d4aa" />
+          <stop offset="100%" stopColor="#0066cc" />
         </linearGradient>
       </defs>
       <text x={cx} y={cy + 14} textAnchor="middle" fill="var(--text-bright)" fontSize={12} fontWeight={800}>
@@ -209,8 +209,8 @@ export function DemandCampaignTools({
                     marginTop: 14,
                     padding: 12,
                     borderRadius: 8,
-                    background: "#00d4aa10",
-                    border: "1px solid #00d4aa33"
+                    background: "#0066cc10",
+                    border: "1px solid #0066cc33"
                   }}
                 >
                   <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 6 }}>Bid recommendation</div>

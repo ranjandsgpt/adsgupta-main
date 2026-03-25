@@ -13,14 +13,14 @@ type Rule = {
 };
 
 const C = {
-  bgCard: "#0f1419",
-  border: "#1a2332",
-  textMuted: "#5a6d82",
+  bgCard: "#f8f9fa",
+  border: "#e2e8f0",
+  textMuted: "#718096",
   textBright: "#e8f0f8",
   blue: "#4a9eff",
   green: "#2ecc71",
   yellow: "#ffd32a",
-  accent: "#00d4aa"
+  accent: "#0066cc"
 };
 
 const SIZE_OPTS = ["300x250", "728x90", "160x600", "320x50", "300x600", "970x250"];
@@ -316,7 +316,7 @@ export default function AdminPricingPage() {
           border: "1px solid #ff6b9d44",
           borderRadius: 8,
           padding: 16,
-          backgroundImage: "linear-gradient(135deg,#0f1419,#1a0f1f)"
+          backgroundImage: "linear-gradient(135deg,#f8f9fa,#1a0f1f)"
         }}
       >
         <div style={{ fontSize: 12, fontWeight: 700, color: "#ff6b9d", marginBottom: 8 }}>✦ AI Dynamic Floor Pricing</div>

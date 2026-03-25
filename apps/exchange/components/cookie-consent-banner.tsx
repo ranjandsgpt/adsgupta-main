@@ -40,11 +40,11 @@ export function CookieConsentBanner() {
         right: 0,
         zIndex: 9999,
         padding: "12px 16px",
-        background: "linear-gradient(180deg, #0f1419 0%, #080c14 100%)",
-        borderTop: "1px solid var(--border, #1a2332)",
+          background: "linear-gradient(180deg, #f8f9fa 0%, #f1f3f5 100%)",
+          borderTop: "1px solid var(--border, #e2e8f0)",
         boxShadow: "0 -4px 24px rgba(0,0,0,0.35)",
         fontSize: 12,
-        color: "var(--text-muted, #5a6d82)",
+          color: "var(--text-muted, #718096)",
         display: "flex",
         flexWrap: "wrap",
         gap: 12,
@@ -55,7 +55,7 @@ export function CookieConsentBanner() {
       <p style={{ margin: 0, maxWidth: 720, lineHeight: 1.5 }}>
         We use necessary cookies and local storage for session and consent preferences. No ad tracking cookies are set
         without your choice. See our{" "}
-        <Link href="/privacy" style={{ color: "var(--accent, #00d4aa)" }}>
+        <Link href="/privacy" style={{ color: "var(--accent, #0066cc)" }}>
           Privacy Policy
         </Link>
         .

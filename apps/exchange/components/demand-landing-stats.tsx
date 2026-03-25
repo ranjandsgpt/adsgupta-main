@@ -29,16 +29,16 @@ export function DemandLandingStats() {
       style={{
         padding: 20,
         marginBottom: 28,
-        borderColor: "#00d4aa44",
+        borderColor: "#0066cc44",
         background: "linear-gradient(145deg, rgba(0,212,170,0.08), transparent)"
       }}
     >
-      <div style={{ fontSize: 11, color: "#00d4aa", fontWeight: 800, marginBottom: 8, letterSpacing: "0.06em" }}>
+      <div style={{ fontSize: 11, color: "#0066cc", fontWeight: 800, marginBottom: 8, letterSpacing: "0.06em" }}>
         LIVE EXCHANGE REACH
       </div>
       <p style={{ margin: 0, fontSize: 15, color: "var(--text-bright)", lineHeight: 1.55 }}>
-        Reach <strong style={{ color: "#00d4aa" }}>{s.activePublishers}</strong> active publishers ·{" "}
-        <strong style={{ color: "#00d4aa" }}>{monthlyImpM.toFixed(1)}M</strong> modeled monthly impressions (from 7d
+        Reach <strong style={{ color: "#0066cc" }}>{s.activePublishers}</strong> active publishers ·{" "}
+        <strong style={{ color: "#0066cc" }}>{monthlyImpM.toFixed(1)}M</strong> modeled monthly impressions (from 7d
         pace) · blended eCPM <strong>${s.avgCpm.toFixed(2)}</strong>
       </p>
       {s.topCategories?.length > 0 && (

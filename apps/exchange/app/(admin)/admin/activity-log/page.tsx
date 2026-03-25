@@ -142,11 +142,11 @@ export default function AdminActivityLogPage() {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id}>
-                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233" }}>{r.created_at}</td>
-                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233" }}>{r.admin_email}</td>
-                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233" }}>{r.action_type}</td>
-                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233" }}>{r.entity_type}</td>
-                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #1a233233" }}>{r.entity_id ?? "—"}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033" }}>{r.created_at}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033" }}>{r.admin_email}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033" }}>{r.action_type}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033" }}>{r.entity_type}</td>
+                  <td style={{ padding: "10px 12px", borderBottom: "1px solid #e2e8f033" }}>{r.entity_id ?? "—"}</td>
                 </tr>
               ))}
               {rows.length === 0 && (

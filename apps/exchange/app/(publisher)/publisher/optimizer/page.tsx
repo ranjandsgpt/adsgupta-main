@@ -122,7 +122,7 @@ function OptimizerInner() {
       </p>
       {error && <p style={{ color: "#ff4757" }}>{error}</p>}
 
-      <div className="card" style={{ marginBottom: 20, borderColor: "#00d4aa44" }}>
+      <div className="card" style={{ marginBottom: 20, borderColor: "#0066cc44" }}>
         <strong style={{ color: "var(--accent)" }}>Summary</strong>
         <p style={{ margin: "8px 0 0", fontSize: 14 }}>
           Your current floors are leaving approximately <strong>${totalLeft.toFixed(2)}</strong> on the table per 1000
@@ -162,7 +162,7 @@ function OptimizerInner() {
               </div>
               <div>
                 <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 4 }}>Est. revenue vs floor ($/1k)</div>
-                <SvgLineChart points={revPts} width={320} height={120} color="#00d4aa" labelY="$/1k" />
+                <SvgLineChart points={revPts} width={320} height={120} color="#0066cc" labelY="$/1k" />
               </div>
             </div>
 

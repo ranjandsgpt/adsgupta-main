@@ -395,7 +395,7 @@ export default function AdminDemandCampaignsPage() {
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img src={c.image_url} alt="" style={{ width: "100%", borderRadius: 4 }} />
                               ) : (
-                                <div style={{ height: 90, background: "#080c14" }} />
+                                <div style={{ height: 90, background: "#f1f3f5" }} />
                               )}
                               <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 4 }}>{c.size}</div>
                               <div

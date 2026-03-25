@@ -53,10 +53,10 @@ function chip(label: string) {
         fontSize: 10,
         padding: "3px 8px",
         borderRadius: 999,
-        background: "#00d4aa18",
-        color: "#00d4aa",
+        background: "#0066cc18",
+        color: "#0066cc",
         margin: "2px 4px 2px 0",
-        border: "1px solid #00d4aa44"
+        border: "1px solid #0066cc44"
       }}
     >
       {label}
@@ -404,9 +404,9 @@ function Inner() {
               { k: "Impressions today", v: totals.impr.toLocaleString() },
               { k: "Spend today (USD)", v: `$${totals.spend.toFixed(2)}` }
             ].map((x) => (
-              <div key={x.k} className="portal-card" style={{ padding: 14, borderColor: "#00d4aa33" }}>
+              <div key={x.k} className="portal-card" style={{ padding: 14, borderColor: "#0066cc33" }}>
                 <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>{x.k}</div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: "#00d4aa", marginTop: 6 }}>{x.v}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: "#0066cc", marginTop: 6 }}>{x.v}</div>
               </div>
             ))}
           </div>
@@ -433,7 +433,7 @@ function Inner() {
                     <span style={{ color: "var(--text-bright)", fontWeight: 600 }}>{String(d.campaign_name ?? d.name ?? d.id)}</span>
                     <Link
                       href={`/demand/create?campaign_id=${encodeURIComponent(d.id)}&email=${encodeURIComponent(email)}`}
-                      style={{ color: "#00d4aa", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}
+                      style={{ color: "#0066cc", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}
                     >
                       Complete setup →
                     </Link>
@@ -686,7 +686,7 @@ function Inner() {
           {rows.length === 0 && !error && (
             <div style={{ marginTop: 32, textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
               No campaigns yet.{" "}
-              <Link href="/demand/create" style={{ color: "#00d4aa", fontWeight: 700 }}>
+              <Link href="/demand/create" style={{ color: "#0066cc", fontWeight: 700 }}>
                 Create your first campaign →
               </Link>
             </div>

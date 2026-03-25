@@ -60,11 +60,11 @@ export function DemandAnalyticsTab({ email }: { email: string }) {
           <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>Spend</div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={data.timeseries}>
-              <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid var(--border)" }} />
-              <Line type="monotone" dataKey="spend" stroke="#00d4aa" dot={false} name="Spend $" />
+              <Line type="monotone" dataKey="spend" stroke="#0066cc" dot={false} name="Spend $" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -72,7 +72,7 @@ export function DemandAnalyticsTab({ email }: { email: string }) {
           <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>Impressions won</div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={data.timeseries}>
-              <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid var(--border)" }} />
@@ -84,7 +84,7 @@ export function DemandAnalyticsTab({ email }: { email: string }) {
           <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>Win rate % / CTR %</div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={data.timeseries}>
-              <CartesianGrid stroke="#1a2332" strokeDasharray="3 3" />
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 9 }} />
               <YAxis tick={{ fontSize: 9 }} />
               <Tooltip contentStyle={{ background: "#0c1018", border: "1px solid var(--border)" }} />

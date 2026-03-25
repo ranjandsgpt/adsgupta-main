@@ -7,10 +7,10 @@ type Row = Record<string, unknown>;
 const C = {
   green: "#2ecc71",
   red: "#ff4757",
-  muted: "#5a6d82",
+  muted: "#718096",
   bright: "#e8f0f8",
-  border: "#1a2332",
-  card: "#0f1419"
+  border: "#e2e8f0",
+  card: "#f8f9fa"
 };
 
 function relTime(iso: string): string {
