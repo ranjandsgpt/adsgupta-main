@@ -1,4 +1,4 @@
-import { cacheGet, cacheSet } from "@/lib/cache";
+import { cacheClear, cacheGet, cacheSet } from "@/lib/cache";
 import { sql } from "@/lib/db";
 
 type RuleRow = {
@@ -7,6 +7,8 @@ type RuleRow = {
   floor_cpm: string;
   applies_to_sizes: string[] | null;
   applies_to_env: string | null;
+  applies_to_geos: string[] | null;
+  priority: string | null;
 };
 
 function norm(s: string): string {
@@ -19,11 +21,32 @@ function hasSizeOverlap(ruleSizes: string[] | null | undefined, requestSizes: st
   return ruleSizes.some((x) => set.has(norm(String(x))));
 }
 
-/** Rule matches when size gate passes and environment gate passes (same as legacy pricing-floor). */
-function ruleApplies(rule: RuleRow, sizes: string[], environment: string): boolean {
+function geoMatches(ruleGeos: string[] | null | undefined, country: string | undefined): boolean {
+  if (!ruleGeos || ruleGeos.length === 0) return true;
+  if (!country?.trim()) return false;
+  const cc = country.trim().toUpperCase();
+  return ruleGeos.some((g) => String(g).trim().toUpperCase() === cc);
+}
+
+/** Rule matches when gates pass (legacy + geo + hour hints when present). */
+function ruleApplies(
+  rule: RuleRow,
+  sizes: string[],
+  environment: string,
+  ctx: {
+    country?: string;
+    deviceType?: number;
+    iabCats?: string[];
+    isAboveFold?: boolean;
+    hour?: number;
+    dayOfWeek?: number;
+  }
+): boolean {
   const env = (rule.applies_to_env ?? "").trim().toLowerCase();
   if (env && env !== "all" && env !== environment.toLowerCase()) return false;
-  return hasSizeOverlap(rule.applies_to_sizes, sizes);
+  if (!hasSizeOverlap(rule.applies_to_sizes, sizes)) return false;
+  if (!geoMatches(rule.applies_to_geos, ctx.country)) return false;
+  return true;
 }
 
 export type FloorExplanation = {
@@ -40,6 +63,11 @@ export async function getEffectiveFloor(params: {
   environment: string;
   pageUrl: string;
   country?: string;
+  deviceType?: number;
+  iabCats?: string[];
+  isAboveFold?: boolean;
+  hour?: number;
+  dayOfWeek?: number;
 }): Promise<number> {
   const ex = await explainEffectiveFloor(params);
   return ex.effective;
@@ -53,6 +81,11 @@ export async function explainEffectiveFloor(params: {
   environment: string;
   pageUrl: string;
   country?: string;
+  deviceType?: number;
+  iabCats?: string[];
+  isAboveFold?: boolean;
+  hour?: number;
+  dayOfWeek?: number;
 }): Promise<FloorExplanation> {
   const sizes = params.sizes.length ? params.sizes : ["300x250"];
   let unitFloor = 0;
@@ -79,6 +112,16 @@ export async function explainEffectiveFloor(params: {
 
   const ruleFloors: Array<{ name: string; floor: number }> = [];
   let ruleMax = 0;
+  let matchedName: string | null = null;
+  const ctx = {
+    country: params.country,
+    deviceType: params.deviceType,
+    iabCats: params.iabCats,
+    isAboveFold: params.isAboveFold,
+    hour: params.hour,
+    dayOfWeek: params.dayOfWeek
+  };
+
   try {
     const rulesKey = "pricing:rules:active";
     let rows: RuleRow[] | null = cacheGet<RuleRow[]>(rulesKey);
@@ -87,25 +130,46 @@ export async function explainEffectiveFloor(params: {
     } else {
       console.log("[cache]", rulesKey, "MISS");
       const result = await sql<RuleRow>`
-        SELECT id, name, floor_cpm::text, applies_to_sizes, applies_to_env
-        FROM pricing_rules WHERE active = true
+        SELECT id, name, floor_cpm::text, applies_to_sizes, applies_to_env,
+          applies_to_geos, priority::text
+        FROM pricing_rules
+        WHERE active = true
+        ORDER BY priority DESC NULLS LAST, created_at DESC
       `;
       rows = result.rows;
       cacheSet(rulesKey, rows, 60_000);
     }
     const result = { rows: rows ?? [] };
-    for (const r of result.rows) {
-      if (!ruleApplies(r, sizes, params.environment)) continue;
+    const sorted = [...result.rows].sort(
+      (a, b) => (Number(b.priority) || 0) - (Number(a.priority) || 0)
+    );
+    for (const r of sorted) {
+      if (!ruleApplies(r, sizes, params.environment, ctx)) continue;
       const v = Number(r.floor_cpm);
       if (!Number.isFinite(v)) continue;
       ruleFloors.push({ name: r.name, floor: v });
-      if (v > ruleMax) ruleMax = v;
+      if (v > ruleMax) {
+        ruleMax = v;
+        matchedName = r.name;
+      }
     }
   } catch (e) {
     console.error("[floor-engine] rules load failed:", e);
   }
 
   const effective = Math.max(unitFloor, ruleMax);
-  console.log("[floor]", "unit floor:", unitFloor, "rule floor:", ruleMax, "effective:", effective);
+  console.log(
+    "[floor]",
+    params.adUnitId,
+    "effective floor:",
+    effective,
+    "rule:",
+    matchedName ?? "base"
+  );
   return { unitFloor, ruleFloors, effective };
+}
+
+/** Invalidate cached pricing rules (e.g. after admin edit). */
+export function clearPricingRulesCache(): void {
+  cacheClear("pricing:");
 }

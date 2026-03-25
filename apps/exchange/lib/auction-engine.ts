@@ -241,6 +241,11 @@ async function insertAuctionLog(args: {
   privacySuppressed?: boolean;
   isIvt?: boolean;
   rawSignals?: Record<string, unknown> | null;
+  country?: string | null;
+  region?: string | null;
+  deviceTypeLabel?: string | null;
+  iabCategories?: string[] | null;
+  aboveFold?: boolean | null;
 }): Promise<string | null> {
   const rawJson =
     args.rawSignals != null && Object.keys(args.rawSignals).length
@@ -248,7 +253,7 @@ async function insertAuctionLog(args: {
       : null;
   const ins = await sql<{ id: string }>`
     INSERT INTO auction_log
-    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip, privacy_suppressed, is_ivt, raw_signals)
+    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip, privacy_suppressed, is_ivt, raw_signals, country, region, device_type, iab_categories, above_fold)
     VALUES
     (
       ${args.openrtbRequestId},
@@ -266,11 +271,98 @@ async function insertAuctionLog(args: {
       ${args.deviceIp ?? null},
       ${args.privacySuppressed ?? false},
       ${args.isIvt ?? false},
-      ${rawJson}::jsonb
+      ${rawJson}::jsonb,
+      ${args.country ?? null},
+      ${args.region ?? null},
+      ${args.deviceTypeLabel ?? null},
+      ${args.iabCategories ?? null},
+      ${args.aboveFold ?? null}
     )
     RETURNING id
   `;
   return ins.rows[0]?.id ?? null;
+}
+
+function signalColumnsForAuctionLog(
+  opts: AuctionEngineOpts | undefined,
+  coppa: boolean | undefined
+): Pick<
+  Parameters<typeof insertAuctionLog>[0],
+  "country" | "region" | "deviceTypeLabel" | "iabCategories" | "aboveFold"
+> {
+  const site = opts?.site;
+  const dev = opts?.device;
+  const geo = dev?.geo;
+  const siteExt = site?.ext as Record<string, unknown> | undefined;
+  const userExt = opts?.user?.ext as Record<string, unknown> | undefined;
+  let country: string | null = geo?.country ? String(geo.country).trim().toUpperCase() : null;
+  if (coppa === true) country = null;
+  return {
+    country,
+    region: geo?.region ? String(geo.region) : null,
+    deviceTypeLabel: dev?.devicetype != null ? String(dev.devicetype) : null,
+    iabCategories: site?.cat?.length ? site.cat!.map(String) : null,
+    aboveFold:
+      typeof siteExt?.above_fold === "boolean"
+        ? siteExt.above_fold
+        : typeof siteExt?.aboveFold === "boolean"
+          ? siteExt.aboveFold
+          : typeof userExt?.above_fold === "boolean"
+            ? userExt.above_fold
+            : null
+  };
+}
+
+function checkContentTargetingJson(contentTargeting: unknown, pageCats: string[] | null | undefined): boolean {
+  if (!contentTargeting || typeof contentTargeting !== "object") return true;
+  const o = contentTargeting as { iab_cats?: string[] };
+  const iabCats = o.iab_cats;
+  if (!iabCats?.length) return true;
+  const page = pageCats ?? [];
+  return iabCats.some((cat) => page.includes(cat));
+}
+
+function checkTemporalTargetingJson(temporalTargeting: unknown): boolean {
+  if (!temporalTargeting || typeof temporalTargeting !== "object") return true;
+  const o = temporalTargeting as {
+    dayparts?: Array<{ day?: number; start_hour?: number; end_hour?: number }>;
+    timezone?: string;
+  };
+  if (!o.dayparts?.length) return true;
+  const tz = o.timezone || "UTC";
+  try {
+    const now = new Date(new Date().toLocaleString("en-US", { timeZone: tz }));
+    const day = now.getDay();
+    const hour = now.getHours();
+    return o.dayparts.some(
+      (dp) =>
+        (dp.day === undefined || dp.day === day) &&
+        hour >= (dp.start_hour ?? 0) &&
+        hour < (dp.end_hour ?? 24)
+    );
+  } catch {
+    return true;
+  }
+}
+
+function checkAudienceTargetingJson(
+  audienceTargeting: unknown,
+  userId: string | null | undefined,
+  segmentIds: string[]
+): boolean {
+  if (!audienceTargeting || typeof audienceTargeting !== "object") return true;
+  const o = audienceTargeting as {
+    require_user_id?: boolean;
+    include_segments?: string[];
+    exclude_segments?: string[];
+  };
+  if (o.require_user_id && !userId) return false;
+  const inc = o.include_segments;
+  const exc = o.exclude_segments;
+  if (!inc?.length && !exc?.length) return true;
+  if (exc?.length && exc.some((s) => segmentIds.includes(s))) return false;
+  if (inc?.length && !inc.some((s) => segmentIds.includes(s))) return false;
+  return true;
 }
 
 type InternalBid = {
@@ -325,6 +417,9 @@ type JoinRow = {
   ab_group: string | null;
   ab_weight: string | null;
   scan_passed: boolean | null;
+  audience_targeting: Record<string, unknown> | null;
+  content_targeting: Record<string, unknown> | null;
+  temporal_targeting: Record<string, unknown> | null;
 };
 
 /** A/B: one creative per size via weighted random when ab_test_active. */
@@ -400,6 +495,9 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
       COALESCE(c.ab_test_active, false) AS ab_test_active,
       c.freq_cap_day,
       c.freq_cap_session,
+      c.audience_targeting,
+      c.content_targeting,
+      c.temporal_targeting,
       cr.ab_group,
       cr.ab_weight::text AS ab_weight,
       cr.id AS creative_id,
@@ -451,6 +549,22 @@ export async function runAuction(
     const logIp = redact ? null : devIp;
     const usp = parseUsp(regs ?? {});
     const markIvt = opts?.markIvt === true;
+    const sigLog = signalColumnsForAuctionLog(opts, regs?.coppa === 1);
+
+    const userIdForAuction =
+      opts?.fullRequest?.user?.id != null ? String(opts.fullRequest.user.id) : null;
+    let userSegments: string[] = [];
+    if (userIdForAuction) {
+      try {
+        const sm = await sql<{ s: string }>`
+          SELECT segment_id::text AS s FROM segment_memberships
+          WHERE user_id = ${userIdForAuction} AND (expires_at IS NULL OR expires_at > now())
+        `;
+        userSegments = sm.rows.map((r) => r.s);
+      } catch {
+        userSegments = [];
+      }
+    }
 
     const unitRes = await sql<{
       id: string;
@@ -487,7 +601,8 @@ export async function runAuction(
         deviceIp: logIp,
         privacySuppressed,
         isIvt: markIvt,
-        rawSignals: opts?.rawSignals ?? null
+        rawSignals: opts?.rawSignals ?? null,
+        ...sigLog
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -505,6 +620,7 @@ export async function runAuction(
         : [];
     const adUnitSizes = adUnit.sizes ?? [];
 
+    const nowDt = new Date();
     const baseFloor = await getEffectiveFloor({
       adUnitId: adUnit.id,
       publisherId: adUnit.publisher_id,
@@ -512,7 +628,12 @@ export async function runAuction(
       adType: adUnit.ad_type ?? "display",
       environment: adUnit.environment ?? "web",
       pageUrl: pageUrl ?? "",
-      country: opts?.device?.geo?.country
+      country: opts?.device?.geo?.country,
+      deviceType: opts?.device?.devicetype,
+      iabCats: opts?.fullRequest?.site?.cat ?? opts?.site?.cat,
+      isAboveFold: sigLog.aboveFold ?? undefined,
+      hour: nowDt.getUTCHours(),
+      dayOfWeek: nowDt.getUTCDay()
     });
     const impFloor = imp?.bidfloor != null ? Number(imp.bidfloor) : 0;
     const floor = Math.max(baseFloor, bidfloorFromImp, Number.isFinite(impFloor) ? impFloor : 0);
@@ -532,7 +653,8 @@ export async function runAuction(
         deviceIp: logIp,
         privacySuppressed,
         isIvt: markIvt,
-        rawSignals: opts?.rawSignals ?? null
+        rawSignals: opts?.rawSignals ?? null,
+        ...sigLog
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -553,7 +675,8 @@ export async function runAuction(
         deviceIp: logIp,
         privacySuppressed,
         isIvt: markIvt,
-        rawSignals: opts?.rawSignals ?? null
+        rawSignals: opts?.rawSignals ?? null,
+        ...sigLog
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -639,6 +762,11 @@ export async function runAuction(
       const advDom = c0.advertiser_domain ?? null;
       if (advDom && campaignBlockedByBadv(advDom, badv)) continue;
       if (!campaignMatchesTargeting(c, targetingCtx)) continue;
+      if (!checkContentTargetingJson(c0.content_targeting, opts?.fullRequest?.site?.cat ?? opts?.site?.cat)) {
+        continue;
+      }
+      if (!checkTemporalTargetingJson(c0.temporal_targeting)) continue;
+      if (!checkAudienceTargetingJson(c0.audience_targeting, userIdForAuction, userSegments)) continue;
       // Budget: NULL or 0 means unlimited (never over budget).
       if (c0.daily_budget != null) {
         const dailyBudget = Number(c0.daily_budget);
@@ -706,7 +834,8 @@ export async function runAuction(
         deviceIp: logIp,
         privacySuppressed,
         isIvt: markIvt,
-        rawSignals: opts?.rawSignals ?? null
+        rawSignals: opts?.rawSignals ?? null,
+        ...sigLog
       });
       if (id) console.log("[auction]", id, "bids:", 0, "winner:", "none", "price:", "-");
       return id ? { auctionLogId: id, winner: null, bidCount: 0 } : null;
@@ -737,7 +866,8 @@ export async function runAuction(
         deviceIp: logIp,
         privacySuppressed,
         isIvt: markIvt,
-        rawSignals: opts?.rawSignals ?? null
+        rawSignals: opts?.rawSignals ?? null,
+        ...sigLog
       });
 
       if (!auctionLogId) return null;
@@ -823,7 +953,8 @@ export async function runAuction(
       deviceIp: logIp,
       privacySuppressed,
       isIvt: markIvt,
-      rawSignals: opts?.rawSignals ?? null
+      rawSignals: opts?.rawSignals ?? null,
+      ...sigLog
     });
 
     if (!auctionLogId) return null;

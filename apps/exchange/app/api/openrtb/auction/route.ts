@@ -158,6 +158,14 @@ export async function POST(request: NextRequest) {
   const auctionHeader = result?.auctionLogId ?? null;
 
   if (result?.auctionLogId) {
+    const procMs = Date.now() - started;
+    void sql`
+      UPDATE auction_log SET processing_ms = ${Math.round(procMs * 100) / 100}
+      WHERE id = ${result.auctionLogId}::uuid
+    `.catch(() => {});
+  }
+
+  if (result?.auctionLogId) {
     void (async () => {
       try {
         const pub = await sql<{ publisher_id: string }>`

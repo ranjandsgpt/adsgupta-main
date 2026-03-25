@@ -498,6 +498,43 @@
     return cfg.auctionUrl || DEFAULT_AUCTION;
   }
 
+  function exchangeApiBase() {
+    try {
+      var u = new URL(auctionUrl());
+      return u.origin;
+    } catch (_) {
+      return "https://exchange.adsgupta.com";
+    }
+  }
+
+  function fireSignalEvent(type, auctionId, sig) {
+    if (!auctionId || !sig) return;
+    var payload = {
+      event_type: type,
+      auction_id: auctionId,
+      user_id: sig.session && sig.session.userId,
+      session_id: sig.session && sig.session.sessionId,
+      url: sig.page && sig.page.url,
+      scroll_depth: sig.engagement && sig.engagement.scrollDepth,
+      time_on_page_ms: sig.page && sig.page.timeOnPage
+    };
+    var url = exchangeApiBase() + "/api/signals";
+    var json = JSON.stringify(payload);
+    try {
+      if (navigator.sendBeacon) {
+        var blob = new Blob([json], { type: "application/json" });
+        navigator.sendBeacon(url, blob);
+      } else {
+        fetch(url, {
+          method: "POST",
+          body: json,
+          keepalive: true,
+          headers: { "Content-Type": "application/json" }
+        }).catch(function () {});
+      }
+    } catch (_) {}
+  }
+
   function trackBase() {
     return cfg.trackBase || TRACK_BASE;
   }
@@ -572,6 +609,7 @@
     f.srcdoc = bid.adm;
     f.onload = function () {
       fireImpressionEvent(unitId, price);
+      fireSignalEvent("impression_rendered", bid.id, slot._lastSignals);
     };
     el.appendChild(f);
 
@@ -615,6 +653,7 @@
       totalPageViews: signals.session.totalPageViews,
       scrollDepth: signals.engagement.scrollDepth,
       timeOnPage: signals.page.timeOnPage,
+      timeOnPageMs: signals.page.timeOnPage,
       above_fold: signals.viewability && signals.viewability.above_fold,
       timezone: signals.geo.timezone,
       locale: signals.geo.locale,
@@ -655,6 +694,7 @@
           totalPageViews: signals.session.totalPageViews,
           scrollDepth: signals.engagement.scrollDepth,
           timeOnPage: signals.page.timeOnPage,
+          timeOnPageMs: signals.page.timeOnPage,
           above_fold: signals.viewability && signals.viewability.above_fold,
           timezone: signals.geo.timezone,
           locale: signals.geo.locale,
@@ -718,6 +758,7 @@
 
     collectAllSignals(el)
       .then(function (signals) {
+        slot._lastSignals = signals;
         var body = buildBidRequest(slot, unitId, signals);
         fetchAuctionWithRetry(body)
           .then(function (res) {
@@ -731,6 +772,7 @@
       })
       .catch(function () {
         collectAllSignals(null).then(function (signals) {
+          slot._lastSignals = signals;
           var body = buildBidRequest(slot, unitId, signals);
           fetchAuctionWithRetry(body)
             .then(function (res) {

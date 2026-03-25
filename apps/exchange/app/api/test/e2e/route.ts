@@ -228,24 +228,44 @@ export async function GET(request: NextRequest): Promise<Response> {
     async () => {
       if (!adUnitId) throw new Error("Missing adUnitId");
       if (!campaignId) throw new Error("Missing campaignId");
+      if (!publisherId) throw new Error("Missing publisherId");
       const bidReq = {
         id: openrtbRequestId,
-        tmax: 200,
         imp: [
           {
             id: "1",
             tagid: adUnitId,
             bidfloor: 0.1,
-            banner: { w: 300, h: 250, pos: 0, battr: [] }
+            banner: { format: [{ w: 300, h: 250 }] },
+            ext: { aboveFold: true, scrollDepth: 50 }
           }
         ],
-        site: { page: "https://example.com/product" },
+        site: {
+          page: "https://test.exchange.adsgupta.com/e2e-test",
+          domain: "test.exchange.adsgupta.com",
+          cat: ["IAB19"],
+          publisher: { id: publisherId },
+          ext: { title: "E2E Test Page", aboveFold: true }
+        },
         device: {
-          ua: "Mozilla/5.0 (X11; Linux x86_64)",
-          ip: "203.0.113.7",
+          ua: "MDE-E2E-Test/1.0",
+          w: 1920,
+          h: 1080,
           devicetype: 2,
+          js: 1,
           geo: { country: "US" }
-        }
+        },
+        user: {
+          id: "e2e-test-user",
+          ext: {
+            sessionId: "e2e-session",
+            sessionPageCount: 1,
+            daysSinceFirstVisit: 0,
+            isNewUser: true
+          }
+        },
+        at: 2,
+        tmax: 2000
       };
 
       const r = await fetch(`${baseUrl}/api/openrtb/auction`, {

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
-import { cacheClear } from "@/lib/cache";
+import { logAdminActivity } from "@/lib/admin-events";
+import { clearPricingRulesCache } from "@/lib/floor-engine";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
@@ -19,8 +20,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  return PATCH(request, { params });
+export async function PUT(request: NextRequest, ctx: { params: { id: string } }) {
+  return PATCH(request, ctx);
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
@@ -30,6 +31,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (auth.role !== "admin") return forbidden();
 
     const body = await request.json();
+    const before = await sql`SELECT * FROM pricing_rules WHERE id = ${params.id} LIMIT 1`;
+
     const result = await sql`
       UPDATE pricing_rules SET
         name = COALESCE(${body.name ?? null}, name),
@@ -37,12 +40,25 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         applies_to_sizes = COALESCE(${body.applies_to_sizes ?? null}, applies_to_sizes),
         applies_to_env = COALESCE(${body.applies_to_env ?? null}, applies_to_env),
         active = COALESCE(${body.active ?? null}, active),
-        rule_type = COALESCE(${body.rule_type ?? null}, rule_type)
+        rule_type = COALESCE(${body.rule_type ?? null}, rule_type),
+        applies_to_geos = COALESCE(${body.applies_to_geos ?? null}, applies_to_geos),
+        priority = COALESCE(${body.priority !== undefined ? Number(body.priority) : null}, priority)
       WHERE id = ${params.id}
       RETURNING *
     `;
-    cacheClear("pricing:");
-    return json(result.rows[0] ?? null);
+    clearPricingRulesCache();
+    const row = result.rows[0] ?? null;
+    if (row && auth.email) {
+      void logAdminActivity({
+        adminEmail: auth.email,
+        actionType: "pricing_rule_update",
+        entityType: "pricing_rule",
+        entityId: params.id,
+        oldValue: before.rows[0],
+        newValue: row
+      });
+    }
+    return json(row);
   } catch (e) {
     console.error("[api/pricing-rules/[id] PATCH]", e instanceof Error ? e.message : e);
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
@@ -55,8 +71,16 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     if (!auth) return unauthorized();
     if (auth.role !== "admin") return forbidden();
 
-    await sql`DELETE FROM pricing_rules WHERE id = ${params.id}`;
-    cacheClear("pricing:");
+    await sql`UPDATE pricing_rules SET active = false WHERE id = ${params.id}`;
+    clearPricingRulesCache();
+    if (auth.email) {
+      void logAdminActivity({
+        adminEmail: auth.email,
+        actionType: "pricing_rule_deactivate",
+        entityType: "pricing_rule",
+        entityId: params.id
+      });
+    }
     return json({ ok: true });
   } catch (e) {
     console.error("[api/pricing-rules/[id] DELETE]", e instanceof Error ? e.message : e);

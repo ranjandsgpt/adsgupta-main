@@ -1,9 +1,10 @@
 export const dynamic = "force-dynamic";
+import { logAdminActivity } from "@/lib/admin-events";
 import { sendPublisherActivationEmail } from "@/lib/email";
 import { sql } from "@/lib/db";
 import { json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
-import { logAdminActivity } from "@/lib/admin-events";
+import { fireWebhooksAsync } from "@/lib/webhooks";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -57,8 +58,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (!auth) return unauthorized();
     if (auth.role !== "admin") return forbidden("Only admins can update publisher status");
 
-    const before = await sql<{ status: string }>`SELECT status FROM publishers WHERE id = ${params.id} LIMIT 1`;
-    const prevStatus = before.rows[0]?.status;
+    const existingRes = await sql<{
+      status: string;
+      name: string;
+      domain: string;
+    }>`SELECT status, name, domain FROM publishers WHERE id = ${params.id} LIMIT 1`;
+    const existingPublisher = existingRes.rows[0];
+    const prevStatus = existingPublisher?.status;
 
     const body = await request.json();
     const result = await sql`
@@ -71,20 +77,48 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       WHERE id = ${params.id}
       RETURNING *
     `;
-    const row = result.rows[0] as { status: string; contact_email: string | null; name: string; id: string } | undefined;
+    const row = result.rows[0] as
+      | { status: string; contact_email: string | null; name: string; id: string; domain: string }
+      | undefined;
     if (row && prevStatus !== "active" && row.status === "active") {
       const em = row.contact_email ?? "";
       if (em) void sendPublisherActivationEmail(em, row.name, row.id);
+      if (auth.email) {
+        void logAdminActivity({
+          adminEmail: auth.email,
+          actionType: "publisher_activated",
+          entityType: "publisher",
+          entityId: params.id,
+          oldValue: "pending",
+          newValue: "active"
+        });
+      }
+      void sql`UPDATE admin_notifications SET read = true WHERE entity_type = 'publisher' AND entity_id = ${params.id}`.catch(
+        () => {}
+      );
+      void sql`
+        INSERT INTO admin_notifications (type, message, entity_type, entity_id)
+        VALUES (
+          'publisher_activated',
+          ${"Publisher " + row.name + " is now active and can serve ads"},
+          'publisher',
+          ${params.id}
+        )
+      `.catch(() => {});
+      fireWebhooksAsync("publisher.activated", { publisherId: params.id, domain: row.domain ?? existingPublisher?.domain });
     }
     if (row && auth.email) {
-      void logAdminActivity({
-        adminEmail: auth.email,
-        actionType: "publisher_status_update",
-        entityType: "publisher",
-        entityId: params.id,
-        oldValue: prevStatus,
-        newValue: row.status
-      });
+      const activated = prevStatus !== "active" && row.status === "active";
+      if (!activated) {
+        void logAdminActivity({
+          adminEmail: auth.email,
+          actionType: "publisher_status_update",
+          entityType: "publisher",
+          entityId: params.id,
+          oldValue: prevStatus,
+          newValue: row.status
+        });
+      }
     }
     return json(row ?? null);
   } catch (e) {

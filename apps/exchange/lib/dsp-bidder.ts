@@ -107,20 +107,53 @@ export async function requestAllDspBids(
     }
   }
 
-  let dsps: DSP[] = [];
+  const dsps: DSP[] = [];
   try {
-    const r = await sql<DSP>`
+    const partners = await sql<{
+      id: string;
+      name: string;
+      endpoint_url: string;
+      timeout_ms: string;
+      auth_credentials: Record<string, unknown> | null;
+    }>`
+      SELECT id, name, endpoint_url, timeout_ms::text, auth_credentials
+      FROM dsp_partners
+      WHERE status = 'active'
+    `;
+    for (const row of partners.rows) {
+      const cred = row.auth_credentials ?? {};
+      const token =
+        (typeof cred.bearer === "string" && cred.bearer) ||
+        (typeof cred.token === "string" && cred.token) ||
+        (typeof cred.authorization === "string" && cred.authorization) ||
+        null;
+      dsps.push({
+        id: row.id,
+        name: row.name,
+        endpoint_url: row.endpoint_url,
+        auth_token: token,
+        bid_timeout_ms: Number(row.timeout_ms) || 150,
+        active: true
+      });
+    }
+  } catch (e) {
+    console.error("[dsp] dsp_partners:", e);
+  }
+  try {
+    const legacy = await sql<DSP>`
       SELECT id, name, endpoint_url, auth_token, bid_timeout_ms, active
       FROM dsps WHERE active = true
     `;
-    dsps = r.rows.map((row) => ({
-      ...row,
-      bid_timeout_ms: Number(row.bid_timeout_ms)
-    }));
+    for (const row of legacy.rows) {
+      dsps.push({
+        ...row,
+        bid_timeout_ms: Number(row.bid_timeout_ms)
+      });
+    }
   } catch (e) {
-    console.error("[dsp] load dsps:", e);
-    return [];
+    console.error("[dsp] dsps:", e);
   }
+  if (dsps.length === 0) return [];
 
   const settled = await Promise.allSettled(dsps.map((d) => requestDspBid(d, outbound)));
   const out: DspBid[] = [];

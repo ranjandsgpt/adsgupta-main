@@ -6,6 +6,7 @@ import { sql } from "@/lib/db";
 import { badRequest, json } from "@/lib/http";
 import { forbidden, getAuthFromRequest, unauthorized } from "@/lib/require-auth";
 import { logAdminActivity } from "@/lib/admin-events";
+import { fireWebhooksAsync } from "@/lib/webhooks";
 import { NextRequest } from "next/server";
 
 async function loadCampaign(id: string) {
@@ -209,16 +210,63 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const em = String(row.advertiser_email ?? row.contact_email ?? "");
         const cn = String(row.campaign_name ?? row.name ?? "Campaign");
         if (em) void sendDemandActivationEmail(em, cn, params.id);
+
+        const creatives = await sql<{ c: string }>`
+          SELECT COUNT(*)::text AS c FROM creatives
+          WHERE campaign_id = ${params.id} AND status = 'active' AND (scan_passed IS NULL OR scan_passed = true)
+        `;
+        const creativeCount = Number(creatives.rows[0]?.c ?? 0);
+        if (auth.email) {
+          void logAdminActivity({
+            adminEmail: auth.email,
+            actionType: "campaign_activated",
+            entityType: "campaign",
+            entityId: params.id,
+            oldValue: prevStatus,
+            newValue: "active"
+          });
+        }
+        void sql`UPDATE admin_notifications SET read = true WHERE entity_type = 'campaign' AND entity_id = ${params.id}`.catch(
+          () => {}
+        );
+        void sql`
+          INSERT INTO admin_notifications (type, message, entity_type, entity_id)
+          VALUES (
+            'campaign_activated',
+            ${"Campaign " + cn + " activated with " + creativeCount + " creative(s)"},
+            'campaign',
+            ${params.id}
+          )
+        `.catch(() => {});
+        fireWebhooksAsync("campaign.activated", {
+          campaignId: params.id,
+          advertiserName: String(row.advertiser_name ?? ""),
+          bidPrice: Number(row.bid_price ?? 0)
+        });
+        if (creativeCount === 0) {
+          void sql`
+            INSERT INTO admin_notifications (type, message, entity_type, entity_id)
+            VALUES (
+              'warning',
+              ${"Campaign " + cn + " has no active creatives — add a creative to start serving"},
+              'campaign',
+              ${params.id}
+            )
+          `.catch(() => {});
+        }
       }
       if (row && auth.email) {
-        void logAdminActivity({
-          adminEmail: auth.email,
-          actionType: "campaign_status_update",
-          entityType: "campaign",
-          entityId: params.id,
-          oldValue: prevStatus,
-          newValue: row.status ?? null
-        });
+        const skipGeneric = prevStatus !== "active" && String(row.status ?? "") === "active";
+        if (!skipGeneric) {
+          void logAdminActivity({
+            adminEmail: auth.email,
+            actionType: "campaign_status_update",
+            entityType: "campaign",
+            entityId: params.id,
+            oldValue: prevStatus,
+            newValue: row.status ?? null
+          });
+        }
       }
       cacheDelete("campaigns:active");
       return json(row ?? null);

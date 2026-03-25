@@ -21,6 +21,10 @@ function canAccess(role: ExchangeRole | undefined, pathname: string): boolean {
 function apiAllowed(role: ExchangeRole | undefined, pathname: string, request: NextRequest): boolean {
   if (!role) return false;
   if (pathname.startsWith("/api/analytics")) return role === "admin";
+  if (pathname.startsWith("/api/campaign-stats")) return role === "admin" || role === "demand";
+  if (pathname.startsWith("/api/deals")) return role === "admin";
+  if (pathname.startsWith("/api/dsp-partners")) return role === "admin";
+  if (pathname.startsWith("/api/segments")) return role === "admin";
   if (pathname.startsWith("/api/admin")) return role === "admin";
   if (pathname.startsWith("/api/auction-stream")) return role === "admin";
   if (pathname.startsWith("/api/publisher-analytics")) return role === "admin" || role === "publisher";
@@ -114,6 +118,8 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (/^\/api\/campaign-intelligence\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (/^\/api\/campaign-ab-results\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (pathname === "/api/public/stats" && m === "GET") return true;
+  if (pathname === "/api/signals" && (m === "POST" || m === "OPTIONS")) return true;
+  if (pathname === "/api/cron/daily-reset" && m === "GET") return true;
   if (pathname === "/api/public/bid-estimate" && m === "GET") return true;
   if (pathname === "/api/test/e2e" && m === "GET") return true;
   if (/^\/api\/pixel\/[^/]+$/.test(pathname) && m === "GET") return true;
@@ -160,6 +166,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api/openrtb") ||
     pathname.startsWith("/api/track") ||
     pathname.startsWith("/api/db-init") ||
+    pathname.startsWith("/api/cron/") ||
     pathname === "/api/ping" ||
     pathname === "/api/health"
   ) {
@@ -274,6 +281,15 @@ export const config = {
     "/api/openrtb/:path*",
     "/api/track/:path*",
     "/api/db-init",
+    "/api/signals",
+    "/api/cron/:path*",
+    "/api/campaign-stats/:path*",
+    "/api/deals",
+    "/api/deals/:path*",
+    "/api/dsp-partners",
+    "/api/dsp-partners/:path*",
+    "/api/segments",
+    "/api/segments/:path*",
     "/api/ads.txt",
     "/status",
     "/privacy",

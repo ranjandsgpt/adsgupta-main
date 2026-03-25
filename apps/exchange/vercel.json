@@ -1,4 +1,5 @@
 {
   "installCommand": "npm install --prefix ../..",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "crons": [{ "path": "/api/cron/daily-reset", "schedule": "0 0 * * *" }]
 }
