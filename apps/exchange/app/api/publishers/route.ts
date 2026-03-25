@@ -79,12 +79,11 @@ export async function POST(request: NextRequest) {
     if (!domain) return badRequest("Invalid domain format", { startedAt: started });
     const email = ce;
     const primaryFormats = normalizePrimaryFormats(body);
-    if (primaryFormats.length === 0) {
-      return badRequest("Select at least one primary ad format");
-    }
+    // For minimal cURL testing / onboarding, default to display if not provided.
+    const primaryFormatsFinal = primaryFormats.length > 0 ? primaryFormats : ["display"];
     const result = await sql`
       INSERT INTO publishers (name, domain, contact_email, ads_txt_verified, status, primary_ad_formats)
-      VALUES (${String(body.name)}, ${domain}, ${email}, false, 'pending', ${primaryFormats})
+      VALUES (${String(body.name)}, ${domain}, ${email}, false, 'pending', ${primaryFormatsFinal})
       RETURNING *
     `;
     const row = result.rows[0] as { id: string; name: string; contact_email: string | null };

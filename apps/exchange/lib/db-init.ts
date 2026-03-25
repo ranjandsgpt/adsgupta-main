@@ -41,6 +41,10 @@ export async function createTables() {
         bid_price NUMERIC(10,4) NOT NULL,
         daily_budget NUMERIC(12,2),
         target_sizes TEXT[],
+        target_geos TEXT[],
+        target_devices TEXT[],
+        target_environments TEXT[],
+        target_domains TEXT[],
         status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'paused')),
         created_at TIMESTAMPTZ DEFAULT now()
       )
@@ -52,7 +56,7 @@ export async function createTables() {
         campaign_id UUID REFERENCES campaigns(id) ON DELETE CASCADE,
         name TEXT NOT NULL,
         type TEXT NOT NULL DEFAULT 'banner' CHECK (type IN ('banner')),
-        size TEXT NOT NULL,
+        size TEXT NOT NULL DEFAULT '300x250',
         image_url TEXT,
         click_url TEXT,
         status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused')),
@@ -73,6 +77,7 @@ export async function createTables() {
         bid_count INTEGER DEFAULT 0,
         cleared BOOLEAN DEFAULT false,
         page_url TEXT,
+        country TEXT,
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;
@@ -160,6 +165,7 @@ export async function createTables() {
     await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS rule_type TEXT DEFAULT 'unified'`;
 
     await sql`UPDATE creatives SET size = '300x250' WHERE size IS NULL OR size = ''`;
+    await sql`ALTER TABLE creatives ALTER COLUMN size SET DEFAULT '300x250'`;
 
     await sql`ALTER TABLE creatives DROP CONSTRAINT IF EXISTS creatives_status_check`;
     await sql`
@@ -172,6 +178,11 @@ export async function createTables() {
       CREATE UNIQUE INDEX IF NOT EXISTS impressions_auction_log_id_uidx
       ON impressions (auction_log_id)
       WHERE auction_log_id IS NOT NULL
+    `;
+    // Required contract: unique index with this exact name.
+    await sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS impressions_auction_log_id_idx
+      ON impressions (auction_log_id)
     `;
 
     await sql`
@@ -186,7 +197,8 @@ export async function createTables() {
       )
     `;
 
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS demand_source TEXT`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS demand_source TEXT DEFAULT 'internal'`;
+    await sql`ALTER TABLE auction_log ALTER COLUMN demand_source SET DEFAULT 'internal'`;
     await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS device_ip TEXT`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS advertiser_domain TEXT`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS iab_cat TEXT[]`;
@@ -194,11 +206,14 @@ export async function createTables() {
 
     await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS privacy_suppressed BOOLEAN DEFAULT false`;
     await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS is_ivt BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE auction_log ALTER COLUMN privacy_suppressed SET DEFAULT false`;
+    await sql`ALTER TABLE auction_log ALTER COLUMN is_ivt SET DEFAULT false`;
 
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scan_passed BOOLEAN DEFAULT true`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scan_issues TEXT[]`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scan_warnings TEXT[]`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scanned_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE creatives ALTER COLUMN scan_passed SET DEFAULT true`;
 
     await sql`ALTER TABLE creatives DROP CONSTRAINT IF EXISTS creatives_status_check`;
     await sql`
@@ -225,15 +240,24 @@ export async function createTables() {
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS ab_test_active BOOLEAN DEFAULT false`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS ab_winner_creative_id UUID REFERENCES creatives(id) ON DELETE SET NULL`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS ab_auto_pause_loser BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE campaigns ALTER COLUMN freq_cap_day SET DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ALTER COLUMN freq_cap_session SET DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ALTER COLUMN ab_test_active SET DEFAULT false`;
+    await sql`ALTER TABLE campaigns ALTER COLUMN ab_auto_pause_loser SET DEFAULT false`;
 
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS ab_group TEXT DEFAULT 'a'`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS ab_weight INTEGER DEFAULT 50`;
+    await sql`ALTER TABLE creatives ALTER COLUMN ab_group SET DEFAULT 'a'`;
+    await sql`ALTER TABLE creatives ALTER COLUMN ab_weight SET DEFAULT 50`;
 
     await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
     await sql`
       ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
       CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft'))
     `;
+    await sql`ALTER TABLE campaigns ALTER COLUMN status SET DEFAULT 'pending'`;
+    await sql`ALTER TABLE creatives ALTER COLUMN status SET DEFAULT 'active'`;
+    await sql`ALTER TABLE publishers ALTER COLUMN status SET DEFAULT 'pending'`;
 
     await sql`
       CREATE TABLE IF NOT EXISTS bid_history (

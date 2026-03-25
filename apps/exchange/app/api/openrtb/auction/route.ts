@@ -7,10 +7,11 @@ import { rateLimitResponse } from "@/lib/rate-limit-http";
 import { getClientIp } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
-const cors = {
+const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, X-MDE-Version"
+  "Access-Control-Allow-Headers": "Content-Type, X-MDE-Version",
+  "Access-Control-Max-Age": "86400"
 };
 
 const DEFAULT_TMAX = 500;
@@ -20,7 +21,7 @@ const WIN_BASE = "https://exchange.adsgupta.com/api/openrtb/win";
 
 function responseHeaders(ms: number, auctionId?: string | null): HeadersInit {
   const h: Record<string, string> = {
-    ...cors,
+    ...CORS_HEADERS,
     "X-Response-Time": String(ms)
   };
   if (auctionId) h["X-Auction-Id"] = auctionId;
@@ -28,7 +29,7 @@ function responseHeaders(ms: number, auctionId?: string | null): HeadersInit {
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 200, headers: cors });
+  return new NextResponse(null, { status: 200, headers: CORS_HEADERS });
 }
 
 export async function POST(request: NextRequest) {
@@ -39,7 +40,11 @@ export async function POST(request: NextRequest) {
   };
 
   const limited = rateLimitResponse(request, "openrtb:auction", 500, 60_000);
-  if (limited) return finish(limited);
+  if (limited) {
+    // Ensure rate-limited responses also satisfy cross-origin tags.
+    for (const [k, v] of Object.entries(CORS_HEADERS)) limited.headers.set(k, v);
+    return finish(limited);
+  }
 
   let bidRequest: OpenRTBBidRequest;
   try {

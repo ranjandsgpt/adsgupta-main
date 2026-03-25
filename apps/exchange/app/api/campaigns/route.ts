@@ -121,10 +121,8 @@ export async function POST(request: NextRequest) {
     return badRequest("Invalid advertiser_email", { startedAt: started });
   }
 
-  const targetSizes = Array.isArray(body.target_sizes) ? body.target_sizes : null;
-  if (!targetSizes || targetSizes.length === 0) {
-    return badRequest("target_sizes must include at least one size");
-  }
+  const targetSizes =
+    Array.isArray(body.target_sizes) && body.target_sizes.length > 0 ? body.target_sizes : null;
 
   try {
     const startDate = body.start_date != null && body.start_date !== "" ? String(body.start_date) : null;
@@ -142,13 +140,9 @@ export async function POST(request: NextRequest) {
     const freqSess = body.freq_cap_session != null ? Number(body.freq_cap_session) : 0;
 
     if (!auth) {
-      if (!envs || envs.length === 0) {
-        return badRequest("target_environments must include at least one environment");
-      }
-      if (!devices || devices.length === 0) {
-        return badRequest("target_devices must include at least one device type");
-      }
       if (!advertiserEmail) return badRequest("advertiser_email is required for registration");
+      if (!envs || envs.length === 0) envs = null;
+      if (!devices || devices.length === 0) devices = null;
       const result = await sql`
         INSERT INTO campaigns (
           advertiser_name, advertiser_email, campaign_name, bid_price, daily_budget,

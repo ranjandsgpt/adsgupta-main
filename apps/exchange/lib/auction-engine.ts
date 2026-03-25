@@ -80,6 +80,44 @@ function parseSize(size: string | null | undefined): { w: number; h: number } {
   return { w, h };
 }
 
+/**
+ * Creative size matching for OpenRTB: allow exact banner-format match (w/h),
+ * or match against ad unit size strings, but don't fail hard if we can't parse.
+ */
+function creativeSizeMatchesBanner(
+  creativeSize: string,
+  bannerFormats: Array<{ w: number; h: number }>,
+  adUnitSizes: string[]
+): boolean {
+  // Parse creative size '300x250' → {w:300, h:250}
+  const parts = creativeSize.toLowerCase().split("x");
+  const cw = parseInt(parts[0] || "", 10);
+  const ch = parseInt(parts[1] || "", 10);
+  if (isNaN(cw) || isNaN(ch)) return true; // can't parse — don't filter
+
+  // Check against banner formats from bid request
+  if (bannerFormats && bannerFormats.length > 0) {
+    if (bannerFormats.some((f) => f.w === cw && f.h === ch)) return true;
+  }
+
+  // Check against ad unit sizes
+  if (adUnitSizes && adUnitSizes.length > 0) {
+    if (adUnitSizes.some((s) => s.toLowerCase() === creativeSize.toLowerCase())) return true;
+    if (
+      adUnitSizes.some((s) => {
+        const p = s.split("x");
+        return parseInt(p[0] || "", 10) === cw && parseInt(p[1] || "", 10) === ch;
+      })
+    )
+      return true;
+  }
+
+  // If no formats or sizes to compare against — allow the creative
+  if ((!bannerFormats || bannerFormats.length === 0) && (!adUnitSizes || adUnitSizes.length === 0)) return true;
+
+  return false;
+}
+
 function buildAdm(imageUrl: string, clickUrl: string, w: number, h: number): string {
   const href = clickUrl.replace(/"/g, "&quot;");
   const src = imageUrl.replace(/"/g, "&quot;");
@@ -312,7 +350,7 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
       AND cr.status IN ('active', 'approved')
       AND cr.image_url IS NOT NULL
       AND cr.click_url IS NOT NULL
-      AND (COALESCE(cr.scan_passed, true) = true OR cr.status = 'approved')
+      AND (cr.scan_passed IS NULL OR cr.scan_passed = true OR cr.status = 'approved')
   `);
   const list = rows as JoinRow[];
   cacheSet(key, list, 30_000);
@@ -389,6 +427,13 @@ export async function runAuction(
     if (formatSizes.length === 0) {
       formatSizes = adUnit.sizes ?? [];
     }
+    const bannerFormats =
+      imp?.banner?.format?.length
+        ? imp.banner.format
+            .map((f) => ({ w: Number(f.w), h: Number(f.h) }))
+            .filter((x) => Number.isFinite(x.w) && Number.isFinite(x.h))
+        : [];
+    const adUnitSizes = adUnit.sizes ?? [];
 
     const baseFloor = await getEffectiveFloor({
       adUnitId: adUnit.id,
@@ -505,15 +550,20 @@ export async function runAuction(
       const advDom = c0.advertiser_domain ?? null;
       if (advDom && campaignBlockedByBadv(advDom, badv)) continue;
       if (!campaignMatchesTargeting(c, targetingCtx)) continue;
-      const budget = c0.daily_budget != null ? Number(c0.daily_budget) : NaN;
-      if (!Number.isNaN(budget) && budget > 0) {
-        if (await isCampaignOverBudget(campaignId, budget)) continue;
+      // Budget: NULL or 0 means unlimited (never over budget).
+      if (c0.daily_budget != null) {
+        const dailyBudget = Number(c0.daily_budget);
+        if (Number.isFinite(dailyBudget) && dailyBudget > 0) {
+          const overBudget = await isCampaignOverBudget(campaignId, dailyBudget);
+          if (overBudget) continue;
+        }
       }
       for (const r of rows) {
         const bidPrice = Number(r.bid_price);
         if (bidPrice < floor) continue;
         const crSize = r.creative_size;
-        if (!crSize || !formatSizes.includes(crSize)) continue;
+        if (!crSize) continue;
+        if (!creativeSizeMatchesBanner(crSize, bannerFormats, adUnitSizes)) continue;
         const img = r.image_url as string;
         const clk = r.click_url as string;
         if (requireSecure && !urlsSecureEnough(img, clk)) continue;
@@ -664,7 +714,7 @@ export async function runAuction(
     };
   } catch (e) {
     console.error("[auction-engine] runAuction failed:", e);
-    throw e;
+    return null; // fail silently — publisher gets no-fill instead of 500
   } finally {
     const auctionMs =
       (typeof performance !== "undefined" ? performance.now() : Date.now()) - auctionStart;

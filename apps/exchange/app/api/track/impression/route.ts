@@ -12,7 +12,8 @@ const GIF_1X1 = Buffer.from(
 const headers = {
   "Content-Type": "image/gif",
   "Cache-Control": "no-cache, no-store",
-  Pragma: "no-cache"
+  Pragma: "no-cache",
+  "Access-Control-Allow-Origin": "*"
 };
 
 /** `id` = `auction_log.id` (UUID). Inserts impression once per log row. */

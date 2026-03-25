@@ -35,6 +35,19 @@ async function verifyCampaignForPublic(campaignId: string, advertiserEmail: stri
   return { ok: true as const, status: row.status };
 }
 
+async function verifyCampaignStatusForPublic(campaignId: string) {
+  const result = await sql`
+    SELECT id, status
+    FROM campaigns WHERE id = ${campaignId} LIMIT 1
+  `;
+  const row = result.rows[0] as { id: string; status: string } | undefined;
+  if (!row) return { ok: false as const, error: forbidden("Invalid campaign") };
+  if (row.status !== "pending" && row.status !== "active") {
+    return { ok: false as const, error: forbidden("Creative upload is not allowed for this campaign") };
+  }
+  return { ok: true as const, status: row.status };
+}
+
 export async function GET(request: NextRequest) {
   const auth = await getAuthFromRequest(request);
   const campId =
@@ -121,17 +134,48 @@ export async function POST(request: NextRequest) {
   if (limited) return limited;
 
   const auth = await getAuthFromRequest(request);
-  const formData = await request.formData();
-  const campaignId = formData.get("campaign_id") as string;
-  const name = formData.get("name") as string;
-  const typeIn = (formData.get("type") as string) ?? "banner";
-  const size = (formData.get("size") as string) ?? null;
-  const clickUrl = (formData.get("click_url") as string) ?? null;
-  const htmlSnippet = (formData.get("html_snippet") as string) ?? null;
-  const vastUrl = (formData.get("vast_url") as string) ?? null;
-  const typ = normType(typeIn);
-  const file = formData.get("file") as File | null;
-  const publicEmail = (formData.get("advertiser_email") as string) ?? null;
+  const contentType = String(request.headers.get("content-type") ?? "").toLowerCase();
+  const isJsonBody = contentType.includes("application/json");
+
+  let campaignId: string | null = null;
+  let name: string | null = null;
+  let typeIn = "banner";
+  let size: string | null = null;
+  let clickUrl: string | null = null;
+  let htmlSnippet: string | null = null;
+  let vastUrl: string | null = null;
+  let typ: string;
+  let file: File | null = null;
+  let publicEmail: string | null = null;
+  let imageUrlInitial: string | null = null;
+  let statusIn: string | null = null;
+
+  if (isJsonBody) {
+    const body = (await request.json()) as Record<string, unknown>;
+    campaignId = body.campaign_id != null ? String(body.campaign_id) : null;
+    name = body.name != null ? String(body.name) : null;
+    typeIn = body.type != null ? String(body.type) : "banner";
+    size = body.size != null ? String(body.size) : null;
+    clickUrl = body.click_url != null ? String(body.click_url) : null;
+    htmlSnippet = body.html_snippet != null ? String(body.html_snippet) : null;
+    vastUrl = body.vast_url != null ? String(body.vast_url) : null;
+    publicEmail = body.advertiser_email != null ? String(body.advertiser_email) : null;
+    imageUrlInitial = body.image_url != null ? String(body.image_url) : null;
+    statusIn = body.status != null ? String(body.status) : null;
+  } else {
+    const formData = await request.formData();
+    campaignId = formData.get("campaign_id") as string;
+    name = formData.get("name") as string;
+    typeIn = (formData.get("type") as string) ?? "banner";
+    size = (formData.get("size") as string) ?? null;
+    clickUrl = (formData.get("click_url") as string) ?? null;
+    htmlSnippet = (formData.get("html_snippet") as string) ?? null;
+    vastUrl = (formData.get("vast_url") as string) ?? null;
+    file = formData.get("file") as File | null;
+    publicEmail = (formData.get("advertiser_email") as string) ?? null;
+  }
+
+  typ = normType(typeIn);
 
   if (!campaignId || !name) {
     return badRequest("campaign_id and name are required");
@@ -148,14 +192,23 @@ export async function POST(request: NextRequest) {
   if (!size || !isValidIabSize(String(size))) {
     return badRequest("size must be a standard IAB size (e.g. 300x250)");
   }
+  if (isJsonBody) {
+    if (!imageUrlInitial) return badRequest("image_url is required");
+    if (!validateUrl(imageUrlInitial)) return badRequest("image_url must be a valid URL");
+  }
 
   try {
     if (!auth) {
-      if (!publicEmail?.trim()) {
+      if (publicEmail?.trim()) {
+        const gate = await verifyCampaignForPublic(campaignId, publicEmail);
+        if (!gate.ok) return gate.error;
+      } else if (isJsonBody) {
+        // Hosted-image uploads may be submitted without advertiser_email; allow if campaign is in a pending/active state.
+        const gate = await verifyCampaignStatusForPublic(campaignId);
+        if (!gate.ok) return gate.error;
+      } else {
         return badRequest("advertiser_email is required to verify campaign ownership");
       }
-      const gate = await verifyCampaignForPublic(campaignId, publicEmail);
-      if (!gate.ok) return gate.error;
     } else if (auth.role === "publisher") {
       return forbidden();
     } else if (auth.role === "demand") {
@@ -168,7 +221,7 @@ export async function POST(request: NextRequest) {
       if (seat && row.adv !== seat) return forbidden("Invalid campaign for your seat");
     }
 
-    let imageUrl: string | null = null;
+    let imageUrl: string | null = imageUrlInitial;
     if (file && file.size > 0) {
       if (file.size > MAX_BYTES) return badRequest("File must be 2MB or smaller");
       const mime = file.type || "application/octet-stream";
@@ -177,14 +230,14 @@ export async function POST(request: NextRequest) {
       }
       const blob = await put(file.name, file, { access: "public" });
       imageUrl = blob.url;
-    } else if (!auth || (!htmlSnippet && !vastUrl)) {
+    } else if (!imageUrl && (!auth || (!htmlSnippet && !vastUrl))) {
       return badRequest("Image file is required");
     }
 
     let scanPassed = true;
     let scanIssues: string[] = [];
     let scanWarnings: string[] = [];
-    let creativeStatus = "active";
+    let creativeStatus = statusIn ?? "active";
     const scannedAt = new Date().toISOString();
     if (imageUrl) {
       const scan = await scanCreativeUrl(imageUrl, String(size));

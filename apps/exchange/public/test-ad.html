@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MDE Exchange — Ad Tag Test Page</title>
+  <style>
+    body { font-family: monospace; background: #0a0e17; color: #c8d6e5; padding: 40px; }
+    h1 { color: #00d4aa; }
+    .ad-container { border: 1px solid #1a2332; padding: 10px; display: inline-block; margin: 20px 0; }
+    .log { background: #0f1419; border: 1px solid #1a2332; padding: 12px; margin-top: 20px; font-size: 11px; }
+    .log-entry { margin: 2px 0; }
+    .log-entry.success { color: #00d4aa; }
+    .log-entry.error { color: #ff4757; }
+    .log-entry.info { color: #4a9eff; }
+  </style>
+</head>
+<body>
+  <h1>MDE Exchange — Tag Test</h1>
+  <p>Publisher ID: <strong id="pub-id">REPLACE_WITH_YOUR_PUBLISHER_ID</strong></p>
+  <p>Ad Unit ID: <strong id="unit-id">REPLACE_WITH_YOUR_AD_UNIT_ID</strong></p>
+
+  <div class="ad-container">
+    <div id="mde-test-unit" style="width:300px;height:250px;background:#0f1419;display:flex;align-items:center;justify-content:center;color:#5a6d82;font-size:11px;">
+      Loading ad...
+    </div>
+  </div>
+
+  <div class="log" id="log">
+    <div class="log-entry info">MDE Exchange Ad Tag Test — waiting...</div>
+  </div>
+
+  <script>
+    const log = document.getElementById('log');
+    function addLog(msg, type='info') {
+      const el = document.createElement('div');
+      el.className = 'log-entry ' + type;
+      el.textContent = '[' + new Date().toISOString().slice(11,23) + '] ' + msg;
+      log.appendChild(el);
+    }
+
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'mde:impression') {
+        addLog('Ad impression fired — unit: ' + e.data.unitId + ', price: $' + e.data.price, 'success');
+      }
+    });
+
+    window.mde = window.mde || { cmd: [] };
+    mde.cmd.push(function() {
+      addLog('mde.js loaded', 'success');
+      mde.init({ networkCode: 'REPLACE_WITH_YOUR_PUBLISHER_ID' });
+      mde.defineSlot({
+        unitId: 'REPLACE_WITH_YOUR_AD_UNIT_ID',
+        div: 'mde-test-unit',
+        sizes: ['300x250'],
+        floor: 0.10
+      });
+      mde.enableServices();
+      addLog('Sending bid request...', 'info');
+      mde.display('mde-test-unit');
+    });
+  </script>
+  <script async src="https://exchange.adsgupta.com/mde.js"
+    onload="addLog('mde.js script loaded', 'success')"
+    onerror="addLog('ERROR: failed to load mde.js', 'error')">
+  </script>
+</body>
+</html>
+

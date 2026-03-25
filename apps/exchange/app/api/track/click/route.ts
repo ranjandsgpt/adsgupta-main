@@ -41,5 +41,7 @@ export async function GET(request: NextRequest) {
     console.error("[click]", e);
   }
 
-  return NextResponse.redirect(destination, 302);
+  const res = NextResponse.redirect(destination, 302);
+  res.headers.set("Access-Control-Allow-Origin", "*");
+  return res;
 }
