@@ -44,14 +44,13 @@ function buildTagSnippet(publisherId: string, unit: AdUnit) {
   const [w, h] = size.split("x");
   const floor = Number(unit.floor_price ?? 0.5);
   const unitId = unit.id;
-  const sizesJson = JSON.stringify(sizes);
   return `<!-- MDE Publisher Tag | ${unit.name} | exchange.adsgupta.com -->
 <div id='mde-${unitId}' style='width:${w}px;height:${h}px;overflow:hidden;'></div>
 <script>
   window.mde=window.mde||{cmd:[]};
   mde.cmd.push(function(){
     mde.init({networkCode:'${publisherId}'});
-    mde.defineSlot({unitId:'${unitId}',div:'mde-${unitId}',sizes:${sizesJson},floor:${floor}});
+    mde.defineSlot({unitId:'${unitId}',div:'mde-${unitId}',sizes:['${size}'],floor:${floor}});
     mde.enableServices();
     mde.display('mde-${unitId}');
   });
