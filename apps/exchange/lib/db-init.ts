@@ -120,7 +120,7 @@ export async function createTables() {
 
     // ── Migrations from older shapes (safe no-ops if columns missing) ─────────
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_verified BOOLEAN DEFAULT false`;
-    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS primary_ad_formats TEXT[]`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS primary_ad_formats TEXT[] DEFAULT '{}'`;
 
     await sql`ALTER TABLE ad_units DROP CONSTRAINT IF EXISTS ad_units_status_check`;
     await sql`
