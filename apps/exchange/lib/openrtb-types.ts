@@ -1,7 +1,32 @@
 /**
  * OpenRTB 2.6 — TypeScript shapes for request/response used by the exchange.
  * Field names match the spec; optional reflects common wire usage.
+ * For the full object trees see IAB OpenRTB 2.6 specification.
  */
+
+export type OpenRTB26Producer = {
+  id?: string;
+  name?: string;
+  cat?: string[];
+  domain?: string;
+  ext?: Record<string, unknown>;
+};
+
+export type OpenRTB26Content = {
+  id?: string;
+  episode?: number;
+  title?: string;
+  series?: string;
+  season?: string;
+  genre?: string;
+  cat?: string[];
+  cattax?: number;
+  language?: string;
+  keywords?: string;
+  embeddable?: 0 | 1;
+  url?: string;
+  ext?: Record<string, unknown>;
+};
 
 export type OpenRTB26Regs = {
   coppa?: 0 | 1;
@@ -76,7 +101,7 @@ export type OpenRTB26Site = {
   search?: string;
   mobile?: 0 | 1;
   publisher?: OpenRTB26Publisher;
-  content?: Record<string, unknown>;
+  content?: OpenRTB26Content;
   ext?: Record<string, unknown>;
 };
 
@@ -91,7 +116,7 @@ export type OpenRTB26App = {
   pagecat?: string[];
   ver?: string;
   publisher?: OpenRTB26Publisher;
-  content?: Record<string, unknown>;
+  content?: OpenRTB26Content;
   ext?: Record<string, unknown>;
 };
 
@@ -161,9 +186,18 @@ export type OpenRTB26BidRequest = {
   bseat?: string[];
   allimps?: 0 | 1;
   cur?: string[];
+  /** Blocked advertiser categories (IAB). */
   bcat?: string[];
+  /** Allowed advertiser categories. */
+  acat?: string[];
   badv?: string[];
   bapp?: string[];
+  /** Browser language (ISO-639-1-alpha-2). */
+  wlang?: string[];
+  /** Browser language using IETF BCP 47. */
+  wlangb?: string[];
+  /** Taxonomy for acat / bcat when using cattax elsewhere. */
+  cattax?: number;
   source?: OpenRTB26Source;
   regs?: OpenRTB26Regs;
   ext?: Record<string, unknown>;

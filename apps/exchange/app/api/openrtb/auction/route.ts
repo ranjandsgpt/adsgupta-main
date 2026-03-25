@@ -89,6 +89,14 @@ export async function POST(request: NextRequest) {
   }
   const markIvt = ivt.givtScore >= 80;
 
+  if (bidRequest.regs?.gdpr === 1) {
+    const cs = bidRequest.user?.consent;
+    if (typeof cs !== "string" || !cs.trim()) {
+      const ms = Date.now() - started;
+      return finish(NextResponse.json({ id: bidRequest.id, nbr: 2 }, { status: 200, headers: responseHeaders(ms) }));
+    }
+  }
+
   const bidfloor = Math.max(0, Number(imp?.bidfloor ?? 0));
 
   const runPromise = runAuction(bidRequest.id, adUnitId, imp, pageUrl, bidfloor, {
