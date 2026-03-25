@@ -35,8 +35,15 @@ function parseBidResponse(raw: unknown): OpenRTB26BidResponse | null {
 }
 
 export async function requestDspBid(dsp: DSP, bidRequest: OpenRTB26BidRequest): Promise<DspBid | null> {
+  let outbound: OpenRTB26BidRequest;
   try {
-    const body = JSON.stringify(bidRequest);
+    outbound = JSON.parse(JSON.stringify(bidRequest)) as OpenRTB26BidRequest;
+  } catch {
+    outbound = bidRequest;
+  }
+
+  try {
+    const body = JSON.stringify(outbound);
     const timeout = Math.max(50, Math.min(dsp.bid_timeout_ms || 150, 2000));
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), timeout);
