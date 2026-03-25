@@ -67,6 +67,7 @@ function TargetingChips({ c }: { c: Campaign }) {
   if (env?.length) parts.push(`Env: ${env.join(", ")}`);
   const geo = c.target_geos;
   if (geo?.length) parts.push(`Geo: ${geo.join(", ")}`);
+  else parts.push("Geo: All countries");
   const dev = c.target_devices;
   if (dev?.length) parts.push(`Device: ${dev.join(", ")}`);
   const dom = c.target_domains;
