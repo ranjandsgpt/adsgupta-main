@@ -413,8 +413,8 @@ function DemandCreateInner() {
       setError("Bid CPM must be at least $0.10.");
       return;
     }
-    if (!Number.isFinite(budget) || budget < 5) {
-      setError("Daily budget must be at least $5.");
+    if (!Number.isFinite(budget) || budget < 1) {
+      setError("Daily budget must be at least $1.");
       return;
     }
     const em = advertiserEmail.trim();
@@ -444,9 +444,11 @@ function DemandCreateInner() {
           freq_cap_session: Number(freqCapSession) || 0
         })
       });
-      const data = (await res.json()) as { id?: string; error?: string };
+      const data = (await res.json()) as { id?: string; error?: string; detail?: string };
       if (!res.ok) {
-        setError(typeof data.error === "string" ? data.error : "Failed to create campaign");
+        const base = typeof data.error === "string" ? data.error : "Failed to create campaign";
+        const extra = typeof data.detail === "string" ? data.detail : "";
+        setError(extra ? `${base} — ${extra}` : base);
         setLoading(false);
         return;
       }
@@ -486,9 +488,11 @@ function DemandCreateInner() {
     fd.append("click_url", cu);
     fd.append("file", file);
     const { ok, data, status } = await uploadCreativeMultipart(fd, setUploadPct);
-    const row = data as CreativeRow & { error?: string };
+    const row = data as CreativeRow & { error?: string; detail?: string };
     if (!ok) {
-      setError(typeof row?.error === "string" ? row.error : `Upload failed (${status})`);
+      const base = typeof row?.error === "string" ? row.error : `Upload failed (${status})`;
+      const extra = typeof row?.detail === "string" ? row.detail : "";
+      setError(extra ? `${base} — ${extra}` : base);
       return false;
     }
     setUploaded((prev) => [row, ...prev]);
@@ -541,7 +545,7 @@ function DemandCreateInner() {
   const previewCreative = step === 3 ? (uploaded.find((cr) => cr.size === "300x250") ?? uploaded[0]) : null;
 
   return (
-    <div style={{ maxWidth: step === 3 ? 760 : 620 }}>
+    <div className="page-content" style={{ maxWidth: step === 3 ? 760 : 620 }}>
       <h1 style={{ color: "var(--text-bright)", marginTop: 0 }}>Create campaign</h1>
       <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
         Step {step} of 3 · <span style={{ color: "#ffd32a" }}>Pending review</span> until the exchange activates your line item.

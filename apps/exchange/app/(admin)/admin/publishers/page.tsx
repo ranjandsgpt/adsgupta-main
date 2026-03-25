@@ -141,7 +141,7 @@ export default function AdminPublishersPage() {
         setBusy(null);
         return;
       }
-      toastSuccess(status === "active" ? "Publisher activated" : status === "suspended" ? "Publisher suspended" : "Publisher updated");
+      toastSuccess(status === "active" ? "Publisher activated ✓" : status === "suspended" ? "Publisher suspended" : "Publisher updated");
     } catch {
       setError("Network error");
       setRows(prev);

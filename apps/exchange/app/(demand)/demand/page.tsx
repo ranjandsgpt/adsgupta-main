@@ -19,7 +19,7 @@ export default function DemandLandingPage() {
     { title: "Go Live", desc: "Win real OpenRTB auctions on publisher inventory." }
   ];
   return (
-    <div style={{ minHeight: "calc(100vh - 80px)", maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column" }}>
+    <div className="page-content" style={{ display: "flex", flexDirection: "column", minHeight: "60vh" }}>
       <CookieConsentBanner />
       <div style={{ marginBottom: 32, flex: "0 0 auto" }}>
         <h1
@@ -35,7 +35,7 @@ export default function DemandLandingPage() {
           Start Advertising
         </h1>
         <p style={{ fontSize: 16, color: "var(--text-muted)", lineHeight: 1.65, margin: 0, maxWidth: 640 }}>
-          Real OpenRTB auctions. Set your bid. Upload your creative. Go live.
+          Upload your creative, set a bid, and start serving ads across publisher inventory.
         </p>
       </div>
 

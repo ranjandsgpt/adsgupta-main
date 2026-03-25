@@ -125,15 +125,11 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
 }
 
 function isPublicPage(pathname: string): boolean {
+  if (pathname.startsWith("/publisher") || pathname.startsWith("/demand") || pathname.startsWith("/docs")) {
+    return true;
+  }
+  if (pathname.startsWith("/prebid")) return true;
   return (
-    pathname === "/publisher" ||
-    pathname === "/publisher/register" ||
-    pathname === "/publisher/login" ||
-    pathname === "/publisher/dashboard" ||
-    pathname === "/demand" ||
-    pathname === "/demand/create" ||
-    pathname === "/demand/dashboard" ||
-    pathname === "/publisher/tags" ||
     pathname === "/status" ||
     pathname === "/privacy" ||
     pathname === "/publisher/estimate"

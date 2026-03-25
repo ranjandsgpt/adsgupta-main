@@ -7,8 +7,8 @@ const C = {
   bg: "#ffffff",
   bgCard: "#f8f9fa",
   border: "#e2e8f0",
-  textMuted: "#718096",
-  textBright: "#e8f0f8",
+  textMuted: "#667085",
+  textBright: "#101828",
   accent: "#0066cc",
   blue: "#4a9eff",
   green: "#2ecc71",
@@ -83,12 +83,20 @@ function relTime(iso: string): string {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
+type PubStats = {
+  auctionsToday: number;
+  activePublishers: number;
+  activeCampaigns: number;
+  avgCpmLast7d: number;
+};
+
 export default function AdminDashboardPage() {
   const [dash, setDash] = useState<Dash | null>(null);
   const [demand, setDemand] = useState<{ rows: DpRow[]; total_auctions_today: number } | null>(null);
   const [auctions, setAuctions] = useState<AuctionRow[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [needs, setNeeds] = useState<NeedsAction | null>(null);
+  const [pubStats, setPubStats] = useState<PubStats | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -123,6 +131,25 @@ export default function AdminDashboardPage() {
     return () => clearInterval(id);
   }, [load]);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function pollPub() {
+      try {
+        const r = await fetch("/api/public/stats", { cache: "no-store" });
+        const j = (await r.json()) as PubStats;
+        if (!cancelled && r.ok) setPubStats(j);
+      } catch {
+        if (!cancelled) setPubStats(null);
+      }
+    }
+    void pollPub();
+    const id = setInterval(() => void pollPub(), 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
   const card = (
     label: string,
     value: string,
@@ -149,7 +176,31 @@ export default function AdminDashboardPage() {
   const d = dash;
 
   return (
-    <div>
+    <div className="page-content">
+      <div className="card" style={{ marginBottom: 16, padding: "12px 16px" }}>
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "12px 16px" }}>
+          <span className="pulse-dot" />
+          <span style={{ fontWeight: 600, fontSize: 13 }}>Exchange Live</span>
+          {pubStats ? (
+            <>
+              {[
+                ["QPS (approx)", pubStats.auctionsToday > 0 ? (pubStats.auctionsToday / Math.max(1, new Date().getHours() || 1) / 3600).toFixed(2) : "—"],
+                ["Auctions today", String(pubStats.auctionsToday)],
+                ["Pub / Camp", `${pubStats.activePublishers} / ${pubStats.activeCampaigns}`],
+                ["Avg CPM 7d", `$${pubStats.avgCpmLast7d.toFixed(2)}`]
+              ].map(([k, v]) => (
+                <div key={k} style={{ fontSize: 12 }}>
+                  <span style={{ color: C.textMuted }}>{k}</span>{" "}
+                  <strong style={{ color: C.textBright }}>{v}</strong>
+                </div>
+              ))}
+            </>
+          ) : (
+            <span style={{ color: C.textMuted, fontSize: 12 }}>Loading public pulse…</span>
+          )}
+          <span style={{ color: C.textMuted, fontSize: 11, marginLeft: "auto" }}>Updates every 5s</span>
+        </div>
+      </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
           <div style={{ fontSize: 20, fontWeight: 800, color: C.textBright }}>Exchange Overview</div>

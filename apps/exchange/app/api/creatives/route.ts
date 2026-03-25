@@ -228,6 +228,15 @@ export async function POST(request: NextRequest) {
       if (!ALLOWED.has(mime)) {
         return badRequest("Only JPG, PNG, GIF, or WebP images are allowed");
       }
+      if (!process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
+        return json(
+          {
+            error:
+              "File uploads are disabled: BLOB_READ_WRITE_TOKEN is not set. Configure Vercel Blob (or set the token locally) to save creatives."
+          },
+          503
+        );
+      }
       const blob = await put(file.name, file, { access: "public" });
       imageUrl = blob.url;
     } else if (!imageUrl && (!auth || (!htmlSnippet && !vastUrl))) {
@@ -285,6 +294,13 @@ export async function POST(request: NextRequest) {
     );
   } catch (e) {
     console.error("[creatives POST]", e);
-    return json({ error: "Failed to save creative" }, 500);
+    const detail = e instanceof Error ? e.message : undefined;
+    return json(
+      {
+        error: "Failed to save creative",
+        ...(detail ? { detail } : {})
+      },
+      500
+    );
   }
 }

@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 type Unit = { id: string; name: string; publisher_id: string; sizes: string[]; floor_price: string };
 
-export default function PublisherTagsPage() {
+function PublisherTagsInner() {
+  const sp = useSearchParams();
+  const qPub = sp.get("publisherId") ?? sp.get("id");
   const [units, setUnits] = useState<Unit[]>([]);
   const [unitId, setUnitId] = useState("");
   const [pubId, setPubId] = useState<string | null>(null);
@@ -16,17 +19,21 @@ export default function PublisherTagsPage() {
 
   useEffect(() => {
     (async () => {
-      const r = await fetch("/api/inventory", { credentials: "include" });
+      const url = qPub
+        ? `/api/inventory?publisherId=${encodeURIComponent(qPub)}`
+        : "/api/inventory";
+      const r = await fetch(url, { credentials: "include" });
       const j = await r.json();
       if (r.ok && Array.isArray(j)) {
-        setUnits(j);
-        if (j.length) {
-          setUnitId((u) => u || j[0].id);
-          setPubId(j[0].publisher_id ?? null);
+        const list = qPub ? (j as Unit[]).filter((u) => u.publisher_id === qPub) : (j as Unit[]);
+        setUnits(list);
+        if (list.length) {
+          setUnitId((u) => u || list[0].id);
+          setPubId(list[0].publisher_id ?? qPub ?? null);
         }
       }
     })();
-  }, []);
+  }, [qPub]);
 
   useEffect(() => {
     const u = units.find((x) => x.id === unitId);
@@ -207,5 +214,13 @@ ${tag}
         </div>
       )}
     </div>
+  );
+}
+
+export default function PublisherTagsPage() {
+  return (
+    <Suspense fallback={<div className="page-content">Loading…</div>}>
+      <PublisherTagsInner />
+    </Suspense>
   );
 }

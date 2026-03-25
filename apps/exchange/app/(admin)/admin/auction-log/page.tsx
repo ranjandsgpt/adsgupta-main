@@ -98,11 +98,12 @@ export default function AdminAuctionLogPage() {
   }, [load]);
 
   useEffect(() => {
+    if (!live) return;
     const t = window.setInterval(() => {
       void load();
     }, 10_000);
     return () => window.clearInterval(t);
-  }, [load]);
+  }, [load, live]);
 
   useEffect(() => {
     if (!live || typeof window === "undefined") {

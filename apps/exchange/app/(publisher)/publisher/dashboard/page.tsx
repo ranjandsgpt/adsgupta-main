@@ -44,18 +44,19 @@ function buildTagSnippet(publisherId: string, unit: AdUnit) {
   const [w, h] = size.split("x");
   const floor = Number(unit.floor_price ?? 0.5);
   const unitId = unit.id;
-  return `<!-- MDE Publisher Tag | ${unit.name} | exchange.adsgupta.com -->
-<div id='mde-${unitId}' style='width:${w}px;height:${h}px;overflow:hidden;'></div>
+  const divId = `mde-${unitId}`;
+  return `<!-- MDE Ad Tag | ${unit.name} | exchange.adsgupta.com -->
+<div id="${divId}" style="width:${w}px;height:${h}px;"></div>
 <script>
-  window.mde=window.mde||{cmd:[]};
-  mde.cmd.push(function(){
-    mde.init({networkCode:'${publisherId}'});
-    mde.defineSlot({unitId:'${unitId}',div:'mde-${unitId}',sizes:['${size}'],floor:${floor}});
+  window.mde = window.mde || { cmd: [] };
+  mde.cmd.push(function() {
+    mde.init({ networkCode: '${publisherId}' });
+    mde.defineSlot({ unitId: '${unitId}', div: '${divId}', sizes: ['${size}'], floor: ${floor} });
     mde.enableServices();
-    mde.display('mde-${unitId}');
+    mde.display('${divId}');
   });
 </script>
-<script async src='https://exchange.adsgupta.com/mde.js'></script>`;
+<script async src="https://exchange.adsgupta.com/mde.js"></script>`;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -104,7 +105,8 @@ function PublisherDashboardInner() {
   const [prebidJson, setPrebidJson] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [editingFloor, setEditingFloor] = useState<{ unitId: string; value: string } | null>(null);
-  const [tab, setTab] = useState<"overview" | "analytics" | "units" | "tags" | "supply">("overview");
+  const [tab, setTab] = useState<"overview" | "units" | "tags" | "analytics">("overview");
+  const [tagFocusId, setTagFocusId] = useState<string | null>(null);
   const [floorMeta, setFloorMeta] = useState<{
     eligible: boolean;
     auctionCount7d?: number;
@@ -116,7 +118,14 @@ function PublisherDashboardInner() {
 
   const reloadUnits = useCallback(async (pid: string) => {
     const ir = await fetch(`/api/inventory?publisherId=${encodeURIComponent(pid)}`);
-    if (ir.ok) setUnits((await ir.json()) as AdUnit[]);
+    if (ir.ok) {
+      const list = (await ir.json()) as AdUnit[];
+      setUnits(list);
+      setTagFocusId((prev) => {
+        if (prev && list.some((u) => u.id === prev)) return prev;
+        return list[0]?.id ?? null;
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -239,7 +248,9 @@ function PublisherDashboardInner() {
         setCreating(false);
         return;
       }
-      setUnits((u) => [...u, data as AdUnit]);
+      const row = data as AdUnit;
+      setUnits((u) => [...u, row]);
+      setTagFocusId(row.id);
       setModalOpen(false);
       void reloadStats(id);
     } catch {
@@ -358,7 +369,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
 </html>`;
 
   return (
-    <div>
+    <div className="page-content">
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -408,13 +419,12 @@ ${testHtml ? `\n${testHtml}\n` : ""}
             {(
               [
                 ["overview", "Overview"],
-                ["analytics", "Analytics"],
-                ["units", "Units"],
+                ["units", "Ad Units"],
                 ["tags", "Tags"],
-                ["supply", "Supply chain"]
+                ["analytics", "Analytics"]
               ] as const
             ).map(([t, label]) => (
-              <button key={t} type="button" className={tab === t ? "" : "secondary"} onClick={() => setTab(t)}>
+              <button key={t} type="button" className={tab === t ? "btn-primary" : "btn-secondary"} onClick={() => setTab(t)}>
                 {label}
               </button>
             ))}
@@ -481,20 +491,7 @@ ${testHtml ? `\n${testHtml}\n` : ""}
             </div>
           )}
 
-          {tab === "analytics" && id && <PublisherAnalyticsTab publisherId={id} />}
-
-          {tab === "tags" && id && (
-            <div className="card" style={{ marginBottom: 20 }}>
-              <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
-                Generate MDE and Prebid snippets from the tag workspace.
-              </p>
-              <Link href="/publisher/tags" style={{ color: "var(--accent)", fontWeight: 700, display: "inline-block", marginTop: 10 }}>
-                Open tag generator →
-              </Link>
-            </div>
-          )}
-
-          {tab === "supply" && id && pub && (
+          {tab === "overview" && id && pub && (
             <div className="card" style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: 15, margin: "0 0 12px" }}>Supply chain · ads.txt</h2>
               <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12 }}>
@@ -503,22 +500,80 @@ ${testHtml ? `\n${testHtml}\n` : ""}
               <textarea
                 readOnly
                 value={adsLine ?? "Loading…"}
-                style={{ width: "100%", minHeight: 56, fontFamily: "monospace", fontSize: 11, padding: 8 }}
+                className="mono"
+                style={{ width: "100%", minHeight: 56, fontSize: 11, padding: 8, background: "var(--bg2)", border: "1px solid var(--border)" }}
               />
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
-                <button type="button" disabled={checkingAds} onClick={() => void checkAdsTxtOnDomain()}>
+                <button type="button" className="btn-secondary" disabled={checkingAds} onClick={() => void checkAdsTxtOnDomain()}>
                   {checkingAds ? "Checking…" : "Check ads.txt"}
                 </button>
-                <a
-                  href={`https://exchange.adsgupta.com/sellers.json`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "var(--accent)", fontSize: 12 }}
-                >
+                <a href="https://exchange.adsgupta.com/sellers.json" target="_blank" rel="noreferrer" style={{ color: "var(--accent)", fontSize: 12 }}>
                   View sellers.json →
                 </a>
               </div>
-              {adsCheckMsg && <p style={{ marginTop: 10, fontSize: 12, color: "var(--text-muted)" }}>{adsCheckMsg}</p>}
+              {adsCheckMsg ? <p style={{ marginTop: 10, fontSize: 12, color: "var(--text-muted)" }}>{adsCheckMsg}</p> : null}
+            </div>
+          )}
+
+          {tab === "analytics" && id && <PublisherAnalyticsTab publisherId={id} />}
+
+          {tab === "tags" && id && (
+            <div className="card" style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 12 }}>Ad unit</label>
+              <select
+                value={tagFocusId ?? ""}
+                onChange={(e) => setTagFocusId(e.target.value || null)}
+                style={{ maxWidth: 360, marginTop: 6 }}
+              >
+                {units.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} · {(u.sizes ?? []).join(", ")}
+                  </option>
+                ))}
+              </select>
+              {units.length === 0 ? (
+                <p style={{ marginTop: 12, fontSize: 13, color: "var(--muted)" }}>Create an ad unit first — use the Ad Units tab.</p>
+              ) : (
+                <>
+                  <pre
+                    className="mono"
+                    style={{
+                      marginTop: 14,
+                      padding: 12,
+                      background: "var(--bg2)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 6,
+                      fontSize: 11,
+                      overflow: "auto",
+                      maxHeight: 280
+                    }}
+                  >
+                    {buildTagSnippet(
+                      id,
+                      units.find((u) => u.id === tagFocusId) ?? units[0]!
+                    )}
+                  </pre>
+                  <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() =>
+                        void copyTag(
+                          buildTagSnippet(id, units.find((u) => u.id === tagFocusId) ?? units[0]!)
+                        )
+                      }
+                    >
+                      {copied ? "Copied ✓" : "Copy tag"}
+                    </button>
+                    <a href="/test-ad.html" className="btn-ghost" style={{ border: "1px solid var(--border2)" }}>
+                      Test this tag →
+                    </a>
+                    <Link href="/publisher/tags" style={{ fontSize: 12, color: "var(--accent)", alignSelf: "center" }}>
+                      Advanced Prebid workspace →
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           )}
 

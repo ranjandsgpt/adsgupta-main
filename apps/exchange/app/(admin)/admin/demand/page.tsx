@@ -114,7 +114,7 @@ export default function AdminDemandCampaignsPage() {
         setRows(prev);
         return;
       }
-      if (body.status === "active") toastSuccess("Campaign activated");
+      if (body.status === "active") toastSuccess("Campaign activated ✓");
       else if (body.status === "rejected") toastSuccess("Campaign rejected");
       else toastSuccess("Campaign updated");
     } catch {

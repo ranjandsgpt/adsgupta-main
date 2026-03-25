@@ -67,32 +67,22 @@ export function DocsSidebar() {
         top: 12,
         padding: 12,
         border: "1px solid var(--border)",
-        borderRadius: 12,
-        background: "rgba(15,20,25,0.65)",
-        height: "fit-content"
+        borderRadius: 8,
+        background: "var(--card)",
+        height: "fit-content",
+        boxShadow: "var(--shadow-sm)"
       }}
     >
-      <div style={{ fontSize: 12, fontWeight: 900, color: "var(--text-bright)", marginBottom: 10 }}>Docs</div>
+      <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", marginBottom: 10 }}>Documentation</div>
       <div style={{ display: "grid", gap: 14 }}>
         {sections.map((s) => (
-          <div key={s.title} style={{ display: "grid", gap: 8 }}>
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", fontWeight: 900 }}>
+            <div key={s.title} style={{ display: "grid", gap: 8 }}>
+            <div className="shell-nav-section" style={{ margin: "8px 0 4px" }}>
               {s.title}
             </div>
             <nav style={{ display: "grid", gap: 6 }}>
               {s.items.map((it) => (
-                <Link
-                  key={it.href + it.label}
-                  href={it.href}
-                  style={{
-                    fontSize: 12,
-                    color: "var(--text-muted)",
-                    textDecoration: "none",
-                    border: "1px solid transparent",
-                    padding: "7px 8px",
-                    borderRadius: 8
-                  }}
-                >
+                <Link key={it.href + it.label} href={it.href} className="shell-nav-item">
                   {it.label}
                 </Link>
               ))}
