@@ -18,16 +18,17 @@ export async function GET(request: NextRequest) {
   try {
     const [stats, kpi] = await Promise.all([computeExchangeStats(null), computeAdminDashboardMetrics()]);
 
+    /** Exchange-wide KPIs from `computeExchangeStats(null)` win on key collisions; admin deltas remain for the console. */
     const payload: ExchangeReportsDashboard = {
-      ...stats,
-      ...kpi
+      ...kpi,
+      ...stats
     };
 
     return NextResponse.json({
       ...payload,
-      totalImpressions: payload.impressionsTotal,
-      totalClicks: payload.clicksTotal,
-      totalRevenue: payload.revenueTotal
+      totalImpressions: stats.impressionsTotal,
+      totalClicks: stats.clicksTotal,
+      totalRevenue: stats.revenueTotal
     });
   } catch (e) {
     console.error("[reports/dashboard]", e);

@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const revalidate = 60;
 
+/**
+ * Publisher-scoped metrics; all aggregates run via `computeExchangeStats` → `getDb()` (Neon).
+ */
 export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const payload = await computeExchangeStats(params.id);
