@@ -2,13 +2,14 @@ import { Resend } from "resend";
 
 import { sql } from "@/lib/db";
 
-function getResend() {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+function getClient(): Resend | null {
+  if (!resend) {
     console.log("Email skipped: RESEND_API_KEY not configured");
     return null;
   }
-  return new Resend(key);
+  return resend;
 }
 
 const FROM = "MDE Exchange <noreply@exchange.adsgupta.com>";
@@ -58,10 +59,10 @@ function esc(s: string): string {
 }
 
 export async function sendPublisherWelcomeEmail(email: string, name: string, publisherId: string) {
-  const resend = getResend();
-  if (!resend || !email) return;
+  const client = getClient();
+  if (!client || !email) return;
   try {
-    await resend.emails.send({
+    await client.emails.send({
       from: FROM,
       to: email,
       subject: "Welcome to MDE Exchange — registration pending",
@@ -89,14 +90,14 @@ Dashboard: ${dash(publisherId)}
 }
 
 export async function sendPublisherActivationEmail(email: string, name: string, publisherId: string) {
-  const resend = getResend();
-  if (!resend || !email) return;
+  const client = getClient();
+  if (!client || !email) return;
   const tag = await loadFirstUnitTag(publisherId);
   try {
     const tagHtml = tag
       ? `<pre style="background:#0f1419;padding:12px;overflow:auto;font-size:11px;border:1px solid #1a2332">${esc(tag)}</pre>`
       : "<p>Create ad units in your dashboard to generate tags.</p>";
-    await resend.emails.send({
+    await client.emails.send({
       from: FROM,
       to: email,
       subject: "Your MDE publisher account is now active",
@@ -126,10 +127,10 @@ ${tagHtml}
 const demandUrl = (id: string) => `https://exchange.adsgupta.com/demand/dashboard?campaign=${encodeURIComponent(id)}`;
 
 export async function sendDemandActivationEmail(email: string, campaignName: string, campaignId: string) {
-  const resend = getResend();
-  if (!resend || !email) return;
+  const client = getClient();
+  if (!client || !email) return;
   try {
-    await resend.emails.send({
+    await client.emails.send({
       from: FROM,
       to: email,
       subject: "Your campaign is now live on MDE Exchange",
