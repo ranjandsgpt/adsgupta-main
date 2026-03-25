@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    await createTables();
-    return NextResponse.json({ ok: true, tablesCreated: true });
+    const tablesCreated = await createTables();
+    return NextResponse.json({ ok: true, tablesCreated });
   } catch (e) {
     console.error("[db-init]", e);
     const message = e instanceof Error ? e.message : String(e);

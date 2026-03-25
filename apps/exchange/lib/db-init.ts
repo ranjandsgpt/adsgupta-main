@@ -2,8 +2,9 @@ import { sql } from "@/lib/db";
 
 /**
  * Idempotent schema for the exchange. Each statement runs separately (Neon prefers one statement per call).
+ * @returns Count of `public` base tables after migrations (for GET /api/db-init `tablesCreated`).
  */
-export async function createTables() {
+export async function createTables(): Promise<number> {
   try {
     await sql`CREATE EXTENSION IF NOT EXISTS pgcrypto`;
 
@@ -450,6 +451,239 @@ export async function createTables() {
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;
+
+    /* ── Backend wiring pass: columns + tables for stats, signals, rollups ───── */
+    await sql`ALTER TABLE signal_events DROP CONSTRAINT IF EXISTS signal_events_auction_id_fkey`;
+
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS region TEXT`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS device_type TEXT`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS iab_categories TEXT[]`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS above_fold BOOLEAN`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS processing_ms NUMERIC(8,2)`;
+
+    await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS user_id TEXT`;
+    await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS session_id TEXT`;
+    await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS page_url TEXT`;
+    await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS country TEXT`;
+    await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS device_type TEXT`;
+
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS impressions_today INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS spend_today NUMERIC(10,4) DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS total_impressions INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS total_spend NUMERIC(12,4) DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS win_rate_7d NUMERIC(5,2)`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS last_impression_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS audience_targeting JSONB DEFAULT '{}'::jsonb`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS content_targeting JSONB DEFAULT '{}'::jsonb`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS temporal_targeting JSONB DEFAULT '{}'::jsonb`;
+
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS impressions INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS clicks INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS last_served_at TIMESTAMPTZ`;
+
+    await sql`ALTER TABLE ad_units ADD COLUMN IF NOT EXISTS impressions_today INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE ad_units ADD COLUMN IF NOT EXISTS revenue_today NUMERIC(10,4) DEFAULT 0`;
+    await sql`ALTER TABLE ad_units ADD COLUMN IF NOT EXISTS fill_rate_7d NUMERIC(5,2)`;
+
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS impressions_today INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS revenue_today NUMERIC(10,4) DEFAULT 0`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS total_revenue NUMERIC(12,4) DEFAULT 0`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS health_score INTEGER DEFAULT 0`;
+
+    await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
+    await sql`
+      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+      CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft', 'budget_exhausted'))
+    `;
+
+    await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS applies_to_geos TEXT[] DEFAULT '{}'`;
+    await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS priority INTEGER DEFAULT 0`;
+
+    await sql`ALTER TABLE audience_segments ALTER COLUMN type SET DEFAULT 'behavioral'`;
+    await sql`ALTER TABLE segment_memberships ALTER COLUMN score SET DEFAULT 50`;
+
+    await sql`ALTER TABLE user_profiles ALTER COLUMN iab_frequencies SET DEFAULT '{}'::jsonb`;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS line_items (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        campaign_id UUID REFERENCES campaigns(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'standard',
+        priority INTEGER DEFAULT 8,
+        status TEXT DEFAULT 'draft',
+        cost_type TEXT DEFAULT 'cpm',
+        rate NUMERIC(10,4) NOT NULL,
+        daily_budget NUMERIC(10,2),
+        lifetime_budget NUMERIC(12,2),
+        daily_impression_goal INTEGER,
+        delivery_type TEXT DEFAULT 'even',
+        start_date TIMESTAMPTZ,
+        end_date TIMESTAMPTZ,
+        freq_cap_impressions INTEGER DEFAULT 0,
+        freq_cap_time_unit TEXT DEFAULT 'day',
+        geo_targeting JSONB DEFAULT '{}'::jsonb,
+        device_targeting JSONB DEFAULT '{}'::jsonb,
+        audience_targeting JSONB DEFAULT '{}'::jsonb,
+        content_targeting JSONB DEFAULT '{}'::jsonb,
+        temporal_targeting JSONB DEFAULT '{}'::jsonb,
+        custom_targeting JSONB DEFAULT '{}'::jsonb,
+        viewability_threshold INTEGER DEFAULT 0,
+        creative_rotation TEXT DEFAULT 'optimized',
+        impressions_served INTEGER DEFAULT 0,
+        spend_so_far NUMERIC(12,4) DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS deals (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        deal_id TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL DEFAULT 'private_auction',
+        status TEXT DEFAULT 'pending',
+        publisher_id UUID REFERENCES publishers(id),
+        buyer_email TEXT,
+        buyer_dsp TEXT,
+        ad_unit_ids UUID[] DEFAULT '{}',
+        sizes TEXT[] DEFAULT '{}',
+        floor_cpm NUMERIC(10,4),
+        fixed_cpm NUMERIC(10,4),
+        currency TEXT DEFAULT 'USD',
+        daily_impression_goal INTEGER,
+        impressions_delivered INTEGER DEFAULT 0,
+        spend_delivered NUMERIC(12,4) DEFAULT 0,
+        start_date DATE,
+        end_date DATE,
+        priority INTEGER DEFAULT 5,
+        bid_count_24h INTEGER DEFAULT 0,
+        win_count_24h INTEGER DEFAULT 0,
+        last_bid_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS dsp_partners (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        endpoint_url TEXT NOT NULL,
+        timeout_ms INTEGER DEFAULT 150,
+        qps_limit INTEGER DEFAULT 500,
+        status TEXT DEFAULT 'active',
+        auth_type TEXT DEFAULT 'none',
+        auth_credentials JSONB DEFAULT '{}'::jsonb,
+        bid_adjustments JSONB DEFAULT '{}'::jsonb,
+        allowed_ad_types TEXT[] DEFAULT '{banner}',
+        max_bid_cpm NUMERIC(10,4) DEFAULT 50,
+        total_bids_7d INTEGER DEFAULT 0,
+        total_wins_7d INTEGER DEFAULT 0,
+        total_revenue_7d NUMERIC(12,4) DEFAULT 0,
+        avg_latency_ms INTEGER DEFAULT 0,
+        timeout_rate_7d NUMERIC(5,2) DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS api_keys (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        key_hash TEXT NOT NULL UNIQUE,
+        key_prefix TEXT NOT NULL,
+        scopes TEXT[] DEFAULT '{read}',
+        rate_limit_per_hour INTEGER DEFAULT 1000,
+        requests_today INTEGER DEFAULT 0,
+        last_used_at TIMESTAMPTZ,
+        expires_at TIMESTAMPTZ,
+        created_by TEXT,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS webhooks (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        url TEXT NOT NULL,
+        events TEXT[] NOT NULL,
+        secret TEXT,
+        active BOOLEAN DEFAULT true,
+        failure_count INTEGER DEFAULT 0,
+        last_triggered_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS revenue_daily (
+        date DATE NOT NULL,
+        publisher_id UUID,
+        ad_unit_id UUID,
+        impressions INTEGER DEFAULT 0,
+        clicks INTEGER DEFAULT 0,
+        revenue NUMERIC(12,4) DEFAULT 0,
+        bid_requests INTEGER DEFAULT 0,
+        fill_rate NUMERIC(5,2),
+        avg_cpm NUMERIC(10,4),
+        country TEXT DEFAULT 'ALL',
+        device_type TEXT DEFAULT 'ALL',
+        demand_source TEXT DEFAULT 'ALL',
+        PRIMARY KEY (date, publisher_id, ad_unit_id, country, device_type, demand_source)
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS campaign_perf_daily (
+        date DATE NOT NULL,
+        campaign_id UUID NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        impressions INTEGER DEFAULT 0,
+        clicks INTEGER DEFAULT 0,
+        conversions INTEGER DEFAULT 0,
+        spend NUMERIC(12,4) DEFAULT 0,
+        bids_entered INTEGER DEFAULT 0,
+        bids_won INTEGER DEFAULT 0,
+        avg_winning_cpm NUMERIC(10,4),
+        country TEXT DEFAULT 'ALL',
+        device_type TEXT DEFAULT 'ALL',
+        PRIMARY KEY (date, campaign_id, country, device_type)
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS prebid_adapters (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        adapter_id TEXT UNIQUE NOT NULL,
+        display_name TEXT,
+        supported_media_types TEXT[] DEFAULT '{banner}',
+        avg_latency_ms INTEGER DEFAULT 200,
+        documentation_url TEXT,
+        param_schema JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS publisher_prebid_configs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        publisher_id UUID REFERENCES publishers(id),
+        adapter_id TEXT NOT NULL,
+        params JSONB NOT NULL DEFAULT '{}'::jsonb,
+        status TEXT DEFAULT 'active',
+        timeout_ms INTEGER DEFAULT 1000,
+        impressions_7d INTEGER DEFAULT 0,
+        revenue_7d NUMERIC(10,4) DEFAULT 0,
+        win_rate_7d NUMERIC(5,2),
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    const cnt = await sql<{ c: string }>`
+      SELECT COUNT(*)::text AS c
+      FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+    `;
+    return Number(cnt.rows[0]?.c ?? 0);
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;
