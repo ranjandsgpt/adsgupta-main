@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return forbidden("Cannot reassign advertiser outside your seat");
   }
 
-  try {
+    try {
     const result = await sql`
       UPDATE campaigns SET
         campaign_name = COALESCE(${body.campaign_name ?? body.name ?? null}, campaign_name),
@@ -75,7 +75,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
         bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
         target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
-        status = COALESCE(${body.status ?? null}, status)
+        status = COALESCE(${body.status ?? null}, status),
+        freq_cap_day = COALESCE(${body.freq_cap_day !== undefined ? Number(body.freq_cap_day) : null}, freq_cap_day),
+        freq_cap_session = COALESCE(${body.freq_cap_session !== undefined ? Number(body.freq_cap_session) : null}, freq_cap_session),
+        ab_test_active = COALESCE(${body.ab_test_active !== undefined ? Boolean(body.ab_test_active) : null}, ab_test_active),
+        ab_auto_pause_loser = COALESCE(${body.ab_auto_pause_loser !== undefined ? Boolean(body.ab_auto_pause_loser) : null}, ab_auto_pause_loser)
       WHERE id = ${params.id}
       RETURNING *
     `;
@@ -101,41 +105,51 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       .toLowerCase();
     if (!em || em !== campEm) return unauthorized();
 
-    if (body.bid_price != null && body.status != null) {
+    const hasBid = body.bid_price != null;
+    const hasStatus = body.status != null;
+    const hasExtra =
+      body.freq_cap_day !== undefined ||
+      body.freq_cap_session !== undefined ||
+      body.ab_test_active !== undefined ||
+      body.ab_auto_pause_loser !== undefined;
+
+    if (hasBid && hasStatus) {
       return badRequest("Update only bid_price or status per request");
     }
-    if (body.bid_price != null) {
+
+    if (!hasBid && !hasStatus && !hasExtra) {
+      return badRequest("bid_price, status, or targeting fields required");
+    }
+
+    if (hasStatus && !["active", "paused"].includes(String(body.status))) {
+      return badRequest("Only active or paused allowed from dashboard");
+    }
+
+    if (hasBid) {
       const bp = Number(body.bid_price);
       if (!Number.isFinite(bp) || bp < 0.1) {
         return badRequest("bid_price must be at least 0.10");
       }
-      try {
-        const result = await sql`
-          UPDATE campaigns SET bid_price = ${bp} WHERE id = ${params.id} RETURNING *
-        `;
-        cacheDelete("campaigns:active");
-        return json(result.rows[0] ?? null);
-      } catch (e) {
-        console.error("[campaigns PATCH public bid]", e);
-        return json({ error: "Update failed" }, 500);
-      }
     }
-    if (body.status != null) {
-      if (!["active", "paused"].includes(String(body.status))) {
-        return badRequest("Only active or paused allowed from dashboard");
-      }
-      try {
-        const result = await sql`
-          UPDATE campaigns SET status = ${body.status} WHERE id = ${params.id} RETURNING *
-        `;
-        cacheDelete("campaigns:active");
-        return json(result.rows[0] ?? null);
-      } catch (e) {
-        console.error("[campaigns PATCH public status]", e);
-        return json({ error: "Update failed" }, 500);
-      }
+
+    try {
+      const result = await sql`
+        UPDATE campaigns SET
+          bid_price = COALESCE(${hasBid ? Number(body.bid_price) : null}, bid_price),
+          status = COALESCE(${hasStatus ? String(body.status) : null}, status),
+          freq_cap_day = COALESCE(${body.freq_cap_day !== undefined ? Number(body.freq_cap_day) : null}, freq_cap_day),
+          freq_cap_session = COALESCE(${body.freq_cap_session !== undefined ? Number(body.freq_cap_session) : null}, freq_cap_session),
+          ab_test_active = COALESCE(${body.ab_test_active !== undefined ? Boolean(body.ab_test_active) : null}, ab_test_active),
+          ab_auto_pause_loser = COALESCE(${body.ab_auto_pause_loser !== undefined ? Boolean(body.ab_auto_pause_loser) : null}, ab_auto_pause_loser)
+        WHERE id = ${params.id}
+        RETURNING *
+      `;
+      cacheDelete("campaigns:active");
+      return json(result.rows[0] ?? null);
+    } catch (e) {
+      console.error("[campaigns PATCH public]", e);
+      return json({ error: "Update failed" }, 500);
     }
-    return badRequest("bid_price or status required");
   }
 
   if (auth.role === "admin") {
@@ -162,7 +176,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
               bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
               target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
               status = COALESCE(${body.status ?? null}, status),
-              rejection_reason = ${rejReason}
+              rejection_reason = ${rejReason},
+              freq_cap_day = COALESCE(${body.freq_cap_day !== undefined ? Number(body.freq_cap_day) : null}, freq_cap_day),
+              freq_cap_session = COALESCE(${body.freq_cap_session !== undefined ? Number(body.freq_cap_session) : null}, freq_cap_session),
+              ab_test_active = COALESCE(${body.ab_test_active !== undefined ? Boolean(body.ab_test_active) : null}, ab_test_active),
+              ab_auto_pause_loser = COALESCE(${body.ab_auto_pause_loser !== undefined ? Boolean(body.ab_auto_pause_loser) : null}, ab_auto_pause_loser)
             WHERE id = ${params.id}
             RETURNING *
           `
@@ -177,7 +195,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
               daily_budget = COALESCE(${body.daily_budget ?? null}, daily_budget),
               bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
               target_sizes = COALESCE(${body.target_sizes ?? null}, target_sizes),
-              status = COALESCE(${body.status ?? null}, status)
+              status = COALESCE(${body.status ?? null}, status),
+              freq_cap_day = COALESCE(${body.freq_cap_day !== undefined ? Number(body.freq_cap_day) : null}, freq_cap_day),
+              freq_cap_session = COALESCE(${body.freq_cap_session !== undefined ? Number(body.freq_cap_session) : null}, freq_cap_session),
+              ab_test_active = COALESCE(${body.ab_test_active !== undefined ? Boolean(body.ab_test_active) : null}, ab_test_active),
+              ab_auto_pause_loser = COALESCE(${body.ab_auto_pause_loser !== undefined ? Boolean(body.ab_auto_pause_loser) : null}, ab_auto_pause_loser)
             WHERE id = ${params.id}
             RETURNING *
           `;
@@ -196,14 +218,31 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 
   if (auth.role === "demand" && canDemandAccessCampaign(auth, existing)) {
-    if (body.status == null) return badRequest("status required");
-    if (!["active", "paused", "pending"].includes(body.status)) {
+    if (body.status != null && !["active", "paused", "pending", "draft"].includes(String(body.status))) {
       return badRequest("Invalid status");
+    }
+    if (
+      body.status == null &&
+      body.bid_price == null &&
+      body.freq_cap_day === undefined &&
+      body.freq_cap_session === undefined &&
+      body.ab_test_active === undefined &&
+      body.ab_auto_pause_loser === undefined
+    ) {
+      return badRequest("At least one updatable field required");
     }
     const prevStatus = String(existing.status ?? "");
     try {
       const result = await sql`
-        UPDATE campaigns SET status = ${body.status} WHERE id = ${params.id} RETURNING *
+        UPDATE campaigns SET
+          status = COALESCE(${body.status ?? null}, status),
+          bid_price = COALESCE(${body.bid_price ?? null}, bid_price),
+          freq_cap_day = COALESCE(${body.freq_cap_day !== undefined ? Number(body.freq_cap_day) : null}, freq_cap_day),
+          freq_cap_session = COALESCE(${body.freq_cap_session !== undefined ? Number(body.freq_cap_session) : null}, freq_cap_session),
+          ab_test_active = COALESCE(${body.ab_test_active !== undefined ? Boolean(body.ab_test_active) : null}, ab_test_active),
+          ab_auto_pause_loser = COALESCE(${body.ab_auto_pause_loser !== undefined ? Boolean(body.ab_auto_pause_loser) : null}, ab_auto_pause_loser)
+        WHERE id = ${params.id}
+        RETURNING *
       `;
       const row = result.rows[0] as Record<string, unknown> | undefined;
       if (row && prevStatus !== "active" && String(row.status ?? "") === "active") {

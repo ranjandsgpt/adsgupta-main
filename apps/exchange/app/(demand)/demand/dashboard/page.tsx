@@ -1,5 +1,6 @@
 "use client";
 
+import { DemandCampaignTools } from "@/components/demand-campaign-tools";
 import { DemandAnalyticsTab } from "@/components/demand-analytics-tab";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -22,6 +23,8 @@ type Campaign = Record<string, unknown> & {
   target_devices?: string[] | null;
   target_environments?: string[] | null;
   target_domains?: string[] | null;
+  ab_test_active?: boolean;
+  ab_auto_pause_loser?: boolean;
 };
 
 type Creative = {
@@ -37,6 +40,8 @@ type Creative = {
   scan_passed?: boolean | null;
   scan_issues?: string[] | null;
   scan_warnings?: string[] | null;
+  ab_group?: string | null;
+  ab_weight?: string | number | null;
 };
 
 function chip(label: string) {
@@ -90,7 +95,17 @@ function Inner() {
   const [bidModal, setBidModal] = useState<Campaign | null>(null);
   const [bidInput, setBidInput] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [tab, setTab] = useState<"campaigns" | "analytics" | "creatives">("campaigns");
+  const [tab, setTab] = useState<"campaigns" | "analytics" | "creatives" | "bulk" | "audience">("campaigns");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkCsv, setBulkCsv] = useState("");
+  const [bulkResult, setBulkResult] = useState<{
+    inserted: number;
+    skipped: number;
+    errors: Array<{ row: number; field: string; message: string }>;
+  } | null>(null);
+  const [audienceSegs, setAudienceSegs] = useState<
+    Array<{ publisherId: string; name: string; domain: string; estimatedReach: number; eventCount: number }>
+  >([]);
 
   const refresh = useCallback(async () => {
     if (!email) return;
@@ -128,6 +143,20 @@ function Inner() {
     void refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    if (tab !== "audience" || !email) return;
+    let cancelled = false;
+    void fetch("/api/audience/segments")
+      .then((r) => r.json())
+      .then((j: { segments?: typeof audienceSegs }) => {
+        if (!cancelled && j.segments && Array.isArray(j.segments)) setAudienceSegs(j.segments);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, email]);
+
   const totals = useMemo(() => {
     let impr = 0;
     let spend = 0;
@@ -144,6 +173,8 @@ function Inner() {
     () => rows.some((r) => (creativesByCamp[r.id] ?? []).length > 0),
     [rows, creativesByCamp]
   );
+
+  const draftRows = useMemo(() => rows.filter((r) => r.status === "draft"), [rows]);
 
   async function patchCampaign(id: string, body: Record<string, unknown>) {
     if (!email) return;
@@ -177,6 +208,71 @@ function Inner() {
         const j = await res.json();
         setError(typeof j.error === "string" ? j.error : "Update failed");
       } else void refresh();
+    } catch {
+      setError("Network error");
+    }
+    setBusyId(null);
+  }
+
+  function toggleSelect(cid: string) {
+    setSelectedIds((prev) => (prev.includes(cid) ? prev.filter((x) => x !== cid) : [...prev, cid]));
+  }
+
+  async function bulkSetStatus(st: string) {
+    if (!email || selectedIds.length === 0) return;
+    setBusyId("bulk");
+    try {
+      const res = await fetch("/api/campaigns/bulk-status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds, status: st, advertiser_email: email })
+      });
+      const j = await res.json();
+      if (!res.ok) setError(typeof j.error === "string" ? j.error : "Bulk update failed");
+      else {
+        setSelectedIds([]);
+        void refresh();
+      }
+    } catch {
+      setError("Network error");
+    }
+    setBusyId(null);
+  }
+
+  async function duplicateCampaign(cid: string) {
+    if (!email) return;
+    setBusyId(cid);
+    try {
+      const res = await fetch(`/api/campaigns/${encodeURIComponent(cid)}/duplicate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ advertiser_email: email })
+      });
+      const j = (await res.json()) as { id?: string; error?: string };
+      if (!res.ok) setError(typeof j.error === "string" ? j.error : "Duplicate failed");
+      else void refresh();
+    } catch {
+      setError("Network error");
+    }
+    setBusyId(null);
+  }
+
+  async function submitBulkCsv() {
+    if (!email || !bulkCsv.trim()) return;
+    setBusyId("bulkcsv");
+    setBulkResult(null);
+    try {
+      const res = await fetch("/api/campaigns/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv: bulkCsv, advertiser_email: email })
+      });
+      const j = await res.json();
+      if (!res.ok) setError(typeof j.error === "string" ? j.error : "Import failed");
+      else {
+        setBulkResult(j as typeof bulkResult);
+        void refresh();
+      }
     } catch {
       setError("Network error");
     }
@@ -257,7 +353,9 @@ function Inner() {
           [
             ["campaigns", "Campaigns"],
             ["analytics", "Analytics"],
-            ["creatives", "Creatives"]
+            ["creatives", "Creatives"],
+            ["bulk", "Bulk import"],
+            ["audience", "Audience"]
           ] as const
         ).map(([key, label]) => (
           <button
@@ -274,6 +372,24 @@ function Inner() {
 
       {tab === "campaigns" && (
         <>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
+            <a
+              className="secondary"
+              style={{ fontSize: 11, padding: "8px 12px", display: "inline-block" }}
+              href={email ? `/api/campaigns/export?email=${encodeURIComponent(email)}` : "#"}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Export CSV
+            </a>
+            <button type="button" className="secondary" style={{ fontSize: 11 }} disabled={selectedIds.length === 0} onClick={() => void bulkSetStatus("paused")}>
+              Pause selected
+            </button>
+            <button type="button" className="secondary" style={{ fontSize: 11 }} disabled={selectedIds.length === 0} onClick={() => void bulkSetStatus("active")}>
+              Resume selected
+            </button>
+          </div>
+
           <div
             style={{
               display: "grid",
@@ -295,6 +411,38 @@ function Inner() {
             ))}
           </div>
 
+          {draftRows.length > 0 && (
+            <div className="card" style={{ marginBottom: 20, borderColor: "#ffd32a44" }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#ffd32a", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Draft campaigns
+              </div>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                {draftRows.map((d) => (
+                  <li
+                    key={d.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      padding: "10px 0",
+                      borderBottom: "1px solid var(--border)",
+                      fontSize: 13
+                    }}
+                  >
+                    <span style={{ color: "var(--text-bright)", fontWeight: 600 }}>{String(d.campaign_name ?? d.name ?? d.id)}</span>
+                    <Link
+                      href={`/demand/create?campaign_id=${encodeURIComponent(d.id)}&email=${encodeURIComponent(email)}`}
+                      style={{ color: "#00d4aa", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}
+                    >
+                      Complete setup →
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div style={{ display: "grid", gap: 18 }}>
             {rows.map((r) => {
           const title = String(r.campaign_name ?? r.name ?? r.id);
@@ -306,11 +454,19 @@ function Inner() {
           const canToggle = r.status === "active" || r.status === "paused";
           return (
             <div key={r.id} className="card" style={{ borderLeft: "3px solid var(--accent)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                <div>
+              <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, alignItems: "flex-start" }}>
+                <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", margin: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(r.id)}
+                    onChange={() => toggleSelect(r.id)}
+                    style={{ marginTop: 4 }}
+                  />
+                  <div>
                   <div style={{ fontWeight: 700, color: "var(--text-bright)", fontSize: 15 }}>{title}</div>
                   <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{adv}</div>
-                </div>
+                  </div>
+                </label>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: 12, color: "var(--text-bright)" }}>
                     CPM ${r.bid_price} · Budget ${r.daily_budget ?? "—"}/day
@@ -368,19 +524,32 @@ function Inner() {
                   Edit bid
                 </button>
                 {canToggle && (
-                  <button
-                    type="button"
-                    className="secondary"
-                    style={{ fontSize: 11 }}
-                    disabled={busyId === r.id}
-                    onClick={() =>
-                      void patchCampaign(r.id, { status: r.status === "active" ? "paused" : "active" })
-                    }
-                  >
-                    {r.status === "active" ? "Pause" : "Resume"}
-                  </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  style={{ fontSize: 11 }}
+                  disabled={busyId === r.id}
+                  onClick={() =>
+                    void patchCampaign(r.id, { status: r.status === "active" ? "paused" : "active" })
+                  }
+                >
+                  {r.status === "active" ? "Pause" : "Resume"}
+                </button>
                 )}
+                <button type="button" className="secondary" style={{ fontSize: 11 }} disabled={busyId === r.id} onClick={() => void duplicateCampaign(r.id)}>
+                  Duplicate
+                </button>
               </div>
+
+              <DemandCampaignTools
+                campaign={r}
+                creatives={creatives}
+                email={email!}
+                onRefresh={refresh}
+                patchCampaign={patchCampaign}
+                patchCreative={patchCreative}
+                busyId={busyId}
+              />
 
               {creatives.length > 0 && (
                 <div style={{ marginTop: 16 }}>
@@ -523,6 +692,98 @@ function Inner() {
             </div>
           )}
         </>
+      )}
+
+      {tab === "bulk" && email && (
+        <div className="card" style={{ marginTop: 12 }}>
+          <div style={{ fontWeight: 800, marginBottom: 8 }}>Bulk CSV import</div>
+          <p style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 12 }}>
+            Columns: campaign_name, advertiser_name, advertiser_email, bid_price_cpm, daily_budget_usd, target_sizes,
+            start_date, end_date. Rows must use your dashboard email as advertiser_email.
+          </p>
+          <button
+            type="button"
+            className="secondary"
+            style={{ fontSize: 11, marginBottom: 12 }}
+            onClick={() =>
+              setBulkCsv(
+                "campaign_name,advertiser_name,advertiser_email,bid_price_cpm,daily_budget_usd,target_sizes,start_date,end_date\nExample line,Acme,acme@test.com,2.50,100,300x250|728x90,,"
+              )
+            }
+          >
+            Load CSV template
+          </button>
+          <textarea
+            value={bulkCsv}
+            onChange={(e) => setBulkCsv(e.target.value)}
+            rows={10}
+            style={{ width: "100%", fontFamily: "monospace", fontSize: 11 }}
+            placeholder="Paste CSV..."
+          />
+          <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button type="button" disabled={busyId === "bulkcsv" || !bulkCsv.trim()} onClick={() => void submitBulkCsv()}>
+              {busyId === "bulkcsv" ? "Importing…" : "Import all"}
+            </button>
+          </div>
+          {bulkResult && (
+            <div style={{ marginTop: 16, fontSize: 12 }}>
+              <p>
+                Imported <strong>{bulkResult.inserted}</strong>, skipped <strong>{bulkResult.skipped}</strong>.
+              </p>
+              {bulkResult.errors.length > 0 && (
+                <table className="table" style={{ marginTop: 8, fontSize: 11 }}>
+                  <thead>
+                    <tr>
+                      <th>Row</th>
+                      <th>Field</th>
+                      <th>Error</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bulkResult.errors.slice(0, 30).map((e, i) => (
+                      <tr key={i}>
+                        <td>{e.row}</td>
+                        <td>{e.field}</td>
+                        <td>{e.message}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === "audience" && (
+        <div style={{ marginTop: 12 }}>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 12 }}>
+            Retargeting pixels: publishers firing <code>/api/pixel/[publisherId]</code>. Add events to campaign targeting (Geo / domains)
+            in a future release — for now copy publisher IDs into notes.
+          </p>
+          <div style={{ display: "grid", gap: 10 }}>
+            {audienceSegs.length === 0 && <p style={{ color: "var(--text-muted)", fontSize: 12 }}>No pixel segments yet.</p>}
+            {audienceSegs.map((s) => (
+              <div key={s.publisherId} className="card" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                <div>
+                  <strong style={{ color: "var(--text-bright)" }}>{s.name}</strong>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                    {s.domain} · ~{s.estimatedReach.toLocaleString()} reach · {s.eventCount} events
+                  </div>
+                  <code style={{ fontSize: 10 }}>{s.publisherId}</code>
+                </div>
+                <button
+                  type="button"
+                  className="secondary"
+                  style={{ fontSize: 10 }}
+                  onClick={() => void navigator.clipboard.writeText(s.publisherId)}
+                >
+                  Copy publisher ID
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {tab === "analytics" && <DemandAnalyticsTab email={email} />}

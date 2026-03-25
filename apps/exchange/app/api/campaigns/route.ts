@@ -137,6 +137,9 @@ export async function POST(request: NextRequest) {
     let devices = Array.isArray(body.target_devices) ? body.target_devices : null;
     const domains = Array.isArray(body.target_domains) ? body.target_domains : null;
 
+    const freqDay = body.freq_cap_day != null ? Number(body.freq_cap_day) : 0;
+    const freqSess = body.freq_cap_session != null ? Number(body.freq_cap_session) : 0;
+
     if (!auth) {
       if (!envs || envs.length === 0) {
         return badRequest("target_environments must include at least one environment");
@@ -149,13 +152,16 @@ export async function POST(request: NextRequest) {
         INSERT INTO campaigns (
           advertiser_name, advertiser_email, campaign_name, bid_price, daily_budget,
           target_sizes, target_geos, target_devices, target_environments, target_domains,
-          start_date, end_date, status, name, advertiser, contact_email
+          start_date, end_date, status, name, advertiser, contact_email,
+          freq_cap_day, freq_cap_session
         )
         VALUES (
           ${advertiserName}, ${advertiserEmail}, ${campaignName}, ${bidNum},
           ${budgetNum}, ${targetSizes}, ${geos}, ${devices}, ${envs}, ${domains},
           ${startDate}::date, ${endDate}::date, 'pending',
-          ${campaignName}, ${advertiserName}, ${advertiserEmail}
+          ${campaignName}, ${advertiserName}, ${advertiserEmail},
+          ${Number.isFinite(freqDay) ? freqDay : 0},
+          ${Number.isFinite(freqSess) ? freqSess : 0}
         )
         RETURNING *
       `;
@@ -173,13 +179,16 @@ export async function POST(request: NextRequest) {
       INSERT INTO campaigns (
         advertiser_name, advertiser_email, campaign_name, bid_price, daily_budget,
         target_sizes, target_geos, target_devices, target_environments, target_domains,
-        start_date, end_date, status, name, advertiser, contact_email
+        start_date, end_date, status, name, advertiser, contact_email,
+        freq_cap_day, freq_cap_session
       )
       VALUES (
         ${advertiserName}, ${advertiserEmail ?? null}, ${campaignName}, ${bidNum},
         ${budgetNum}, ${targetSizes}, ${geos}, ${devices}, ${envs}, ${domains},
         ${startDate}::date, ${endDate}::date, ${body.status ?? "active"},
-        ${campaignName}, ${advertiserName}, ${advertiserEmail ?? null}
+        ${campaignName}, ${advertiserName}, ${advertiserEmail ?? null},
+        ${Number.isFinite(freqDay) ? freqDay : 0},
+        ${Number.isFinite(freqSess) ? freqSess : 0}
       )
       RETURNING *
     `;

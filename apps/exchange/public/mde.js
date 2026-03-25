@@ -24,6 +24,68 @@
     }
   }
 
+  function getFreqCap(campaignId) {
+    try {
+      var key = "mde_freq_" + campaignId;
+      var stored = localStorage.getItem(key);
+      if (!stored) return { count: 0, dayStart: Date.now() };
+      var data = JSON.parse(stored);
+      var now = new Date();
+      var storedDate = new Date(data.dayStart);
+      if (now.toDateString() !== storedDate.toDateString()) {
+        return { count: 0, dayStart: Date.now() };
+      }
+      return data;
+    } catch (_) {
+      return { count: 0, dayStart: Date.now() };
+    }
+  }
+
+  function incrementFreqCap(campaignId) {
+    try {
+      var key = "mde_freq_" + campaignId;
+      var cap = getFreqCap(campaignId);
+      cap.count++;
+      cap.dayStart = cap.dayStart || Date.now();
+      localStorage.setItem(key, JSON.stringify(cap));
+    } catch (_) {}
+  }
+
+  function incrementSessionFreqCap(campaignId) {
+    try {
+      var key = "mde_freqsess_" + campaignId;
+      var n = parseInt(sessionStorage.getItem(key) || "0", 10) || 0;
+      sessionStorage.setItem(key, String(n + 1));
+    } catch (_) {}
+  }
+
+  function buildFreqExt() {
+    var day = {};
+    var sess = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (!k || k.indexOf("mde_freq_") !== 0) continue;
+        if (k.indexOf("mde_freqsess_") === 0) continue;
+        var cid = k.slice("mde_freq_".length);
+        if (!cid) continue;
+        var d = getFreqCap(cid);
+        day[cid] = d.count;
+      }
+    } catch (_) {}
+    try {
+      for (var j = 0; j < sessionStorage.length; j++) {
+        var sk = sessionStorage.key(j);
+        if (!sk || sk.indexOf("mde_freqsess_") !== 0) continue;
+        var cid2 = sk.slice("mde_freqsess_".length);
+        if (!cid2) continue;
+        var sn = parseInt(sessionStorage.getItem(sk) || "0", 10) || 0;
+        sess[cid2] = sn;
+      }
+    } catch (_) {}
+    return { freq_caps: day, freq_caps_session: sess };
+  }
+
   function reqId() {
     return "r_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   }
@@ -117,6 +179,11 @@
     };
     el.appendChild(f);
 
+    if (bid.cid) {
+      incrementFreqCap(bid.cid);
+      incrementSessionFreqCap(bid.cid);
+    }
+
     if (bid.id) {
       new Image().src = TRACK + "/impression?id=" + encodeURIComponent(bid.id);
     }
@@ -146,6 +213,7 @@
       site.publisher = { id: cfg.networkCode };
     }
 
+    var fx = buildFreqExt();
     var req = {
       id: reqId(),
       imp: [
@@ -158,7 +226,13 @@
         }
       ],
       site: site,
-      user: { id: sessionId() },
+      user: {
+        id: sessionId(),
+        ext: {
+          freq_caps: fx.freq_caps,
+          freq_caps_session: fx.freq_caps_session
+        }
+      },
       device: { ua: navigator.userAgent, w: screen.width, h: screen.height },
       at: 2,
       tmax: 3000,

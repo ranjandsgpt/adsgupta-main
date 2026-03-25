@@ -218,7 +218,59 @@ type JoinRow = {
   image_url: string;
   click_url: string;
   creative_size: string;
+  ab_test_active: boolean | null;
+  freq_cap_day: number | null;
+  freq_cap_session: number | null;
+  ab_group: string | null;
+  ab_weight: string | null;
 };
+
+/** A/B: one creative per size via weighted random when ab_test_active. */
+function collapseAbTestRows(rows: JoinRow[]): JoinRow[] {
+  const ab = rows[0]?.ab_test_active === true;
+  if (!ab || rows.length <= 1) return rows;
+  const bySize = new Map<string, JoinRow[]>();
+  for (const r of rows) {
+    const k = r.creative_size;
+    const arr = bySize.get(k) ?? [];
+    arr.push(r);
+    bySize.set(k, arr);
+  }
+  const out: JoinRow[] = [];
+  for (const list of bySize.values()) {
+    if (list.length === 1) {
+      out.push(list[0]!);
+      continue;
+    }
+    const total = list.reduce((s, x) => s + Math.max(0, Number(x.ab_weight ?? 50)), 0) || 1;
+    let pick = Math.random() * total;
+    let chosen = list[0]!;
+    for (const x of list) {
+      const w = Math.max(0, Number(x.ab_weight ?? 50));
+      pick -= w;
+      if (pick <= 0) {
+        chosen = x;
+        break;
+      }
+    }
+    out.push(chosen);
+  }
+  return out;
+}
+
+function isFreqCapBlocked(
+  campaignId: string,
+  freqDay: number | null | undefined,
+  freqSess: number | null | undefined,
+  day?: Record<string, number>,
+  sess?: Record<string, number>
+): boolean {
+  const fd = freqDay != null ? Number(freqDay) : 0;
+  const fs = freqSess != null ? Number(freqSess) : 0;
+  if (fd > 0 && day && (day[campaignId] ?? 0) >= fd) return true;
+  if (fs > 0 && sess && (sess[campaignId] ?? 0) >= fs) return true;
+  return false;
+}
 
 async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
   const key = "campaigns:active";
@@ -243,6 +295,11 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
       COALESCE(c.advertiser_name, c.advertiser) AS advertiser_name,
       c.iab_cat,
       c.creative_api,
+      COALESCE(c.ab_test_active, false) AS ab_test_active,
+      c.freq_cap_day,
+      c.freq_cap_session,
+      cr.ab_group,
+      cr.ab_weight::text AS ab_weight,
       cr.id AS creative_id,
       cr.image_url,
       cr.click_url,
@@ -412,11 +469,25 @@ export async function runAuction(
       byCampaign.set(r.campaign_id, arr);
     }
 
+    const userExt = opts?.fullRequest?.user?.ext as Record<string, unknown> | undefined;
+    const freqCapsDay =
+      userExt && typeof userExt.freq_caps === "object" && userExt.freq_caps !== null
+        ? (userExt.freq_caps as Record<string, number>)
+        : undefined;
+    const freqCapsSession =
+      userExt && typeof userExt.freq_caps_session === "object" && userExt.freq_caps_session !== null
+        ? (userExt.freq_caps_session as Record<string, number>)
+        : undefined;
+
     const internalPool: InternalBid[] = [];
 
-    for (const [campaignId, rows] of byCampaign) {
+    for (const [campaignId, rowsRaw] of byCampaign) {
+      const rows = collapseAbTestRows(rowsRaw);
       const c0 = rows[0];
       if (!c0) continue;
+      if (isFreqCapBlocked(campaignId, c0.freq_cap_day, c0.freq_cap_session, freqCapsDay, freqCapsSession)) {
+        continue;
+      }
       const c = {
         id: campaignId,
         target_sizes: c0.target_sizes,

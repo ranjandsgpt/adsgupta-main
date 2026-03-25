@@ -109,6 +109,8 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (/^\/api\/campaigns\/[^/]+\/ab-declare-winner$/.test(pathname) && m === "POST") return true;
   if (/^\/api\/campaigns\/[^/]+\/ab-auto-pause$/.test(pathname) && m === "POST") return true;
   if (pathname === "/api/campaigns/export" && m === "GET" && request.nextUrl.searchParams.get("email")) return true;
+  if (pathname === "/api/campaigns/bulk" && m === "POST") return true;
+  if (pathname === "/api/campaigns/bulk-status" && m === "PATCH") return true;
   if (/^\/api\/campaign-intelligence\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (/^\/api\/campaign-ab-results\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (pathname === "/api/public/stats" && m === "GET") return true;

@@ -219,6 +219,42 @@ export async function createTables() {
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;
+
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS freq_cap_day INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS freq_cap_session INTEGER DEFAULT 0`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS ab_test_active BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS ab_winner_creative_id UUID REFERENCES creatives(id) ON DELETE SET NULL`;
+    await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS ab_auto_pause_loser BOOLEAN DEFAULT false`;
+
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS ab_group TEXT DEFAULT 'a'`;
+    await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS ab_weight INTEGER DEFAULT 50`;
+
+    await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
+    await sql`
+      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+      CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft'))
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS bid_history (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        campaign_id UUID REFERENCES campaigns(id) ON DELETE CASCADE,
+        old_bid NUMERIC(10,4) NOT NULL,
+        new_bid NUMERIC(10,4) NOT NULL,
+        reason TEXT,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS retargeting_events (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        publisher_id UUID REFERENCES publishers(id) ON DELETE CASCADE,
+        page_url TEXT,
+        session_id TEXT,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
   } catch (e) {
     console.error("[db-init] createTables failed:", e);
     throw e;

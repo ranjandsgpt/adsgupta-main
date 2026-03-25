@@ -1,4 +1,6 @@
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { DemandLandingStats } from "@/components/demand-landing-stats";
+import { DemandResumeDraft } from "@/components/demand-resume-draft";
 import Link from "next/link";
 
 const heroFont = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 as const };
@@ -30,6 +32,10 @@ export default function DemandLandingPage() {
           Real OpenRTB auctions. Set your bid. Upload your creative. Go live.
         </p>
       </div>
+
+      <DemandLandingStats />
+
+      <DemandResumeDraft />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 36 }}>
         {[{ label: "Second-Price Auctions" }, { label: "Real Publisher Inventory" }, { label: "Self-Serve" }].map((s) => (
