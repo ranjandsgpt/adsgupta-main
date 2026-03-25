@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { isCampaignOverBudget } from "@/lib/budget-check";
 import { cacheGet, cacheSet } from "@/lib/cache";
 import { requestAllDspBids, type DspBid } from "@/lib/dsp-bidder";
@@ -80,27 +82,101 @@ function parseSize(size: string | null | undefined): { w: number; h: number } {
   return { w, h };
 }
 
-function sizesOverlap(
+/** Permissive creative vs slot size check (OpenRTB format + ad unit size strings). */
+function sizeMatches(
   creativeSize: string,
-  adUnitSizes: string[],
-  bannerFormats?: Array<{ w: number; h: number }>
+  bannerFormats: Array<{ w: number; h: number }> | undefined,
+  adUnitSizes: string[]
 ): boolean {
-  // Always pass if no size constraints
   if (!creativeSize) return true;
-  if ((!adUnitSizes || adUnitSizes.length === 0) && (!bannerFormats || bannerFormats.length === 0)) return true;
-
-  const [cw, ch] = creativeSize.split("x").map(Number);
-  if (isNaN(cw)) return true;
-
+  const [cw, ch] = creativeSize.toLowerCase().split("x").map(Number);
+  if (isNaN(cw) || isNaN(ch)) return true;
+  if (!bannerFormats?.length && !adUnitSizes?.length) return true;
   if (bannerFormats?.some((f) => f.w === cw && f.h === ch)) return true;
-  if (adUnitSizes?.some((s) => s.toLowerCase() === creativeSize.toLowerCase())) return true;
+  if (
+    adUnitSizes?.some((s) => {
+      const [w, h] = s.toLowerCase().split("x").map(Number);
+      return w === cw && h === ch;
+    })
+  )
+    return true;
   return false;
 }
 
-function buildAdm(imageUrl: string, clickUrl: string, w: number, h: number): string {
-  const href = clickUrl.replace(/"/g, "&quot;");
-  const src = imageUrl.replace(/"/g, "&quot;");
-  return `<a href='${href}' target='_blank' rel='noopener noreferrer'><img src='${src}' width='${w}' height='${h}' border='0' style='display:block;max-width:100%;'/></a>`;
+function exchangeBaseUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (explicit) return explicit.replace(/\/$/, "");
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "https://exchange.adsgupta.com";
+}
+
+function escapeHtmlAttr(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function buildAdmWithTracking(args: {
+  imageUrl: string;
+  clickUrl: string;
+  w: number;
+  h: number;
+  baseUrl: string;
+  impressionId: string;
+  auctionLogId: string;
+  adUnitPrimaryW: number;
+  adUnitPrimaryH: number;
+}): string {
+  const {
+    imageUrl,
+    clickUrl,
+    baseUrl,
+    impressionId,
+    auctionLogId,
+    adUnitPrimaryW,
+    adUnitPrimaryH
+  } = args;
+  const w = adUnitPrimaryW || args.w;
+  const h = adUnitPrimaryH || args.h;
+  const trackClickQs = `id=${encodeURIComponent(impressionId)}&url=${encodeURIComponent(clickUrl)}`;
+  const trackClick = `${baseUrl}/api/track/click?${trackClickQs}`;
+  const trackClickJs = trackClick.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  const adm = [
+    `<a href="${escapeHtmlAttr(clickUrl)}" target="_blank" rel="noopener noreferrer"`,
+    ` style="display:block;text-decoration:none;"`,
+    ` onclick="fetch('${trackClickJs}',{mode:'no-cors'})">`,
+    `<img src="${escapeHtmlAttr(imageUrl)}"`,
+    ` width="${w}"`,
+    ` height="${h}"`,
+    ` border="0" style="display:block;max-width:100%;"/>`,
+    `</a>`,
+    `<img src="${escapeHtmlAttr(`${baseUrl}/api/track/impression?id=${auctionLogId}`)}"`,
+    ` width="1" height="1" border="0" style="display:none;" alt=""/>`
+  ].join("");
+  return adm;
+}
+
+async function ensureImpressionForInternalWin(args: {
+  auctionLogId: string;
+  openrtbRequestId: string;
+  adUnitId: string;
+  campaignId: string;
+  creativeId: string;
+  winningBid: number;
+  pageUrl: string | null;
+}): Promise<string | null> {
+  const existing = await sql<{ id: string }>`
+    SELECT id FROM impressions WHERE auction_log_id = ${args.auctionLogId} LIMIT 1
+  `;
+  if (existing.rows[0]?.id) return existing.rows[0].id;
+
+  await sql`
+    INSERT INTO impressions (auction_log_id, auction_id, ad_unit_id, campaign_id, creative_id, winning_bid, page_url)
+    SELECT ${args.auctionLogId}, ${args.openrtbRequestId}, ${args.adUnitId}, ${args.campaignId}, ${args.creativeId}, ${args.winningBid}, ${args.pageUrl}
+    WHERE NOT EXISTS (SELECT 1 FROM impressions WHERE auction_log_id = ${args.auctionLogId})
+  `;
+  const row = await sql<{ id: string }>`
+    SELECT id FROM impressions WHERE auction_log_id = ${args.auctionLogId} LIMIT 1
+  `;
+  return row.rows[0]?.id ?? null;
 }
 
 /** Sizes from imp.banner only; if missing, empty (caller may substitute ad unit sizes). */
@@ -240,6 +316,7 @@ type JoinRow = {
   freq_cap_session: number | null;
   ab_group: string | null;
   ab_weight: string | null;
+  scan_passed: boolean | null;
 };
 
 /** A/B: one creative per size via weighted random when ab_test_active. */
@@ -320,21 +397,23 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
       cr.id AS creative_id,
       cr.image_url,
       cr.click_url,
-      cr.size AS creative_size
+      cr.size AS creative_size,
+      cr.scan_passed
     FROM campaigns c
     INNER JOIN creatives cr ON cr.campaign_id = c.id
+      AND cr.status = 'active'
+      AND (cr.scan_passed IS NULL OR cr.scan_passed = true)
     WHERE c.status = 'active'
       AND (c.start_date IS NULL OR c.start_date <= CURRENT_DATE)
       AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
-      AND cr.status IN ('active', 'approved')
       AND cr.image_url IS NOT NULL
       AND cr.click_url IS NOT NULL
-      AND (cr.scan_passed IS NULL OR cr.scan_passed = true OR cr.status = 'approved')
+    ORDER BY c.bid_price DESC
   `;
   console.log("[auction] campaigns+creatives SQL:\n" + joinSql.trim());
   const { rows } = await pool.query<JoinRow>(joinSql);
   const list = rows as JoinRow[];
-  console.log("[auction] campaigns+creatives raw rows:", list.length, list.slice(0, 5));
+  console.log("[auction] candidates:", list.length);
   cacheSet(key, list, 30_000);
   return list;
 }
@@ -519,11 +598,13 @@ export async function runAuction(
       if (isFreqCapBlocked(campaignId, c0.freq_cap_day, c0.freq_cap_session, freqCapsDay, freqCapsSession)) {
         continue;
       }
-      const ts = c0.target_sizes;
-      const hasTargetSizes = ts && ts.length > 0 && !(ts.length === 1 && ts[0] === "");
-      if (hasTargetSizes) {
-        const adUnitMatchesTarget = adUnit.sizes.some((s: string) => (ts as string[]).includes(s));
-        if (!adUnitMatchesTarget) {
+      const ts = c0.target_sizes as string[] | null;
+      const hasTargetSizes = ts && ts.length > 0 && ts[0] !== "";
+      if (hasTargetSizes && adUnit.sizes?.length) {
+        const unitHasMatchingSize = adUnit.sizes.some((s: string) =>
+          ts!.map((t: string) => t.toLowerCase()).includes(s.toLowerCase())
+        );
+        if (!unitHasMatchingSize) {
           droppedByTargetSizes++;
           continue;
         }
@@ -560,7 +641,7 @@ export async function runAuction(
         if (bidPrice < floor) continue;
         const crSize = r.creative_size;
         if (!crSize) continue;
-        if (!sizesOverlap(crSize, adUnitSizes, bannerFormats)) continue;
+        if (!sizeMatches(crSize, bannerFormats, adUnitSizes)) continue;
         const img = r.image_url as string;
         const clk = r.click_url as string;
         if (requireSecure && !urlsSecureEnough(img, clk)) continue;
@@ -627,7 +708,6 @@ export async function runAuction(
 
     if (winner.kind === "internal") {
       const { w, h } = parseSize(winner.size);
-      const adm = buildAdm(winner.imageUrl, winner.clickUrl, w, h);
       const finalAdomain = winner.advertiserDomain ? [winner.advertiserDomain] : [];
 
       const auctionLogId = await insertAuctionLog({
@@ -650,6 +730,45 @@ export async function runAuction(
       if (!auctionLogId) return null;
       console.log("[auction]", auctionLogId, "bids:", pool.length, "winner:", winner.campaignId, "price:", clearingPrice);
 
+      const primarySz = adUnit.sizes?.[0] ?? `${w}x${h}`;
+      const [pw, ph] = primarySz.split("x").map((x) => Number(x) || 0);
+      const adUnitPrimaryW = Number.isFinite(pw) && pw > 0 ? pw : w;
+      const adUnitPrimaryH = Number.isFinite(ph) && ph > 0 ? ph : h;
+
+      const impressionId = await ensureImpressionForInternalWin({
+        auctionLogId,
+        openrtbRequestId,
+        adUnitId: adUnit.id,
+        campaignId: winner.campaignId,
+        creativeId: winner.creativeId,
+        winningBid: clearingPrice,
+        pageUrl
+      });
+
+      const baseUrl = exchangeBaseUrl();
+      const adm = impressionId
+        ? buildAdmWithTracking({
+            imageUrl: winner.imageUrl,
+            clickUrl: winner.clickUrl,
+            w,
+            h,
+            baseUrl,
+            impressionId,
+            auctionLogId,
+            adUnitPrimaryW,
+            adUnitPrimaryH
+          })
+        : [
+            `<a href="${escapeHtmlAttr(winner.clickUrl)}" target="_blank" rel="noopener noreferrer" style="display:block;text-decoration:none;">`,
+            `<img src="${escapeHtmlAttr(winner.imageUrl)}" width="${adUnitPrimaryW}" height="${adUnitPrimaryH}" border="0" style="display:block;max-width:100%;"/></a>`,
+            `<img src="${escapeHtmlAttr(`${baseUrl}/api/track/impression?id=${auctionLogId}`)}" width="1" height="1" border="0" style="display:none;" alt=""/>`
+          ].join("");
+
+      if (!adm || adm.length < 20) {
+        console.error("[auction] adm empty");
+        return null;
+      }
+
       return {
         auctionLogId,
         bidCount: pool.length,
@@ -661,8 +780,8 @@ export async function runAuction(
           imageUrl: winner.imageUrl,
           clickUrl: winner.clickUrl,
           adm,
-          w,
-          h,
+          w: adUnitPrimaryW,
+          h: adUnitPrimaryH,
           adomain: finalAdomain.length ? finalAdomain : undefined,
           iurl: winner.imageUrl,
           cid: winner.campaignId,
@@ -719,9 +838,17 @@ export async function runAuction(
         demandSource: d.dsp.name
       }
     };
-  } catch (e) {
-    console.error("[auction-engine] runAuction failed:", e);
-    return null; // fail silently — publisher gets no-fill instead of 500
+  } catch (error) {
+    console.error("[auction] FATAL:", error instanceof Error ? error.message : error);
+    try {
+      await sql`
+        INSERT INTO auction_log (auction_id, ad_unit_id, bid_count, cleared, created_at)
+        VALUES (${randomUUID()}, ${adUnitId}, 0, false, now())
+      `;
+    } catch {
+      /* best-effort */
+    }
+    return null;
   } finally {
     const auctionMs =
       (typeof performance !== "undefined" ? performance.now() : Date.now()) - auctionStart;
