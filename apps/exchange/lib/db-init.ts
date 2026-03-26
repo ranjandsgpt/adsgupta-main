@@ -31,6 +31,7 @@ export async function createTables(): Promise<number> {
         campaign_email TEXT,
         invited_by TEXT,
         last_login_at TIMESTAMPTZ,
+        deleted_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;
@@ -144,6 +145,7 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS campaign_email TEXT`;
     await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS invited_by TEXT`;
     await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`;
 
     await sql`ALTER TABLE ad_units DROP CONSTRAINT IF EXISTS ad_units_status_check`;
     await sql`

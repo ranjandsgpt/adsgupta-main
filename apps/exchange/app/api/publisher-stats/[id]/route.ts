@@ -1,6 +1,7 @@
 import { computeExchangeStats } from "@/lib/stats-queries";
 import { sql } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { getAuthFromRequest, forbidden, unauthorized } from "@/lib/require-auth";
 
 export const revalidate = 60;
 
@@ -9,6 +10,15 @@ export const revalidate = 60;
  */
 export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const auth = await getAuthFromRequest(_request);
+    if (!auth) return unauthorized();
+    if (auth.role === "publisher") {
+      const allowed = (auth.publisherIds ?? (auth.publisherId ? [auth.publisherId] : [])).filter(Boolean);
+      if (!allowed.includes(params.id)) return forbidden();
+    } else if (auth.role !== "admin") {
+      return forbidden();
+    }
+
     const payload = await computeExchangeStats(params.id);
 
     const healthScore = await sql<{ score: string }>`

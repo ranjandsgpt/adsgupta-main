@@ -111,7 +111,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (auth.role === "publisher") {
-      if (!auth.publisherId) return json([]);
+      const allowed = (auth.publisherIds ?? (auth.publisherId ? [auth.publisherId] : [])).filter(Boolean);
+      if (allowed.length === 0) return json([]);
       const result = await sql`
         SELECT
           u.id,
@@ -142,7 +143,7 @@ export async function GET(request: NextRequest) {
           ) AS impressions_today
         FROM ad_units u
         INNER JOIN publishers p ON p.id = u.publisher_id
-        WHERE u.publisher_id = ${auth.publisherId} AND u.status <> 'archived'
+        WHERE u.publisher_id = ANY(${allowed}::uuid[]) AND u.status <> 'archived'
         ORDER BY u.created_at DESC
       `;
       return json(result.rows);

@@ -101,6 +101,22 @@ export async function GET(request: NextRequest) {
       return json(result.rows);
     }
 
+    if (auth.role === "advertiser") {
+      const allowEmail = (auth.campaignEmail ?? auth.email ?? "").trim().toLowerCase();
+      if (!allowEmail) return forbidden();
+      const result = await sql`
+        SELECT cr.*,
+        (SELECT COUNT(*)::int FROM impressions WHERE creative_id = cr.id) AS impression_count,
+        (SELECT COUNT(*)::int FROM clicks ck INNER JOIN impressions i ON i.id = ck.impression_id WHERE i.creative_id = cr.id) AS click_count
+        FROM creatives cr
+        JOIN campaigns c ON c.id = cr.campaign_id
+        WHERE COALESCE(c.advertiser_email, c.contact_email) = ${allowEmail}
+          AND cr.status <> 'archived'
+        ORDER BY cr.created_at DESC
+      `;
+      return json(result.rows);
+    }
+
     const adv = demandAdvertiserFilter(auth);
     if (!adv) {
       const result = await sql`

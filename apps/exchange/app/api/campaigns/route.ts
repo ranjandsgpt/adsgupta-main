@@ -58,6 +58,22 @@ export async function GET(request: NextRequest) {
       return json(enriched);
     }
 
+    if (auth.role === "advertiser") {
+      const allowEmail = (auth.campaignEmail ?? auth.email ?? "").trim().toLowerCase();
+      if (!allowEmail) return forbidden();
+      const result = await sql<CampaignRow>`
+        SELECT
+          c.*,
+          (SELECT COUNT(*)::int FROM impressions i WHERE i.campaign_id = c.id AND i.created_at::date = CURRENT_DATE) AS impressions_today,
+          (SELECT COALESCE(SUM(i.winning_bid), 0) / 1000 FROM impressions i WHERE i.campaign_id = c.id AND i.created_at::date = CURRENT_DATE)::text AS spend_today,
+          (SELECT COUNT(*)::int FROM creatives cr WHERE cr.campaign_id = c.id AND cr.status <> 'archived') AS creative_count
+        FROM campaigns c
+        WHERE COALESCE(c.advertiser_email, c.contact_email) = ${allowEmail}
+        ORDER BY c.created_at DESC
+      `;
+      return json(result.rows);
+    }
+
     const adv = demandAdvertiserFilter(auth);
     if (!adv) {
       const result = await sql`SELECT * FROM campaigns ORDER BY created_at DESC`;

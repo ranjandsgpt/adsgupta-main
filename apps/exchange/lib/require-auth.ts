@@ -5,7 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 export type AuthContext = {
   role: ExchangeRole;
   publisherId: string | null;
+  publisherIds?: string[] | null;
   demandAdvertiser: string | null;
+  campaignEmail?: string | null;
   adminAccess?: "admin" | "ops" | "viewer" | null;
   email?: string | null;
 };
@@ -19,7 +21,9 @@ export async function getAuthFromRequest(request: NextRequest): Promise<AuthCont
   return {
     role: token.role as ExchangeRole,
     publisherId: (token.publisherId as string | null | undefined) ?? null,
+    publisherIds: (token.publisherIds as string[] | null | undefined) ?? null,
     demandAdvertiser: (token.demandAdvertiser as string | null | undefined) ?? null,
+    campaignEmail: (token.campaignEmail as string | null | undefined) ?? null,
     adminAccess: (token.adminAccess as "admin" | "ops" | "viewer" | null | undefined) ?? null,
     email: token.email ? String(token.email) : null
   };
