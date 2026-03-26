@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
+import Script from 'next/script';
 import '@/styles/globals.css';
 import Navbar from '@/components/navbar';
 import { Footer } from '@adsgupta/ui';
@@ -51,6 +52,15 @@ export default function RootLayout({
     <html lang="en" className={plusJakarta.variable} suppressHydrationWarning>
       <head>
         <meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-G1EKSV8MFG" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-G1EKSV8MFG');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

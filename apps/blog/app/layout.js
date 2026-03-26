@@ -1,5 +1,6 @@
 import "../styles/globals.css";
 import { Barlow_Condensed, DM_Sans, IBM_Plex_Mono } from "next/font/google";
+import Script from "next/script";
 import Header from "../components/Header";
 import Providers from "../components/Providers";
 import { Footer } from "@adsgupta/ui";
@@ -57,6 +58,15 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={fontVars}>
       <body className="app-body">
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-WBX0QZH113" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-WBX0QZH113');
+          `}
+        </Script>
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
