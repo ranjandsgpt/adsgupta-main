@@ -122,12 +122,14 @@ export async function createTables(): Promise<number> {
     // ── Migrations from older shapes (safe no-ops if columns missing) ─────────
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_verified BOOLEAN DEFAULT false`;
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS primary_ad_formats TEXT[] DEFAULT '{}'`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS auction_type TEXT DEFAULT 'first_price'`;
 
     await sql`ALTER TABLE ad_units DROP CONSTRAINT IF EXISTS ad_units_status_check`;
     await sql`
       ALTER TABLE ad_units ADD CONSTRAINT ad_units_status_check
       CHECK (status IN ('active', 'paused', 'archived'))
     `;
+    await sql`ALTER TABLE ad_units ADD COLUMN IF NOT EXISTS auction_type TEXT DEFAULT 'first_price'`;
 
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS name TEXT`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS advertiser TEXT`;

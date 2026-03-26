@@ -893,9 +893,12 @@ export async function runAuction(
 
     const winner = pool[0];
     const second = pool[1];
-    const at = opts?.fullRequest?.at === 1 ? 1 : 2;
+    // OpenRTB `at`: 1=first-price, 2=second-price. Default to first-price.
+    const at = opts?.fullRequest?.at === 2 ? 2 : 1;
     const clearingPrice =
-      at === 1 ? winner.bidPrice : second ? second.bidPrice + 0.01 : winner.bidPrice;
+      at === 2
+        ? Math.max((second ? second.bidPrice + 0.01 : winner.bidPrice), floor)
+        : Math.max(winner.bidPrice, floor);
 
     if (winner.kind === "internal") {
       const { w, h } = parseSize(winner.size);

@@ -57,6 +57,9 @@ export async function POST(request: NextRequest) {
     return finish(NextResponse.json({ nbr: 1 }, { status: 200, headers: responseHeaders(ms) }));
   }
 
+  // OpenRTB `at`: 1=first-price (default), 2=second-price (legacy compatibility).
+  bidRequest.at = bidRequest.at === 2 ? 2 : 1;
+
   const imp = bidRequest.imp?.[0];
   const adUnitId = imp?.tagid?.trim() || imp?.id?.trim() || "";
   const pageUrl = bidRequest.site?.page ?? bidRequest.app?.storeurl ?? null;

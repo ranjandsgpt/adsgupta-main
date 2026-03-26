@@ -55,7 +55,7 @@ export default function AdvertiserQuickStartPage() {
         <div className="card" style={{ padding: 16 }}>
           <div style={{ fontWeight: 900, color: "var(--text-bright)", marginBottom: 6 }}>3) Set bid and budget</div>
           <div style={{ color: "var(--text-muted)", fontSize: 13, lineHeight: 1.6 }}>
-            Your bid and budget govern eligibility in auctions. Once active, your ads compete in second-price auctions.
+            Your bid and budget govern eligibility in auctions. Once active, your ads compete across inventory.
           </div>
         </div>
 

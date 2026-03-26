@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Publisher Monetization",
-  description: "Monetize your website with real OpenRTB auctions and fair, second-price clearing."
+  description: "Monetize your website with real OpenRTB auctions and fair clearing."
 };
 
 export default function PublisherLandingPage() {
@@ -25,7 +25,7 @@ export default function PublisherLandingPage() {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, textAlign: "left" }}>
         {[
-          { t: "Real Auctions", d: "Live OpenRTB 2.6 with second-price clearing.", i: "◆" },
+          { t: "Real Auctions", d: "Live OpenRTB 2.6 auctions.", i: "◆" },
           { t: "No Ads.txt Required", d: "Start earning while you complete ads.txt at your pace.", i: "✓" },
           { t: "Self-Serve Setup", d: "Register, create units, and deploy tags in minutes.", i: "⚙" }
         ].map((c) => (

@@ -34,7 +34,7 @@ export default function DocsOverviewPage() {
       <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.7, fontSize: 14 }}>
         MDE Exchange is a real-time ad exchange running OpenRTB 2.6 auctions. Publishers embed{" "}
         <code style={{ color: "var(--accent)" }}>mde.js</code>, advertisers upload creatives and set bids. The
-        exchange clears auctions in <strong>&lt;100ms</strong> using second-price mechanics.
+        exchange clears auctions in <strong>&lt;100ms</strong>.
       </p>
 
       <EditThisPage href={editUrl} />
@@ -51,7 +51,7 @@ export default function DocsOverviewPage() {
         <h2 style={{ fontSize: 18, color: "var(--text-bright)", margin: "0 0 10px" }}>Ad Units</h2>
         <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.7, fontSize: 14 }}>
           Each ad unit declares sizes, environment (web/app/ctv), and a floor price. The exchange uses this to evaluate
-          bids and clear the auction with fair second-price settlement.
+          bids and clear the auction.
         </p>
       </section>
 
@@ -99,7 +99,7 @@ export default function DocsOverviewPage() {
         <h2 style={{ fontSize: 18, color: "var(--text-bright)", margin: "0 0 10px" }}>Creating Campaigns</h2>
         <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.7, fontSize: 14 }}>
           Campaigns define your advertiser seat, bid CPM, daily budget, targeting constraints, and eligible sizes.
-          Once submitted and activated, your line participates in second-price auctions across inventory.
+          Once submitted and activated, your line participates in auctions across inventory.
         </p>
       </section>
 

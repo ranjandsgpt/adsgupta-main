@@ -339,7 +339,8 @@ export async function enrichBidRequest(raw: OpenRTB26BidRequest, request: Reques
   base.site = mergedSite;
   base.user = mergedUser;
   base.regs = mergedRegs;
-  base.at = base.at ?? 2;
+  // OpenRTB `at`: default to first-price.
+  base.at = base.at ?? 1;
   base.tmax = base.tmax ?? 500;
 
   return base;

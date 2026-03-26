@@ -705,7 +705,7 @@
         }
       },
       device: { ua: navigator.userAgent, w: screen.width, h: screen.height },
-      at: 2,
+      at: 1,
       tmax: 3000,
       source: {
         tid: rid,
