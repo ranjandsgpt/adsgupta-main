@@ -20,6 +20,22 @@ export async function createTables(): Promise<number> {
     `;
 
     await sql`
+      CREATE TABLE IF NOT EXISTS platform_users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        password_hash TEXT,
+        role TEXT NOT NULL DEFAULT 'publisher',
+        status TEXT NOT NULL DEFAULT 'pending',
+        publisher_ids UUID[] DEFAULT '{}',
+        campaign_email TEXT,
+        invited_by TEXT,
+        last_login_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+
+    await sql`
       CREATE TABLE IF NOT EXISTS ad_units (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         publisher_id UUID REFERENCES publishers(id) ON DELETE CASCADE,
@@ -123,6 +139,11 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_verified BOOLEAN DEFAULT false`;
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS primary_ad_formats TEXT[] DEFAULT '{}'`;
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS auction_type TEXT DEFAULT 'first_price'`;
+    await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS password_hash TEXT`;
+    await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS publisher_ids UUID[] DEFAULT '{}'`;
+    await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS campaign_email TEXT`;
+    await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS invited_by TEXT`;
+    await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ`;
 
     await sql`ALTER TABLE ad_units DROP CONSTRAINT IF EXISTS ad_units_status_check`;
     await sql`

@@ -1,6 +1,6 @@
 import type { DefaultSession } from "next-auth";
 
-type ExchangeRole = "admin" | "publisher" | "demand";
+type ExchangeRole = "admin" | "publisher" | "advertiser" | "demand";
 type AdminAccess = "admin" | "ops" | "viewer";
 
 declare module "next-auth" {
@@ -8,7 +8,9 @@ declare module "next-auth" {
     user: DefaultSession["user"] & {
       role: ExchangeRole;
       publisherId?: string | null;
+      publisherIds?: string[] | null;
       demandAdvertiser?: string | null;
+      campaignEmail?: string | null;
       adminAccess?: AdminAccess | null;
     };
   }
@@ -16,7 +18,9 @@ declare module "next-auth" {
   interface User {
     role: ExchangeRole;
     publisherId?: string | null;
+    publisherIds?: string[] | null;
     demandAdvertiser?: string | null;
+    campaignEmail?: string | null;
     adminAccess?: AdminAccess | null;
   }
 }
@@ -25,7 +29,9 @@ declare module "next-auth/jwt" {
   interface JWT {
     role?: ExchangeRole;
     publisherId?: string | null;
+    publisherIds?: string[] | null;
     demandAdvertiser?: string | null;
+    campaignEmail?: string | null;
     adminAccess?: AdminAccess | null;
   }
 }

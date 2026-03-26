@@ -1,1 +1,1 @@
-export type ExchangeRole = "admin" | "publisher" | "demand";
+export type ExchangeRole = "admin" | "publisher" | "advertiser" | "demand";
