@@ -1,255 +1,151 @@
-"use client";
-
-import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
 
-type PublicStats = {
-  auctionsToday: number;
-  activePublishers: number;
-  activeCampaigns: number;
-  avgCpmLast7d: number;
+import { authOptions } from "@/lib/auth-options";
+
+export const metadata: Metadata = {
+  title: "AdsGupta — Programmatic Advertising Platform",
+  description: "Real-time auctions. Self-serve onboarding. Enterprise controls. No contracts."
 };
 
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
-
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "AdsGupta Ad Ecosystem",
-  applicationCategory: "BusinessApplication",
-  description: "Unified ad exchange platform for publishers and advertisers",
-  url: "https://exchange.adsgupta.com"
+type SessionUserLike = {
+  role?: string;
+  publisherId?: string | null;
+  publisherIds?: string[] | null;
+  campaignEmail?: string | null;
+  email?: string | null;
 };
 
-type ProductCard = {
-  iconBg: string;
-  name: string;
-  badge: "Live" | "Beta" | "Coming Soon";
-  desc: string;
-  links: Array<{ label: string; href: string }>;
-  disabled?: boolean;
-};
-
-const PRODUCTS: ProductCard[] = [
-  {
-    iconBg: "#1a56db",
-    name: "Publisher Portal",
-    badge: "Live",
-    desc: "Inventory management, yield optimization, ad serving.",
-    links: [
-      { label: "Register", href: "/publisher/register" },
-      { label: "Dashboard", href: "/publisher/dashboard" }
-    ]
-  },
-  {
-    iconBg: "#7c3aed",
-    name: "Demand Manager",
-    badge: "Live",
-    desc: "AI campaign planning, creative studio, attribution.",
-    links: [
-      { label: "Create Campaign", href: "/demand/create" },
-      { label: "Manage", href: "/demand/dashboard" }
-    ]
-  },
-  {
-    iconBg: "#1e3a5f",
-    name: "MDE Exchange",
-    badge: "Live",
-    desc: "OpenRTB 2.6 real-time auctions. Sub-100ms clearing.",
-    links: [{ label: "Auction Monitor", href: "/admin" }]
-  },
-  {
-    iconBg: "#ea580c",
-    name: "Prebid Portal",
-    badge: "Beta",
-    desc: "500+ adapters, header bidding, Prebid.js builder.",
-    links: [{ label: "Adapter Library", href: "/docs/mde-js-reference" }]
-  },
-  {
-    iconBg: "#b42318",
-    name: "Admin Console",
-    badge: "Live",
-    desc: "User management, billing, compliance, API keys.",
-    links: [{ label: "Open Console", href: "/admin" }]
-  },
-  {
-    iconBg: "#0d9488",
-    name: "AI Copilot",
-    badge: "Coming Soon",
-    desc: "Natural language queries, autonomous optimization.",
-    links: [],
-    disabled: true
+function roleRedirect(session: { user?: SessionUserLike } | null): string | null {
+  const role = session?.user?.role;
+  if (!role) return null;
+  if (role === "admin") return "/platform";
+  if (role === "publisher") {
+    const ids = session.user?.publisherIds ?? [];
+    const id = ids?.[0] ?? session.user?.publisherId ?? "";
+    return id ? `/publisher/dashboard?id=${encodeURIComponent(id)}` : "/publisher/dashboard";
   }
-];
-
-function badgeClass(b: ProductCard["badge"]) {
-  if (b === "Live") return "badge badge-green";
-  if (b === "Beta") return "badge badge-yellow";
-  return "badge badge-gray";
+  const email = session.user?.campaignEmail ?? session.user?.email ?? "";
+  return email ? `/demand/dashboard?email=${encodeURIComponent(email)}` : "/demand/dashboard";
 }
 
-export default function PlatformHomePage() {
-  const [stats, setStats] = useState<PublicStats | null>(null);
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} style={{ fontSize: 12, color: "var(--text-muted)", textDecoration: "none" }}>
+      {children}
+    </Link>
+  );
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const r = await fetch("/api/public/stats", { cache: "no-store" });
-        const j = (await r.json()) as PublicStats;
-        if (!cancelled) setStats(j);
-      } catch {
-        if (!cancelled) setStats(null);
-      }
-    }
-    void load();
-    const id = setInterval(() => void load(), 30_000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, []);
-
-  const name = "Ranjan";
+export default async function HomePage() {
+  const session = (await getServerSession(authOptions)) as { user?: SessionUserLike } | null;
+  const dest = roleRedirect(session);
+  if (dest) redirect(dest);
 
   return (
-    <div className="page-content" style={{ paddingBottom: 48 }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <CookieConsentBanner />
-
-      <div style={{ marginBottom: 8 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: "var(--text)", margin: 0 }}>
-          {greeting()}, {name}
-        </h1>
-        <p style={{ margin: "6px 0 0", color: "var(--muted)", fontSize: 13 }}>
-          AdsGupta Ad Ecosystem · All portals
-        </p>
+    <div style={{ padding: "28px 18px 64px", maxWidth: 1120, margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--accent)" }} />
+          <div style={{ fontWeight: 900, color: "var(--text-bright)", letterSpacing: "-0.02em" }}>AdsGupta</div>
+        </div>
+        <nav style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+          <NavLink href="/docs">Developers</NavLink>
+          <NavLink href="/publisher/register">Publishers</NavLink>
+          <NavLink href="/register">Advertisers</NavLink>
+          <NavLink href="/docs/api-reference">Pricing</NavLink>
+          <Link href="/login" className="btn-ghost">
+            Sign in
+          </Link>
+          <Link href="/register" className="btn-primary">
+            Get started
+          </Link>
+        </nav>
       </div>
 
-      <div className="card" style={{ marginTop: 20, padding: "14px 18px" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 16 }}>
-            <span className="pulse-dot" />
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text2)" }}>Exchange Live</span>
-          </div>
-          {[
-            { label: "Auctions today", val: stats?.auctionsToday ?? "—" },
-            { label: "Active publishers", val: stats?.activePublishers ?? "—" },
-            { label: "Active campaigns", val: stats?.activeCampaigns ?? "—" },
-            {
-              label: "Avg CPM",
-              val: stats != null ? `$${Number(stats.avgCpmLast7d).toFixed(2)}` : "—"
-            }
-          ].map((item, i) => (
-            <div key={item.label} style={{ display: "flex", alignItems: "center" }}>
-              {i > 0 ? (
-                <span style={{ width: 1, height: 28, background: "var(--border)", margin: "0 16px" }} />
-              ) : null}
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>
-                  {typeof item.val === "number" ? item.val.toLocaleString() : item.val}
-                </div>
-                <div style={{ fontSize: 11, color: "var(--muted)" }}>{item.label}</div>
-              </div>
-            </div>
-          ))}
+      <div style={{ paddingTop: 80, textAlign: "center" }}>
+        <h1 style={{ margin: "0 auto 14px", fontSize: 44, maxWidth: 900, lineHeight: 1.05, color: "var(--text-bright)" }}>
+          The Programmatic Advertising Platform
+        </h1>
+        <p style={{ margin: "0 auto 22px", maxWidth: 760, fontSize: 15, lineHeight: 1.7, color: "var(--text-muted)" }}>
+          Real-time auctions. Self-serve onboarding. Enterprise controls. No contracts.
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/publisher/register" className="btn-primary">
+            Start monetizing →
+          </Link>
+          <Link href="/register" className="btn-secondary">
+            Start advertising →
+          </Link>
         </div>
       </div>
 
-      <h2 style={{ fontSize: 14, fontWeight: 600, margin: "28px 0 12px", color: "var(--text2)" }}>Products</h2>
       <div
+        className="card"
         style={{
+          marginTop: 36,
+          padding: 16,
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: 10
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: 10,
+          textAlign: "center"
         }}
       >
-        {PRODUCTS.map((p) => (
-          <div
-            key={p.name}
-            className={`card${p.disabled ? "" : " product-tile-interactive"}`}
-            style={{
-              padding: 16,
-              cursor: p.disabled ? "default" : "pointer",
-              transition: "border-color 0.15s, box-shadow 0.15s",
-              opacity: p.disabled ? 0.85 : 1
-            }}
-            onClick={() => {
-              if (!p.disabled && p.links[0]) window.location.href = p.links[0].href;
-            }}
-            onKeyDown={(e) => {
-              if (!p.disabled && p.links[0] && (e.key === "Enter" || e.key === " ")) {
-                e.preventDefault();
-                window.location.href = p.links[0].href;
-              }
-            }}
-            role={p.disabled ? undefined : "link"}
-            tabIndex={p.disabled ? -1 : 0}
-          >
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: p.iconBg,
-                  flexShrink: 0
-                }}
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{p.name}</span>
-                  <span className={badgeClass(p.badge)}>{p.badge}</span>
-                </div>
-                <p
-                  style={{
-                    margin: "8px 0 0",
-                    fontSize: 11,
-                    color: "var(--muted)",
-                    lineHeight: 1.5,
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden"
-                  }}
-                >
-                  {p.desc}
-                </p>
-                {!p.disabled && p.links.length > 0 ? (
-                  <div style={{ display: "flex", gap: 14, marginTop: 12, flexWrap: "wrap" }}>
-                    {p.links.map((l) => (
-                      <Link
-                        key={l.href + l.label}
-                        href={l.href}
-                        style={{ fontSize: 11, fontWeight: 500, color: "var(--accent)" }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {l.label} →
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            </div>
+        {["OpenRTB 2.6", "<100ms latency", "Self-serve", "No contracts"].map((x) => (
+          <div key={x} style={{ padding: 10 }}>
+            <div style={{ fontWeight: 900, color: "var(--text)" }}>{x}</div>
           </div>
         ))}
       </div>
 
-      <footer style={{ marginTop: 40, paddingTop: 20, borderTop: "1px solid var(--border)", color: "var(--muted)", fontSize: 12 }}>
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", marginBottom: 10 }}>
-          <Link href="/privacy">Privacy Policy</Link>
-          <a href="https://adsgupta.com/terms">Terms</a>
-          <Link href="/docs">Documentation</Link>
-          <Link href="/status">Status</Link>
-          <a href="mailto:hello@adsgupta.com">Contact</a>
+      <div style={{ marginTop: 28, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+        <div className="card" style={{ padding: 18 }}>
+          <div style={{ fontWeight: 900, color: "var(--text-bright)", marginBottom: 8 }}>Publisher Console</div>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+            Monetize your inventory with real programmatic auctions.
+          </div>
+          <div style={{ marginTop: 14 }}>
+            <Link href="/publisher/register" className="btn-secondary">
+              Register
+            </Link>
+          </div>
         </div>
-        <div style={{ textAlign: "center" }}>© {new Date().getFullYear()} AdsGupta — exchange.adsgupta.com</div>
+        <div className="card" style={{ padding: 18 }}>
+          <div style={{ fontWeight: 900, color: "var(--text-bright)", marginBottom: 8 }}>Demand Manager</div>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+            Run campaigns across publisher inventory.
+          </div>
+          <div style={{ marginTop: 14 }}>
+            <Link href="/register" className="btn-secondary">
+              Register
+            </Link>
+          </div>
+        </div>
+        <div className="card" style={{ padding: 18 }}>
+          <div style={{ fontWeight: 900, color: "var(--text-bright)", marginBottom: 8 }}>Exchange Platform</div>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+            Full platform access for exchange operators.
+          </div>
+          <div style={{ marginTop: 14 }}>
+            <Link href="/login" className="btn-secondary">
+              Admin sign in
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <footer style={{ marginTop: 44, paddingTop: 18, borderTop: "1px solid var(--border)", color: "var(--text-muted)", fontSize: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+          <div>© 2026 AdsGupta</div>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            <Link href="/privacy">Privacy</Link>
+            <a href="https://adsgupta.com/terms">Terms</a>
+            <Link href="/docs">Docs</Link>
+            <Link href="/status">Status</Link>
+          </div>
+        </div>
       </footer>
     </div>
   );
