@@ -40,7 +40,10 @@ export async function GET(request: NextRequest, { params }: { params: { publishe
   if (!auth) return unauthorized();
   const publisherId = params.publisherId?.trim() ?? "";
   if (!publisherId) return json({ error: "publisherId required" }, 400);
-  if (auth.role === "publisher" && auth.publisherId !== publisherId) return forbidden();
+  if (auth.role === "publisher") {
+    const allowed = (auth.publisherIds ?? (auth.publisherId ? [auth.publisherId] : [])).filter(Boolean);
+    if (!allowed.includes(publisherId)) return forbidden();
+  }
   if (auth.role !== "publisher" && auth.role !== "admin") return forbidden();
 
   const pub = await sql<{ status: string }>`

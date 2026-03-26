@@ -63,33 +63,40 @@ function publisherSidebar(): NavSection[] {
     {
       label: "Inventory",
       items: [
-        { href: "/publisher/inventory", label: "Ad Unit Manager" },
+        { href: "/publisher/inventory", label: "Ad Units" },
         { href: "/publisher/tags", label: "Sites & Apps" },
-        { href: "/publisher/tester", label: "CTV Manager" }
+        { href: "/publisher/tags", label: "Tag Generator" }
       ]
     },
     {
       label: "Yield",
       items: [
         { href: "/publisher/estimate", label: "Floor Pricing" },
-        { href: "/publisher/optimizer", label: "Demand Partners" },
-        { href: "/docs/mde-js-reference", label: "Header Bidding" }
+        { href: "/publisher/optimizer", label: "Floor Optimizer" }
       ]
     },
     {
-      label: "Delivery",
+      label: "Header Bidding",
       items: [
-        { href: "/publisher/dashboard", label: "Orders" },
-        { href: "/publisher/inventory", label: "Creatives" },
-        { href: "/publisher/tags", label: "Tag Generator" }
+        { href: "/prebid", label: "Adapter Setup" },
+        { href: "/docs/mde-js-reference", label: "Prebid Config" },
+        { href: "/publisher/estimate", label: "Price Floors" }
       ]
     },
     {
       label: "Reports",
       items: [
-        { href: "/publisher/reporting", label: "Reports" },
-        { href: "/privacy", label: "Privacy" }
+        { href: "/publisher/reporting", label: "Revenue Reports" },
+        { href: "/publisher/reporting", label: "Fill Rate Analysis" }
       ]
+    },
+    {
+      label: "Finance",
+      items: [{ href: "/publisher/earnings", label: "Earnings Statements" }]
+    },
+    {
+      label: "Settings",
+      items: [{ href: "/publisher/register", label: "Account" }]
     }
   ];
 }
@@ -230,6 +237,7 @@ function LogoWordmark() {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "/";
   const { data: session } = useSession();
+  const role = session?.user?.role;
 
   const mode = detectSidebarMode(pathname);
   const isLogin = pathname === "/login";
@@ -312,24 +320,31 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div style={{ display: "flex", alignItems: "center", gap: 20, minWidth: 0 }}>
           <LogoWordmark />
           <nav style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap", justifyContent: "center" }}>
-            <Link href="/" className={pillClass(platformActive)}>
-              Platform
-            </Link>
-            <Link href="/publisher" className={pillClass(publisherActive)}>
-              Publisher
-            </Link>
-            <Link href="/demand" className={pillClass(demandActive)}>
-              Demand
-            </Link>
-            <Link href="/platform" className={pillClass(exchangeActive && !adminConsoleActive)}>
-              Exchange
-            </Link>
-            <Link href="/prebid" className={pillClass(prebidActive)}>
-              Prebid
-            </Link>
-            <Link href="/platform/settings" className={pillClass(adminConsoleActive)}>
-              Admin
-            </Link>
+            {!role && (
+              <Link href="/" className={pillClass(platformActive)}>
+                Platform
+              </Link>
+            )}
+            {(!role || role === "publisher" || role === "admin") && (
+              <Link href="/publisher" className={pillClass(publisherActive)}>
+                Publisher Console
+              </Link>
+            )}
+            {(!role || role === "advertiser" || role === "admin") && (
+              <Link href="/demand" className={pillClass(demandActive)}>
+                Demand Manager
+              </Link>
+            )}
+            {role === "admin" && (
+              <Link href="/platform" className={pillClass(exchangeActive && !adminConsoleActive)}>
+                Platform
+              </Link>
+            )}
+            {role === "admin" && (
+              <Link href="/platform/settings" className={pillClass(adminConsoleActive)}>
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

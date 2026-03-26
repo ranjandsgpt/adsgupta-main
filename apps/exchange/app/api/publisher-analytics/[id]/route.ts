@@ -8,7 +8,10 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
   if (!auth) return unauthorized();
 
   const { id: publisherId } = await ctx.params;
-  if (auth.role === "publisher" && auth.publisherId !== publisherId) return forbidden();
+  if (auth.role === "publisher") {
+    const allowed = (auth.publisherIds ?? (auth.publisherId ? [auth.publisherId] : [])).filter(Boolean);
+    if (!allowed.includes(publisherId)) return forbidden();
+  }
   if (auth.role !== "admin" && auth.role !== "publisher") return forbidden();
 
   const sp = request.nextUrl.searchParams;
