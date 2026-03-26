@@ -507,6 +507,22 @@
     }
   }
 
+  // Remote config fetch — runs on every page load, 500ms max
+  async function loadRemoteConfig(publisherId) {
+    try {
+      var controller = new AbortController();
+      var timeout = setTimeout(function () {
+        controller.abort();
+      }, 500);
+      var res = await fetch(exchangeApiBase() + "/api/publisher-config/" + publisherId, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      return null; // never block auction if config fails
+    }
+  }
+
   function fireSignalEvent(type, auctionId, sig) {
     if (!auctionId || !sig) return;
     var payload = {
@@ -787,6 +803,30 @@
   }
 
   mde.init = function (c) {
+    try {
+      var pubId = c && c.networkCode ? c.networkCode : null;
+      if (pubId) {
+        loadRemoteConfig(pubId).then(function (remoteConfig) {
+          if (!remoteConfig) return;
+          w._mde_remote_config = remoteConfig;
+          if (remoteConfig.adUnits && remoteConfig.adUnits.forEach) {
+            w._mde_unit_floors = {};
+            remoteConfig.adUnits.forEach(function (u) {
+              if (u && u.id) w._mde_unit_floors[u.id] = u.floor;
+            });
+            // Apply floors to any already-defined slots.
+            try {
+              for (var i = 0; i < slots.length; i++) {
+                var s = slots[i];
+                var f = w._mde_unit_floors && s && s.unitId ? w._mde_unit_floors[s.unitId] : null;
+                if (f != null) s.floor = f;
+              }
+            } catch (_) {}
+          }
+        });
+      }
+    } catch (_) {}
+
     cfg = c || {};
     if (typeof cfg.auctionUrl === "string" && cfg.auctionUrl) {
       /* ok */
@@ -802,6 +842,10 @@
     }
   };
   mde.defineSlot = function (s) {
+    try {
+      var f = w._mde_unit_floors && s && s.unitId ? w._mde_unit_floors[s.unitId] : null;
+      if (f != null) s.floor = f;
+    } catch (_) {}
     slots.push(s);
   };
   mde.enableServices = function () {};

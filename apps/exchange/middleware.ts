@@ -69,6 +69,7 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (pathname === "/api/audience/segments" && m === "GET") return true;
 
   if (pathname === "/api/ads.txt" && m === "GET") return true;
+  if (pathname.startsWith("/api/publisher-config/") && (m === "GET" || m === "OPTIONS")) return true;
 
   return false;
 }

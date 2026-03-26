@@ -140,6 +140,8 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_verified BOOLEAN DEFAULT false`;
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS primary_ad_formats TEXT[] DEFAULT '{}'`;
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS auction_type TEXT DEFAULT 'first_price'`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS features JSONB DEFAULT '{}'::jsonb`;
+    await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS freq_cap_day INTEGER DEFAULT 0`;
     await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS password_hash TEXT`;
     await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS publisher_ids UUID[] DEFAULT '{}'`;
     await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS campaign_email TEXT`;
@@ -522,6 +524,7 @@ export async function createTables(): Promise<number> {
     `;
 
     await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS applies_to_geos TEXT[] DEFAULT '{}'`;
+    await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS applies_to_devices TEXT[] DEFAULT '{}'`;
     await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS priority INTEGER DEFAULT 0`;
 
     await sql`ALTER TABLE audience_segments ALTER COLUMN type SET DEFAULT 'behavioral'`;
