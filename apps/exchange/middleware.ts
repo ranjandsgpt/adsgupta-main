@@ -14,6 +14,8 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (pathname === "/api/ping" && m === "GET") return true;
   if (pathname.startsWith("/api/cron/") && m === "GET") return true;
   if (pathname.startsWith("/api/publisher-config/") && (m === "GET" || m === "OPTIONS")) return true;
+  if (pathname === "/api/platform-users/register" && m === "POST") return true;
+  if (pathname === "/api/platform-users/invite" && m === "POST") return true;
 
   if (pathname === "/api/publishers" && m === "POST") return true;
   if (pathname === "/api/inventory" && m === "POST") return true;
@@ -69,9 +71,8 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (/^\/api\/campaign-ab-results\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (pathname.startsWith("/api/openrtb/")) return true;
   if (pathname.startsWith("/api/track/")) return true;
-  if (pathname === "/api/public/stats" && m === "GET") return true;
+  if (pathname.startsWith("/api/public/") && m === "GET") return true;
   if (pathname === "/api/signals" && (m === "POST" || m === "OPTIONS")) return true;
-  if (pathname === "/api/public/bid-estimate" && m === "GET") return true;
   if (/^\/api\/pixel\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (pathname === "/api/audience/segments" && m === "GET") return true;
 
