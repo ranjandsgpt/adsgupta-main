@@ -267,7 +267,7 @@ export async function GET(request: NextRequest): Promise<Response> {
           }
         },
         at: 2,
-        tmax: 2000
+        tmax: 5000
       };
 
       const r = await fetch(`${baseUrl}/api/openrtb/auction`, {

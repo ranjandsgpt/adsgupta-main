@@ -17,7 +17,7 @@ const CORS_HEADERS = {
   "Access-Control-Max-Age": "86400"
 };
 
-const DEFAULT_TMAX = 500;
+const DEFAULT_TMAX = 3000;
 const MAX_TMAX = 5000;
 
 const WIN_BASE = "https://exchange.adsgupta.com/api/openrtb/win";

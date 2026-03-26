@@ -127,14 +127,14 @@ export async function resolveGeo(ip: string): Promise<GeoResult | null> {
   if (/^127\.|^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[0-1])\./.test(ip) || ip === "::1") {
     return null;
   }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 200);
   try {
-    const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), 1200);
     const res = await fetch(
-      `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,mobile,proxy,hosting`,
+      `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,countryCode,region,city,zip,lat,lon,mobile,proxy,hosting`,
       { signal: controller.signal }
     );
-    clearTimeout(t);
+    if (!res.ok) return null;
     const data = (await res.json()) as Record<string, unknown>;
     if (data.status !== "success") return null;
     return {
@@ -144,18 +144,19 @@ export async function resolveGeo(ip: string): Promise<GeoResult | null> {
       zip: data.zip != null ? String(data.zip) : undefined,
       lat: typeof data.lat === "number" ? data.lat : undefined,
       lon: typeof data.lon === "number" ? data.lon : undefined,
-      timezone: data.timezone != null ? String(data.timezone) : undefined,
-      isp: data.isp != null ? String(data.isp) : undefined,
       is_mobile: data.mobile === true,
       is_proxy: data.proxy === true,
       is_datacenter: data.hosting === true
     };
   } catch {
     return null;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
-export async function classifyContent(url: string): Promise<string[]> {
+/** Synchronous URL path keyword → IAB mapping (no network). */
+export function classifyContent(url: string): string[] {
   if (!url) return [];
   let path = "";
   try {
@@ -173,7 +174,7 @@ export async function classifyContent(url: string): Promise<string[]> {
   return [...new Set(categories)];
 }
 
-export async function classifyPage(url: string): Promise<string[]> {
+export function classifyPage(url: string): string[] {
   return classifyContent(url);
 }
 
@@ -194,21 +195,40 @@ export async function enrichBidRequest(raw: OpenRTB26BidRequest, request: Reques
   const uaHeader = request.headers.get("user-agent") || "";
   const ua = base.device?.ua || uaHeader;
 
-  const geo = ip ? await resolveGeo(ip) : null;
+  // Client-supplied geo (mde.js / tag) is authoritative for speed; server IP lookup is optional enhancement.
+  let serverGeo: GeoResult | null = null;
+  if (ip) {
+    try {
+      serverGeo = await Promise.race([
+        resolveGeo(ip),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 200))
+      ]);
+    } catch {
+      serverGeo = null;
+    }
+  }
+
   const deviceUa = parseUserAgent(ua);
   const ext = readImpExt(base);
 
   const ipv6Hdr = request.headers.get("x-forwarded-for-v6");
 
-  const extGeo: OpenRTB26Geo = {
-    lat: geo?.lat,
-    lon: geo?.lon,
-    country: geo?.country,
-    region: geo?.region,
-    city: geo?.city,
-    zip: geo?.zip,
-    type: 2
-  };
+  const clientGeo = base.device?.geo;
+  const extGeo: OpenRTB26Geo = serverGeo
+    ? {
+        ...clientGeo,
+        lat: serverGeo.lat,
+        lon: serverGeo.lon,
+        country: serverGeo.country,
+        region: serverGeo.region,
+        city: serverGeo.city,
+        zip: serverGeo.zip,
+        type: 2
+      }
+    : {
+        ...clientGeo,
+        type: clientGeo?.type ?? 2
+      };
 
   const connRaw = ext.connectionType;
   const connectiontype =
@@ -218,7 +238,7 @@ export async function enrichBidRequest(raw: OpenRTB26BidRequest, request: Reques
     ...base.device,
     ua,
     ip: ip ? hashIp(ip) : undefined,
-    geo: { ...base.device?.geo, ...extGeo },
+    geo: extGeo,
     devicetype: base.device?.devicetype ?? deviceUa.deviceType,
     make: base.device?.make ?? deviceUa.make,
     model: base.device?.model ?? deviceUa.model,
@@ -243,8 +263,8 @@ export async function enrichBidRequest(raw: OpenRTB26BidRequest, request: Reques
   };
 
   const pageUrl = base.site?.page || (typeof ext.url === "string" ? ext.url : "") || "";
-  const contentCats = await classifyContent(pageUrl || "");
-  const pageCats = await classifyPage(pageUrl || "");
+  const contentCats = classifyContent(pageUrl || "");
+  const pageCats = classifyPage(pageUrl || "");
 
   const content: OpenRTB26Content = {
     ...base.site?.content,
