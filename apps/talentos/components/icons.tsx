@@ -1,3 +1,4 @@
+import type React from "react";
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number };
@@ -45,4 +46,4 @@ export const UploadCloud = DotIcon;
 export const User = DotIcon;
 export const X = DotIcon;
 
-export type LucideIcon = (props: IconProps) => JSX.Element;
+export type LucideIcon = (props: IconProps) => React.ReactElement;
