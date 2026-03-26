@@ -184,18 +184,10 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS user_agent TEXT`;
 
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS rejection_reason TEXT`;
+    await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
     await sql`
-      DO $$
-      BEGIN
-        EXECUTE 'ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check';
-        BEGIN
-          EXECUTE $$ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
-            CHECK (status IN ('pending', 'active', 'paused', 'rejected'))$$;
-        EXCEPTION WHEN duplicate_object THEN
-          NULL;
-        END;
-      END
-      $$;
+      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+      CHECK (status IN ('pending', 'active', 'paused', 'rejected'))
     `;
 
     await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS rule_type TEXT DEFAULT 'unified'`;
@@ -286,18 +278,10 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE creatives ALTER COLUMN ab_group SET DEFAULT 'a'`;
     await sql`ALTER TABLE creatives ALTER COLUMN ab_weight SET DEFAULT 50`;
 
+    await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
     await sql`
-      DO $$
-      BEGIN
-        EXECUTE 'ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check';
-        BEGIN
-          EXECUTE $$ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
-            CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft'))$$;
-        EXCEPTION WHEN duplicate_object THEN
-          NULL;
-        END;
-      END
-      $$;
+      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+      CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft'))
     `;
     await sql`ALTER TABLE campaigns ALTER COLUMN status SET DEFAULT 'pending'`;
     await sql`ALTER TABLE creatives ALTER COLUMN status SET DEFAULT 'active'`;
@@ -533,18 +517,10 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS total_revenue NUMERIC(12,4) DEFAULT 0`;
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS health_score INTEGER DEFAULT 0`;
 
+    await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
     await sql`
-      DO $$
-      BEGIN
-        EXECUTE 'ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check';
-        BEGIN
-          EXECUTE $$ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
-            CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft', 'budget_exhausted'))$$;
-        EXCEPTION WHEN duplicate_object THEN
-          NULL;
-        END;
-      END
-      $$;
+      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+      CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft', 'budget_exhausted'))
     `;
 
     await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS applies_to_geos TEXT[] DEFAULT '{}'`;
