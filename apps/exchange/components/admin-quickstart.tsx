@@ -308,8 +308,8 @@ export function AdminQuickstart({ secret }: { secret: string }) {
               ) : pendingPublishers.length > 0 ? (
                 <>
                   Go to{" "}
-                  <Link href="/admin/publishers" style={{ color: "var(--accent)", fontWeight: 800 }}>
-                    /admin/publishers
+                  <Link href="/platform/publishers" style={{ color: "var(--accent)", fontWeight: 800 }}>
+                    /platform/publishers
                   </Link>{" "}
                   and activate one.
                 </>
@@ -341,7 +341,7 @@ export function AdminQuickstart({ secret }: { secret: string }) {
                   <span style={{ color: "var(--text-muted)" }}>({(firstActiveUnit?.sizes ?? []).join(", ")})</span>
                 </>
               ) : (
-                <Link href="/admin/publishers" style={{ color: "var(--accent)", fontWeight: 800 }}>
+                <Link href="/platform/publishers" style={{ color: "var(--accent)", fontWeight: 800 }}>
                   Go to Publishers →
                 </Link>
               )}

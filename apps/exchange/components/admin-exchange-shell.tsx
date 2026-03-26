@@ -23,22 +23,22 @@ const C = {
 };
 
 const NAV = [
-  { href: "/admin/quickstart", icon: "⚡", label: "Quick Start", color: C.accent },
-  { href: "/admin", icon: "◉", label: "Dashboard", color: C.accent },
-  { href: "/admin/analytics", icon: "📈", label: "Analytics", color: C.green },
-  { href: "/admin/publishers", icon: "▦", label: "Publishers", color: C.blue },
-  { href: "/admin/earnings", icon: "$", label: "Earnings", color: C.green },
-  { href: "/admin/demand", icon: "⚡", label: "Demand", color: C.purple },
-  { href: "/admin/inventory", icon: "▦", label: "Inventory", color: C.blue },
-  { href: "/admin/pricing", icon: "△", label: "Yield", color: C.green },
-  { href: "/admin/health", icon: "♥", label: "Health", color: C.red },
-  { href: "/admin/auction-log", icon: "◧", label: "Auction Log", color: C.yellow },
-  { href: "/admin/tags", icon: "⟨/⟩", label: "Tags", color: C.blue },
-  { href: "/admin/protections", icon: "◈", label: "Protections", color: C.red },
-  { href: "/admin/ai", icon: "✦", label: "AI Studio", color: "#ff6b9d" },
-  { href: "/admin/settings", icon: "⚙", label: "Settings", color: C.textMuted },
-  { href: "/admin/activity-log", icon: "🕘", label: "Activity Log", color: C.yellow },
-  { href: "/admin/test", icon: "✓", label: "E2E Test", color: C.green }
+  { href: "/platform/quickstart", icon: "⚡", label: "Quick Start", color: C.accent },
+  { href: "/platform", icon: "◉", label: "Dashboard", color: C.accent },
+  { href: "/platform/analytics", icon: "📈", label: "Analytics", color: C.green },
+  { href: "/platform/publishers", icon: "▦", label: "Publishers", color: C.blue },
+  { href: "/platform/earnings", icon: "$", label: "Earnings", color: C.green },
+  { href: "/platform/demand", icon: "⚡", label: "Demand", color: C.purple },
+  { href: "/platform/inventory", icon: "▦", label: "Inventory", color: C.blue },
+  { href: "/platform/pricing", icon: "△", label: "Yield", color: C.green },
+  { href: "/platform/health", icon: "♥", label: "Health", color: C.red },
+  { href: "/platform/auction-log", icon: "◧", label: "Auction Log", color: C.yellow },
+  { href: "/platform/tags", icon: "⟨/⟩", label: "Tags", color: C.blue },
+  { href: "/platform/protections", icon: "◈", label: "Protections", color: C.red },
+  { href: "/platform/ai", icon: "✦", label: "AI Studio", color: "#ff6b9d" },
+  { href: "/platform/settings", icon: "⚙", label: "Settings", color: C.textMuted },
+  { href: "/platform/activity-log", icon: "🕘", label: "Activity Log", color: C.yellow },
+  { href: "/platform/test", icon: "✓", label: "E2E Test", color: C.green }
 ] as const;
 
 export function AdminExchangeShell({ children }: { children: React.ReactNode }) {
@@ -58,7 +58,7 @@ export function AdminExchangeShell({ children }: { children: React.ReactNode }) 
   const [notifOpen, setNotifOpen] = useState(false);
 
   const match = useCallback(
-    (href: string) => pathname === href || (href !== "/admin" && pathname.startsWith(href + "/")),
+    (href: string) => pathname === href || (href !== "/platform" && pathname.startsWith(href + "/")),
     [pathname]
   );
 

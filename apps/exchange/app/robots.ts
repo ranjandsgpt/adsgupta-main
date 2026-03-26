@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/api"]
+        disallow: ["/platform", "/admin", "/api"]
       }
     ],
     sitemap: "https://exchange.adsgupta.com/sitemap.xml"

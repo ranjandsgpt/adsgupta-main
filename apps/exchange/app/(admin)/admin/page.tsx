@@ -298,13 +298,13 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <Link className="secondary" style={{ fontSize: 12 }} href="/admin/publishers">
+              <Link className="secondary" style={{ fontSize: 12 }} href="/platform/publishers">
                 Review publishers
               </Link>
-              <Link className="secondary" style={{ fontSize: 12 }} href="/admin/demand">
+              <Link className="secondary" style={{ fontSize: 12 }} href="/platform/demand">
                 Review campaigns
               </Link>
-              <Link className="secondary" style={{ fontSize: 12 }} href="/admin/tags">
+              <Link className="secondary" style={{ fontSize: 12 }} href="/platform/tags">
                 Review creatives
               </Link>
             </div>
@@ -460,12 +460,12 @@ export default function AdminDashboardPage() {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 10 }}>
         {[
-          ["Create Ad Unit", "▦", "Set up a new placement", C.blue, "/admin/inventory"],
-          ["Onboard DSP", "⚡", "Add demand partner", C.purple, "/admin/demand"],
-          ["Generate Tags", "⟨/⟩", "Get JS for your site", C.accent, "/admin/tags"],
-          ["New Order", "▶", "Create advertiser order", C.orange, "/admin/delivery"],
-          ["AI Ad Format", "✦", "Generate custom format", "#ff6b9d", "/admin/ai"],
-          ["Run Report", "◧", "Performance analytics", C.yellow, "/admin/reporting"]
+          ["Create Ad Unit", "▦", "Set up a new placement", C.blue, "/platform/inventory"],
+          ["Onboard DSP", "⚡", "Add demand partner", C.purple, "/platform/demand"],
+          ["Generate Tags", "⟨/⟩", "Get JS for your site", C.accent, "/platform/tags"],
+          ["New Order", "▶", "Create advertiser order", C.orange, "/platform/delivery"],
+          ["AI Ad Format", "✦", "Generate custom format", "#ff6b9d", "/platform/ai"],
+          ["Run Report", "◧", "Performance analytics", C.yellow, "/platform/reporting"]
         ].map(([t, ic, d, c, href]) => (
           <Link
             key={String(href)}

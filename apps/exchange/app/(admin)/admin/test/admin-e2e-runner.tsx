@@ -65,7 +65,7 @@ export function AdminE2eRunner({ secret }: { secret: string }) {
 
           {auctionStep?.status === "fail" ? (
             <div style={{ marginBottom: 14 }}>
-              <a href="/admin/auction-log" style={{ color: "var(--accent)", fontWeight: 800 }}>
+              <a href="/platform/auction-log" style={{ color: "var(--accent)", fontWeight: 800 }}>
                 Auction step failed — open auction log →
               </a>
             </div>
