@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 
 import { isCampaignOverBudget } from "@/lib/budget-check";
-import { cacheGet, cacheSet } from "@/lib/cache";
 import { requestAllDspBids, type DspBid } from "@/lib/dsp-bidder";
 import { sql, getPool } from "@/lib/db";
 import { getEffectiveFloor } from "@/lib/floor-engine";
@@ -84,24 +83,39 @@ function parseSize(size: string | null | undefined): { w: number; h: number } {
   return { w, h };
 }
 
-/** Permissive creative vs slot size check (OpenRTB format + ad unit size strings). */
-function sizeMatches(
-  creativeSize: string,
+/** NULL / empty target_sizes = match all IAB/placement sizes. */
+function targetSizesMatch(targetSizes: string[] | null, adUnitSizes: string[]): boolean {
+  if (!targetSizes || targetSizes.length === 0) return true;
+  if (targetSizes.length === 1 && (!targetSizes[0] || targetSizes[0].trim() === "")) return true;
+  if (!adUnitSizes || adUnitSizes.length === 0) return true;
+  return adUnitSizes.some((us) =>
+    targetSizes.some((ts) => ts && us && ts.toLowerCase().trim() === us.toLowerCase().trim())
+  );
+}
+
+/** Permissive creative vs slot size (OpenRTB format + ad unit size strings). */
+function creativeSizeMatchesBanner(
+  creativeSize: string | null | undefined,
   bannerFormats: Array<{ w: number; h: number }> | undefined,
   adUnitSizes: string[]
 ): boolean {
   if (!creativeSize) return true;
-  const [cw, ch] = creativeSize.toLowerCase().split("x").map(Number);
+  if ((!bannerFormats || bannerFormats.length === 0) && (!adUnitSizes || adUnitSizes.length === 0)) {
+    return true;
+  }
+  const parts = creativeSize.toLowerCase().replace(/\s/g, "").split("x");
+  const cw = parseInt(parts[0] ?? "", 10);
+  const ch = parseInt(parts[1] ?? "", 10);
   if (isNaN(cw) || isNaN(ch)) return true;
-  if (!bannerFormats?.length && !adUnitSizes?.length) return true;
-  if (bannerFormats?.some((f) => f.w === cw && f.h === ch)) return true;
+  if (bannerFormats?.some((f) => Number(f.w) === cw && Number(f.h) === ch)) return true;
   if (
     adUnitSizes?.some((s) => {
-      const [w, h] = s.toLowerCase().split("x").map(Number);
-      return w === cw && h === ch;
+      const sp = s.toLowerCase().replace(/\s/g, "").split("x");
+      return parseInt(sp[0] ?? "", 10) === cw && parseInt(sp[1] ?? "", 10) === ch;
     })
-  )
+  ) {
     return true;
+  }
   return false;
 }
 
@@ -470,13 +484,6 @@ function isFreqCapBlocked(
 }
 
 async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
-  const key = "campaigns:active";
-  const cached = cacheGet<JoinRow[]>(key);
-  if (cached) {
-    console.log("[cache]", key, "HIT");
-    return cached;
-  }
-  console.log("[cache]", key, "MISS");
   const pool = getPool();
   const joinSql = `
     SELECT
@@ -509,18 +516,19 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
     INNER JOIN creatives cr ON cr.campaign_id = c.id
       AND cr.status = 'active'
       AND (cr.scan_passed IS NULL OR cr.scan_passed = true)
+      AND cr.image_url IS NOT NULL
+      AND cr.image_url <> ''
+      AND cr.click_url IS NOT NULL
+      AND cr.click_url <> ''
     WHERE c.status = 'active'
       AND (c.start_date IS NULL OR c.start_date <= CURRENT_DATE)
       AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
-      AND cr.image_url IS NOT NULL
-      AND cr.click_url IS NOT NULL
     ORDER BY c.bid_price DESC
   `;
-  console.log("[auction] campaigns+creatives SQL:\n" + joinSql.trim());
+  console.log("[debug-sql] query:", joinSql.trim());
   const { rows } = await pool.query<JoinRow>(joinSql);
   const list = rows as JoinRow[];
   console.log("[auction] candidates:", list.length);
-  cacheSet(key, list, 30_000);
   return list;
 }
 
@@ -537,6 +545,7 @@ export async function runAuction(
 ): Promise<RunAuctionOutput | null> {
   const auctionStart = typeof performance !== "undefined" ? performance.now() : Date.now();
   try {
+    console.log("[auction-debug-1] adUnitId:", adUnitId);
     const ua = opts?.device?.ua ? String(opts.device.ua).slice(0, 2000) : null;
     const devIp = opts?.ipForLog ?? opts?.device?.ip ?? null;
     if (devIp) console.log("[openrtb] device.ip (log):", devIp);
@@ -586,6 +595,17 @@ export async function runAuction(
     `;
     const adUnit = unitRes.rows[0];
 
+    console.log(
+      "[auction-debug-2] adUnit:",
+      JSON.stringify({
+        id: adUnit?.id,
+        sizes: adUnit?.sizes,
+        floor: adUnit?.floor_price,
+        status: adUnit?.unit_status
+      })
+    );
+    console.log("[auction-debug-3] publisher status:", adUnit?.pub_status);
+
     if (!adUnit) {
       const id = await insertAuctionLog({
         openrtbRequestId,
@@ -621,7 +641,7 @@ export async function runAuction(
     const adUnitSizes = adUnit.sizes ?? [];
 
     const nowDt = new Date();
-    const baseFloor = await getEffectiveFloor({
+    let effectiveFloor = await getEffectiveFloor({
       adUnitId: adUnit.id,
       publisherId: adUnit.publisher_id,
       sizes: formatSizes,
@@ -635,8 +655,18 @@ export async function runAuction(
       hour: nowDt.getUTCHours(),
       dayOfWeek: nowDt.getUTCDay()
     });
+    const unitFloorNum = Number(adUnit.floor_price);
+    if (effectiveFloor > 100) {
+      console.error(
+        "[auction] effectiveFloor is unreasonably high:",
+        effectiveFloor,
+        "— capping at adUnit.floor_price"
+      );
+      effectiveFloor = Number.isFinite(unitFloorNum) ? unitFloorNum : 0;
+    }
     const impFloor = imp?.bidfloor != null ? Number(imp.bidfloor) : 0;
-    const floor = Math.max(baseFloor, bidfloorFromImp, Number.isFinite(impFloor) ? impFloor : 0);
+    const floor = Math.max(effectiveFloor, bidfloorFromImp, Number.isFinite(impFloor) ? impFloor : 0);
+    console.log("[auction] effectiveFloor (base):", effectiveFloor, "floor used:", floor);
 
     if (adUnit.pub_status !== "active") {
       const id = await insertAuctionLog({
@@ -701,7 +731,14 @@ export async function runAuction(
     const badv = opts?.fullRequest?.badv;
     const requireSecure = imp?.secure === 1;
 
-    const joinRows = await loadActiveCampaignCreativesJoin();
+    const rawRows = await loadActiveCampaignCreativesJoin();
+    console.log("[auction] effectiveFloor:", effectiveFloor, "top bid:", rawRows[0]?.bid_price);
+    const joinRows = rawRows;
+    console.log(
+      "[auction-debug-4] raw rows from DB:",
+      rawRows?.length,
+      JSON.stringify(rawRows?.slice(0, 2))
+    );
     console.log("[auction] raw join rows (pre-filter):", joinRows.length, joinRows.slice(0, 5));
     const byCampaign = new Map<string, JoinRow[]>();
     for (const r of joinRows) {
@@ -720,6 +757,7 @@ export async function runAuction(
         ? (userExt.freq_caps_session as Record<string, number>)
         : undefined;
 
+    const preFloorInternal: InternalBid[] = [];
     const internalPool: InternalBid[] = [];
     let rawCampaignCount = 0;
     let droppedByTargetSizes = 0;
@@ -733,15 +771,9 @@ export async function runAuction(
         continue;
       }
       const ts = c0.target_sizes as string[] | null;
-      const hasTargetSizes = ts && ts.length > 0 && ts[0] !== "";
-      if (hasTargetSizes && adUnit.sizes?.length) {
-        const unitHasMatchingSize = adUnit.sizes.some((s: string) =>
-          ts!.map((t: string) => t.toLowerCase()).includes(s.toLowerCase())
-        );
-        if (!unitHasMatchingSize) {
-          droppedByTargetSizes++;
-          continue;
-        }
+      if (!targetSizesMatch(ts, adUnit.sizes ?? [])) {
+        droppedByTargetSizes++;
+        continue;
       }
 
       const c = {
@@ -767,36 +799,44 @@ export async function runAuction(
       }
       if (!checkTemporalTargetingJson(c0.temporal_targeting)) continue;
       if (!checkAudienceTargetingJson(c0.audience_targeting, userIdForAuction, userSegments)) continue;
-      // Budget: NULL or 0 means unlimited (never over budget).
-      if (c0.daily_budget != null) {
-        const dailyBudget = Number(c0.daily_budget);
-        if (Number.isFinite(dailyBudget) && dailyBudget > 0) {
-          const overBudget = await isCampaignOverBudget(campaignId, dailyBudget);
-          if (overBudget) continue;
+      const hasBudgetLimit =
+        c0.daily_budget !== null &&
+        c0.daily_budget !== undefined &&
+        Number(c0.daily_budget) > 0;
+      if (hasBudgetLimit) {
+        const over = await isCampaignOverBudget(campaignId, Number(c0.daily_budget));
+        if (over) {
+          console.log("[auction] campaign over daily budget, skipping:", campaignId);
+          continue;
         }
       }
       for (const r of rows) {
         const bidPrice = Number(r.bid_price);
-        if (bidPrice < floor) continue;
-        const crSize = r.creative_size;
-        if (!crSize) continue;
-        if (!sizeMatches(crSize, bannerFormats, adUnitSizes)) continue;
+        const crSize = r.creative_size ?? "";
+        if (!creativeSizeMatchesBanner(crSize, bannerFormats, adUnitSizes)) continue;
         const img = r.image_url as string;
         const clk = r.click_url as string;
         if (requireSecure && !urlsSecureEnough(img, clk)) continue;
-        internalPool.push({
+        preFloorInternal.push({
           campaignId: r.campaign_id,
           creativeId: r.creative_id,
           bidPrice,
           imageUrl: img,
           clickUrl: clk,
-          size: crSize,
+          size: crSize || "300x250",
           advertiserDomain: r.advertiser_domain ?? normHost(r.advertiser_name ?? undefined),
           iabCat: r.iab_cat,
           creativeApi: r.creative_api
         });
       }
     }
+
+    const filteredBids = preFloorInternal;
+    console.log("[auction-debug-5] after filtering:", filteredBids.length);
+    for (const b of preFloorInternal) {
+      if (b.bidPrice >= floor) internalPool.push(b);
+    }
+    console.log("[auction-debug-6] above floor:", internalPool.length, "floor:", floor);
 
     const pool: PoolBid[] = internalPool.map((b) => ({ kind: "internal" as const, ...b }));
 
@@ -810,6 +850,16 @@ export async function runAuction(
     pool.sort((a, b) => b.bidPrice - a.bidPrice);
 
     if (pool.length === 0) {
+      console.log(
+        "[auction-debug-NOFILL] no eligible bids. rawRows:",
+        rawRows?.length,
+        "filtered:",
+        filteredBids?.length,
+        "floor:",
+        floor,
+        "adUnit sizes:",
+        adUnit?.sizes
+      );
       console.log(
         "[auction] NO ELIGIBLE BIDS — campaigns loaded:",
         rawCampaignCount,

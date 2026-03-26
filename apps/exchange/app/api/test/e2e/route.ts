@@ -113,7 +113,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       if (!publisherId) throw new Error("Missing publisherId");
       const r = await sql<{ id: string }>`
         INSERT INTO ad_units (publisher_id, name, sizes, ad_type, environment, floor_price, status)
-        VALUES (${publisherId}, 'E2E Ad Unit', ARRAY[${ECPM_SIZE}], 'display', 'web', 0.5, 'active')
+        VALUES (${publisherId}, 'E2E Ad Unit', ARRAY[${ECPM_SIZE}]::text[], 'display', 'web', 0.1, 'active')
         RETURNING id
       `;
       adUnitId = r.rows[0]?.id ?? null;
@@ -154,11 +154,11 @@ export async function GET(request: NextRequest): Promise<Response> {
           ${advertiserEmail},
           'E2E Campaign',
           ${testBid},
-          50,
-          ARRAY[${ECPM_SIZE}],
           NULL,
-          ARRAY['desktop'],
-          ARRAY['web'],
+          NULL,
+          NULL,
+          NULL,
+          NULL,
           NULL,
           NULL,
           NULL,
@@ -202,16 +202,18 @@ export async function GET(request: NextRequest): Promise<Response> {
           size,
           image_url,
           click_url,
-          status
+          status,
+          scan_passed
         )
         VALUES (
           ${campaignId},
-          'E2E Creative',
+          'E2E Test Banner',
           'banner',
           ${ECPM_SIZE},
-          'https://via.placeholder.com/300x250.png?text=E2E',
-          'https://example.com/',
-          'active'
+          'https://via.placeholder.com/300x250',
+          'https://exchange.adsgupta.com',
+          'active',
+          true
         )
         RETURNING id
       `;
@@ -274,41 +276,60 @@ export async function GET(request: NextRequest): Promise<Response> {
         body: JSON.stringify(bidReq)
       });
       if (!r.ok) throw new Error(`Auction HTTP ${r.status}`);
-      const j = (await r.json()) as any;
+      const j = (await r.json()) as Record<string, unknown>;
 
-      if (j?.nbr === 2) {
-        const last = await sql<{
-          id: string;
-          auction_id: string;
-          ad_unit_id: string | null;
-          cleared: boolean;
-          floor_price: string | null;
-          winning_campaign_id: string | null;
-          winning_creative_id: string | null;
-          winning_bid: string | null;
-          created_at: string;
-        }>`
-          SELECT
-            id,
-            auction_id,
-            ad_unit_id,
-            cleared,
-            floor_price::text,
-            winning_campaign_id::text AS winning_campaign_id,
-            winning_creative_id::text AS winning_creative_id,
-            winning_bid::text AS winning_bid,
-            created_at::text AS created_at
-          FROM auction_log
-          ORDER BY created_at DESC
-          LIMIT 1
-        `;
-        const row = last.rows[0] ?? null;
-        throw new Error(`Auction returned nbr:2. Last auction_log row: ${JSON.stringify(row)}`);
+      const seatbid = j?.seatbid as unknown[] | undefined;
+      const hasSeatbid = Boolean(
+        seatbid &&
+          Array.isArray(seatbid) &&
+          seatbid[0] &&
+          typeof seatbid[0] === "object" &&
+          Array.isArray((seatbid[0] as { bid?: unknown[] }).bid) &&
+          (seatbid[0] as { bid: unknown[] }).bid[0]
+      );
+
+      if (j?.nbr === 2 || !hasSeatbid) {
+        try {
+          const lastLog = await sql<{
+            bid_count: number | null;
+            cleared: boolean;
+            floor_price: string | null;
+            winning_bid: string | null;
+            raw_signals: unknown;
+          }>`
+            SELECT bid_count, cleared, floor_price::text, winning_bid::text, raw_signals
+            FROM auction_log
+            ORDER BY created_at DESC
+            LIMIT 1
+          `;
+          const logInfo = lastLog.rows.length ? JSON.stringify(lastLog.rows[0]) : "no auction_log rows";
+
+          const activeCampaigns = await sql<{
+            id: string;
+            status: string;
+            bid_price: string;
+            target_sizes: string[] | null;
+            creative_count: string;
+          }>`
+            SELECT c.id::text, c.status, c.bid_price::text, c.target_sizes,
+              COUNT(cr.id)::text AS creative_count
+            FROM campaigns c
+            LEFT JOIN creatives cr ON cr.campaign_id = c.id AND cr.status = 'active'
+            GROUP BY c.id, c.status, c.bid_price, c.target_sizes
+            ORDER BY c.created_at DESC
+            LIMIT 3
+          `;
+
+          throw new Error(
+            `No seatbid. auctionResponse=${JSON.stringify(j)}. lastAuctionLog=${logInfo}. recentCampaigns=${JSON.stringify(activeCampaigns.rows)}`
+          );
+        } catch (diagError) {
+          throw new Error(String(diagError));
+        }
       }
 
-      const seatbid = j?.seatbid;
-      const bid = seatbid?.[0]?.bid?.[0];
-      if (!seatbid || !Array.isArray(seatbid) || !bid) throw new Error("Missing seatbid/bid");
+      const bid = (seatbid![0] as { bid: unknown[] }).bid[0] as Record<string, unknown>;
+      if (!bid) throw new Error("Missing bid");
       if (!bid.adm || String(bid.adm).trim().length === 0) throw new Error("adm was empty");
       if (!Number.isFinite(Number(bid.price)) || Number(bid.price) <= 0) throw new Error("price not > 0");
 
