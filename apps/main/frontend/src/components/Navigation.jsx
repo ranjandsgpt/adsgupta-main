@@ -113,7 +113,10 @@ export const Navigation = () => {
           <div className="h-6 w-px bg-white/10 mr-5" />
           
           {/* Login Button */}
-          <motion.button
+          <motion.a
+            href="https://exchange.adsgupta.com/login"
+            target="_blank"
+            rel="noopener noreferrer"
             data-testid="nav-login-button"
             data-hoverable="true"
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-cyan-500/40 text-cyan-400 text-[13px] font-medium
@@ -123,7 +126,7 @@ export const Navigation = () => {
           >
             <LogIn size={14} strokeWidth={1.5} />
             Login
-          </motion.button>
+          </motion.a>
 
           {/* CTA Button */}
           <motion.a
@@ -201,10 +204,15 @@ export const Navigation = () => {
               );
             })}
             <div className="flex gap-3 mt-4 pt-4 border-t border-white/10">
-              <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-cyan-500/40 text-cyan-400 text-sm font-medium">
+              <a
+                href="https://exchange.adsgupta.com/login"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-cyan-500/40 text-cyan-400 text-sm font-medium"
+              >
                 <LogIn size={16} />
                 Login
-              </button>
+              </a>
               <a
                 href="https://demoai.adsgupta.com"
                 target="_blank"
