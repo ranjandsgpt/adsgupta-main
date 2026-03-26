@@ -14,8 +14,8 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (pathname === "/api/ping" && m === "GET") return true;
   if (pathname.startsWith("/api/cron/") && m === "GET") return true;
   if (pathname.startsWith("/api/publisher-config/") && (m === "GET" || m === "OPTIONS")) return true;
-  if (pathname === "/api/platform-users/register" && m === "POST") return true;
-  if (pathname === "/api/platform-users/invite" && m === "POST") return true;
+  if (pathname.startsWith("/api/platform-users/register") && (m === "POST" || m === "OPTIONS")) return true;
+  if (pathname.startsWith("/api/platform-users/invite") && (m === "POST" || m === "OPTIONS")) return true;
 
   if (pathname === "/api/publishers" && m === "POST") return true;
   if (pathname === "/api/inventory" && m === "POST") return true;
