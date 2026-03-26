@@ -10,7 +10,10 @@ export async function GET(request: NextRequest) {
   const emailRaw = request.nextUrl.searchParams.get("email")?.trim() ?? "";
   if (!emailRaw) return NextResponse.json({ error: "email required" }, { status: 400 });
 
-  if (auth.role === "demand") {
+  if (auth.role === "advertiser") {
+    const allowed = (auth.campaignEmail ?? auth.email ?? "").toLowerCase() === emailRaw.toLowerCase();
+    if (!allowed) return forbidden();
+  } else if (auth.role === "demand") {
     const allowed = (auth.demandAdvertiser ?? "").toLowerCase() === emailRaw.toLowerCase();
     if (!allowed) return forbidden();
   } else if (auth.role !== "admin") {

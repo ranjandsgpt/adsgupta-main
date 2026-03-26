@@ -108,30 +108,37 @@ function demandSidebar(): NavSection[] {
       label: "Campaigns",
       items: [
         { href: "/demand/campaigns", label: "All Campaigns" },
-        { href: "/demand/create", label: "Insertion Orders" },
-        { href: "/demand/create", label: "AI Builder" }
-      ]
-    },
-    {
-      label: "Targeting",
-      items: [
-        { href: "/demand/campaigns", label: "Audiences" },
-        { href: "/demand/create", label: "Geo Targeting" },
-        { href: "/docs/api-reference", label: "Data Marketplace" }
+        { href: "/demand/create", label: "Create Campaign" },
+        { href: "/demand/campaigns", label: "Line Items" }
       ]
     },
     {
       label: "Creatives",
       items: [
         { href: "/demand/creatives", label: "Creative Studio" },
-        { href: "/demand/create", label: "DCO Builder" }
+        { href: "/demand/creatives", label: "A/B Testing" }
       ]
     },
     {
-      label: "Measure",
+      label: "Targeting",
       items: [
-        { href: "/demand/reporting", label: "Attribution" },
-        { href: "/demand/reporting", label: "Reports" }
+        { href: "/demand/campaigns", label: "Audiences" },
+        { href: "/demand/create", label: "Geo & Devices" },
+        { href: "/demand/create", label: "Frequency Caps" }
+      ]
+    },
+    {
+      label: "OpenRTB",
+      items: [
+        { href: "/demand/openrtb-log", label: "Bid Requests Log" },
+        { href: "/docs/openrtb-endpoint", label: "DSP Configuration" }
+      ]
+    },
+    {
+      label: "Reports",
+      items: [
+        { href: "/demand/reporting", label: "Campaign Performance" },
+        { href: "/demand/reporting", label: "Creative Reports" }
       ]
     }
   ];
