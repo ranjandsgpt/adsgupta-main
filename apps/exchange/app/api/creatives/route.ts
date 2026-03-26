@@ -153,14 +153,16 @@ export async function POST(request: NextRequest) {
   if (isJsonBody) {
     const body = (await request.json()) as Record<string, unknown>;
     campaignId = body.campaign_id != null ? String(body.campaign_id) : null;
-    name = body.name != null ? String(body.name) : null;
+    name = body.name != null ? String(body.name).trim() : null;
+    if (!name) name = "Creative";
     typeIn = body.type != null ? String(body.type) : "banner";
     size = body.size != null ? String(body.size) : null;
+    if (!size?.trim()) size = "300x250";
     clickUrl = body.click_url != null ? String(body.click_url) : null;
     htmlSnippet = body.html_snippet != null ? String(body.html_snippet) : null;
     vastUrl = body.vast_url != null ? String(body.vast_url) : null;
     publicEmail = body.advertiser_email != null ? String(body.advertiser_email) : null;
-    imageUrlInitial = body.image_url != null ? String(body.image_url) : null;
+    imageUrlInitial = body.image_url != null ? String(body.image_url).trim() : null;
     statusIn = body.status != null ? String(body.status) : null;
   } else {
     const formData = await request.formData();
@@ -177,10 +179,13 @@ export async function POST(request: NextRequest) {
 
   typ = normType(typeIn);
 
-  if (!campaignId || !name) {
-    return badRequest("campaign_id and name are required");
+  if (!campaignId) {
+    return badRequest("campaign_id is required");
   }
-  if (!size) {
+  if (!name?.trim()) {
+    return badRequest("name is required");
+  }
+  if (!size?.trim()) {
     return badRequest("size is required (e.g. 300x250)");
   }
   if (!clickUrl || !String(clickUrl).trim()) {
@@ -189,12 +194,19 @@ export async function POST(request: NextRequest) {
   if (!validateUrl(String(clickUrl).trim())) {
     return badRequest("click_url must be a valid URL");
   }
-  if (!size || !isValidIabSize(String(size))) {
+  if (!isValidIabSize(String(size))) {
     return badRequest("size must be a standard IAB size (e.g. 300x250)");
   }
-  if (isJsonBody) {
-    if (!imageUrlInitial) return badRequest("image_url is required");
+
+  const bannerNeedsImage =
+    typ === "banner" && !String(htmlSnippet ?? "").trim() && !String(vastUrl ?? "").trim();
+  if (isJsonBody && bannerNeedsImage) {
+    if (!imageUrlInitial) {
+      return badRequest("image_url is required for banner creatives (or provide html_snippet / vast_url)");
+    }
     if (!validateUrl(imageUrlInitial)) return badRequest("image_url must be a valid URL");
+  } else if (isJsonBody && imageUrlInitial && !validateUrl(imageUrlInitial)) {
+    return badRequest("image_url must be a valid URL");
   }
 
   try {
@@ -221,7 +233,7 @@ export async function POST(request: NextRequest) {
       if (seat && row.adv !== seat) return forbidden("Invalid campaign for your seat");
     }
 
-    let imageUrl: string | null = imageUrlInitial;
+    let imageUrl: string | null = imageUrlInitial || null;
     if (file && file.size > 0) {
       if (file.size > MAX_BYTES) return badRequest("File must be 2MB or smaller");
       const mime = file.type || "application/octet-stream";
@@ -232,15 +244,16 @@ export async function POST(request: NextRequest) {
         return json(
           {
             error:
-              "File uploads are disabled: BLOB_READ_WRITE_TOKEN is not set. Configure Vercel Blob (or set the token locally) to save creatives."
+              "File uploads are disabled: BLOB_READ_WRITE_TOKEN is not set. Either set up Vercel Blob in your project settings, or use the JSON API with a hosted image_url instead.",
+            hint: 'POST with Content-Type: application/json and body: { campaign_id, image_url, click_url, size, name?, advertiser_email? }'
           },
           503
         );
       }
       const blob = await put(file.name, file, { access: "public" });
       imageUrl = blob.url;
-    } else if (!imageUrl && (!auth || (!htmlSnippet && !vastUrl))) {
-      return badRequest("Image file is required");
+    } else if (!imageUrl && bannerNeedsImage) {
+      return badRequest("Provide image_url (JSON), an image file (multipart), or html_snippet / vast_url.");
     }
 
     let scanPassed = true;

@@ -70,6 +70,23 @@ function readImageDims(f: File): Promise<{ w: number; h: number }> {
   });
 }
 
+function uploadCreativeJson(body: Record<string, unknown>): Promise<{ ok: boolean; status: number; data: unknown }> {
+  return fetch("/api/creatives", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(body)
+  }).then(async (res) => {
+    let data: unknown = null;
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+    return { ok: res.ok, status: res.status, data };
+  });
+}
+
 function uploadCreativeMultipart(
   fd: FormData,
   onProgress: (pct: number) => void
@@ -147,6 +164,9 @@ function DemandCreateInner() {
   const [bidHint, setBidHint] = useState("");
   const [estDailyImp, setEstDailyImp] = useState<number | null>(null);
   const [filesBySize, setFilesBySize] = useState<Record<string, File | null>>({});
+  /** When set to "url", creatives are submitted via JSON + hosted image_url (no Vercel Blob). */
+  const [creativeInputMode, setCreativeInputMode] = useState<"upload" | "url">("upload");
+  const [imageUrlBySize, setImageUrlBySize] = useState<Record<string, string>>({});
   const [clickBySize, setClickBySize] = useState<Record<string, string>>({});
   const nameTouched = useRef(false);
   const previewRef = useRef<Record<string, string>>({});
@@ -458,6 +478,7 @@ function DemandCreateInner() {
       sessionStorage.setItem(STORAGE_EMAIL, em);
       setUploaded([]);
       setFilesBySize({});
+      setImageUrlBySize({});
       setClickBySize({});
       setPreviewUrlBySize((prev) => {
         Object.values(prev).forEach((u) => URL.revokeObjectURL(u));
@@ -469,6 +490,70 @@ function DemandCreateInner() {
       setError("Network error");
     }
     setLoading(false);
+  }
+
+  function setInputMode(next: "upload" | "url") {
+    setCreativeInputMode(next);
+    setError(null);
+    if (next === "url") {
+      setFilesBySize({});
+      setPreviewUrlBySize((prev) => {
+        Object.values(prev).forEach((u) => URL.revokeObjectURL(u));
+        return {};
+      });
+      setDimensionWarnBySize({});
+    } else {
+      setImageUrlBySize({});
+    }
+  }
+
+  async function submitUrlCreative(size: string): Promise<boolean> {
+    if (!campaignId || !advertiserEmail) return false;
+    const iu = (imageUrlBySize[size] ?? "").trim();
+    if (!iu.startsWith("http://") && !iu.startsWith("https://")) {
+      setError(`Image URL for ${size} must start with http:// or https://`);
+      return false;
+    }
+    const cu = (clickBySize[size]?.trim() || clickUrl.trim());
+    if (!cu.startsWith("http://") && !cu.startsWith("https://")) {
+      setError(`Click URL for ${size} must start with http:// or https://`);
+      return false;
+    }
+    setUploadPct(0);
+    const baseName =
+      (() => {
+        try {
+          const u = new URL(iu);
+          const seg = u.pathname.split("/").filter(Boolean).pop() || "image";
+          return seg.replace(/\.[^/.]+$/, "") || "Creative";
+        } catch {
+          return "Creative";
+        }
+      })() + ` (${size})`;
+    const { ok, data, status } = await uploadCreativeJson({
+      campaign_id: campaignId,
+      advertiser_email: advertiserEmail,
+      name: baseName,
+      type: "banner",
+      size,
+      image_url: iu,
+      click_url: cu
+    });
+    const row = data as CreativeRow & { error?: string; detail?: string; hint?: string };
+    if (!ok) {
+      const base = typeof row?.error === "string" ? row.error : `Save failed (${status})`;
+      const extra = typeof row?.detail === "string" ? row.detail : "";
+      const hint = typeof row?.hint === "string" ? row.hint : "";
+      setError([base, extra, hint].filter(Boolean).join(" — "));
+      return false;
+    }
+    setUploaded((prev) => [row as CreativeRow, ...prev]);
+    setImageUrlBySize((p) => {
+      const { [size]: _, ...rest } = p;
+      return rest;
+    });
+    setUploadPct(0);
+    return true;
   }
 
   async function uploadOne(size: string, file: File): Promise<boolean> {
@@ -511,12 +596,23 @@ function DemandCreateInner() {
     setError(null);
     setLoading(true);
     try {
-      const pending = targetSizes.flatMap((s) => (filesBySize[s] ? [[s, filesBySize[s]!] as const] : []));
-      for (const [size, file] of pending) {
-        const ok = await uploadOne(size, file);
-        if (!ok) {
-          setLoading(false);
-          return;
+      if (creativeInputMode === "url") {
+        const pending = targetSizes.flatMap((s) => (imageUrlBySize[s]?.trim() ? [[s] as const] : []));
+        for (const [size] of pending) {
+          const ok = await submitUrlCreative(size);
+          if (!ok) {
+            setLoading(false);
+            return;
+          }
+        }
+      } else {
+        const pending = targetSizes.flatMap((s) => (filesBySize[s] ? [[s, filesBySize[s]!] as const] : []));
+        for (const [size, file] of pending) {
+          const ok = await uploadOne(size, file);
+          if (!ok) {
+            setLoading(false);
+            return;
+          }
         }
       }
       const crRes = await fetch(
@@ -726,8 +822,47 @@ function DemandCreateInner() {
           </div>
 
           <p style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.55, marginTop: 0 }}>
-            Upload one creative per target size. Matching dimensions improves fill and avoids distortion across publisher placements.
+            Add one creative per target size (optional per size). Matching dimensions improves fill and avoids distortion across publisher
+            placements.
           </p>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 16,
+              marginBottom: 16,
+              padding: 12,
+              borderRadius: 8,
+              border: "1px solid var(--border)",
+              alignItems: "center"
+            }}
+          >
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700 }}>Creative source</span>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, cursor: "pointer" }}>
+              <input
+                type="radio"
+                name="creativeInputMode"
+                checked={creativeInputMode === "upload"}
+                onChange={() => setInputMode("upload")}
+              />
+              Upload file
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, cursor: "pointer" }}>
+              <input
+                type="radio"
+                name="creativeInputMode"
+                checked={creativeInputMode === "url"}
+                onChange={() => setInputMode("url")}
+              />
+              Use image URL
+            </label>
+            {creativeInputMode === "url" && (
+              <span style={{ fontSize: 10, color: "#4a9eff", flex: "1 1 200px", lineHeight: 1.45 }}>
+                Paste a direct HTTPS link to your image (CDN, Imgur direct link, your server). No file storage required.
+              </span>
+            )}
+          </div>
 
           <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Default click URL</label>
           <input value={clickUrl} onChange={(e) => setClickUrl(e.target.value)} placeholder="https://your-site.com/landing" />
@@ -753,46 +888,81 @@ function DemandCreateInner() {
                 }}
               >
                 <div style={{ fontSize: 12, fontWeight: 700, color: "#a855f7", marginBottom: 10 }}>Creative for {size}</div>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") multiFileRefs.current[size]?.click();
-                  }}
-                  onClick={() => multiFileRefs.current[size]?.click()}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOverSize(size);
-                  }}
-                  onDragLeave={() => setDragOverSize((d) => (d === size ? null : d))}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setDragOverSize(null);
-                    acceptFileForSize(size, e.dataTransfer.files?.[0]);
-                  }}
-                  style={{
-                    border: `2px dashed ${dragOverSize === size ? "#0066cc" : "var(--border)"}`,
-                    borderRadius: 10,
-                    padding: 20,
-                    textAlign: "center",
-                    cursor: "pointer",
-                    marginBottom: 10
-                  }}
-                >
-                  <div style={{ fontSize: 12, color: "var(--text-bright)", fontWeight: 600 }}>Drop image or click to choose · {size}</div>
-                  <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>JPG, PNG, GIF, WebP · max 2MB</div>
-                  <input
-                    ref={(el) => {
-                      multiFileRefs.current[size] = el;
+                {creativeInputMode === "url" ? (
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ fontSize: 11, color: "var(--text-muted)" }}>Image URL (direct link) · {size}</label>
+                    <input
+                      value={imageUrlBySize[size] ?? ""}
+                      onChange={(e) => setImageUrlBySize((p) => ({ ...p, [size]: e.target.value }))}
+                      placeholder="https://cdn.example.com/ads/300x250.png"
+                      style={{ marginTop: 6 }}
+                    />
+                    {imageUrlBySize[size]?.trim().startsWith("http") && (
+                      <div style={{ marginTop: 10 }}>
+                        <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 6 }}>Preview</div>
+                        <div
+                          style={{
+                            position: "relative",
+                            width: outlineW,
+                            height: outlineH,
+                            border: "2px solid #0066cc",
+                            borderRadius: 6,
+                            overflow: "hidden",
+                            background: "#0c1018"
+                          }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={imageUrlBySize[size].trim()}
+                            alt=""
+                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") multiFileRefs.current[size]?.click();
                     }}
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    style={{ display: "none" }}
-                    onChange={(e) => acceptFileForSize(size, e.target.files?.[0])}
-                  />
-                </div>
+                    onClick={() => multiFileRefs.current[size]?.click()}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOverSize(size);
+                    }}
+                    onDragLeave={() => setDragOverSize((d) => (d === size ? null : d))}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOverSize(null);
+                      acceptFileForSize(size, e.dataTransfer.files?.[0]);
+                    }}
+                    style={{
+                      border: `2px dashed ${dragOverSize === size ? "#0066cc" : "var(--border)"}`,
+                      borderRadius: 10,
+                      padding: 20,
+                      textAlign: "center",
+                      cursor: "pointer",
+                      marginBottom: 10
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: "var(--text-bright)", fontWeight: 600 }}>Drop image or click to choose · {size}</div>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>JPG, PNG, GIF, WebP · max 2MB</div>
+                    <input
+                      ref={(el) => {
+                        multiFileRefs.current[size] = el;
+                      }}
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      style={{ display: "none" }}
+                      onChange={(e) => acceptFileForSize(size, e.target.files?.[0])}
+                    />
+                  </div>
+                )}
 
-                {prev && local && (
+                {creativeInputMode === "upload" && prev && local && (
                   <div style={{ marginBottom: 10 }}>
                     <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 6 }}>Preview</div>
                     <div
