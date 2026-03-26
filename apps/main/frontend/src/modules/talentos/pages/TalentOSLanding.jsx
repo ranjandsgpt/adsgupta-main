@@ -163,19 +163,23 @@ const TalentOSLanding = () => {
           </div>
           
           <div className="flex items-center gap-3">
-            <Link
-              to="/talentos/login"
+            <a
+              href="https://exchange.adsgupta.com/login"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-zinc-400 hover:text-white transition-colors text-sm px-4 py-2"
             >
               Sign In
-            </Link>
-            <Link
-              to="/talentos/workspace"
+            </a>
+            <a
+              href="https://exchange.adsgupta.com/register"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all"
               data-testid="get-started-btn"
             >
               Get Started Free
-            </Link>
+            </a>
           </div>
         </div>
       </nav>

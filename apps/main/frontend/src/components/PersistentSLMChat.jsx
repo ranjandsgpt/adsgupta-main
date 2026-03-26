@@ -175,7 +175,7 @@ const PersistentSLMChat = () => {
       window.removeEventListener('popstate', handleRouteChange);
       SLMService.destroy();
     };
-  }, []);
+  }, [slmAvailable]);
 
   // Auto-scroll chat
   useEffect(() => {

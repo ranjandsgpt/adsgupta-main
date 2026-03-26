@@ -1,5 +1,6 @@
 // craco.config.js
 const path = require("path");
+const webpack = require("webpack");
 require("dotenv").config();
 
 // Check if we're in development/preview mode (not production build)
@@ -65,6 +66,24 @@ const webpackConfig = {
       if (config.enableHealthCheck && healthPluginInstance) {
         webpackConfig.plugins.push(healthPluginInstance);
       }
+
+      // Temporary shim: @adsgupta/ui references missing ./header-nav in this repo.
+      // Keep blast radius in apps/main only by replacing that module at build time.
+      webpackConfig.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/\.\/header-nav$/, (resource) => {
+          if (typeof resource.context === "string" && resource.context.includes(`${path.sep}packages${path.sep}ui${path.sep}src`)) {
+            resource.request = path.resolve(__dirname, "src/shims/header-nav.js");
+          }
+        })
+      );
+
+      webpackConfig.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/\.\/components\/Footer$/, (resource) => {
+          if (typeof resource.context === "string" && resource.context.includes(`${path.sep}packages${path.sep}ui${path.sep}src`)) {
+            resource.request = path.resolve(__dirname, "src/shims/ui-footer.js");
+          }
+        })
+      );
       return webpackConfig;
     },
   },

@@ -163,7 +163,26 @@ const DashboardPage = () => {
   
   // Check auth on mount
   useEffect(() => {
-    checkAuth();
+    (async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/auth/me`, {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          fetchAmazonStatus();
+          fetchKPIs();
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setAuthLoading(false);
+      }
+    })();
+    // Intentionally run once on mount; auth state is session-based.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   // Handle OAuth callback
@@ -391,6 +410,7 @@ const DashboardPage = () => {
     if (user) {
       fetchKPIs();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, user]);
   
   // Handle session_id from Emergent OAuth
@@ -399,9 +419,30 @@ const DashboardPage = () => {
     if (hash.includes('session_id=')) {
       const sessionId = hash.split('session_id=')[1]?.split('&')[0];
       if (sessionId) {
-        processGoogleSession(sessionId);
+        (async () => {
+          try {
+            const response = await fetch(`${API_URL}/api/auth/session`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ session_id: sessionId })
+            });
+            
+            if (response.ok) {
+              const userData = await response.json();
+              setUser(userData);
+              // Clean URL
+              window.history.replaceState(null, '', window.location.pathname);
+              fetchAmazonStatus();
+              fetchKPIs();
+            }
+          } catch (error) {
+            console.error('Failed to process Google session:', error);
+          }
+        })();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const processGoogleSession = async (sessionId) => {
