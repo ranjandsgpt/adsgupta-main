@@ -150,6 +150,7 @@ function exchangeSidebar(): NavSection[] {
       label: "Exchange",
       items: [
         { href: "/platform", label: "Auction Monitor" },
+        { href: "/platform/auction-log", label: "Auction Log" },
         { href: "/platform/pricing", label: "Deal Manager" },
         { href: "/platform/publishers", label: "Publishers" },
         { href: "/platform/demand", label: "Demand Partners" }
@@ -164,6 +165,16 @@ function exchangeSidebar(): NavSection[] {
       ]
     },
     {
+      label: "Analytics Hub",
+      items: [
+        { href: "/platform/reports/exchange", label: "Exchange Reports" },
+        { href: "/platform/reports/publishers", label: "Publisher Reports" },
+        { href: "/platform/reports/demand", label: "Demand Reports" },
+        { href: "/platform/reports/finance", label: "Revenue & Finance" },
+        { href: "/platform/reports/custom", label: "Custom Report Builder" }
+      ]
+    },
+    {
       label: "Config",
       items: [
         { href: "/platform/settings", label: "Auction Config" },
@@ -174,11 +185,11 @@ function exchangeSidebar(): NavSection[] {
       ]
     },
     {
-      label: "Reports",
+      label: "Admin",
       items: [
-        { href: "/platform/analytics", label: "Analytics" },
-        { href: "/platform/earnings", label: "Earnings" },
-        { href: "/platform/auction-log", label: "Auction Log" }
+        { href: "/platform/admin/users", label: "User Management" },
+        { href: "/platform/activity-log", label: "Activity Log" },
+        { href: "/platform/earnings", label: "Earnings" }
       ]
     }
   ];
