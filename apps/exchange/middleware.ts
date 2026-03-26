@@ -6,6 +6,14 @@ import type { NextRequest } from "next/server";
 function isPublicApi(request: NextRequest, pathname: string): boolean {
   const m = request.method;
 
+  // Ops / utility endpoints: protected by their own secret/query auth
+  if (pathname === "/api/db-init" && m === "GET") return true;
+  if (pathname === "/api/test/e2e" && m === "GET") return true;
+  if (pathname === "/api/debug/auction" && m === "GET") return true;
+  if (pathname === "/api/health" && m === "GET") return true;
+  if (pathname === "/api/ping" && m === "GET") return true;
+  if (pathname.startsWith("/api/publisher-config/") && (m === "GET" || m === "OPTIONS")) return true;
+
   if (pathname === "/api/publishers" && m === "POST") return true;
   if (pathname === "/api/inventory" && m === "POST") return true;
   if (
@@ -64,12 +72,10 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (pathname === "/api/signals" && (m === "POST" || m === "OPTIONS")) return true;
   if (pathname === "/api/cron/daily-reset" && m === "GET") return true;
   if (pathname === "/api/public/bid-estimate" && m === "GET") return true;
-  if (pathname === "/api/test/e2e" && m === "GET") return true;
   if (/^\/api\/pixel\/[^/]+$/.test(pathname) && m === "GET") return true;
   if (pathname === "/api/audience/segments" && m === "GET") return true;
 
   if (pathname === "/api/ads.txt" && m === "GET") return true;
-  if (pathname.startsWith("/api/publisher-config/") && (m === "GET" || m === "OPTIONS")) return true;
 
   return false;
 }
