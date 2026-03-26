@@ -3,8 +3,9 @@
 import { LiveAuctionTicker } from "@/components/live-auction-ticker";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import type { ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type NavLink = { href: string; label: string };
 
@@ -144,8 +145,8 @@ function demandSidebar(): NavSection[] {
   ];
 }
 
-function exchangeSidebar(): NavSection[] {
-  return [
+function exchangeSidebar(isAdmin: boolean): NavSection[] {
+  const sections: NavSection[] = [
     {
       label: "Exchange",
       items: [
@@ -183,16 +184,28 @@ function exchangeSidebar(): NavSection[] {
         { href: "/platform/quickstart", label: "Quick Start" },
         { href: "/platform/test", label: "Integration Test" }
       ]
-    },
-    {
-      label: "Admin",
-      items: [
-        { href: "/platform/admin/users", label: "User Management" },
-        { href: "/platform/activity-log", label: "Activity Log" },
-        { href: "/platform/earnings", label: "Earnings" }
-      ]
     }
   ];
+
+  if (isAdmin) {
+    sections.push({
+      label: "ADMIN",
+      items: [
+        { href: "/platform/admin/users", label: "User Management" },
+        { href: "/platform/admin/roles", label: "Roles & Permissions" },
+        { href: "/platform/admin/activity", label: "Activity Log" },
+        { href: "/platform/admin/api-keys", label: "API Keys" },
+        { href: "/platform/admin/webhooks", label: "Webhooks" },
+        { href: "/platform/admin/notifications", label: "Notifications" },
+        { href: "/platform/admin/settings", label: "Global Settings" },
+        { href: "/platform/admin/access", label: "Access & Auth" },
+        { href: "/platform/admin/activity", label: "Change History" },
+        { href: "/platform/admin/policy", label: "Policy Centre" }
+      ]
+    });
+  }
+
+  return sections;
 }
 
 function docsSidebar(): NavSection[] {
@@ -256,6 +269,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "/";
   const { data: session } = useSession();
   const role = session?.user?.role;
+  const isAdmin = role === "admin";
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const avatarRef = useRef<HTMLDivElement | null>(null);
 
   const mode = detectSidebarMode(pathname);
   const isLogin = pathname === "/login";
@@ -277,7 +293,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         : mode === "demand"
           ? demandSidebar()
           : mode === "exchange"
-            ? exchangeSidebar()
+            ? exchangeSidebar(Boolean(isAdmin))
             : mode === "docs"
               ? docsSidebar()
               : mode === "prebid"
@@ -295,6 +311,37 @@ export function AppShell({ children }: { children: ReactNode }) {
   const showSidebar = !isLogin && mode !== "none" && mode !== "docs";
   const adminBanner =
     session?.user?.role === "admin" && (pathname.startsWith("/publisher") || pathname.startsWith("/demand"));
+
+  const displayName = useMemo(() => {
+    const n = (session?.user as any)?.name;
+    if (typeof n === "string" && n.trim()) return n.trim();
+    return "User";
+  }, [session?.user]);
+  const displayEmail = useMemo(() => {
+    const e = session?.user?.email;
+    if (typeof e === "string" && e.trim()) return e.trim();
+    return "—";
+  }, [session?.user?.email]);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setAvatarOpen(false);
+    }
+    function onMouseDown(e: MouseEvent) {
+      const el = avatarRef.current;
+      if (!el) return;
+      if (e.target && el.contains(e.target as Node)) return;
+      setAvatarOpen(false);
+    }
+    if (avatarOpen) {
+      window.addEventListener("keydown", onKeyDown);
+      window.addEventListener("mousedown", onMouseDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("mousedown", onMouseDown);
+    };
+  }, [avatarOpen]);
 
   if (isLogin) {
     return (
@@ -358,36 +405,107 @@ export function AppShell({ children }: { children: ReactNode }) {
                 Platform
               </Link>
             )}
-            {role === "admin" && (
-              <Link href="/platform/settings" className={pillClass(adminConsoleActive)}>
-                Admin
-              </Link>
-            )}
           </nav>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button type="button" className="btn-secondary" style={{ padding: "5px 10px", fontSize: 12 }}>
-            ⌘K Search
-          </button>
           <button type="button" className="btn-ghost" aria-label="Notifications" style={{ padding: 8 }}>
             🔔
           </button>
-          <div
-            title={session?.user?.email ?? "User"}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: "50%",
-              background: "var(--accent-light)",
-              color: "var(--accent)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 11,
-              fontWeight: 600
-            }}
-          >
-            {session?.user?.email?.slice(0, 2).toUpperCase() || "RD"}
+          <div ref={avatarRef} style={{ position: "relative" }}>
+            <button
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={avatarOpen}
+              onClick={() => setAvatarOpen((v) => !v)}
+              title={displayEmail}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "var(--accent-light)",
+                color: "var(--accent)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                border: "1px solid var(--border)",
+                cursor: "pointer"
+              }}
+            >
+              {displayEmail.slice(0, 2).toUpperCase() || "RD"}
+            </button>
+
+            {avatarOpen ? (
+              <div
+                role="menu"
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 40,
+                  width: 260,
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 12,
+                  boxShadow: "0 14px 40px rgba(0,0,0,0.18)",
+                  overflow: "hidden",
+                  zIndex: 200
+                }}
+              >
+                <div style={{ padding: "12px 12px 10px" }}>
+                  <div style={{ fontWeight: 800, color: "var(--text)" }}>{displayName}</div>
+                  <div style={{ marginTop: 2, fontSize: 12, color: "var(--text-muted)" }}>{displayEmail}</div>
+                  <div style={{ marginTop: 8 }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 900,
+                        padding: "4px 10px",
+                        borderRadius: 999,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                        border: "1px solid var(--border)",
+                        background: isAdmin ? "#1a56db22" : "rgba(113,128,150,0.18)",
+                        color: isAdmin ? "#1a56db" : "var(--text-muted)"
+                      }}
+                    >
+                      {String(role ?? "user")}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ borderTop: "1px solid var(--border)" }} />
+                <div style={{ padding: 6, display: "grid", gap: 2 }}>
+                  <Link
+                    href={isAdmin ? "/platform/admin/settings" : "/platform/settings"}
+                    className="shell-nav-item"
+                    onClick={() => setAvatarOpen(false)}
+                  >
+                    Profile Settings
+                  </Link>
+                  <Link
+                    href={isAdmin ? "/platform/admin/access" : "/platform/settings"}
+                    className="shell-nav-item"
+                    onClick={() => setAvatarOpen(false)}
+                  >
+                    Change Password
+                  </Link>
+                </div>
+                <div style={{ borderTop: "1px solid var(--border)" }} />
+                <div style={{ padding: 6 }}>
+                  <button
+                    type="button"
+                    className="shell-nav-item"
+                    style={{ width: "100%", textAlign: "left", cursor: "pointer" }}
+                    onClick={() => {
+                      setAvatarOpen(false);
+                      void signOut({ callbackUrl: "https://adsgupta.com" });
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </header>
