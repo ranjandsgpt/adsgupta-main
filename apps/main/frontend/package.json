@@ -3,7 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "overrides": {
-    "ajv": "^8.0.0"
+    "schema-utils@^4": {
+      "ajv": "^8.18.0"
+    },
+    "ajv-keywords@^5": {
+      "ajv": "^8.18.0"
+    },
+    "ajv-formats@^2": {
+      "ajv": "^8.18.0"
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
