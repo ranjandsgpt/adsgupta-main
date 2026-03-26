@@ -145,6 +145,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
+  // Backward compatibility: redirect legacy /admin/* to /platform/*
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    const next = pathname === "/admin" ? "/platform" : `/platform${pathname.slice("/admin".length)}`;
+    return NextResponse.redirect(new URL(next, request.url));
+  }
+
   if (pathname.startsWith("/platform") && role !== "admin") {
     return NextResponse.redirect(new URL("/login", request.url));
   }

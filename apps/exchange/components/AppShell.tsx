@@ -46,8 +46,8 @@ function homeSidebar(): NavSection[] {
     {
       label: "Quick Access",
       items: [
-        { href: "/admin/activity-log", label: "Recent Activity" },
-        { href: "/admin/settings", label: "Settings" },
+        { href: "/platform/activity-log", label: "Recent Activity" },
+        { href: "/platform/settings", label: "Settings" },
         { href: "/docs", label: "Documentation" }
       ]
     }
@@ -135,36 +135,36 @@ function exchangeSidebar(): NavSection[] {
     {
       label: "Exchange",
       items: [
-        { href: "/admin", label: "Auction Monitor" },
-        { href: "/admin/pricing", label: "Deal Manager" },
-        { href: "/admin/publishers", label: "Publishers" },
-        { href: "/admin/demand", label: "Demand Partners" }
+        { href: "/platform", label: "Auction Monitor" },
+        { href: "/platform/pricing", label: "Deal Manager" },
+        { href: "/platform/publishers", label: "Publishers" },
+        { href: "/platform/demand", label: "Demand Partners" }
       ]
     },
     {
       label: "Quality",
       items: [
-        { href: "/admin/protections", label: "Brand Safety" },
-        { href: "/admin/health", label: "IVT Detection" },
-        { href: "/admin/tags", label: "Supply Chain" }
+        { href: "/platform/protections", label: "Brand Safety" },
+        { href: "/platform/health", label: "IVT Detection" },
+        { href: "/platform/tags", label: "Supply Chain" }
       ]
     },
     {
       label: "Config",
       items: [
-        { href: "/admin/settings", label: "Auction Config" },
-        { href: "/admin/pricing", label: "Floor Rules" },
-        { href: "/admin/tags", label: "Tag Generator" },
-        { href: "/admin/quickstart", label: "Quick Start" },
-        { href: "/admin/test", label: "Integration Test" }
+        { href: "/platform/settings", label: "Auction Config" },
+        { href: "/platform/pricing", label: "Floor Rules" },
+        { href: "/platform/tags", label: "Tag Generator" },
+        { href: "/platform/quickstart", label: "Quick Start" },
+        { href: "/platform/test", label: "Integration Test" }
       ]
     },
     {
       label: "Reports",
       items: [
-        { href: "/admin/analytics", label: "Analytics" },
-        { href: "/admin/earnings", label: "Earnings" },
-        { href: "/admin/auction-log", label: "Auction Log" }
+        { href: "/platform/analytics", label: "Analytics" },
+        { href: "/platform/earnings", label: "Earnings" },
+        { href: "/platform/auction-log", label: "Auction Log" }
       ]
     }
   ];
@@ -196,7 +196,7 @@ function detectSidebarMode(pathname: string): "home" | "publisher" | "demand" | 
   if (pathname.startsWith("/prebid")) return "prebid";
   if (pathname.startsWith("/publisher")) return "publisher";
   if (pathname.startsWith("/demand")) return "demand";
-  if (pathname.startsWith("/admin")) return "exchange";
+  if (pathname.startsWith("/platform")) return "exchange";
   if (pathname === "/") return "home";
   return "none";
 }
@@ -239,9 +239,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const platformActive = pathname === "/" || pathname.startsWith("/docs");
   const publisherActive = pathname.startsWith("/publisher");
   const demandActive = pathname.startsWith("/demand");
-  const exchangeActive = pathname.startsWith("/admin");
+  const exchangeActive = pathname.startsWith("/platform");
   const prebidActive = pathname.startsWith("/prebid");
-  const adminConsoleActive = pathname.startsWith("/admin/settings");
+  const adminConsoleActive = pathname.startsWith("/platform/settings");
 
   const sidebarSections =
     mode === "home"
@@ -321,13 +321,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link href="/demand" className={pillClass(demandActive)}>
               Demand
             </Link>
-            <Link href="/admin" className={pillClass(exchangeActive && !adminConsoleActive)}>
+            <Link href="/platform" className={pillClass(exchangeActive && !adminConsoleActive)}>
               Exchange
             </Link>
             <Link href="/prebid" className={pillClass(prebidActive)}>
               Prebid
             </Link>
-            <Link href="/admin/settings" className={pillClass(adminConsoleActive)}>
+            <Link href="/platform/settings" className={pillClass(adminConsoleActive)}>
               Admin
             </Link>
           </nav>
@@ -359,7 +359,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      {pathname.startsWith("/admin") && (
+      {pathname.startsWith("/platform") && (
         <div
           style={{
             background: "var(--bg)",
@@ -387,7 +387,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           }}
         >
           Viewing as Admin —{" "}
-          <Link href="/admin" style={{ fontWeight: 600, textDecoration: "underline" }}>
+          <Link href="/platform" style={{ fontWeight: 600, textDecoration: "underline" }}>
             Go to Admin Dashboard →
           </Link>
         </div>
