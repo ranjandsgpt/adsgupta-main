@@ -12,8 +12,7 @@
           <li role="none"><a href="/work" role="menuitem" class="adsg-nav__link">Work</a></li>
           <li role="none"><a href="/insights" role="menuitem" class="adsg-nav__link">Insights</a></li>
           <li role="none"><a href="/contact" role="menuitem" class="adsg-nav__link">Contact</a></li>
-          <li role="none"><a href="/audit" role="menuitem" class="adsg-nav__link adsg-nav__link--audit">Audit Tool</a></li>
-          <li role="none"><a href="https://adsgupta.com" role="menuitem" class="adsg-nav__link adsg-nav__link--adsgupta" target="_blank" rel="noopener">AdsGupta →</a></li>
+          <li role="none"><a href="https://exchange.adsgupta.com" role="menuitem" class="adsg-nav__link adsg-nav__link--adsgupta" target="_blank" rel="noopener">Exchange →</a></li>
           <li role="none">
             <button type="button" id="adsg-theme-toggle" class="adsg-nav__theme-btn" aria-label="Toggle theme">
               <svg id="adsg-icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -39,8 +38,7 @@
           <li><a href="/work" role="menuitem" class="adsg-nav__mobile-link">Work</a></li>
           <li><a href="/insights" role="menuitem" class="adsg-nav__mobile-link">Insights</a></li>
           <li><a href="/contact" role="menuitem" class="adsg-nav__mobile-link">Contact</a></li>
-          <li><a href="/audit" role="menuitem" class="adsg-nav__mobile-link">Audit Tool</a></li>
-          <li><a href="https://adsgupta.com" role="menuitem" class="adsg-nav__mobile-link" target="_blank" rel="noopener">AdsGupta →</a></li>
+          <li><a href="https://exchange.adsgupta.com" role="menuitem" class="adsg-nav__mobile-link" target="_blank" rel="noopener">Exchange →</a></li>
         </ul>
       </div>
     </header>
@@ -122,15 +120,6 @@
     html[data-theme='light'] .adsg-nav__link { color: #6b7280 !important; }
     html[data-theme='dark'] .adsg-nav__link:hover { color: #ffffff !important; }
     html[data-theme='light'] .adsg-nav__link:hover { color: #111827 !important; }
-
-    .adsg-nav__link--audit {
-      background: #06b6d4 !important;
-      color: #ffffff !important;
-      padding: 6px 14px !important;
-      border-radius: 9999px !important;
-      font-size: 13px !important;
-    }
-    .adsg-nav__link--audit:hover { background: #22d3ee !important; color: #ffffff !important; }
 
     .adsg-nav__link--adsgupta { color: #06b6d4 !important; }
     .adsg-nav__link--adsgupta:hover { color: #22d3ee !important; text-decoration: underline !important; }
