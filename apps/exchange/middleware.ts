@@ -3,6 +3,23 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+function isAlwaysPublicBypass(pathname: string): boolean {
+  if (pathname === "/api/db-init") return true;
+  if (pathname === "/api/test/e2e") return true;
+  if (pathname === "/api/debug/auction") return true;
+  if (pathname === "/api/health") return true;
+  if (pathname === "/api/ping") return true;
+  if (pathname.startsWith("/api/cron/")) return true;
+  if (pathname.startsWith("/api/publisher-config/")) return true;
+  if (pathname.startsWith("/api/openrtb/")) return true;
+  if (pathname.startsWith("/api/track/")) return true;
+  if (pathname.startsWith("/api/public/")) return true;
+  if (pathname === "/api/signals") return true;
+  if (pathname === "/api/platform-users/register") return true;
+  if (pathname === "/api/platform-users/invite") return true;
+  return false;
+}
+
 function isPublicApi(request: NextRequest, pathname: string): boolean {
   const m = request.method;
 
@@ -130,6 +147,11 @@ function isProtectedRoute(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith("/_next") || pathname === "/favicon.ico") {
+    return NextResponse.next();
+  }
+
+  // Hard bypass for utility/public endpoints protected by their own controls.
+  if (isAlwaysPublicBypass(pathname)) {
     return NextResponse.next();
   }
 
