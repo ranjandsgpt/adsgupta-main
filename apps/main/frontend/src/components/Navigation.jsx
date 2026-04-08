@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Box, FileText, Briefcase, Users, Phone, Menu, X, LogIn, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import MegaMenu from './MegaMenu';
-import { brandNames } from '../config/protocolsConfig';
 
 export const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,7 +11,7 @@ export const Navigation = () => {
   const navItems = [
     { label: 'The Neural Engine', href: '/#features', icon: Box },
     { label: 'The Protocols', href: null, icon: Briefcase, hasMegaMenu: true },
-    { label: 'The Archives', href: '/blog', icon: FileText },
+    { label: 'The Archives', href: 'https://blog.adsgupta.com', icon: FileText, external: true },
     { label: 'About', href: '/aboutme', icon: Users },
     { label: 'Contact', href: '/contact', icon: Phone },
   ];
@@ -82,6 +81,23 @@ export const Navigation = () => {
                 <motion.a
                   key={item.label}
                   href={item.href}
+                  data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  data-hoverable="true"
+                  className="text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
+                  whileHover={{ y: -1 }}
+                >
+                  {item.label}
+                </motion.a>
+              );
+            }
+
+            if (item.external && item.href?.startsWith('http')) {
+              return (
+                <motion.a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   data-hoverable="true"
                   className="text-zinc-400 hover:text-white transition-colors duration-300 text-[13px] font-medium tracking-wide whitespace-nowrap"
@@ -182,6 +198,22 @@ export const Navigation = () => {
                   <a
                     key={item.label}
                     href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 text-zinc-300 hover:text-white py-2 text-sm"
+                  >
+                    <item.icon size={18} strokeWidth={1.5} />
+                    {item.label}
+                  </a>
+                );
+              }
+
+              if (item.external && item.href?.startsWith('http')) {
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-3 text-zinc-300 hover:text-white py-2 text-sm"
                   >

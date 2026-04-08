@@ -1,5 +1,5 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { CustomCursor } from "./components/CustomCursor";
 import { Navigation } from "./components/Navigation";
@@ -15,7 +15,6 @@ import { Footer } from "@adsgupta/ui";
 import { ChatBot } from "./components/ChatBot";
 
 // Pages
-import BlogPage from "./pages/BlogPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -52,6 +51,17 @@ const TOOLS_DOMAIN = process.env.REACT_APP_TOOLS_DOMAIN || 'https://tools.adsgup
 // Detect if we're on demo domain
 const isDemoDomain = typeof window !== 'undefined' && 
   (window.location.hostname.includes('demoai') || SHOW_DEMO);
+
+const MARKETING_SEO_TITLE = 'AdsGupta · AD-OS — The Advertising Intelligence Ecosystem';
+const MARKETING_SEO_DESCRIPTION =
+  'An open intelligence ecosystem spanning programmatic exchanges, marketplace audits, AI sandboxes, and career tech. Protocols for publishers, sellers, advertisers, and talent.';
+const ORGANIZATION_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'AdsGupta',
+  description:
+    'AdsGupta is an advertising intelligence ecosystem built by Ranjan Dasgupta and Pousali Dasgupta. The AD-OS platform connects programmatic monetization, marketplace intelligence, AI experimentation, and career acceleration through a shared neural engine — serving publishers, advertisers, marketplace sellers, agencies, and job seekers.',
+};
 
 // Home Page Component - Reordered for Narrative Flow
 const HomePage = () => {
@@ -98,11 +108,16 @@ const HomePage = () => {
 };
 
 function App() {
-  // Static SEO values for tools domain (demo domain will have its own build)
-  const seoTitle = "AdsGupta Tools: Instant Amazon Audit & API Growth Command Center";
-  const seoDescription = "Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities.";
-  const ogTitle = "AdsGupta Tools - AI-Powered Amazon Analytics";
-  const ogDesc = "Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds.";
+  const seoTitle = isDemoDomain
+    ? 'AdsGupta Tools: Instant Amazon Audit & API Growth Command Center'
+    : MARKETING_SEO_TITLE;
+  const seoDescription = isDemoDomain
+    ? 'Free instant Amazon audit with 20 AI optimization agents. Upload your reports for real-time insights on wasted ad spend, conversion killers, and growth opportunities.'
+    : MARKETING_SEO_DESCRIPTION;
+  const ogTitle = isDemoDomain ? 'AdsGupta Tools - AI-Powered Amazon Analytics' : MARKETING_SEO_TITLE;
+  const ogDesc = isDemoDomain
+    ? 'Instant Amazon audit with 20 AI agents. Find revenue leaks in 30 seconds.'
+    : MARKETING_SEO_DESCRIPTION;
 
   return (
     <HelmetProvider>
@@ -111,15 +126,24 @@ function App() {
         <Helmet
           title={seoTitle}
           meta={[
-            { name: "description", content: seoDescription },
-            { name: "keywords", content: "Amazon seller tools, PPC optimization, ACOS analyzer, Amazon audit, ecommerce analytics" },
-            { property: "og:title", content: ogTitle },
-            { property: "og:description", content: ogDesc },
-            { property: "og:type", content: "website" },
-            { name: "twitter:card", content: "summary_large_image" },
-            { name: "twitter:title", content: ogTitle }
+            { name: 'description', content: seoDescription },
+            {
+              name: 'keywords',
+              content: isDemoDomain
+                ? 'Amazon seller tools, PPC optimization, ACOS analyzer, Amazon audit, ecommerce analytics'
+                : 'programmatic advertising, ad exchange, marketplace intelligence, AI sandbox, TalentOS, AdsGupta',
+            },
+            { property: 'og:title', content: ogTitle },
+            { property: 'og:description', content: ogDesc },
+            { property: 'og:type', content: 'website' },
+            { name: 'twitter:card', content: 'summary_large_image' },
+            { name: 'twitter:title', content: ogTitle },
           ]}
-        />
+        >
+          {!isDemoDomain && (
+            <script type="application/ld+json">{JSON.stringify(ORGANIZATION_JSON_LD)}</script>
+          )}
+        </Helmet>
         
         <CustomCursor />
         <Routes>
@@ -163,8 +187,8 @@ function App() {
               <Route path="/amazon-audit" element={<AmazonAuditRedirect />} />
               {SHOW_DEMO && <Route path="/internal-demo" element={<DemoUniversePage />} />}
               
-              {/* Marketing/Landing Pages */}
-              <Route path="/blog" element={<BlogPage />} />
+              {/* Marketing/Landing Pages — /blog redirects to external blog */}
+              <Route path="/blog/*" element={<BlogExternalRedirect />} />
               <Route path="/aboutme" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
@@ -181,6 +205,15 @@ function App() {
     </HelmetProvider>
   );
 }
+
+const BlogExternalRedirect = () => {
+  const location = useLocation();
+  const suffix = location.pathname.startsWith('/blog')
+    ? location.pathname.slice('/blog'.length)
+    : '';
+  window.location.replace(`https://blog.adsgupta.com${suffix || ''}${location.search}`);
+  return null;
+};
 
 // Redirect component for /demo route
 const DemoRedirect = () => {

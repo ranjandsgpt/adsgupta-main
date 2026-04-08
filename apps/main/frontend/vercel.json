@@ -9,8 +9,19 @@
       }
     }
   ],
+  "redirects": [
+    {
+      "source": "/blog/:path*",
+      "destination": "https://blog.adsgupta.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "https://blog.adsgupta.com",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
-

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useRef } from 'react';
-import { Users, Megaphone, Store, Building, GraduationCap, User, ChevronLeft, ChevronRight, Globe, Server, BarChart3 } from 'lucide-react';
+import { Users, Megaphone, Store, Building, GraduationCap, ChevronLeft, ChevronRight, Globe, Server, BarChart3 } from 'lucide-react';
 
 export const NetworkSection = () => {
   const scrollRef = useRef(null);
@@ -8,60 +8,51 @@ export const NetworkSection = () => {
   const stakeholders = [
     {
       title: 'Publishers',
-      description: 'Maximize yield with AI-driven monetization',
+      description:
+        'Monetize web, app, and CTV inventory with AI-optimized programmatic demand and real-time yield management.',
       icon: Users,
       color: 'text-cyan-400',
       bgColor: 'bg-cyan-500/10',
     },
     {
-      title: 'Influencers',
-      description: 'Scale your brand partnerships intelligently',
-      icon: Megaphone,
-      color: 'text-violet-400',
-      bgColor: 'bg-violet-500/10',
-    },
-    {
-      title: 'Advertisers',
-      description: 'Reach the right audience at the right moment',
-      icon: Store,
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-500/10',
-    },
-    {
       title: 'Sellers',
-      description: 'Dominate marketplace advertising',
+      description:
+        'Audit and optimize Amazon, Walmart, Blinkit, and Swiggy listings — find revenue leaks, fix listings, grow sales.',
       icon: Store,
       color: 'text-orange-400',
       bgColor: 'bg-orange-500/10',
     },
     {
-      title: 'Agencies',
-      description: 'Enterprise tools for trading desks',
-      icon: Building,
-      color: 'text-rose-400',
-      bgColor: 'bg-rose-500/10',
+      title: 'Advertisers',
+      description:
+        'Reach audiences across the open exchange with precision targeting, real-time bidding, and transparent reporting.',
+      icon: Megaphone,
+      color: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/10',
     },
     {
-      title: 'Interns',
-      description: 'Launch your ad-tech career',
+      title: 'Job Seekers',
+      description:
+        'AI-powered resume analysis, mock interviews with 4 personas, company research, and job discovery across 10+ countries.',
       icon: GraduationCap,
       color: 'text-sky-400',
       bgColor: 'bg-sky-500/10',
     },
     {
-      title: 'Individuals',
-      description: 'Personal brand growth solutions',
-      icon: User,
-      color: 'text-amber-400',
-      bgColor: 'bg-amber-500/10',
+      title: 'Agencies',
+      description:
+        'Strategy and intelligence tools spanning both programmatic monetization and marketplace commerce — one ecosystem for the full value chain.',
+      icon: Building,
+      color: 'text-rose-400',
+      bgColor: 'bg-rose-500/10',
     },
   ];
 
   const globalStats = [
-    { icon: Globe, value: '150+', label: 'DSP Integrations' },
-    { icon: Server, value: '80+', label: 'SSP Partners' },
-    { icon: Users, value: '50K+', label: 'Creator Network' },
-    { icon: BarChart3, value: '$2.4B', label: 'Annual Ad Spend' },
+    { icon: Globe, value: '150+', label: 'Pages of Documentation' },
+    { icon: Server, value: '7', label: 'Live Protocols' },
+    { icon: Users, value: '50K+', label: 'Lines of Code' },
+    { icon: BarChart3, value: '8', label: 'Content Verticals' },
   ];
 
   const scroll = (direction) => {
@@ -90,13 +81,14 @@ export const NetworkSection = () => {
           className="text-center mb-12"
         >
           <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-            The Ecosystem
+            THE ECOSYSTEM
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
             THE ADS GUPTA NETWORK
           </h2>
           <p className="text-zinc-400 text-base md:text-lg max-w-2xl mx-auto">
-            Empowering every stakeholder in the ad-tech value chain.
+            One ecosystem. Two operators. Every stakeholder in the advertising value chain — from publishers to sellers to
+            agencies to job seekers.
           </p>
         </motion.div>
 

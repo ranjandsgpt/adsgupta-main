@@ -83,7 +83,8 @@ export const HeroSection = () => {
               transition={{ delay: 1, duration: 0.6 }}
               className="text-base md:text-lg lg:text-xl text-zinc-400 max-w-xl mb-8 md:mb-10 leading-relaxed"
             >
-              The first AI-native platform that predicts consumer desire before it happens.
+              An open intelligence ecosystem spanning programmatic exchanges, marketplace audits, AI sandboxes, and
+              career tech — built and operated by two people who live advertising end to end.
             </motion.p>
 
             <motion.div

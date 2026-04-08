@@ -6,32 +6,38 @@ export const FeaturesSection = () => {
     {
       icon: Zap,
       title: 'Real-time Optimization',
-      description: 'Milliseconds matter. We adjust bids and placements instantly based on live performance data.',
+      description:
+        'Millisecond-level decisioning across programmatic auctions, marketplace pricing, and demand allocation — optimizing yield in real time.',
     },
     {
       icon: Brain,
       title: 'Neural Targeting',
-      description: 'Find customers who don\'t know they need you yet. Our AI predicts intent before action.',
+      description:
+        'Contextual and behavioral intelligence layers that connect the right demand to the right inventory, the right product to the right buyer.',
     },
     {
       icon: Palette,
       title: 'Predictive Creative',
-      description: 'Generate high-converting visuals on the fly. A/B test at scale without the wait.',
+      description:
+        'AI-generated insights on listing performance, ad creative effectiveness, and content optimization across channels.',
     },
     {
       icon: Target,
       title: 'Precision Audiences',
-      description: 'Build hyper-specific cohorts that convert. Every impression counts.',
+      description:
+        'First-party audience intelligence, seller segmentation, and job-seeker profiling — privacy-first, across every protocol.',
     },
     {
       icon: BarChart3,
       title: 'Deep Analytics',
-      description: 'Go beyond vanity metrics. Understand the true ROI of every creative decision.',
+      description:
+        'Unified reporting across exchange performance, marketplace KPIs, campaign attribution, and career intelligence metrics.',
     },
     {
       icon: Shield,
       title: 'Brand Safety',
-      description: 'AI-powered content screening ensures your ads appear in the right context.',
+      description:
+        'Inventory quality scoring, listing compliance checks, and content classification — keeping every side of the ecosystem clean.',
     },
   ];
 
@@ -74,13 +80,14 @@ export const FeaturesSection = () => {
           className="text-center mb-16"
         >
           <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-            The Core
+            THE CORE
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-white font-['Space_Grotesk'] tracking-tight mb-4">
             THE NEURAL ENGINE
           </h2>
           <p className="text-zinc-400 text-base md:text-lg max-w-2xl mx-auto">
-            The foundational AI layer powering every Ads Gupta protocol.
+            The shared intelligence layer behind every protocol — from real-time auction decisions to marketplace audits
+            to career matching.
           </p>
         </motion.div>
 

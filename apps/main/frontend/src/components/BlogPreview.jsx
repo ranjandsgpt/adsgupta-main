@@ -1,26 +1,30 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
+const BLOG_HOME = 'https://blog.adsgupta.com';
 
 export const BlogPreview = () => {
   const blogPosts = [
     {
-      title: 'Authenticity: The Bedrock of Brand Building',
-      category: 'Strategy',
+      title: 'Header Bidding in 2026: What Publishers Need to Know',
+      category: 'Programmatic',
       image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=400&fit=crop',
       date: 'Dec 2025',
+      href: BLOG_HOME,
     },
     {
-      title: 'Neural-Pathing: Predicting Consumer Intent Before Action',
-      category: 'Technology',
+      title: 'The Amazon Audit Playbook: Finding Revenue Leaks at Scale',
+      category: 'Marketplaces',
       image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop',
       date: 'Dec 2025',
+      href: BLOG_HOME,
     },
     {
-      title: 'The Amazon & Walmart Advantage: Retail-Trained AI',
-      category: 'Retail Media',
+      title: 'Quick Commerce Ads: The Next Frontier for Brand Advertising',
+      category: 'Emerging',
       image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop',
       date: 'Dec 2025',
+      href: BLOG_HOME,
     },
   ];
 
@@ -64,20 +68,22 @@ export const BlogPreview = () => {
         >
           <div>
             <span className="text-cyan-400 text-sm font-medium tracking-widest uppercase mb-4 block">
-              Intelligence Feed
+              FEATURED POSTS
             </span>
             <h2 className="section-title text-white">THE AD-ARCHIVES</h2>
           </div>
           <motion.div whileHover={{ x: 5 }}>
-            <Link
-              to="/blog"
+            <a
+              href={BLOG_HOME}
+              target="_blank"
+              rel="noopener noreferrer"
               data-testid="view-all-blog-link"
               data-hoverable="true"
               className="mt-6 md:mt-0 inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors duration-300 font-medium"
             >
               View All Posts
               <ArrowUpRight size={18} />
-            </Link>
+            </a>
           </motion.div>
         </motion.div>
 
@@ -95,8 +101,10 @@ export const BlogPreview = () => {
               variants={cardVariants}
               data-testid={`blog-card-${index}`}
             >
-              <Link
-                to="/blog"
+              <a
+                href={post.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 data-hoverable="true"
                 className="blog-card group rounded-2xl overflow-hidden aspect-[4/5] relative block"
               >
@@ -125,7 +133,7 @@ export const BlogPreview = () => {
                     <ArrowUpRight size={14} />
                   </div>
                 </div>
-              </Link>
+              </a>
             </motion.div>
           ))}
         </motion.div>

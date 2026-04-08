@@ -3,12 +3,10 @@ import Marquee from 'react-fast-marquee';
 
 export const StatsTicker = () => {
   const stats = [
-    { label: 'Impressions Served', value: '12.4B+' },
-    { label: 'Active Campaigns', value: '45,000+' },
-    { label: 'Conversion Rate Lift', value: '340%' },
-    { label: 'Partners Worldwide', value: '1,200+' },
-    { label: 'AI Models Active', value: '156' },
-    { label: 'Data Points Processed', value: '8T+' },
+    { label: 'Live Protocols', value: '7' },
+    { label: 'Marketplace Platforms', value: '6' },
+    { label: 'AI Agents Deployed', value: '20+' },
+    { label: 'Content Verticals', value: '8' },
   ];
 
   return (
