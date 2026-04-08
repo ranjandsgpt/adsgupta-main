@@ -67,23 +67,32 @@ const webpackConfig = {
         webpackConfig.plugins.push(healthPluginInstance);
       }
 
-      // Temporary shim: @adsgupta/ui references missing ./header-nav in this repo.
-      // Keep blast radius in apps/main only by replacing that module at build time.
+      // CRA doesn't transpile TS exports from workspace packages cleanly here.
+      // Keep the minimal shim for `packages/ui/src/header-nav.tsx` to avoid build failure.
       webpackConfig.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/\.\/header-nav$/, (resource) => {
-          if (typeof resource.context === "string" && resource.context.includes(`${path.sep}packages${path.sep}ui${path.sep}src`)) {
+          if (
+            typeof resource.context === "string" &&
+            resource.context.includes(`${path.sep}packages${path.sep}ui${path.sep}src`)
+          ) {
             resource.request = path.resolve(__dirname, "src/shims/header-nav.js");
           }
         })
       );
 
+      // CRA can't import TSX exports from @adsgupta/ui here; use a local shim footer
+      // that matches the canonical footer markup used across subdomains.
       webpackConfig.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/\.\/components\/Footer$/, (resource) => {
-          if (typeof resource.context === "string" && resource.context.includes(`${path.sep}packages${path.sep}ui${path.sep}src`)) {
+          if (
+            typeof resource.context === "string" &&
+            resource.context.includes(`${path.sep}packages${path.sep}ui${path.sep}src`)
+          ) {
             resource.request = path.resolve(__dirname, "src/shims/ui-footer.js");
           }
         })
       );
+
       return webpackConfig;
     },
   },
