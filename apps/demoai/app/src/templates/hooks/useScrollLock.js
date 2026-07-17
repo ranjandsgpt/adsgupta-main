@@ -16,15 +16,14 @@ function lockDocument() {
     appTouchAction: appScroller?.style.touchAction,
   };
 
-  body.style.overflow = 'hidden';
-  body.style.touchAction = 'none';
-  documentElement.style.overflow = 'hidden';
   if (appScroller) {
     appScroller.style.overflow = 'hidden';
     appScroller.style.touchAction = 'none';
-  }
-  if (scrollbarWidth > 0) {
-    body.style.paddingRight = `${scrollbarWidth}px`;
+  } else {
+    body.style.overflow = 'hidden';
+    body.style.touchAction = 'none';
+    documentElement.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) body.style.paddingRight = `${scrollbarWidth}px`;
   }
 
   restoreStyles = () => {

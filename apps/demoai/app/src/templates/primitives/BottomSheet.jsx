@@ -4,6 +4,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useScrollLock } from '../hooks/useScrollLock';
 import { useViewability } from '../hooks/useViewability';
 import { emitTelemetry } from '../telemetry';
+import { FramePortal } from './FramePortal';
 import { MorphContainer } from './MorphContainer';
 
 const DEFAULT_SNAPS = [
@@ -21,7 +22,7 @@ export function BottomSheet({
 }) {
   const reducedMotion = useReducedMotion();
   const viewabilityRef = useViewability({ templateId });
-  const [viewportHeight, setViewportHeight] = useState(() => window.innerHeight);
+  const [viewportHeight, setViewportHeight] = useState(640);
   const initialIndex = Math.max(0, snapPoints.findIndex((snap) => snap.id === initialSnap));
   const [snapIndex, setSnapIndex] = useState(initialIndex);
   const [dragTranslate, setDragTranslate] = useState(null);
@@ -29,10 +30,24 @@ export function BottomSheet({
   useScrollLock(true);
 
   useEffect(() => {
-    const update = () => setViewportHeight(window.innerHeight);
+    // The wrapper stretches over the portal container (overlay root in the
+    // preview frame, or the real viewport when unportaled), so measuring it
+    // avoids window.innerHeight entirely.
+    const wrapper = viewabilityRef.current;
+    if (!wrapper) return undefined;
+    const update = () => {
+      const height = wrapper.getBoundingClientRect().height;
+      if (height > 0) setViewportHeight(height);
+    };
+    update();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+    observer?.observe(wrapper);
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [viewabilityRef]);
 
   const geometry = useMemo(() => {
     const maxHeight = viewportHeight * Math.max(...snapPoints.map((snap) => snap.ratio));
@@ -84,7 +99,8 @@ export function BottomSheet({
   };
 
   return (
-    <div ref={viewabilityRef} className="fixed inset-0 z-[90] pointer-events-auto" role="dialog" aria-modal="true" aria-label="Product details">
+    <FramePortal>
+    <div ref={viewabilityRef} className="pointer-events-auto fixed inset-0 z-[90]" role="dialog" aria-modal="true" aria-label="Product details">
       <button
         type="button"
         className="absolute inset-0 min-h-11 min-w-11 bg-black"
@@ -116,5 +132,6 @@ export function BottomSheet({
         </div>
       </MorphContainer>
     </div>
+    </FramePortal>
   );
 }

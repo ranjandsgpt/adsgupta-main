@@ -22,7 +22,7 @@ export default function Template01DragRevealPuzzleAd() {
     <BatchTemplateFrame templateId={ID} title="Drag-to-Reveal Puzzle Ad" subtitle="Slide the lens to solve the hidden image">
       {({ reducedMotion }) => (
         <>
-          <div className="relative h-64 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-700 to-fuchsia-600">
+          <div className="relative h-52 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-700 to-fuchsia-600">
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
               <Sparkles size={54} className="mb-3 text-amber-300" />
               <p className="text-3xl font-black">25% OFF</p>

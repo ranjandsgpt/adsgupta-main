@@ -32,7 +32,7 @@ export default function Template07SpinWheelOverlay() {
     <BatchTemplateFrame templateId={ID} title="Spin-the-Wheel Overlay" subtitle="Tap once for a locally simulated prize">
       {({ reducedMotion }) => (
         <div className="text-center">
-          <div className="relative mx-auto h-64 w-64">
+          <div className="relative mx-auto h-52 w-52">
             <span className="absolute left-1/2 top-0 z-10 -translate-x-1/2 text-3xl text-white">▼</span>
             <div
               className="grid h-full w-full grid-cols-2 overflow-hidden rounded-full border-8 border-white/20 bg-gradient-to-br from-fuchsia-500 via-amber-400 to-cyan-400 shadow-2xl"

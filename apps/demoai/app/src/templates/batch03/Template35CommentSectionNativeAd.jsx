@@ -7,12 +7,14 @@ const TEMPLATE_ID = 'comment-section-native-ad';
 
 export default function Template35CommentSectionNativeAd() {
   const [liked, setLiked] = useState(false);
+  const [claimed, setClaimed] = useState(false);
   const reducedMotion = useReducedMotion();
   const onDismiss = useCallback((reason) => emitTelemetry('close', { templateId: TEMPLATE_ID, reason }), []);
   const { dismissed, dismiss } = useDismissState({ key: TEMPLATE_ID, onDismiss });
   const viewRef = useViewability({ templateId: TEMPLATE_ID });
   const act = (target) => {
     if (target === 'like') setLiked((value) => !value);
+    if (target === 'claim-offer') setClaimed(true);
     emitTelemetry('click', { templateId: TEMPLATE_ID, target });
     emitTelemetry('complete', { templateId: TEMPLATE_ID, action: target });
   };
@@ -32,7 +34,7 @@ export default function Template35CommentSectionNativeAd() {
           <div className="mt-3 flex flex-wrap gap-2">
             <button type="button" aria-pressed={liked} onClick={() => act('like')} className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-bold ${liked ? 'bg-rose-50 text-rose-700' : 'bg-slate-100'}`}><Heart size={17} fill={liked ? 'currentColor' : 'none'} className={reducedMotion || !liked ? '' : 'animate-pulse'} /> {liked ? 'Liked' : 'Like'}</button>
             <button type="button" onClick={() => act('reply')} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-slate-100 px-4 text-sm font-bold"><MessageCircle size={17} /> Reply</button>
-            <button type="button" onClick={() => act('claim-offer')} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-bold text-white"><Send size={17} /> Claim 20%</button>
+            <button type="button" onClick={() => act('claim-offer')} disabled={claimed} className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-bold ${claimed ? 'bg-emerald-600 text-white' : 'bg-slate-950 text-white'}`}><Send size={17} /> {claimed ? 'Code MORROW20 claimed' : 'Claim 20%'}</button>
           </div>
         </div>
       </div>

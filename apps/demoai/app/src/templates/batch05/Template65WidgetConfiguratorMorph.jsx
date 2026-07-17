@@ -14,8 +14,8 @@ export default function Template65WidgetConfiguratorMorph() {
   return (
     <Batch05Shell templateId={ID} title="Widget to Configurator Morph" className="mx-auto max-w-lg">
       <MorphContainer className="bg-slate-950 p-5 text-white">
-        <div className="flex min-h-[190px] items-center justify-center rounded-2xl bg-white/5">
-          <div className="rounded-[2rem] shadow-2xl" style={{ width: `${80 + size * 1.4}px`, height: `${80 + size * 1.4}px`, backgroundColor: color, transition: reducedMotion ? 'none' : 'all 220ms ease' }} aria-label="Configured product preview" />
+        <div className="flex min-h-[190px] items-center justify-center overflow-hidden rounded-2xl bg-white/5">
+          <div className="rounded-[2rem] shadow-2xl" style={{ width: `${70 + size}px`, height: `${70 + size}px`, backgroundColor: color, transition: reducedMotion ? 'none' : 'all 220ms ease' }} role="img" aria-label="Configured product preview" />
         </div>
         {!expanded ? (
           <button type="button" className={`${buttonClass} mt-4 flex w-full items-center justify-center gap-2 bg-white text-slate-950`} onClick={() => setMorph(true, 'open-configurator')}><Settings2 size={18} /> Customize</button>

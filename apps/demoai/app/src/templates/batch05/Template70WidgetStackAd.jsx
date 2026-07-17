@@ -30,6 +30,7 @@ export default function Template70WidgetStackAd() {
             if (Math.abs(delta) > 40) rotate(delta < 0 ? 1 : -1);
             startY.current = null;
           }}
+          onPointerCancel={() => { startY.current = null; }}
         >
           {cards.map((card, index) => (
             <MorphContainer key={card.id} className={`absolute inset-x-0 top-0 flex h-44 items-center justify-between rounded-3xl bg-gradient-to-br ${card.color} p-6 shadow-2xl`} style={{ transform: `translateY(${index * 24}px) scale(${1 - index * 0.05})`, zIndex: cards.length - index, opacity: 1 - index * 0.18 }}>

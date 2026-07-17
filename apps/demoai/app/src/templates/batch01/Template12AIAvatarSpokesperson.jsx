@@ -37,9 +37,9 @@ export default function Template12AIAvatarSpokesperson() {
     <BatchTemplateFrame templateId={ID} title="AI Avatar Spokesperson" subtitle="Synthetic local playback simulation · audio-free">
       {({ reducedMotion }) => (
         <>
-          <div className="relative flex min-h-72 flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-cyan-700 to-slate-950">
-            <div className={`flex h-36 w-36 items-center justify-center rounded-full border-4 border-cyan-300 bg-slate-800 ${playing && !reducedMotion ? 'animate-pulse' : ''}`}>
-              <UserRound size={82} className="text-cyan-100" />
+          <div className="relative flex min-h-56 flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-b from-cyan-700 to-slate-950 py-5">
+            <div className={`flex h-28 w-28 items-center justify-center rounded-full border-4 border-cyan-300 bg-slate-800 ${playing && !reducedMotion ? 'animate-pulse' : ''}`}>
+              <UserRound size={64} className="text-cyan-100" />
             </div>
             <p className="mt-5 max-w-sm px-5 text-center text-sm font-semibold">
               “Meet Nova One: adaptive audio tuned to your day, with forty hours of battery.”

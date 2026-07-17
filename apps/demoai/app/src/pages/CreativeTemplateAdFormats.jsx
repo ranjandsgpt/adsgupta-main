@@ -18,58 +18,109 @@ export const articleContent = [
 ];
 
 const CTA = ({ href = DEMO_CTA_URL, children, className = '', ...props }) => (
-  <a href={href} className={className} {...props}>{children}</a>
+  <a href={href} className={`cursor-pointer ${className}`} {...props}>{children}</a>
 );
 
-export const Interscroller = () => (
-  <div className="my-16 relative w-full h-[80vh] overflow-hidden group border-y border-slate-700/50 rounded-lg" style={{ clipPath: 'inset(0)' }}>
-    <div className="fixed top-0 left-0 w-full h-screen -z-10 bg-slate-950 flex flex-col justify-center items-center">
-      <div className="absolute inset-0 bg-[url(\'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop\')] bg-center bg-cover opacity-60" />
-      <div className="relative z-10 text-center max-w-2xl px-8 ml-0 md:ml-80">
-        <span className="text-cyan-400 font-bold tracking-widest text-sm mb-4 block">IMMERSIVE REVEAL</span>
-        <h3 className="text-4xl md:text-7xl font-black text-white mb-6 leading-tight drop-shadow-2xl">The True Interscroller</h3>
-        <p className="text-lg md:text-xl text-slate-200 mb-8 drop-shadow-md">Seamlessly blends into the content stream. 100% share of voice without disrupting the reading experience.</p>
-        <CTA className="bg-white text-slate-900 font-bold py-4 px-10 rounded-full hover:bg-cyan-400 hover:text-slate-950 transition-all duration-300 transform hover:scale-105 inline-block">Explore Collection</CTA>
-      </div>
-    </div>
-  </div>
-);
+const useScrollReveal = (scrollAreaRef) => {
+  const ref = useRef(null);
+  const [progress, setProgress] = useState(0.5);
+  useEffect(() => {
+    const area = scrollAreaRef?.current;
+    const target = area || window;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const root = area?.getBoundingClientRect() || {
+        top: 0,
+        bottom: document.documentElement.clientHeight,
+        height: document.documentElement.clientHeight,
+      };
+      const value = (root.bottom - rect.top) / Math.max(root.height + rect.height, 1);
+      setProgress(Math.max(0, Math.min(1, value)));
+    };
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    target.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      target.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [scrollAreaRef]);
+  return [ref, progress];
+};
 
-export const StickyFooter = () => (
-  <div className="absolute bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 p-4 flex items-center justify-between shadow-[0_-20px_40px_rgba(0,0,0,0.5)] z-50 animate-slide-up pointer-events-auto">
-    <div className="flex items-center gap-4">
-      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-        <Layers className="text-white" />
-      </div>
-      <div>
-        <h4 className="font-bold text-white text-lg leading-tight">Upgrade Your Workflow</h4>
-        <p className="text-sm text-cyan-400 font-medium">Try the new pro tools today.</p>
+export const Interscroller = ({ scrollAreaRef }) => {
+  const [ref, progress] = useScrollReveal(scrollAreaRef);
+  return (
+    <div ref={ref} className="relative h-[300px] w-full overflow-hidden rounded-xl border border-cyan-500/30 bg-slate-950">
+      <div
+        className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,.5),transparent_35%),linear-gradient(135deg,#020617,#312e81,#0f172a)] transition-transform duration-100"
+        style={{ transform: `translateY(${(0.5 - progress) * 36}px) scale(1.12)` }}
+      />
+      <div className="absolute inset-0 bg-slate-950/25" />
+      <div className="relative flex h-full flex-col items-center justify-center px-5 text-center">
+        <span className="mb-2 block text-[10px] font-bold tracking-[0.22em] text-cyan-300">SPONSORED · IMMERSIVE REVEAL</span>
+        <h3 className="text-3xl font-black leading-tight text-white">The True Interscroller</h3>
+        <p className="my-3 max-w-md text-sm text-slate-200">A high-impact canvas revealed naturally as you read.</p>
+        <CTA className="inline-block rounded-full bg-white px-6 py-2.5 text-sm font-bold text-slate-900 transition hover:bg-cyan-300">Explore Collection</CTA>
       </div>
     </div>
-    <div className="flex gap-4">
-      <button type="button" className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">Dismiss</button>
-      <CTA className="px-6 py-2.5 text-sm font-bold bg-white text-slate-900 rounded-lg hover:bg-slate-200 transition-colors shadow-md">Get Started</CTA>
-    </div>
-  </div>
-);
+  );
+};
 
-export const StickyTopLeaderboard = () => (
-  <div className="absolute top-0 left-0 right-0 bg-indigo-600 border-b border-indigo-500 p-3 flex items-center justify-center shadow-lg z-50 animate-slide-down pointer-events-auto">
-    <div className="flex items-center gap-4 md:gap-6">
+export const StickyFooter = () => {
+  const [visible, setVisible] = useState(true);
+  if (!visible) return null;
+  return (
+    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-50 flex items-center justify-between gap-3 border-t border-slate-700 bg-slate-900/95 p-3 shadow-[0_-12px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500"><Layers className="text-white" size={20} /></div>
+        <div className="min-w-0"><span className="text-[9px] font-bold uppercase tracking-widest text-cyan-400">Sponsored</span><h4 className="truncate text-sm font-bold text-white">Upgrade Your Workflow</h4></div>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        <CTA className="rounded-lg bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-cyan-100">Get Started</CTA>
+        <button type="button" aria-label="Dismiss ad" onClick={() => setVisible(false)} className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full text-slate-300 hover:bg-slate-700 hover:text-white"><X size={18} /></button>
+      </div>
+    </div>
+  );
+};
+
+export const StickyTopLeaderboard = () => {
+  const [visible, setVisible] = useState(true);
+  if (!visible) return null;
+  return (
+  <div className="pointer-events-auto absolute inset-x-0 top-0 z-50 flex items-center justify-center border-b border-indigo-500 bg-indigo-700 p-2 shadow-lg">
+    <div className="flex min-w-0 items-center gap-2">
       <span className="px-2 py-1 bg-white/20 rounded text-xs font-bold text-white uppercase tracking-wider">Ad</span>
-      <p className="text-white font-medium text-sm md:text-base">Get 50% off all enterprise plans this week only.</p>
-      <CTA className="bg-white text-indigo-700 font-bold px-4 py-1.5 rounded-md text-sm hover:bg-indigo-50 transition-colors">Claim Deal</CTA>
+      <p className="truncate text-xs font-medium text-white sm:text-sm">Get 50% off enterprise plans.</p>
+      <CTA className="whitespace-nowrap rounded-md bg-white px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-50">Claim</CTA>
+      <button type="button" aria-label="Dismiss ad" onClick={() => setVisible(false)} className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full text-indigo-100 hover:bg-white/15"><X size={16} /></button>
     </div>
   </div>
-);
+  );
+};
 
 export const ExpandableBanner = () => {
   const [expanded, setExpanded] = useState(false);
   return (
     <div
-      className={`my-8 w-full bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl border border-slate-700 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer relative group ${expanded ? 'h-[400px]' : 'h-[100px]'}`}
+      className={`relative w-full cursor-pointer overflow-hidden rounded-xl border border-slate-700 bg-gradient-to-r from-slate-800 to-slate-900 transition-all duration-500 ${expanded ? 'h-[300px]' : 'h-[100px]'}`}
       onClick={() => setExpanded(!expanded)}
-      onMouseLeave={() => setExpanded(false)}
+      role="button"
+      tabIndex={0}
+      aria-expanded={expanded}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setExpanded((value) => !value);
+        }
+      }}
     >
       <div className="absolute inset-0 flex items-center justify-between p-6 z-20 bg-slate-900/40 backdrop-blur-sm group-hover:bg-slate-900/20 transition-colors">
         <div className="flex items-center gap-4">
@@ -77,21 +128,19 @@ export const ExpandableBanner = () => {
             <Zap className="text-cyan-400" size={20} />
           </div>
           <div>
-            <span className="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-1 block">Interactive Canvas</span>
+            <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-cyan-400">Sponsored · Interactive Canvas</span>
             <h3 className="text-xl font-bold text-white transition-colors">Hover or Click to Expand</h3>
           </div>
         </div>
         <Maximize2 className={`text-cyan-400 transition-transform duration-500 ${expanded ? 'rotate-180 opacity-0' : 'opacity-100'}`} />
       </div>
-      <div className={`absolute top-[100px] left-0 right-0 bottom-0 p-8 transition-opacity duration-500 delay-100 flex flex-col justify-between ${expanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <div className="flex flex-col md:flex-row gap-8 h-full">
-          <div className="w-full md:w-1/2 h-48 md:h-full bg-slate-800 rounded-lg overflow-hidden border border-slate-700 relative">
-            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-80" alt="Tech" />
-          </div>
-          <div className="w-full md:w-1/2 flex flex-col justify-center">
-            <h4 className="text-2xl md:text-3xl font-bold text-white mb-4">Unlock Full Potential</h4>
-            <p className="text-base text-slate-300 mb-8 leading-relaxed">Expanded state allows for rich media and complex interactions without ever forcing the user to leave the page.</p>
-            <CTA className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2 w-fit" onClick={(e) => e.stopPropagation()}>Claim Offer <ChevronRight size={18} /></CTA>
+      <div className={`absolute inset-x-0 bottom-0 top-[100px] p-4 transition-opacity duration-300 ${expanded ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+        <div className="flex h-full items-center gap-4">
+          <div className="hidden h-full w-2/5 rounded-lg border border-cyan-400/30 bg-[radial-gradient(circle_at_35%_30%,#22d3ee,transparent_30%),linear-gradient(135deg,#312e81,#0f172a)] sm:block" role="img" aria-label="Abstract technology artwork" />
+          <div className="flex min-w-0 flex-1 flex-col justify-center">
+            <h4 className="mb-2 text-xl font-bold text-white">Unlock Full Potential</h4>
+            <p className="mb-4 text-sm leading-relaxed text-slate-300">Rich media and useful interactions, contained inside the page.</p>
+            <CTA className="flex w-fit items-center gap-2 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400" onClick={(e) => e.stopPropagation()}>Claim Offer <ChevronRight size={18} /></CTA>
           </div>
         </div>
       </div>
@@ -124,19 +173,18 @@ export const PlayableMini = () => {
   };
 
   return (
-    <div className="my-8 w-full h-[400px] relative rounded-xl border border-slate-700 overflow-hidden group">
-      <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=2000&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-60" alt="Car" />
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/80 to-transparent" />
-      <div className="absolute top-8 left-8 z-10 w-full md:w-1/2">
-        <h3 className="text-3xl md:text-4xl font-black text-white mb-2">The New V8.</h3>
-        <p className="text-slate-300 mb-6">Experience power like never before.</p>
-        <div className="bg-slate-900/80 backdrop-blur-md p-6 rounded-xl border border-slate-600/50 shadow-2xl relative overflow-hidden">
+    <div className="relative h-[300px] w-full overflow-hidden rounded-xl border border-slate-700 bg-[radial-gradient(circle_at_80%_25%,#e11d48,transparent_25%),linear-gradient(120deg,#020617,#1e293b)]">
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/60 to-transparent" />
+      <div className="absolute inset-4 z-10 max-w-sm">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-rose-300">Sponsored playable</span>
+        <h3 className="mb-1 text-2xl font-black text-white">The New V8.</h3>
+        <div className="relative mt-3 overflow-hidden rounded-xl border border-slate-600/50 bg-slate-900/85 p-4 shadow-2xl backdrop-blur-md">
           {gameState === 'start' && (
             <div className="text-center animate-fade-in">
               <Gamepad2 className="mx-auto text-rose-500 mb-3" size={32} />
               <h4 className="text-white font-bold mb-1">Unlock Test Drive</h4>
               <p className="text-xs text-slate-400 mb-4">Tap 3 targets to reveal your exclusive booking link.</p>
-              <button type="button" onClick={startGame} className="bg-rose-600 hover:bg-rose-500 text-white text-sm font-bold py-2 px-6 rounded-full transition-colors">Play Now</button>
+              <button type="button" onClick={startGame} className="cursor-pointer rounded-full bg-rose-600 px-6 py-2 text-sm font-bold text-white hover:bg-rose-500">Play Now</button>
             </div>
           )}
           {gameState === 'playing' && (
@@ -148,6 +196,7 @@ export const PlayableMini = () => {
                 style={{ top: targetPos.top, left: targetPos.left, transform: 'translate(-50%, -50%)' }}
                 onClick={handleHit}
                 onMouseEnter={moveTarget}
+                aria-label="Hit target"
               >
                 <MousePointer2 size={16} className="text-white" />
               </button>
@@ -173,9 +222,9 @@ export const AgenticAd = () => {
   const [confidence, setConfidence] = useState(42);
   const [locked, setLocked] = useState(false);
   const variants = [
-    { bg: 'from-blue-900 to-slate-900', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80', head: 'Need a Vacation?', cta: 'Book Flight', ctaColor: 'bg-blue-500' },
-    { bg: 'from-emerald-900 to-slate-900', img: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=400&q=80', head: 'Escape to Nature.', cta: 'See Resorts', ctaColor: 'bg-emerald-500' },
-    { bg: 'from-rose-900 to-slate-900', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80', head: 'Luxury Awaits.', cta: 'Claim Offer', ctaColor: 'bg-rose-500' },
+    { bg: 'from-blue-900 to-slate-900', art: 'from-cyan-300 via-blue-500 to-indigo-950', head: 'Need a Vacation?', cta: 'Book Flight', ctaColor: 'bg-blue-500' },
+    { bg: 'from-emerald-900 to-slate-900', art: 'from-lime-300 via-emerald-500 to-teal-950', head: 'Escape to Nature.', cta: 'See Resorts', ctaColor: 'bg-emerald-500' },
+    { bg: 'from-rose-900 to-slate-900', art: 'from-amber-200 via-rose-500 to-purple-950', head: 'Luxury Awaits.', cta: 'Claim Offer', ctaColor: 'bg-rose-500' },
   ];
 
   useEffect(() => {
@@ -197,7 +246,7 @@ export const AgenticAd = () => {
 
   const active = variants[iteration];
   return (
-    <div className="my-8 w-full bg-slate-900 rounded-xl border border-slate-700 overflow-hidden relative">
+    <div className="relative w-full overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
       <div className="bg-slate-950 border-b border-slate-800 p-3 flex flex-wrap justify-between items-center gap-2 text-xs font-mono">
         <div className="flex items-center gap-3">
           <div className={`w-2 h-2 rounded-full ${locked ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
@@ -213,16 +262,16 @@ export const AgenticAd = () => {
           </div>
         </div>
       </div>
-      <div className={`p-6 bg-gradient-to-br ${active.bg} transition-colors duration-700`}>
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 relative shadow-lg">
+      <div className={`bg-gradient-to-br p-4 ${active.bg} transition-colors duration-700`}>
+        <div className="flex items-center gap-4">
+          <div className={`relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br ${active.art} shadow-lg`} role="img" aria-label="Generated destination artwork">
             {locked && <div className="absolute inset-0 border-4 border-emerald-500 z-10 rounded-lg shadow-[inset_0_0_20px_rgba(16,185,129,0.5)]" />}
-            <img src={active.img} alt="Dynamic" className="w-full h-full object-cover transition-opacity duration-500" key={active.img} />
           </div>
-          <div className="flex-grow text-center sm:text-left">
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 transition-all duration-500" key={active.head}>{active.head}</h3>
+          <div className="min-w-0 flex-grow">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-300">Sponsored</span>
+            <h3 className="mb-1 text-xl font-bold text-white transition-all duration-500" key={active.head}>{active.head}</h3>
             <p className="text-slate-300 text-sm mb-4">Personalized offer generated based on real-time browsing context.</p>
-            <CTA className={`${active.ctaColor} text-white font-bold py-2 px-6 rounded shadow-lg transition-all duration-500 inline-block`} key={active.cta}>{active.cta}</CTA>
+            <CTA className={`${active.ctaColor} inline-block rounded px-5 py-2 text-sm font-bold text-white shadow-lg transition-all duration-500`} key={active.cta}>{active.cta}</CTA>
           </div>
         </div>
       </div>
@@ -231,9 +280,9 @@ export const AgenticAd = () => {
 };
 
 const initialSwipeCards = [
-  { id: 1, color: 'bg-rose-600', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', title: 'Running Gear' },
-  { id: 2, color: 'bg-blue-600', img: 'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=400', title: 'Street Style' },
-  { id: 3, color: 'bg-emerald-600', img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400', title: 'Trail Mix' },
+  { id: 1, color: 'from-rose-500 to-orange-950', title: 'Running Gear' },
+  { id: 2, color: 'from-blue-400 to-indigo-950', title: 'Street Style' },
+  { id: 3, color: 'from-emerald-400 to-teal-950', title: 'Trail Mix' },
 ];
 
 export const SwipeableCards = () => {
@@ -245,21 +294,21 @@ export const SwipeableCards = () => {
   const handlePointerUp = () => { setIsDragging(false); if (Math.abs(dragX) > 100) setCards((prev) => prev.slice(1)); setDragX(0); };
   if (cards.length === 0) {
     return (
-      <div className="my-8 w-full h-[350px] bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700">
+      <div className="flex h-[300px] w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-800">
         <div className="text-center">
           <h3 className="text-white font-bold mb-2">You&apos;ve seen them all!</h3>
-          <button type="button" onClick={() => setCards(initialSwipeCards)} className="text-cyan-400 text-sm hover:underline">Reset Stack</button>
+          <button type="button" onClick={() => setCards(initialSwipeCards)} className="cursor-pointer text-sm text-cyan-400 hover:underline">Reset Stack</button>
         </div>
       </div>
     );
   }
   return (
-    <div className="my-8 w-full h-[350px] flex items-center justify-center relative select-none">
+    <div className="relative flex h-[300px] w-full select-none items-center justify-center overflow-hidden rounded-xl bg-slate-950/30">
       <div className="absolute inset-0 flex items-center justify-between px-12 opacity-30 pointer-events-none z-0">
         <div className="text-rose-500 font-bold flex flex-col items-center"><X size={32} />Pass</div>
         <div className="text-emerald-500 font-bold flex flex-col items-center"><ShoppingCart size={32} />Save</div>
       </div>
-      <div className="relative w-72 h-80 z-10 perspective-1000">
+      <div className="perspective-1000 relative z-10 h-[280px] w-64">
         {cards.map((card, index) => {
           const isTop = index === 0;
           const rotateStyle = isTop ? dragX * 0.1 : 0;
@@ -276,10 +325,12 @@ export const SwipeableCards = () => {
               onPointerMove={isTop ? handlePointerMove : undefined}
               onPointerUp={isTop ? handlePointerUp : undefined}
               onPointerLeave={isTop ? handlePointerUp : undefined}
+              role={isTop ? 'group' : undefined}
+              aria-label={isTop ? `${card.title}. Drag left to pass or right to save.` : undefined}
             >
-              <div className={`h-1/2 ${card.color} relative`}>
-                <img src={card.img} alt="product" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
+              <div className={`relative h-1/2 bg-gradient-to-br ${card.color}`}>
+                <div className="absolute inset-4 rounded-full border border-white/20 bg-white/10 shadow-[0_0_40px_rgba(255,255,255,.18)]" />
+                <span className="absolute left-3 top-3 rounded bg-black/30 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white">Sponsored</span>
               </div>
               <div className="p-6 h-1/2 flex flex-col justify-between">
                 <div>
@@ -300,15 +351,15 @@ export const QuizAd = () => {
   const [answered, setAnswered] = useState(false);
   const options = ['Cloud Infrastructure', 'AI / Machine Learning', 'Cybersecurity', 'Data Analytics'];
   return (
-    <div className="my-8 w-full bg-gradient-to-br from-indigo-900 to-purple-900 rounded-xl p-8 border border-indigo-500/30 text-white relative overflow-hidden">
+    <div className="relative w-full overflow-hidden rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900 to-purple-900 p-5 text-white">
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
       {!answered ? (
         <div className="relative z-10 animate-fade-in">
-          <span className="text-indigo-300 text-xs font-bold tracking-widest uppercase mb-2 block">Quick Poll</span>
-          <h3 className="text-2xl font-bold mb-6">What is your top IT priority for 2026?</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-indigo-300">Sponsored · Quick Poll</span>
+          <h3 className="mb-4 text-xl font-bold">What is your top IT priority for 2026?</h3>
+          <div className="grid grid-cols-2 gap-2">
             {options.map((opt, i) => (
-              <button key={i} type="button" onClick={() => setAnswered(true)} className="bg-indigo-950/50 hover:bg-indigo-600 border border-indigo-500/50 rounded-lg p-4 text-left transition-colors font-medium flex items-center justify-between group">
+              <button key={opt} type="button" onClick={() => setAnswered(true)} className="group flex cursor-pointer items-center justify-between rounded-lg border border-indigo-500/50 bg-indigo-950/50 p-3 text-left text-xs font-medium transition-colors hover:bg-indigo-600">
                 {opt}
                 <div className="w-5 h-5 rounded-full border-2 border-indigo-400 group-hover:border-white" />
               </button>
@@ -342,16 +393,17 @@ export const ProgressBarAd = () => {
     return () => clearInterval(timer);
   }, [isVisible]);
   return (
-    <div ref={ref} className="my-8 w-full bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-lg relative h-48 flex items-center px-8">
+    <div ref={ref} className="relative flex h-48 w-full items-center overflow-hidden rounded-xl border border-slate-700 bg-slate-800 px-5 shadow-lg">
       <div className="z-10 w-full">
         <div className="flex justify-between items-end mb-4">
           <div>
-            <h3 className="text-2xl font-bold text-white mb-1">Attention Rewarded</h3>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-cyan-400">Sponsored reward</span>
+            <h3 className="text-xl font-bold text-white">Attention Rewarded</h3>
             <p className="text-slate-400 text-sm">View this ad to unlock premium content.</p>
           </div>
           <div className="text-cyan-400 font-mono font-bold text-xl">{progress}%</div>
         </div>
-        <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+        <div className="h-3 w-full overflow-hidden rounded-full border border-slate-700 bg-slate-900" role="progressbar" aria-label="Ad view progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progress}>
           <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-100 ease-linear" style={{ width: `${progress}%` }} />
         </div>
         {progress === 100 && (
@@ -369,7 +421,7 @@ export const ProgressBarAd = () => {
 
 export const OutstreamVideo = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const ref = useRef(null);
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -381,14 +433,13 @@ export const OutstreamVideo = () => {
     return () => observer.disconnect();
   }, []);
   return (
-    <div ref={ref} className={`my-8 w-full bg-black rounded-xl border border-slate-700 overflow-hidden transition-all duration-700 ${isVisible ? 'h-[400px] opacity-100' : 'h-0 opacity-0 my-0 border-0'}`}>
-      <div className="relative w-full h-full">
-        <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover opacity-80" alt="Video" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6">
-          <span className="text-white text-xs bg-slate-800/80 px-2 py-1 rounded absolute top-4 left-4 font-bold">SPONSORED VIDEO</span>
+    <div ref={ref} className={`w-full overflow-hidden rounded-xl border border-slate-700 bg-black transition-all duration-500 ${isVisible ? 'h-[300px] opacity-100' : 'h-0 border-0 opacity-0'}`}>
+      <div className="relative h-full w-full bg-[radial-gradient(circle_at_70%_30%,#7c3aed,transparent_30%),linear-gradient(135deg,#020617,#1e1b4b,#0f172a)]">
+        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-transparent to-transparent p-5">
+          <span className="absolute left-4 top-4 rounded bg-slate-800/80 px-2 py-1 text-xs font-bold text-white">SPONSORED VIDEO</span>
           <h3 className="text-2xl font-bold text-white mb-2">The Future of Cinematic Experiences</h3>
           <div className="flex items-center justify-between">
-            <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="w-10 h-10 rounded-full bg-white/20 backdrop-blur border border-white/50 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors">
+            <button type="button" aria-label={isPlaying ? 'Pause sponsored video' : 'Play sponsored video'} onClick={() => setIsPlaying(!isPlaying)} className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/50 bg-white/20 text-white backdrop-blur transition-colors hover:bg-white hover:text-black">
               {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-1" />}
             </button>
             <CTA className="bg-white text-black px-4 py-2 rounded font-bold text-sm">Watch Full Film</CTA>
@@ -401,28 +452,28 @@ export const OutstreamVideo = () => {
 
 export const FloatingVideo = () => {
   const [isFloating, setIsFloating] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
+    if (dismissed) return undefined;
     const observer = new IntersectionObserver(([entry]) => setIsFloating(!entry.isIntersecting), { threshold: 0.1 });
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, []);
+  }, [dismissed]);
+  if (dismissed) return null;
   return (
     <>
       <div ref={ref} className="h-1 w-full bg-transparent" />
       <div className={`w-full transition-all duration-300 ${isFloating ? 'h-[300px] mb-8' : 'h-0 mb-0'}`} />
-      <div className={`transition-all duration-500 z-40 ${isFloating ? 'fixed bottom-20 sm:bottom-6 left-3 right-3 sm:left-auto sm:right-6 w-auto sm:w-80 max-w-[calc(100vw-1.5rem)] shadow-2xl rounded-xl border-2 border-slate-600' : 'relative my-8 w-full h-[300px] rounded-xl border border-slate-700 shadow-lg'} overflow-hidden bg-black group`}>
-        <img src="https://images.unsplash.com/photo-1616469829581-73993eb86b02?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover opacity-90" alt="Video" />
-        <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none group-hover:bg-black/40 transition-colors">
-          <div className="w-16 h-16 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/50">
-            <Play className="text-white ml-1" size={24} />
-          </div>
-        </div>
-        {isFloating && (
-          <button type="button" onClick={() => setIsFloating(false)} className="absolute top-2 right-2 bg-black/50 p-1 rounded-full text-white hover:bg-rose-500 z-10"><X size={14} /></button>
-        )}
+      <div className={`group z-40 overflow-hidden bg-[radial-gradient(circle_at_60%_30%,#06b6d4,transparent_28%),linear-gradient(135deg,#0f172a,#312e81)] transition-all duration-500 ${isFloating ? 'absolute bottom-4 left-3 right-3 h-44 w-auto rounded-xl border-2 border-slate-600 shadow-2xl sm:left-auto sm:right-6 sm:w-72' : 'relative h-[280px] w-full rounded-xl border border-slate-700 shadow-lg'}`}>
+        <button type="button" aria-label={isPlaying ? 'Pause video' : 'Play video'} onClick={() => setIsPlaying((value) => !value)} className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/20 transition-colors hover:bg-black/40">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/50 bg-white/30 backdrop-blur-md">{isPlaying ? <Pause className="text-white" size={22} /> : <Play className="ml-1 text-white" size={22} />}</span>
+        </button>
+        <button type="button" onClick={() => setDismissed(true)} aria-label="Close floating video ad" className="absolute right-2 top-2 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white hover:bg-rose-500"><X size={16} /></button>
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black p-3">
-          <p className="text-white font-medium text-sm line-clamp-1">Live: Product Keynote 2026</p>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-cyan-300">Sponsored video</span>
+          <p className="line-clamp-1 text-sm font-medium text-white">Live: Product Keynote 2026</p>
         </div>
       </div>
     </>
@@ -431,9 +482,9 @@ export const FloatingVideo = () => {
 
 export const CarouselAd = () => {
   const slides = [
-    { title: 'Performance', color: 'from-rose-500 to-orange-400', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80' },
-    { title: 'Analytics', color: 'from-blue-500 to-cyan-400', img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&q=80' },
-    { title: 'Growth', color: 'from-emerald-500 to-teal-400', img: 'https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=500&q=80' }
+    { title: 'Performance', color: 'from-rose-500 to-orange-400' },
+    { title: 'Analytics', color: 'from-blue-500 to-cyan-400' },
+    { title: 'Growth', color: 'from-emerald-500 to-teal-400' }
   ];
   return (
     <div className="my-8 w-full bg-slate-800 rounded-xl border border-slate-700 p-4">
@@ -443,9 +494,9 @@ export const CarouselAd = () => {
       </div>
       <div className="flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4 hide-scrollbar">
         {slides.map((slide, i) => (
-          <div key={i} className="min-w-[80%] md:min-w-[60%] h-64 snap-center rounded-lg overflow-hidden relative group cursor-pointer">
+          <div key={slide.title} className="group relative h-56 min-w-[82%] cursor-pointer snap-center overflow-hidden rounded-lg">
             <div className={`absolute inset-0 bg-gradient-to-br ${slide.color} opacity-80 mix-blend-multiply`} />
-            <img src={slide.img} alt={slide.title} className="absolute inset-0 w-full h-full object-cover mix-blend-overlay group-hover:scale-110 transition-transform duration-700" />
+            <div className="absolute inset-6 rounded-full border border-white/20 bg-white/10 transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 p-6 flex flex-col justify-end">
               <h3 className="text-2xl font-bold text-white mb-2">{slide.title}</h3>
               <CTA className="bg-white/20 backdrop-blur-sm border border-white/50 text-white px-4 py-2 rounded-md w-max hover:bg-white hover:text-slate-900 transition-colors inline-block">View Details</CTA>
@@ -465,19 +516,18 @@ export const ShoppableHotspots = () => {
     { id: 3, top: '75%', left: '25%', title: 'Wool Rug', price: '$249' }
   ];
   return (
-    <div className="my-8 relative w-full rounded-xl overflow-hidden border border-slate-700">
-      <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1000&auto=format&fit=crop" alt="Room" className="w-full h-[400px] object-cover" />
+    <div className="relative h-[300px] w-full overflow-hidden rounded-xl border border-slate-700 bg-[linear-gradient(155deg,#f8fafc_0_42%,#cbd5e1_42%_47%,#475569_47%)]" role="img" aria-label="Stylized modern room">
       <div className="absolute inset-0 bg-slate-900/20 pointer-events-none" />
       <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-2 border border-white/20">
         <ShoppingCart size={14} className="text-white" />
-        <span className="text-white text-xs font-medium">SHOP THE LOOK</span>
+        <span className="text-xs font-medium text-white">SPONSORED · SHOP THE LOOK</span>
       </div>
       {spots.map((spot) => (
         <div key={spot.id} className="absolute" style={{ top: spot.top, left: spot.left }} onMouseEnter={() => setActiveSpot(spot.id)} onMouseLeave={() => setActiveSpot(null)}>
-          <div className="relative flex items-center justify-center w-8 h-8 cursor-pointer group">
+          <button type="button" aria-label={`View ${spot.title}, ${spot.price}`} onClick={() => setActiveSpot(activeSpot === spot.id ? null : spot.id)} className="group relative flex h-10 w-10 cursor-pointer items-center justify-center">
             <div className="absolute w-full h-full bg-white rounded-full opacity-40 animate-ping" />
             <div className="w-3 h-3 bg-white rounded-full shadow-lg" />
-          </div>
+          </button>
           <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-white text-slate-900 px-4 py-2 rounded-lg shadow-xl min-w-[140px] transition-all duration-200 ${activeSpot === spot.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
             <div className="font-bold text-sm whitespace-nowrap">{spot.title}</div>
             <div className="text-cyan-600 font-medium">{spot.price}</div>
@@ -489,31 +539,31 @@ export const ShoppableHotspots = () => {
 };
 
 export const FullScreenTakeover = ({ onClose }) => (
-  <div className="absolute inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-8 animate-fade-in pointer-events-auto">
-    <button type="button" onClick={onClose} className="absolute top-6 right-6 p-3 bg-slate-800 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 transition-colors shadow-lg border border-slate-700">
+  <div className="creative-frame-takeover absolute inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-slate-950 p-6 animate-fade-in pointer-events-auto sm:p-8">
+    <button type="button" aria-label="Close takeover ad" onClick={onClose} className="absolute top-4 right-4 flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white sm:top-6 sm:right-6">
       <X size={24} />
     </button>
-    <div className="max-w-2xl text-center space-y-6">
-      <span className="inline-block px-4 py-1 bg-rose-500/20 text-rose-400 rounded-full text-sm font-bold tracking-widest uppercase border border-rose-500/30">Limited Time Takeover</span>
-      <h2 className="text-4xl md:text-7xl font-black text-white leading-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-orange-500">Command Attention.</h2>
-      <p className="text-xl text-slate-300">High-impact, immersive experiences that guarantee 100% share of voice.</p>
-      <div className="pt-8 flex justify-center gap-4 flex-wrap">
-        <CTA className="bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-400 hover:to-orange-400 text-white font-bold text-lg py-4 px-12 rounded-full shadow-lg transition-all">Explore Features</CTA>
-        <button type="button" onClick={onClose} className="bg-transparent border border-slate-600 text-slate-300 hover:bg-slate-800 font-bold text-lg py-4 px-8 rounded-full transition-colors">Return to Site</button>
+    <div className="max-w-2xl space-y-4 text-center sm:space-y-6">
+      <span className="inline-block rounded-full border border-rose-500/30 bg-rose-500/20 px-4 py-1 text-sm font-bold uppercase tracking-widest text-rose-400">Limited Time Takeover</span>
+      <h2 className="bg-gradient-to-r from-rose-400 to-orange-500 bg-clip-text text-3xl font-black leading-tight text-transparent sm:text-5xl">Command Attention.</h2>
+      <p className="text-base text-slate-300 sm:text-xl">High-impact, immersive experiences that guarantee 100% share of voice.</p>
+      <div className="flex flex-wrap justify-center gap-3 pt-4 sm:gap-4 sm:pt-8">
+        <CTA className="rounded-full bg-gradient-to-r from-rose-500 to-orange-500 px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:from-rose-400 hover:to-orange-400 sm:px-12 sm:py-4 sm:text-lg">Explore Features</CTA>
+        <button type="button" onClick={onClose} className="rounded-full border border-slate-600 bg-transparent px-6 py-3 text-base font-bold text-slate-300 transition-colors hover:bg-slate-800 sm:px-8 sm:py-4 sm:text-lg">Return to Site</button>
       </div>
     </div>
   </div>
 );
 
 export const PushNotification = ({ onClose }) => (
-  <div className="absolute top-6 right-6 w-80 bg-slate-800 border border-slate-600 rounded-xl shadow-2xl p-4 flex gap-4 z-50 animate-slide-in-right pointer-events-auto">
+  <div className="pointer-events-auto absolute left-3 right-3 top-3 z-50 flex gap-3 rounded-xl border border-slate-600 bg-slate-800 p-4 shadow-2xl sm:left-auto sm:right-6 sm:top-6 sm:w-80">
     <div className="flex-shrink-0 pt-1">
       <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400"><BellRing size={20} /></div>
     </div>
     <div className="flex-grow">
       <div className="flex justify-between items-start mb-1">
         <h4 className="font-bold text-white text-sm">New Message</h4>
-        <button type="button" onClick={onClose} className="text-slate-400 hover:text-white"><X size={14} /></button>
+        <button type="button" aria-label="Dismiss notification ad" onClick={onClose} className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-slate-400 hover:bg-slate-700 hover:text-white"><X size={16} /></button>
       </div>
       <p className="text-xs text-slate-300 mb-3">Your personalized offer is ready. Claim your 50% discount now.</p>
       <CTA className="text-xs font-bold bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-400 transition-colors shadow-md inline-block">View Offer</CTA>
@@ -521,36 +571,36 @@ export const PushNotification = ({ onClose }) => (
   </div>
 );
 
-export const AnchorAd = () => (
-  <div className="absolute bottom-6 right-6 bg-slate-800 border border-slate-600 rounded-xl p-4 shadow-2xl flex items-center gap-4 z-50 hover:bg-slate-700 transition-colors cursor-pointer group animate-fade-in-up pointer-events-auto w-72">
+export const AnchorAd = () => {
+  const [visible, setVisible] = useState(true);
+  if (!visible) return null;
+  return (
+  <aside className="group pointer-events-auto absolute bottom-4 left-3 right-3 z-50 flex items-center gap-3 rounded-xl border border-slate-600 bg-slate-800 p-3 shadow-2xl transition-colors hover:bg-slate-700 sm:bottom-6 sm:left-auto sm:right-6 sm:w-72">
     <div className="w-12 h-12 bg-indigo-500 rounded-lg flex items-center justify-center text-white shrink-0">
       <MoveRight className="group-hover:translate-x-1 transition-transform" />
     </div>
     <div className="flex-grow">
-      <div className="text-[10px] text-indigo-400 font-bold mb-1 tracking-wider uppercase">Next Article</div>
-      <div className="text-sm text-white font-medium leading-tight">The Future of Cookie-less Targeting</div>
+      <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-indigo-400">Sponsored · Next Article</div>
+      <CTA className="block text-sm font-medium leading-tight text-white hover:text-indigo-200">The Future of Cookie-less Targeting</CTA>
     </div>
-    <button type="button" className="text-slate-400 hover:text-white p-1 rounded-full"><X size={14} /></button>
-  </div>
-);
+    <button type="button" aria-label="Dismiss anchor ad" onClick={(event) => { event.stopPropagation(); setVisible(false); }} className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-slate-400 hover:bg-slate-600 hover:text-white"><X size={16} /></button>
+  </aside>
+  );
+};
 
 export const DoubleXClose = () => {
   const [stage, setStage] = useState(0);
-  const [fakePos, setFakePos] = useState({ top: '10%', left: '80%' });
-  const handleFakeHover = () => {
-    if (stage === 0) setFakePos({ top: (10 + Math.random() * 70) + '%', left: (10 + Math.random() * 70) + '%' });
-  };
   if (stage === 2) return null;
   return (
     <div className="my-8 w-full bg-rose-950/40 border border-rose-900 rounded-lg p-6 relative overflow-hidden text-center flex flex-col items-center justify-center min-h-[150px]">
       <AlertCircle className="text-rose-500 mb-2 opacity-50" size={32} />
       <h3 className="text-white font-bold text-lg mb-1">Don&apos;t Miss Out!</h3>
-      <p className="text-rose-200/70 text-sm">Double-tap the real close to dismiss. First X moves.</p>
+      <p className="text-rose-200/70 text-sm">A two-step close confirms before dismissing this experimental ad.</p>
       {stage === 0 && (
-        <button type="button" className="absolute text-rose-400 hover:text-white p-2 transition-all duration-200" style={fakePos} onMouseEnter={handleFakeHover} onClick={() => setStage(1)}><X size={16} /></button>
+        <button type="button" aria-label="Start closing ad" className="absolute right-2 top-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-rose-300 hover:bg-rose-900 hover:text-white" onClick={() => setStage(1)}><X size={18} /></button>
       )}
       {stage === 1 && (
-        <button type="button" className="absolute top-2 right-2 text-xs text-slate-500 hover:text-slate-300 underline" onClick={() => setStage(2)}>Close ad</button>
+        <button type="button" className="absolute right-3 top-3 cursor-pointer rounded-lg bg-white px-3 py-2 text-xs font-bold text-rose-900 hover:bg-rose-100" onClick={() => setStage(2)}>Confirm close</button>
       )}
     </div>
   );
@@ -568,7 +618,8 @@ export const CountdownAd = () => {
       <div className="flex items-center gap-4 z-10 mb-4 md:mb-0">
         <div className="bg-black/20 p-3 rounded-full"><Timer size={24} /></div>
         <div>
-          <h3 className="font-bold text-xl leading-none mb-1">Flash Sale Ending Soon!</h3>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-orange-100">Sponsored flash sale</span>
+          <h3 className="mb-1 text-xl font-bold leading-none">Flash Sale Ending Soon!</h3>
           <p className="text-orange-100 text-sm">Use code FLASH50 at checkout.</p>
         </div>
       </div>
@@ -583,19 +634,20 @@ export const CountdownAd = () => {
 export const MarqueeTicker = () => (
   <div className="absolute top-0 left-0 right-0 bg-cyan-600 text-white overflow-hidden whitespace-nowrap flex items-center h-10 z-40 pointer-events-auto shadow-md">
     <div className="animate-marquee-wide inline-block font-bold text-sm tracking-widest">
-      BREAKING NEWS: NEW PROGRAMMATIC AD FORMATS LAUNCHED • INCREASE ROI BY 300% • TRY INTERACTIVE TEMPLATES TODAY •
-      BREAKING NEWS: NEW PROGRAMMATIC AD FORMATS LAUNCHED • INCREASE ROI BY 300% • TRY INTERACTIVE TEMPLATES TODAY •
+      SPONSORED • NEW PROGRAMMATIC AD FORMATS LAUNCHED • INCREASE ROI BY 300% • TRY INTERACTIVE TEMPLATES TODAY •
+      SPONSORED • NEW PROGRAMMATIC AD FORMATS LAUNCHED • INCREASE ROI BY 300% • TRY INTERACTIVE TEMPLATES TODAY •
     </div>
   </div>
 );
 
 export const PeelBackCorner = () => (
-  <div className="absolute top-0 right-0 w-32 h-32 overflow-hidden z-50 pointer-events-none">
-    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-rose-500 to-orange-500 text-white p-4 font-bold rounded-bl-3xl shadow-[inset_0_0_20px_rgba(0,0,0,0.3)] pointer-events-auto origin-top-right transition-transform duration-500 translate-x-32 -translate-y-32 hover:translate-x-0 hover:-translate-y-0 flex flex-col items-end cursor-pointer">
+  <div className="pointer-events-none absolute right-0 top-0 z-50 h-64 w-64 overflow-hidden">
+    <div className="group absolute right-0 top-0 flex h-64 w-64 translate-x-32 -translate-y-32 cursor-pointer flex-col items-end rounded-bl-3xl bg-gradient-to-bl from-rose-500 to-orange-500 p-4 font-bold text-white shadow-[inset_0_0_20px_rgba(0,0,0,0.3)] transition-transform duration-500 hover:translate-x-0 hover:translate-y-0 focus-within:translate-x-0 focus-within:translate-y-0 pointer-events-auto">
       <div className="mt-16 mr-12 text-right">
+        <span className="block text-[9px] uppercase tracking-widest">Sponsored</span>
         <span className="block text-2xl drop-shadow-md">Surprise!</span>
         <span className="block text-sm font-normal">You found the secret offer.</span>
-        <CTA className="mt-2 text-xs bg-white text-rose-600 px-3 py-1 rounded shadow inline-block">Reveal</CTA>
+        <CTA className="mt-2 inline-block rounded bg-white px-3 py-2 text-xs text-rose-600 shadow">Reveal</CTA>
       </div>
     </div>
   </div>
@@ -605,27 +657,31 @@ export const RotatingCubeAd = ({ scrollAreaRef }) => {
   const [rot, setRot] = useState({ x: -20, y: 45 });
   const ref = useRef(null);
   useEffect(() => {
-    const el = scrollAreaRef?.current || document.getElementById('demo-scroll-area');
+    const el = scrollAreaRef?.current;
+    const target = el || window;
     const handleScroll = () => {
-      if (!ref.current || !el) return;
+      if (!ref.current) return;
       const rect = ref.current.getBoundingClientRect();
-      const progress = (window.innerHeight - rect.top) / window.innerHeight;
+      const scrollRect = el?.getBoundingClientRect() || { bottom: document.documentElement.clientHeight, height: document.documentElement.clientHeight };
+      const progress = (scrollRect.bottom - rect.top) / Math.max(scrollRect.height, 1);
       setRot({ x: -20 + progress * 180, y: 45 + progress * 90 });
     };
-    if (el) { el.addEventListener('scroll', handleScroll); return () => el.removeEventListener('scroll', handleScroll); }
+    handleScroll();
+    target.addEventListener('scroll', handleScroll, { passive: true });
+    return () => target.removeEventListener('scroll', handleScroll);
   }, [scrollAreaRef]);
   const faces = [
-    { side: 'Exclusive', transform: 'rotateY(0deg) translateZ(100px)', bg: 'bg-gradient-to-br from-rose-500 to-orange-500' },
-    { side: 'Offers', transform: 'rotateY(180deg) translateZ(100px)', bg: 'bg-gradient-to-br from-blue-500 to-cyan-500' },
-    { side: 'Inside', transform: 'rotateY(90deg) translateZ(100px)', bg: 'bg-gradient-to-br from-emerald-500 to-teal-500' },
-    { side: 'Click', transform: 'rotateY(-90deg) translateZ(100px)', bg: 'bg-gradient-to-br from-amber-500 to-orange-500' },
-    { side: 'Now', transform: 'rotateX(90deg) translateZ(100px)', bg: 'bg-gradient-to-br from-purple-500 to-indigo-500' },
-    { side: '3D Ad', transform: 'rotateX(-90deg) translateZ(100px)', bg: 'bg-gradient-to-br from-slate-700 to-slate-900' },
+    { side: 'Exclusive', transform: 'rotateY(0deg) translateZ(80px)', bg: 'bg-gradient-to-br from-rose-500 to-orange-500' },
+    { side: 'Offers', transform: 'rotateY(180deg) translateZ(80px)', bg: 'bg-gradient-to-br from-blue-500 to-cyan-500' },
+    { side: 'Inside', transform: 'rotateY(90deg) translateZ(80px)', bg: 'bg-gradient-to-br from-emerald-500 to-teal-500' },
+    { side: 'Click', transform: 'rotateY(-90deg) translateZ(80px)', bg: 'bg-gradient-to-br from-amber-500 to-orange-500' },
+    { side: 'Now', transform: 'rotateX(90deg) translateZ(80px)', bg: 'bg-gradient-to-br from-purple-500 to-indigo-500' },
+    { side: '3D Ad', transform: 'rotateX(-90deg) translateZ(80px)', bg: 'bg-gradient-to-br from-slate-700 to-slate-900' },
   ];
   return (
-    <div className="my-16 h-[350px] flex flex-col items-center justify-center w-full bg-slate-900 rounded-xl border border-slate-800 shadow-inner relative overflow-hidden" style={{ perspective: '800px' }}>
-      <span className="absolute top-4 left-4 text-xs font-mono text-slate-500">SCROLL TO ROTATE</span>
-      <div ref={ref} className="relative w-[200px] h-[200px] transition-transform duration-75 ease-out cursor-pointer hover:scale-110 preserve-3d" style={{ transform: `rotateX(${rot.x}deg) rotateY(${rot.y}deg)` }}>
+    <div className="relative flex h-[300px] w-full flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-inner" style={{ perspective: '800px' }}>
+      <span className="absolute left-4 top-4 text-[10px] font-mono text-slate-400">SPONSORED · SCROLL TO ROTATE</span>
+      <div ref={ref} className="preserve-3d relative h-[160px] w-[160px] cursor-pointer transition-transform duration-75 ease-out hover:scale-105" style={{ transform: `rotateX(${rot.x}deg) rotateY(${rot.y}deg)` }}>
         {faces.map((f, i) => (
           <div key={i} className={`absolute w-full h-full ${f.bg} opacity-95 border border-white/30 flex items-center justify-center shadow-[inset_0_0_40px_rgba(0,0,0,0.3)] backdrop-blur-sm`} style={{ transform: f.transform, backfaceVisibility: 'hidden' }}>
             <div className="text-white font-black text-2xl drop-shadow-lg flex flex-col items-center">
@@ -646,19 +702,19 @@ export const AIBotOverlay = () => {
       {open && (
         <div className="w-72 bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up origin-bottom-left">
           <div className="bg-indigo-600 p-4 text-white flex justify-between items-center">
-            <div className="flex items-center gap-2 font-bold"><Bot size={18} /> Affinity AI</div>
-            <button type="button" onClick={() => setOpen(false)} className="hover:bg-indigo-500 p-1 rounded"><X size={14} /></button>
+            <div className="flex items-center gap-2 font-bold"><Bot size={18} /> Sponsored · Affinity AI</div>
+            <button type="button" aria-label="Close AI assistant" onClick={() => setOpen(false)} className="flex h-9 w-9 cursor-pointer items-center justify-center rounded hover:bg-indigo-500"><X size={16} /></button>
           </div>
           <div className="p-4 bg-slate-900 text-sm">
             <p className="text-slate-300 mb-4 bg-slate-800 p-3 rounded-lg rounded-tl-none inline-block">Looking for an enterprise DSP solution?</p>
             <div className="flex flex-col gap-2">
               <CTA className="border border-indigo-500 text-indigo-400 hover:bg-indigo-500 hover:text-white px-3 py-2 rounded-lg transition-colors text-left">Yes, show me features</CTA>
-              <button type="button" className="border border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-lg transition-colors text-left">No, just browsing</button>
+              <button type="button" onClick={() => setOpen(false)} className="cursor-pointer rounded-lg border border-slate-600 px-3 py-2 text-left text-slate-400 transition-colors hover:bg-slate-700 hover:text-white">No, just browsing</button>
             </div>
           </div>
         </div>
       )}
-      <button type="button" onClick={() => setOpen(!open)} className="w-14 h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 relative">
+      <button type="button" aria-label={open ? 'Close AI commerce assistant' : 'Open AI commerce assistant'} aria-expanded={open} onClick={() => setOpen(!open)} className="relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-transform hover:scale-110 hover:bg-indigo-500">
         <MessageCircle size={24} className={open ? 'hidden' : 'block'} />
         <X size={24} className={open ? 'block' : 'hidden'} />
         {!open && <span className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-slate-900 animate-pulse" />}
@@ -667,23 +723,18 @@ export const AIBotOverlay = () => {
   );
 };
 
-export const ScrollMorphBanner = () => {
-  const [ratio, setRatio] = useState(0);
-  const ref = useRef(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setRatio(entry.intersectionRatio), { threshold: Array.from({ length: 20 }, (_, i) => i * 0.05) });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+export const ScrollMorphBanner = ({ scrollAreaRef }) => {
+  const [ref, ratio] = useScrollReveal(scrollAreaRef);
   const scale = 0.85 + ratio * 0.15;
   const borderRadius = 40 - ratio * 24;
   const opacity = 0.4 + ratio * 0.6;
   return (
-    <div className="my-16 w-full h-[300px] flex items-center justify-center relative perspective-1000">
-      <div ref={ref} className="w-full h-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-orange-500 flex flex-col justify-center items-center text-center p-8 transition-all duration-75 ease-out shadow-2xl relative overflow-hidden group cursor-pointer" style={{ transform: `scale(${scale})`, borderRadius: `${borderRadius}px`, opacity }}>
-        <Sparkles className="text-white/80 mb-4 drop-shadow-md" size={40} />
-        <h3 className="text-4xl font-black text-white mb-2 tracking-tight drop-shadow-md">Scroll-Adaptive Ad</h3>
-        <p className="text-white/90 font-medium text-lg max-w-md drop-shadow">Changes shape and scale as it reaches the center of your screen.</p>
+    <div className="perspective-1000 relative flex h-[280px] w-full items-center justify-center overflow-hidden">
+      <div ref={ref} className="group relative flex h-full w-full cursor-pointer flex-col items-center justify-center overflow-hidden bg-gradient-to-r from-purple-600 via-fuchsia-600 to-orange-500 p-6 text-center shadow-2xl transition-all duration-75 ease-out" style={{ transform: `scale(${scale})`, borderRadius: `${borderRadius}px`, opacity }}>
+        <span className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/80">Sponsored motion</span>
+        <Sparkles className="mb-3 text-white/80 drop-shadow-md" size={32} />
+        <h3 className="mb-2 text-3xl font-black tracking-tight text-white drop-shadow-md">Scroll-Adaptive Ad</h3>
+        <p className="max-w-md text-sm font-medium text-white/90 drop-shadow">Changes shape and scale as it reaches the center of the frame.</p>
       </div>
     </div>
   );
@@ -696,10 +747,11 @@ export const ParallaxDepthAd = () => {
     setMouse({ x: (e.clientX - rect.left - rect.width / 2) / 25, y: (e.clientY - rect.top - rect.height / 2) / 25 });
   };
   return (
-    <div className="my-12 w-full h-[400px] bg-slate-900 rounded-xl overflow-hidden relative cursor-crosshair border border-slate-700 perspective-1000 shadow-2xl" onMouseMove={handleMove} onMouseLeave={() => setMouse({ x: 0, y: 0 })}>
-      <div className="absolute inset-[-60px] bg-[url(\'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000\')] bg-cover bg-center transition-transform duration-200 ease-out opacity-60" style={{ transform: `translate(${mouse.x * 0.5}px, ${mouse.y * 0.5}px) scale(1.1)` }} />
+    <div className="perspective-1000 relative h-[300px] w-full cursor-crosshair overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl" onMouseMove={handleMove} onMouseLeave={() => setMouse({ x: 0, y: 0 })}>
+      <div className="absolute inset-[-60px] bg-[radial-gradient(circle_at_70%_25%,#06b6d4,transparent_22%),radial-gradient(circle_at_30%_70%,#7c3aed,transparent_26%),linear-gradient(135deg,#020617,#172554)] opacity-80 transition-transform duration-200 ease-out" style={{ transform: `translate(${mouse.x * 0.5}px, ${mouse.y * 0.5}px) scale(1.1)` }} />
       <div className="absolute inset-0 flex flex-col items-center justify-center transition-transform duration-200 ease-out pointer-events-none" style={{ transform: `translate(${mouse.x * -2.5}px, ${mouse.y * -2.5}px)` }}>
-        <h3 className="text-6xl font-black text-white drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] tracking-tighter">DEPTH.</h3>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-200">Sponsored</span>
+        <h3 className="text-5xl font-black tracking-tighter text-white drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">DEPTH.</h3>
         <p className="text-cyan-300 font-bold mt-2 drop-shadow-md uppercase tracking-widest text-sm">True Parallax Unit</p>
         <CTA className="mt-8 bg-cyan-500 text-slate-950 px-8 py-3 rounded-full font-bold shadow-lg pointer-events-auto hover:bg-white hover:scale-105 transition-all">Interact</CTA>
       </div>
@@ -707,45 +759,60 @@ export const ParallaxDepthAd = () => {
   );
 };
 
-export const ContextualHighlightUnit = () => (
-  <div className="my-12 p-8 bg-slate-800/30 border border-slate-700/50 rounded-xl">
-    <span className="text-xs font-mono text-slate-500 mb-4 block">DEMO PARAGRAPH</span>
-    <p className="text-xl text-slate-300 font-serif leading-relaxed relative group inline-block">
+export const ContextualHighlightUnit = () => {
+  const [open, setOpen] = useState(false);
+  return (
+  <div className="rounded-xl border border-slate-700/50 bg-slate-800/30 p-5">
+    <span className="mb-3 block text-[10px] font-mono text-slate-500">SPONSORED CONTEXTUAL DEMO</span>
+    <p className="relative inline-block font-serif text-base leading-relaxed text-slate-300">
       We noticed that{' '}
-      <span className="text-cyan-400 border-b-2 border-dashed border-cyan-400/50 cursor-pointer relative inline-block hover:bg-cyan-900/30 transition-colors group/highlight">
-        programmatic buying
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-72 p-5 bg-slate-800 rounded-xl shadow-2xl opacity-0 group-hover/highlight:opacity-100 transition-all duration-300 pointer-events-none group-hover/highlight:pointer-events-auto z-20 border border-slate-600 translate-y-2 group-hover/highlight:translate-y-0 font-sans text-left">
-          <span className="flex items-center gap-2 text-cyan-400 font-bold text-sm mb-2"><TrendingUp size={16} /> Market Insight</span>
-          <span className="text-slate-200 text-sm block mb-4">Programmatic spending is expected to increase by 40% next year.</span>
-          <CTA className="w-full bg-cyan-500 text-slate-950 font-bold py-2 rounded shadow text-sm hover:bg-cyan-400 block text-center">View Platform</CTA>
-        </span>
+      <span className="relative inline-block">
+        <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="cursor-pointer border-b-2 border-dashed border-cyan-400/50 text-cyan-400 transition-colors hover:bg-cyan-900/30">
+          programmatic buying
+        </button>
       </span>
       {' '}has increased significantly in the last quarter.
     </p>
+    {open && (
+      <div className="mt-3 rounded-xl border border-slate-600 bg-slate-800 p-4 font-sans shadow-xl">
+        <span className="mb-2 flex items-center gap-2 text-sm font-bold text-cyan-400"><TrendingUp size={16} /> Market Insight</span>
+        <span className="mb-3 block text-xs text-slate-200">Programmatic spending is expected to increase by 40% next year.</span>
+        <CTA className="block w-full rounded bg-cyan-500 py-2 text-center text-sm font-bold text-slate-950 shadow hover:bg-cyan-400">View Platform</CTA>
+      </div>
+    )}
   </div>
-);
+  );
+};
 
 export const AIChatMiniAssistant = () => {
   const [messages, setMessages] = useState([{ sender: 'bot', text: 'Hi! Looking for creative ad templates?' }]);
   const [typing, setTyping] = useState(false);
+  const replyTimerRef = useRef(null);
+  useEffect(() => () => {
+    if (replyTimerRef.current) clearTimeout(replyTimerRef.current);
+  }, []);
   const handleReply = (text, responseText) => {
     if (typing) return;
     setMessages((prev) => [...prev, { sender: 'user', text }]);
     setTyping(true);
-    setTimeout(() => { setTyping(false); setMessages((prev) => [...prev, { sender: 'bot', text: responseText }]); }, 1000);
+    replyTimerRef.current = setTimeout(() => {
+      setTyping(false);
+      setMessages((prev) => [...prev, { sender: 'bot', text: responseText }]);
+      replyTimerRef.current = null;
+    }, 1000);
   };
   return (
-    <div className="my-8 w-full bg-slate-900 border border-slate-700 rounded-xl overflow-hidden flex flex-col h-[350px] shadow-xl">
+    <div className="flex h-[300px] w-full flex-col overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
       <div className="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400"><Bot size={16} /></div>
         <div>
-          <h4 className="text-sm font-bold text-white">Ad Assistant</h4>
+          <h4 className="text-sm font-bold text-white">Sponsored Ad Assistant</h4>
           <span className="text-[10px] text-emerald-400 flex items-center gap-1"><div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> Online</span>
         </div>
       </div>
       <div className="flex-grow p-4 overflow-y-auto custom-scrollbar flex flex-col gap-3">
         {messages.map((m, i) => (
-          <div key={i} className={`max-w-[80%] p-3 rounded-xl text-sm ${m.sender === 'bot' ? 'bg-slate-800 text-slate-200 self-start rounded-tl-sm' : 'bg-cyan-600 text-white self-end rounded-tr-sm'}`}>{m.text}</div>
+          <div key={`${m.sender}-${i}-${m.text}`} className={`max-w-[80%] p-3 rounded-xl text-sm ${m.sender === 'bot' ? 'bg-slate-800 text-slate-200 self-start rounded-tl-sm' : 'bg-cyan-600 text-white self-end rounded-tr-sm'}`}>{m.text}</div>
         ))}
         {typing && <div className="bg-slate-800 self-start p-3 rounded-xl rounded-tl-sm flex gap-1 items-center"><span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" /><span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '75ms' }} /><span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} /></div>}
       </div>
@@ -768,11 +835,11 @@ export const SplitScreenSlider = () => {
     setSplitPos((x / rect.width) * 100);
   };
   return (
-    <div ref={containerRef} className="my-12 w-full h-[400px] relative rounded-xl overflow-hidden cursor-ew-resize select-none touch-none shadow-xl border border-slate-700" onMouseMove={handleMove} onTouchMove={handleMove}>
-      <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000" className="absolute inset-0 w-full h-full object-cover" draggable={false} alt="After" />
+    <div ref={containerRef} className="relative h-[300px] w-full cursor-ew-resize touch-none select-none overflow-hidden rounded-xl border border-slate-700 bg-gradient-to-br from-rose-400 to-orange-950 shadow-xl" onMouseMove={handleMove} onTouchMove={handleMove}>
+      <span className="absolute bottom-4 right-4 text-[10px] font-bold uppercase tracking-widest text-white">Sponsored comparison</span>
       <div className="absolute top-4 right-4 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded shadow-lg backdrop-blur z-0">V2.0 Pro</div>
       <div className="absolute inset-0 z-10" style={{ clipPath: `inset(0 ${100 - splitPos}% 0 0)` }}>
-        <img src="https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1000" className="absolute inset-0 w-full h-full object-cover grayscale opacity-80" draggable={false} alt="Before" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-300 via-slate-500 to-slate-950 opacity-90" />
         <div className="absolute top-4 left-4 bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded shadow-lg backdrop-blur">Classic</div>
       </div>
       <div className="absolute top-0 bottom-0 w-1 bg-white shadow-lg z-20" style={{ left: `${splitPos}%`, transform: 'translateX(-50%)' }}>
@@ -786,22 +853,33 @@ export const SplitScreenSlider = () => {
 
 export const MicroCheckoutCommerce = () => {
   const [step, setStep] = useState(0);
-  const handleBuy = () => { setStep(1); setTimeout(() => setStep(2), 2000); };
+  const [color, setColor] = useState('Black');
+  const checkoutTimerRef = useRef(null);
+  useEffect(() => () => {
+    if (checkoutTimerRef.current) clearTimeout(checkoutTimerRef.current);
+  }, []);
+  const handleBuy = () => {
+    setStep(1);
+    checkoutTimerRef.current = setTimeout(() => {
+      setStep(2);
+      checkoutTimerRef.current = null;
+    }, 2000);
+  };
   return (
-    <div className="my-12 w-full bg-slate-800 rounded-xl border border-slate-700 overflow-hidden flex flex-col md:flex-row shadow-xl">
-      <div className="w-full md:w-2/5 h-48 md:h-auto bg-[url(\'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600\')] bg-cover bg-center" />
-      <div className="p-6 md:w-3/5 flex flex-col justify-center bg-slate-900 relative">
+    <div className="flex h-[300px] w-full overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-xl">
+      <div className="hidden w-2/5 items-center justify-center bg-[radial-gradient(circle,#f8fafc_0_12%,#94a3b8_13%_18%,transparent_19%),linear-gradient(135deg,#334155,#0f172a)] sm:flex" role="img" aria-label="Minimalist watch illustration" />
+      <div className="relative flex min-w-0 flex-1 flex-col justify-center bg-slate-900 p-5">
         {step === 0 && (
           <div className="animate-fade-in">
-            <span className="text-amber-500 text-xs font-bold tracking-widest uppercase mb-1 block">Limited Drop</span>
+            <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-amber-500">Sponsored · Limited Drop</span>
             <h3 className="text-2xl font-bold text-white mb-2">Minimalist Watch</h3>
             <p className="text-slate-400 text-sm mb-4">In-ad commerce. Buy directly from the page.</p>
             <div className="flex gap-2 mb-6">
-              {['Black', 'Silver', 'Rose'].map((c) => <button key={c} type="button" className="px-3 py-1 text-xs border border-slate-600 rounded hover:border-white text-slate-300 hover:text-white transition-colors">{c}</button>)}
+              {['Black', 'Silver', 'Rose'].map((c) => <button key={c} type="button" aria-pressed={color === c} onClick={() => setColor(c)} className={`cursor-pointer rounded border px-3 py-1 text-xs transition-colors ${color === c ? 'border-white bg-white text-slate-900' : 'border-slate-600 text-slate-300 hover:border-white hover:text-white'}`}>{c}</button>)}
             </div>
             <div className="flex items-center justify-between">
               <span className="text-2xl font-light text-white">$149</span>
-              <button type="button" onClick={handleBuy} className="bg-white text-slate-900 px-6 py-2 rounded font-bold hover:bg-slate-200 flex items-center gap-2"><CreditCard size={16} /> Buy Now</button>
+              <button type="button" onClick={handleBuy} className="flex cursor-pointer items-center gap-2 rounded bg-white px-5 py-2 font-bold text-slate-900 hover:bg-slate-200"><CreditCard size={16} /> Buy Now</button>
             </div>
           </div>
         )}
@@ -831,9 +909,9 @@ export const LiveDataAdaptiveAd = () => {
   }, []);
   const isSun = weather === 'sunny';
   return (
-    <div className={`my-12 w-full h-[250px] rounded-xl border border-slate-700 overflow-hidden relative transition-colors duration-1000 flex items-center px-4 md:px-8 ${isSun ? 'bg-amber-500/10' : 'bg-blue-600/10'}`}>
+    <div className={`relative flex h-[250px] w-full items-center overflow-hidden rounded-xl border border-slate-700 px-4 transition-colors duration-1000 ${isSun ? 'bg-amber-950' : 'bg-blue-950'}`}>
       <div className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-mono border ${isSun ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>
-        <Activity size={12} className="animate-pulse" /> LIVE WEATHER SYNC
+        <Activity size={12} className="animate-pulse" /> SPONSORED · LIVE WEATHER
       </div>
       <div className="flex items-center gap-6 w-full relative z-10">
         <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center transition-all duration-1000 shrink-0 ${isSun ? 'bg-gradient-to-br from-amber-400 to-orange-500' : 'bg-gradient-to-br from-blue-400 to-indigo-600'}`}>
@@ -850,7 +928,7 @@ export const LiveDataAdaptiveAd = () => {
 };
 
 export const AmbientTakeover = () => (
-  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen">
+  <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden mix-blend-screen" aria-label="Sponsored ambient brand treatment">
     <div className="absolute inset-0 border-[20px] border-cyan-500/10 shadow-[inset_0_0_150px_rgba(6,182,212,0.15)] animate-pulse" />
     <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[100px] animate-pulse" />
     <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '500ms' }} />
@@ -858,12 +936,12 @@ export const AmbientTakeover = () => (
 );
 
 export const SideRailDock = () => (
-  <div className="fixed right-0 top-1/4 sm:top-1/3 z-50 flex flex-col items-end gap-2 pr-1 sm:pr-2 pointer-events-auto max-w-[40vw] sm:max-w-none">
-    {['Deals', 'Video', 'Shop'].map((label, i) => (
-      <div key={i} className="group relative w-12 hover:w-32 h-12 bg-slate-800 border border-slate-600 rounded-l-xl shadow-2xl transition-all duration-300 ease-out cursor-pointer overflow-hidden flex items-center justify-end px-3">
+  <div className="pointer-events-auto absolute right-0 top-1/4 z-50 flex max-w-[40%] flex-col items-end gap-2 pr-1 sm:top-1/3 sm:max-w-none sm:pr-2">
+    {['Deals', 'Video', 'Shop'].map((label) => (
+      <button type="button" aria-label={`Open sponsored ${label}`} key={label} className="group relative flex h-12 w-12 cursor-pointer items-center justify-end overflow-hidden rounded-l-xl border border-slate-600 bg-slate-800 px-3 shadow-2xl transition-all duration-300 ease-out hover:w-32 focus:w-32">
         <span className="text-white font-bold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 absolute left-4 transition-opacity duration-300 delay-100">{label}</span>
         <ChevronLeft size={18} className="text-slate-400 group-hover:text-white shrink-0" />
-      </div>
+      </button>
     ))}
   </div>
 );
@@ -873,7 +951,7 @@ export const InfiniteStickyRibbon = () => (
     <div className="animate-marquee-wide inline-flex items-center gap-8 whitespace-nowrap px-4">
       {[...Array(6)].map((_, i) => (
         <div key={i} className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white/20 rounded flex items-center justify-center text-[10px] font-bold">ITEM</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded bg-white/20 text-[8px] font-bold">AD</div>
           <span className="font-medium text-sm">Sneaker X - $120</span>
           <CTA className="bg-white text-indigo-900 text-xs px-2 py-1 rounded font-bold hover:bg-indigo-50">Buy</CTA>
         </div>
@@ -886,8 +964,8 @@ export const GestureUnlockAd = () => {
   const [val, setVal] = useState(0);
   const unlocked = val >= 99;
   return (
-    <div className="my-12 w-full bg-slate-900 rounded-xl border border-slate-700 p-8 relative overflow-hidden flex flex-col items-center justify-center h-56 shadow-xl">
-      <div className="absolute inset-0 opacity-20 bg-[url(\'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80\')] bg-cover mix-blend-luminosity" />
+    <div className="relative flex h-56 w-full flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-xl">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(34,211,238,.25),transparent_25%),radial-gradient(circle_at_75%_75%,rgba(124,58,237,.3),transparent_30%)]" />
       {unlocked ? (
         <div className="animate-fade-in text-center relative z-10">
           <div className="w-16 h-16 bg-emerald-500/20 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-400">
@@ -898,11 +976,12 @@ export const GestureUnlockAd = () => {
         </div>
       ) : (
         <div className="w-full max-w-sm text-center relative z-10">
-          <h3 className="text-white font-bold mb-6 text-lg">Slide to Reveal Exclusive Offer</h3>
+          <span className="mb-1 block text-[9px] font-bold uppercase tracking-widest text-cyan-400">Sponsored reward</span>
+          <h3 className="mb-5 text-lg font-bold text-white">Slide to Reveal Exclusive Offer</h3>
           <div className="relative w-full h-14 bg-slate-800 rounded-full border border-slate-600 shadow-inner overflow-hidden flex items-center px-1">
             <div className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-cyan-600 to-blue-500 pointer-events-none transition-all" style={{ width: `${val}%` }} />
             <span className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm font-medium pointer-events-none">Swipe Right →</span>
-            <input type="range" min="0" max="100" value={val} onChange={(e) => setVal(Number(e.target.value))} className="w-full h-full opacity-0 cursor-ew-resize absolute inset-0 z-20" />
+            <input type="range" min="0" max="100" value={val} onChange={(e) => setVal(Number(e.target.value))} aria-label="Slide to unlock sponsored offer" className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0" />
             <div className="absolute h-12 w-16 bg-white rounded-full shadow-lg flex items-center justify-center pointer-events-none z-10 border-2 border-slate-200" style={{ left: `calc(${val}% - ${val * 0.16}px)` }}>
               <MoveRight size={20} className="text-slate-900" />
             </div>
@@ -945,11 +1024,11 @@ export const ScratchCardReward = () => {
   const handleTouchMove = (e) => { if (draggingRef.current) scratchAt(e.touches[0].clientX, e.touches[0].clientY); };
   const handleTouchEnd = () => { draggingRef.current = false; };
   return (
-    <div className="my-12 relative w-full h-[300px] rounded-xl overflow-hidden border-2 border-slate-600 shadow-2xl select-none">
+    <div className="relative h-[300px] w-full touch-none select-none overflow-hidden rounded-xl border-2 border-slate-600 shadow-2xl">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-indigo-900 text-white flex flex-col items-center justify-center">
         <Star size={48} className="text-amber-400 mb-4" />
         <h3 className="text-3xl font-black tracking-tight mb-2">You Won!</h3>
-        <p className="text-purple-200 mb-4 font-medium">Use code SCRATCH50</p>
+        <p className="text-purple-200 mb-4 font-medium">Sponsored reward · code SCRATCH50</p>
         <CTA className={`bg-white text-indigo-900 px-6 py-2 rounded font-bold shadow-lg transition-all inline-block ${scratchedCount > 40 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>Shop Now</CTA>
       </div>
       <div
@@ -975,30 +1054,26 @@ export const ScratchCardReward = () => {
   );
 };
 
-export const CinematicStoryAd = () => (
-  <div className="my-24 w-full relative">
-    <div className="h-[250vh]">
-      <div className="h-[70vh] sticky top-20 bg-[url(\'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80\')] bg-cover bg-center overflow-hidden rounded-xl border border-rose-500/50 mb-2 shadow-2xl flex items-end p-8">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent" />
-        <div className="relative z-10 w-full md:w-1/2">
-          <h3 className="text-4xl font-black text-white mb-2">Pace.</h3>
-          <p className="text-rose-200 text-lg">Designed for speed. Engineered for comfort.</p>
-        </div>
-      </div>
-      <div className="h-[70vh] sticky top-24 bg-[url(\'https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?q=80\')] bg-cover bg-center overflow-hidden rounded-xl border border-blue-500/50 mb-2 shadow-2xl flex items-end p-8">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent" />
-        <div className="relative z-10 w-full md:w-1/2">
-          <h3 className="text-4xl font-black text-white mb-2">Style.</h3>
-          <p className="text-blue-200 text-lg">Stand out from the crowd.</p>
-        </div>
-      </div>
-      <div className="h-[70vh] sticky top-28 bg-[url(\'https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80\')] bg-cover bg-center overflow-hidden rounded-xl border border-emerald-500/50 mb-2 shadow-2xl flex items-end p-8">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent" />
-        <div className="relative z-10 w-full md:w-1/2">
-          <h3 className="text-4xl font-black text-white mb-4">Yours.</h3>
-          <CTA className="bg-white text-slate-900 font-bold px-8 py-3 rounded-full hover:bg-slate-200 transition-colors shadow-lg inline-block">Build Your Custom Pair</CTA>
+export const CinematicStoryAd = ({ scrollAreaRef }) => {
+  const [ref, progress] = useScrollReveal(scrollAreaRef);
+  const active = Math.min(2, Math.floor(progress * 3));
+  const scenes = [
+    { title: 'Pace.', copy: 'Designed for speed. Engineered for comfort.', color: 'from-rose-600 via-orange-700 to-slate-950' },
+    { title: 'Style.', copy: 'Stand out from the crowd.', color: 'from-blue-500 via-indigo-700 to-slate-950' },
+    { title: 'Yours.', copy: 'Built around the way you move.', color: 'from-emerald-500 via-teal-700 to-slate-950' },
+  ];
+  return (
+    <div ref={ref} className={`relative h-[300px] w-full overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br ${scenes[active].color} shadow-2xl transition-colors duration-500`}>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_25%,rgba(255,255,255,.28),transparent_20%),linear-gradient(transparent,rgba(2,6,23,.75))]" />
+      <div className="relative flex h-full flex-col justify-between p-5">
+        <div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-widest text-white/80">Sponsored cinematic story</span><span className="text-xs font-bold text-white">{active + 1}/3</span></div>
+        <div>
+          <h3 className="mb-2 text-4xl font-black text-white">{scenes[active].title}</h3>
+          <p className="mb-4 text-sm text-white/85">{scenes[active].copy}</p>
+          {active === 2 && <CTA className="inline-block rounded-full bg-white px-6 py-2.5 text-sm font-bold text-slate-900 shadow-lg hover:bg-emerald-100">Build Your Custom Pair</CTA>}
+          <div className="mt-4 flex gap-2">{scenes.map((scene, index) => <span key={scene.title} className={`h-1.5 flex-1 rounded-full ${index <= active ? 'bg-white' : 'bg-white/25'}`} />)}</div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};

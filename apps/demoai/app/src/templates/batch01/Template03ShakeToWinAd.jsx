@@ -127,9 +127,9 @@ export default function Template03ShakeToWinAd() {
     <BatchTemplateFrame templateId={ID} title="Shake-to-Win Ad" subtitle="Real device motion with a tap fallback">
       {({ reducedMotion }) => (
         <div className="text-center">
-          <div className="relative flex h-64 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-amber-400 to-rose-600">
+          <div className="relative flex h-52 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-amber-400 to-rose-600">
             <div className={shakes > 0 && !won && !reducedMotion ? 'animate-bounce' : ''}>
-              {won ? <Gift size={92} /> : <Smartphone size={92} />}
+              {won ? <Gift size={80} /> : <Smartphone size={80} />}
             </div>
             <div className="absolute bottom-4 flex gap-2" aria-label={`${shakes} of ${TARGET_SHAKES} shakes`}>
               {Array.from({ length: TARGET_SHAKES }, (_, i) => i + 1).map((step) => (

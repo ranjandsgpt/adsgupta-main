@@ -7,6 +7,9 @@ const storageFor = (scope) => {
   return null;
 };
 
+/** Most-recent Escape-enabled dismiss handler wins (modal/overlay stack). */
+const escapeStack = [];
+
 export function useDismissState({
   key,
   scope = 'component',
@@ -32,11 +35,20 @@ export function useDismissState({
 
   useEffect(() => {
     if (!escape || dismissed) return undefined;
+    const entry = { dismiss };
+    escapeStack.push(entry);
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') dismiss('escape');
+      if (event.key !== 'Escape') return;
+      if (escapeStack[escapeStack.length - 1] !== entry) return;
+      event.preventDefault();
+      dismiss('escape');
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      const index = escapeStack.indexOf(entry);
+      if (index >= 0) escapeStack.splice(index, 1);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [dismiss, dismissed, escape]);
 
   return { dismissed, dismiss, reset };

@@ -14,16 +14,17 @@ const frames = [
 export default function Template58MrecStoryMorph() {
   const { expanded, setMorph } = useMorph(ID);
 
-  if (expanded) return <StoryEngine frames={frames} templateId={ID} onDismiss={() => setMorph(false, 'story')} />;
-
   return (
-    <Batch05Shell templateId={ID} title="MREC to Story Morph" className="mx-auto max-w-[360px]">
-      <MorphContainer className="flex min-h-[250px] flex-col justify-between bg-gradient-to-br from-violet-950 via-slate-950 to-cyan-950 p-5 text-white">
-        <div><p className="text-xs font-bold uppercase tracking-[.2em] text-cyan-300">Aperture Stories</p><h3 className="mt-3 text-3xl font-black leading-none">Small canvas.<br />Big chapter.</h3></div>
-        <button type="button" className={`${buttonClass} flex items-center justify-center gap-2 bg-white text-slate-950`} onClick={() => { trackClick(ID, 'open-story'); setMorph(true, 'open-story'); }}>
-          <Play size={18} fill="currentColor" /> Open story
-        </button>
-      </MorphContainer>
-    </Batch05Shell>
+    <>
+      <Batch05Shell templateId={ID} title="MREC to Story Morph" className="mx-auto max-w-[360px]" onClosed={() => { if (expanded) setMorph(false, 'dismiss'); }}>
+        <MorphContainer className="flex min-h-[250px] flex-col justify-between bg-gradient-to-br from-violet-950 via-slate-950 to-cyan-950 p-5 text-white">
+          <div><p className="text-xs font-bold uppercase tracking-[.2em] text-cyan-300">Aperture Stories</p><h3 className="mt-3 text-3xl font-black leading-none">Small canvas.<br />Big chapter.</h3></div>
+          <button type="button" className={`${buttonClass} flex items-center justify-center gap-2 bg-white text-slate-950`} onClick={() => { trackClick(ID, 'open-story'); setMorph(true, 'open-story'); }}>
+            <Play size={18} fill="currentColor" /> Open story
+          </button>
+        </MorphContainer>
+      </Batch05Shell>
+      {expanded && <StoryEngine frames={frames} templateId={ID} onDismiss={() => setMorph(false, 'story')} />}
+    </>
   );
 }

@@ -4,6 +4,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useScrollLock } from '../hooks/useScrollLock';
 import { useViewability } from '../hooks/useViewability';
 import { emitTelemetry } from '../telemetry';
+import { FramePortal } from './FramePortal';
 
 export function StoryEngine({
   frames,
@@ -16,37 +17,42 @@ export function StoryEngine({
   const [frameIndex, setFrameIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [completed, setCompleted] = useState(false);
   const gestureRef = useRef(null);
-  const completedRef = useRef(false);
+  const completeSentRef = useRef(false);
   const frame = frames[frameIndex];
   const isFinal = frameIndex === frames.length - 1;
   useScrollLock(true);
 
   useEffect(() => {
-    if (paused || completedRef.current) return undefined;
+    if (paused || completed) return undefined;
     const tickMs = 80;
     const timer = window.setInterval(() => {
-      setProgress((current) => {
-        const next = current + (tickMs / frameDuration) * 100;
-        if (next < 100) return next;
-        if (frameIndex < frames.length - 1) {
-          setFrameIndex((index) => index + 1);
-          return 0;
-        }
-        if (!completedRef.current) {
-          completedRef.current = true;
-          emitTelemetry('complete', { templateId });
-        }
-        return 100;
-      });
+      setProgress((current) => Math.min(current + (tickMs / frameDuration) * 100, 100));
     }, tickMs);
     return () => window.clearInterval(timer);
-  }, [frameDuration, frameIndex, frames.length, paused, templateId]);
+  }, [completed, frameDuration, frameIndex, paused]);
+
+  // Frame advancement lives outside the setProgress updater so state updaters stay pure.
+  useEffect(() => {
+    if (progress < 100 || completed) return;
+    if (frameIndex < frames.length - 1) {
+      setFrameIndex((index) => index + 1);
+      setProgress(0);
+      return;
+    }
+    setCompleted(true);
+    if (!completeSentRef.current) {
+      completeSentRef.current = true;
+      emitTelemetry('complete', { templateId });
+    }
+  }, [completed, frameIndex, frames.length, progress, templateId]);
 
   const goToFrame = (nextIndex) => {
     const bounded = Math.max(0, Math.min(frames.length - 1, nextIndex));
     setFrameIndex(bounded);
     setProgress(0);
+    setCompleted(false);
   };
 
   const close = (reason) => {
@@ -90,9 +96,10 @@ export function StoryEngine({
   };
 
   return (
+    <FramePortal>
     <div
       ref={viewabilityRef}
-      className={`fixed inset-0 z-[100] touch-none overflow-hidden bg-slate-950 text-white ${frame.background}`}
+      className={`pointer-events-auto fixed inset-0 z-[100] touch-none overflow-hidden bg-slate-950 text-white ${frame.background || ''}`}
       role="dialog"
       aria-modal="true"
       aria-label="Vertical story ad"
@@ -165,5 +172,6 @@ export function StoryEngine({
         <span className="flex items-center gap-1">Tap right <ChevronRight size={16} /></span>
       </div>
     </div>
+    </FramePortal>
   );
 }

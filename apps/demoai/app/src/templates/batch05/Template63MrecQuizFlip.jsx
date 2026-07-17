@@ -14,7 +14,7 @@ export default function Template63MrecQuizFlip() {
 
   return (
     <Batch05Shell templateId={ID} title="MREC to Quiz Flip" className="mx-auto max-w-md">
-      <MorphContainer className="min-h-[300px] bg-gradient-to-br from-amber-300 to-orange-500 p-6 text-slate-950">
+      <MorphContainer className="min-h-[250px] bg-gradient-to-br from-amber-300 to-orange-500 p-6 text-slate-950">
         {answer === null ? (
           <>
             <p className="text-xs font-black uppercase tracking-[.2em]">One-tap quiz</p>

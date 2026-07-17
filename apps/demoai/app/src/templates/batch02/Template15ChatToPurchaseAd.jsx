@@ -105,7 +105,7 @@ export default function Template15ChatToPurchaseAd() {
   return (
     <div ref={viewabilityRef} className="mx-auto w-full max-w-md">
       <NativeWidgetChrome label="Sponsored · Aurea Skincare" title="Concierge chat" onClose={() => dismiss('button')}>
-        <div ref={logRef} className="h-72 space-y-3 overflow-y-auto overscroll-contain p-4" aria-live="polite">
+        <div ref={logRef} className="h-56 space-y-3 overflow-y-auto overscroll-contain p-4" aria-live="polite">
           {messages.map((message) => (
             message.product ? (
               <div key={message.id} className="max-w-[85%] overflow-hidden rounded-2xl border border-white/10 bg-slate-800">

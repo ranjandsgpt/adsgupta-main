@@ -20,12 +20,12 @@ export default function Template04ProductDuelAd() {
 
   return (
     <BatchTemplateFrame templateId={ID} title="Product Duel (Swipe to Compare)" subtitle="Drag the divider toward your winner">
-      <div className="relative h-72 overflow-hidden rounded-2xl bg-indigo-700">
+      <div className="relative h-52 overflow-hidden rounded-2xl bg-indigo-700">
         <div className="absolute inset-0 flex items-center justify-end bg-indigo-700 p-8 text-right">
           <div><BatteryCharging className="ml-auto text-lime-300" size={52} /><h3 className="mt-3 text-2xl font-black">Volt Max</h3><p>2-day battery</p></div>
         </div>
-        <div className="absolute inset-y-0 left-0 overflow-hidden bg-rose-600" style={{ width: `${split}%` }}>
-          <div className="flex h-full w-[34rem] max-w-[calc(100vw-4rem)] items-center p-8">
+        <div className="absolute inset-0 overflow-hidden bg-rose-600" style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }}>
+          <div className="flex h-full items-center p-8">
             <div><Camera className="text-amber-200" size={52} /><h3 className="mt-3 text-2xl font-black">Pixel Pro</h3><p>Studio camera</p></div>
           </div>
         </div>

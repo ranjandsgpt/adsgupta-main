@@ -16,6 +16,7 @@ export default function Template02TiltParallaxAd() {
   const rafId = useRef(null);
   const pending = useRef({ x: 0, y: 0 });
   const orientationHandler = useRef(null);
+  const noDataTimer = useRef(null);
   const drag = useRef(null);
   const tiltRef = useRef(tilt);
   tiltRef.current = tilt;
@@ -32,6 +33,7 @@ export default function Template02TiltParallaxAd() {
   }, []);
 
   const stopOrientation = useCallback(() => {
+    window.clearTimeout(noDataTimer.current);
     if (orientationHandler.current) {
       window.removeEventListener('deviceorientation', orientationHandler.current);
       orientationHandler.current = null;
@@ -43,9 +45,17 @@ export default function Template02TiltParallaxAd() {
     if (rafId.current != null) window.cancelAnimationFrame(rafId.current);
   }, [stopOrientation]);
 
+  const activateFallback = useCallback((reason) => {
+    stopOrientation();
+    setMode('fallback');
+    setStatus('Motion unavailable — drag the scene or use the arrow controls instead.');
+    track(ID, 'expand', { mode: 'fallback', reason });
+  }, [stopOrientation]);
+
   const startOrientation = (permission) => {
     const handler = (event) => {
       if (event.beta == null && event.gamma == null) return;
+      window.clearTimeout(noDataTimer.current);
       scheduleTilt((event.beta ?? 0) / 4, (event.gamma ?? 0) / 3);
     };
     orientationHandler.current = handler;
@@ -53,12 +63,9 @@ export default function Template02TiltParallaxAd() {
     setMode('tilt');
     setStatus('Device motion active — tilt your phone to explore the layers.');
     track(ID, 'expand', { mode: 'tilt', permission });
-  };
-
-  const activateFallback = (reason) => {
-    setMode('fallback');
-    setStatus('Motion unavailable — drag the scene or use the arrow controls instead.');
-    track(ID, 'expand', { mode: 'fallback', reason });
+    // Desktops expose the API without a sensor; fall back if no data arrives.
+    window.clearTimeout(noDataTimer.current);
+    noDataTimer.current = window.setTimeout(() => activateFallback('no-sensor-data'), 3000);
   };
 
   const enableMotion = async () => {
@@ -142,7 +149,7 @@ export default function Template02TiltParallaxAd() {
             onPointerMove={onPointerMove}
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
-            className="relative h-64 touch-none select-none overflow-hidden rounded-2xl bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
+            className="relative h-52 touch-none select-none overflow-hidden rounded-2xl bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
             style={{ perspective: 700, cursor: mode === 'tilt' ? 'default' : 'grab' }}
           >
             {/* Depth layer 1 — far: procedural sky with glow orbs */}

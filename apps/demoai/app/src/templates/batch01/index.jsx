@@ -34,7 +34,7 @@ export const BATCH_01_TEMPLATES = [
   template(104, 'product-duel', 'Product Duel (Swipe to Compare)', 'A swipeable split view that asks audiences to choose a product winner.', 'Commerce', 'Responsive card', 'inline', Template04ProductDuelAd),
   template(105, 'playable-endless-runner', 'Playable Endless Runner', 'A canvas-based jump game with keyboard and touch controls.', 'Playable', 'Responsive 420 × 200', 'inline', Template05PlayableEndlessRunner),
   template(106, 'trivia-reward-unlock', 'Trivia Reward Unlock', 'A one-question knowledge challenge that unlocks bonus points.', 'Rewarded', 'Responsive card', 'inline', Template06TriviaRewardUnlock),
-  template(107, 'spin-wheel-overlay', 'Spin-the-Wheel Overlay', 'A prize-wheel experience with locally simulated outcomes.', 'Rewarded', 'Responsive overlay card', 'overlay', Template07SpinWheelOverlay),
+  template(107, 'spin-wheel-overlay', 'Spin-the-Wheel Overlay', 'A prize-wheel experience with locally simulated outcomes.', 'Rewarded', 'Responsive card', 'inline', Template07SpinWheelOverlay),
   template(108, 'emoji-reaction-poll', 'Emoji Reaction Poll', 'A fast, expressive audience poll with mocked live results.', 'Interactive', 'Responsive card', 'inline', Template08EmojiReactionPoll),
   template(109, 'celebration-micro-interaction', 'Celebration Micro-Interaction Ad', 'A compact canvas celebration that rewards a lightweight action.', 'Motion', 'Responsive card', 'inline', Template09CelebrationMicroInteractionAd),
   template(110, 'live-ab-preference-test', 'Live A/B Preference Test', 'A side-by-side creative preference test with simulated live voting.', 'Research', 'Responsive card', 'inline', Template10LiveABPreferenceTest),

@@ -7,6 +7,7 @@ const TEMPLATE_ID = 'testimonial-bubble-ad';
 
 export default function Template41TestimonialBubbleAd() {
   const [expanded, setExpanded] = useState(false);
+  const [started, setStarted] = useState(false);
   const reducedMotion = useReducedMotion();
   const onDismiss = useCallback((reason) => emitTelemetry('close', { templateId: TEMPLATE_ID, reason }), []);
   const { dismissed, dismiss } = useDismissState({ key: TEMPLATE_ID, onDismiss });
@@ -16,6 +17,7 @@ export default function Template41TestimonialBubbleAd() {
     emitTelemetry(expanded ? 'click' : 'expand', { templateId: TEMPLATE_ID, target: 'testimonial' });
   };
   const trial = () => {
+    setStarted(true);
     emitTelemetry('click', { templateId: TEMPLATE_ID, target: 'start-trial' });
     emitTelemetry('complete', { templateId: TEMPLATE_ID, action: 'trial-started' });
   };
@@ -31,7 +33,7 @@ export default function Template41TestimonialBubbleAd() {
         {expanded && <p className="mt-3 text-sm leading-6 text-slate-600">The guided focus sessions are short enough to use every day, and the offline mode made it stick during travel.</p>}
         <button type="button" onClick={toggle} aria-expanded={expanded} className="mt-3 min-h-11 rounded-full px-2 text-sm font-bold text-amber-800 underline decoration-2 underline-offset-4">{expanded ? 'Show less' : 'Read full review'}</button>
       </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-950 p-4 text-white"><div><p className="text-[10px] font-bold uppercase tracking-widest text-amber-300">Sponsored · Stillspace</p><p className="font-black">Try 14 mindful days</p></div><button type="button" onClick={trial} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-amber-300 px-4 text-sm font-black text-slate-950"><Check size={18} /> Start free</button></div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-950 p-4 text-white"><div><p className="text-[10px] font-bold uppercase tracking-widest text-amber-300">Sponsored · Stillspace</p><p className="font-black">Try 14 mindful days</p></div><button type="button" onClick={trial} disabled={started} className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-black ${started ? 'bg-emerald-400 text-emerald-950' : 'bg-amber-300 text-slate-950'}`}><Check size={18} /> {started ? 'Trial started' : 'Start free'}</button></div>
     </aside>
   );
 }

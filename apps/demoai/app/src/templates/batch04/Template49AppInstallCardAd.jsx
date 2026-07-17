@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Check, Download, Star } from 'lucide-react';
 import { useDismissState } from '../hooks/useDismissState';
 import { useReducedMotion } from '../hooks/useReducedMotion';
@@ -11,12 +11,19 @@ export default function Template49AppInstallCardAd() {
   const [installing, setInstalling] = useState(false);
   const [progress, setProgress] = useState(0);
   const reduced = useReducedMotion();
+  const completed = useRef(false);
   const { dismissed, dismiss } = useDismissState({ key: ID, onDismiss: (reason) => emitTelemetry('close', { templateId: ID, reason }) });
   useEffect(() => {
     if (!installing || progress >= 100) return undefined;
     const timer = window.setInterval(() => setProgress((value) => Math.min(100, value + (reduced ? 100 : 10))), reduced ? 50 : 180);
     return () => window.clearInterval(timer);
   }, [installing, progress, reduced]);
+  useEffect(() => {
+    if (progress >= 100 && !completed.current) {
+      completed.current = true;
+      emitTelemetry('complete', { templateId: ID, action: 'install-simulated' });
+    }
+  }, [progress]);
   if (dismissed) return null;
   const install = () => { setInstalling(true); emitTelemetry('click', { templateId: ID, target: 'simulate-install' }); };
   return (

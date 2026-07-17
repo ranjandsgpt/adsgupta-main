@@ -13,13 +13,18 @@ export default function Template56CoPilotDockWidget() {
   const input = useRef(null);
   const { dismissed, dismiss } = useDismissState({ key: ID, onDismiss: (reason) => emitTelemetry('close', { templateId: ID, reason }) });
   if (dismissed) return null;
-  const toggle = () => { setExpanded((value) => !value); emitTelemetry('expand', { templateId: ID }); window.setTimeout(() => input.current?.focus(), 0); };
+  const toggle = () => {
+    const opening = !expanded;
+    setExpanded(opening);
+    emitTelemetry(opening ? 'expand' : 'click', { templateId: ID, target: opening ? 'open-dock' : 'close-dock' });
+    if (opening) window.setTimeout(() => input.current?.focus(), 0);
+  };
   const submit = (event) => { event.preventDefault(); if (!task.trim()) return; setResult(`Demo plan ready: clarify “${task.trim()}”, choose one owner, and set a 20-minute first step.`); emitTelemetry('complete', { templateId: ID, action: 'local-task' }); };
   return (
     <NativeWidgetChrome label="Sponsored · co-pilot simulation" title="Workflow co-pilot dock" onClose={() => dismiss('button')}>
       <div className="p-3">
         <button type="button" aria-expanded={expanded} onClick={toggle} className="flex min-h-14 w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-500 px-4 text-left text-white">
-          <Bot className="shrink-0" /><span className="flex-1"><span className="block font-black">Need a next step?</span><span className="block text-xs text-white/75">Open a local scripted helper</span></span>{expanded ? <ChevronDown /> : <ChevronUp />}
+          <Bot className="shrink-0" /><span className="flex-1"><span className="block font-black">Need a next step?</span><span className="block text-xs text-white/75">Open a local scripted helper</span></span>{expanded ? <ChevronUp /> : <ChevronDown />}
         </button>
         {expanded && <div className="pt-3">
           <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">

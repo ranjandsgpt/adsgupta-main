@@ -39,6 +39,12 @@ export default function Template23LivestreamShoppingAd() {
   const [addedId, setAddedId] = useState(null);
   const chatIndexRef = useRef(2);
   const chatLogRef = useRef(null);
+  const heartTimersRef = useRef([]);
+  const heartIdRef = useRef(0);
+
+  useEffect(() => () => {
+    heartTimersRef.current.forEach((id) => window.clearTimeout(id));
+  }, []);
 
   useEffect(() => {
     if (dismissed) return undefined;
@@ -68,9 +74,14 @@ export default function Template23LivestreamShoppingAd() {
 
   const sendHeart = () => {
     emitTelemetry('click', { templateId: TEMPLATE_ID, target: 'heart' });
-    const id = Date.now();
+    heartIdRef.current += 1;
+    const id = heartIdRef.current;
     setHearts((prev) => [...prev.slice(-8), { id, left: 12 + Math.random() * 30 }]);
-    window.setTimeout(() => setHearts((prev) => prev.filter((h) => h.id !== id)), 1600);
+    const timer = window.setTimeout(() => {
+      setHearts((prev) => prev.filter((h) => h.id !== id));
+      heartTimersRef.current = heartTimersRef.current.filter((t) => t !== timer);
+    }, 1600);
+    heartTimersRef.current.push(timer);
   };
 
   const featured = FEATURED[featuredIndex];

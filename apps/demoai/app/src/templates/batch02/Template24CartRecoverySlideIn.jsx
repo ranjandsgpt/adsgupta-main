@@ -29,13 +29,14 @@ export default function Template24CartRecoverySlideIn() {
 
   useEffect(() => {
     if (dismissed) return undefined;
-    const timer = window.setTimeout(() => {
-      setVisible(true);
-      emitTelemetry('expand', { templateId: TEMPLATE_ID, trigger: 'idle-timer' });
-    }, DEMO_DELAY_MS);
     const ticker = window.setInterval(() => {
       setCountdown((prev) => Math.max(0, prev - 1));
     }, 1000);
+    const timer = window.setTimeout(() => {
+      window.clearInterval(ticker);
+      setVisible(true);
+      emitTelemetry('expand', { templateId: TEMPLATE_ID, trigger: 'idle-timer' });
+    }, DEMO_DELAY_MS);
     return () => {
       window.clearTimeout(timer);
       window.clearInterval(ticker);

@@ -21,6 +21,14 @@ export default function Template19ARTryOnLauncher() {
   const [frame, setFrame] = useState(FRAMES[0]);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -47,9 +55,14 @@ export default function Template19ARTryOnLauncher() {
         video: { facingMode: 'user' },
         audio: false,
       });
+      if (!mountedRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = stream;
       setMode('camera');
     } catch {
+      if (!mountedRef.current) return;
       setMode('simulated');
       emitTelemetry('click', { templateId: TEMPLATE_ID, target: 'fallback-simulated-preview' });
     }

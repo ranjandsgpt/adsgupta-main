@@ -17,12 +17,16 @@ export default function Template45PodcastNativePlayerAd() {
 
   useEffect(() => {
     if (!playing) return undefined;
-    const timer = window.setInterval(() => setTime((value) => {
-      if (value >= DURATION) { setPlaying(false); return 0; }
-      return value + 1;
-    }), 1000);
+    const timer = window.setInterval(() => setTime((value) => Math.min(DURATION, value + 1)), 1000);
     return () => window.clearInterval(timer);
   }, [playing]);
+
+  useEffect(() => {
+    if (playing && time >= DURATION) {
+      setPlaying(false);
+      setTime(0);
+    }
+  }, [playing, time]);
 
   if (dismissed) return null;
   const seek = (next) => setTime(Math.max(0, Math.min(DURATION, next)));

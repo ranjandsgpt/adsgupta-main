@@ -30,9 +30,10 @@ export default function Template62MrecCarouselMorph() {
           if (Math.abs(delta) > 45) move(delta < 0 ? 1 : -1);
           startX.current = null;
         }}
+        onPointerCancel={() => { startX.current = null; }}
       >
         <p className="text-xs font-bold uppercase tracking-[.2em]">Collection {index + 1} / {cards.length}</p>
-        <div className="flex min-h-[210px] flex-col justify-center"><h3 className="text-5xl font-black">{name}</h3><p className="mt-2 text-lg text-white/75">{copy}</p></div>
+        <div className="flex min-h-[150px] flex-col justify-center"><h3 className="text-5xl font-black">{name}</h3><p className="mt-2 text-lg text-white/75">{copy}</p></div>
         <div className="flex items-center justify-between">
           <button type="button" aria-label="Previous product" disabled={index === 0} className={`${buttonClass} bg-black/20 text-white`} onClick={() => move(-1)}><ChevronLeft /></button>
           <div className="flex gap-2" aria-label={`Slide ${index + 1} of ${cards.length}`}>{cards.map((card, itemIndex) => <span key={card[0]} className={`h-2 w-2 rounded-full ${itemIndex === index ? 'bg-white' : 'bg-white/35'}`} />)}</div>

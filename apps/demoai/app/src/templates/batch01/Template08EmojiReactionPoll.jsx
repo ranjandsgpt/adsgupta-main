@@ -25,7 +25,8 @@ export default function Template08EmojiReactionPoll() {
       </div>
       <div className="mt-4 grid grid-cols-3 gap-2">
         {REACTIONS.map((item) => {
-          const percent = item.votes + (selected === item.label ? 1 : 0);
+          const totalVotes = REACTIONS.reduce((sum, r) => sum + r.votes, 0) + (selected ? 1 : 0);
+          const percent = Math.round(((item.votes + (selected === item.label ? 1 : 0)) / totalVotes) * 100);
           return (
             <button
               key={item.label}

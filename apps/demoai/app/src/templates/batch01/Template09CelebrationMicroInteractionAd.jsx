@@ -51,8 +51,8 @@ function Celebration({ reducedMotion }) {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-cyan-950 text-center">
       <canvas ref={canvasRef} width="420" height="260" className="absolute inset-0 h-full w-full" aria-hidden="true" />
-      <div className="relative z-10 flex min-h-64 flex-col items-center justify-center p-6">
-        <PartyPopper size={56} className="text-amber-300" />
+      <div className="relative z-10 flex min-h-52 flex-col items-center justify-center p-6">
+        <PartyPopper size={48} className="text-amber-300" />
         <h3 className="mt-3 text-2xl font-black">Tiny action. Big delight.</h3>
         <button type="button" onClick={celebrate} disabled={celebrating} className="mt-5 min-h-12 rounded-full bg-white px-7 font-black text-slate-950 disabled:opacity-60">
           {celebrating ? 'Celebrating…' : 'Make it sparkle'}

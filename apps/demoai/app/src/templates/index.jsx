@@ -43,10 +43,20 @@ import { BATCH_02_TEMPLATES } from './batch02';
 import { BATCH_03_TEMPLATES } from './batch03';
 import { BATCH_04_TEMPLATES } from './batch04';
 import { BATCH_05_TEMPLATES } from './batch05';
+import Template71AISummaryAd from './llm/Template71AISummaryAd';
+import Template72PromptInlineAds from './llm/Template72PromptInlineAds';
+import Template73PromptPopupAd from './llm/Template73PromptPopupAd';
+import Template74SponsoredAnswerAd from './llm/Template74SponsoredAnswerAd';
+import Template75KeywordAds from './llm/Template75KeywordAds';
+import { FramePortal } from './primitives/FramePortal';
 
 function TakeoverAdapter() {
   const [visible, setVisible] = useState(true);
-  return visible ? <FullScreenTakeover onClose={() => setVisible(false)} /> : null;
+  return visible ? (
+    <FramePortal>
+      <FullScreenTakeover onClose={() => setVisible(false)} />
+    </FramePortal>
+  ) : null;
 }
 
 function PushAdapter() {
@@ -109,6 +119,14 @@ const FOUNDATION_TEMPLATES = [
   template(134, 'bottom-sheet', 'Bottom Sheet Ad', 'A draggable product detail sheet with peek, half, and full states.', 'Native commerce', 'Responsive bottom sheet', 'overlay', Template34BottomSheetAd),
 ];
 
+const LLM_TEMPLATES = [
+  template(171, 'ai-summary', 'AI Summary with Sponsored Insight', 'An AI-generated article summary with a clearly labelled contextual recommendation.', 'LLM', 'Responsive answer card', 'inline', Template71AISummaryAd),
+  template(172, 'prompt-inline-ads', 'Prompts with Inline Ads', 'Follow-up prompt chips that introduce relevant sponsored responses inside the conversation.', 'LLM', 'Responsive prompt unit', 'inline', Template72PromptInlineAds),
+  template(173, 'prompt-popup', 'Popup Ad with Prompts', 'A dismissible AI companion with actionable prompt suggestions beneath its message.', 'LLM', 'Responsive popup', 'overlay', Template73PromptPopupAd),
+  template(174, 'sponsored-answer', 'LLM Sponsored Answer', 'An explainable AI recommendation that adapts its answer to the selected objective.', 'LLM', 'Responsive answer card', 'inline', Template74SponsoredAnswerAd),
+  template(175, 'keyword-ads', 'Keyword Ads', 'Highlighted high-intent phrases open an AI summary, 300 × 250 ad, and contextual prompts.', 'LLM', 'Keyword + popup widget', 'inline', Template75KeywordAds),
+];
+
 export const NEW_CREATIVE_TEMPLATES = [
   ...BATCH_01_TEMPLATES,
   ...BATCH_02_TEMPLATES,
@@ -116,6 +134,7 @@ export const NEW_CREATIVE_TEMPLATES = [
   ...FOUNDATION_TEMPLATES,
   ...BATCH_04_TEMPLATES,
   ...BATCH_05_TEMPLATES,
+  ...LLM_TEMPLATES,
 ].sort((a, b) => a.order - b.order);
 
 export const CREATIVE_TEMPLATES = [
