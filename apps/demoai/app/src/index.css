@@ -8,12 +8,30 @@
   --cyan-glow: rgba(0, 240, 255, 0.25);
 }
 
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
   color: #fff;
   font-family: 'Space Grotesk', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
 }
 
 /* Newsletter input - match adsgupta.com */

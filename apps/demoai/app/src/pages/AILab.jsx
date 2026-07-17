@@ -112,19 +112,19 @@ export function AILab({ toolSearchQuery = '' }) {
       <main className="flex-1 max-w-[1600px] mx-auto w-full px-4 sm:px-6 py-4 sm:py-8">
         <div className="flex flex-col min-h-0">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
                 Nexus <span className="text-cyan-400">Marketplace</span>
               </h2>
               <p className="text-zinc-500 text-xs sm:text-sm mt-1">
                 {APPS_LIST.length} AI tools • {credits} credits
               </p>
             </div>
-            <button type="button" className="px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-xs font-bold">
+            <button type="button" className="shrink-0 px-3 sm:px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-[10px] sm:text-xs font-bold">
               SYNC REPO
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 max-h-[70vh] overflow-y-auto custom-scrollbar pr-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 max-h-none lg:max-h-[70vh] overflow-y-auto custom-scrollbar pr-0 sm:pr-2 pb-4">
             {filteredApps.length === 0 ? (
               <div className="col-span-full py-8 text-center text-zinc-500 text-sm">No tools match. Try another search.</div>
             ) : (
@@ -201,10 +201,10 @@ function AIArenaV2() {
   }, [isIntervening]);
 
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10 overflow-hidden relative">
-      <div className="flex justify-between items-start mb-16">
-        <div>
-          <h2 className="text-4xl font-black tracking-tight text-white">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 overflow-hidden relative">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-8 sm:mb-16">
+        <div className="min-w-0">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white">
             AI Arena <span className="text-cyan-400">v2.1</span>
           </h2>
           <p className="text-zinc-500 font-bold mt-1 uppercase text-xs">Watcher AI: leveling environment dynamically</p>
@@ -212,16 +212,16 @@ function AIArenaV2() {
         <button
           type="button"
           onClick={() => setIsIntervening(!isIntervening)}
-          className={`px-8 py-4 rounded-2xl font-black text-sm uppercase transition-all ${isIntervening ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 hover:bg-cyan-500/30'}`}
+          className={`w-full sm:w-auto px-4 sm:px-8 py-3 sm:py-4 rounded-2xl font-black text-xs sm:text-sm uppercase transition-all touch-manipulation ${isIntervening ? 'bg-red-500/20 text-red-400 border border-red-500/40' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 hover:bg-cyan-500/30'}`}
         >
           {isIntervening ? 'Relinquish control' : 'Intervene'}
         </button>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20">
         <AgentColumn name="Agent Prime" value={state.p1} color="#00F0FF" />
         <AgentColumn name="Agent Shadow" value={state.p2} color="#8a3ffc" />
       </div>
-      <div className="mt-16 bg-black/50 p-6 rounded-2xl border border-white/5 font-mono text-xs">
+      <div className="mt-8 sm:mt-16 bg-black/50 p-4 sm:p-6 rounded-2xl border border-white/5 font-mono text-xs overflow-x-auto">
         <div className="flex items-center gap-2 mb-4 text-cyan-400">
           <Eye size={14} /> WATCHER FEED: CYCLE {state.cycle}
         </div>
@@ -280,7 +280,7 @@ function FintechEscrow() {
 
 function EscrowItem({ name, amount, status }) {
   return (
-    <div className="bg-[#1c1c21] border border-white/5 p-6 rounded-2xl flex items-center justify-between">
+    <div className="bg-[#1c1c21] border border-white/5 p-4 sm:p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-cyan-400">
           <Anchor size={18} />

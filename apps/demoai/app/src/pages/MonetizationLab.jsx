@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ExternalLink, ArrowLeft, Upload, ShoppingBag, CreditCard, X, Info } from 'lucide-react';
-import { Footer } from '../components/Footer';
 
 // UCP = Universal Commerce Protocol (Google) only. No other definition of UCP in this project.
 const PROTOCOLS = [
@@ -314,7 +313,6 @@ function UCPCommerceExperience({ onBack }) {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }
@@ -389,7 +387,6 @@ export function MonetizationLab() {
         </div>
       </main>
       {refactorMode && <RefactorModal onClose={() => setRefactorMode(false)} />}
-      <Footer />
     </div>
   );
 }

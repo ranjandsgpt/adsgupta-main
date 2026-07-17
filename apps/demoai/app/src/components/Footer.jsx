@@ -19,7 +19,7 @@ export function Footer() {
     {
       title: 'Platform',
       links: [
-        { label: 'AI Sandbox', href: 'https://demoai.adsgupta.com', external: true },
+        { label: 'AI Sandbox', href: 'https://demoai.adsgupta.com/monetizationlab', external: true },
         { label: 'Features', href: 'https://adsgupta.com/#features', external: true },
         { label: 'Pricing', href: 'https://adsgupta.com/#', external: true },
       ],
@@ -52,7 +52,7 @@ export function Footer() {
   return (
     <footer
       data-testid="footer-section"
-      className="relative py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5"
+      className="relative py-12 sm:py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5 safe-bottom"
     >
       <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16">
@@ -68,7 +68,7 @@ export function Footer() {
             <p className="text-zinc-400 text-lg mb-8 max-w-md">
               Get exclusive insights on AI advertising, delivered to your inbox.
             </p>
-            <form onSubmit={handleSubmit} className="flex gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
               <input
                 type="email"
                 value={email}
