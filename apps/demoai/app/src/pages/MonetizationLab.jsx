@@ -360,7 +360,7 @@ export function MonetizationLab() {
               key={p.id}
               type="button"
               onClick={() => handleProtocolClick(p)}
-              className={`group text-left rounded-2xl border overflow-hidden transition-all duration-300 ease-in-out hover:scale-[1.02] active:scale-[0.99] bg-gradient-to-br ${p.theme.bg} ${p.theme.border}`}
+              className={`group text-left rounded-2xl border overflow-hidden transition-all duration-300 ease-in-out md:hover:scale-[1.02] active:scale-[0.99] bg-gradient-to-br ${p.theme.bg} ${p.theme.border}`}
             >
               <div className="p-6">
                 <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl mb-4 bg-black/20 ${accentColor(p)}`}>

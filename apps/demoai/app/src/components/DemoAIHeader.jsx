@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, Search } from 'lucide-react';
 import { DEMO_TAB_ROUTES } from '../config/demoRoutes';
+import { DemoTabStrip } from './DemoTabNav';
 
 export function DemoAIHeader({
   toolSearchQuery,
@@ -109,6 +110,10 @@ export function DemoAIHeader({
         >
           <Search size={20} />
         </button>
+      </div>
+
+      <div className="lg:hidden border-t border-white/5 px-2 py-2 bg-[#0A0A0A]/98">
+        <DemoTabStrip />
       </div>
 
       {searchOpen && (

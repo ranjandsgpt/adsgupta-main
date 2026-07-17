@@ -17,44 +17,6 @@ export const articleContent = [
   "This demo lets you explore dozens of creative templates in context. Each format is fully interactive; you can tap CTAs, close ads, and scroll to see how they behave. Everything runs on this page so it works on desktop and mobile. Use the template selector to switch formats and see how the same 'article' can carry different ad experiences."
 ];
 
-export const AD_FORMATS = [
-  { id: 'interscroller', name: 'Interscroller (Full Reveal)', type: 'inline' },
-  { id: 'sticky-footer', name: 'Sticky Footer Banner', type: 'overlay' },
-  { id: 'sticky-top', name: 'Sticky Top Leaderboard', type: 'overlay' },
-  { id: 'anchor', name: 'Anchor Ad (Sticky Corner)', type: 'overlay' },
-  { id: 'takeover', name: 'Full-Screen Takeover', type: 'overlay' },
-  { id: 'playable', name: 'Playable Mini', type: 'inline' },
-  { id: 'agentic', name: 'Agentic AI Optimization', type: 'inline' },
-  { id: 'swipeable', name: 'Swipeable Card Stack', type: 'inline' },
-  { id: 'floating-video', name: 'Floating Video (PiP)', type: 'inline' },
-  { id: 'outstream', name: 'Outstream Video', type: 'inline' },
-  { id: 'quiz', name: 'Interactive Quiz / Poll', type: 'inline' },
-  { id: 'progress', name: 'Progress Bar (View Time)', type: 'inline' },
-  { id: 'shoppable', name: 'Shoppable Hotspots', type: 'inline' },
-  { id: 'expandable', name: 'Expandable Banner', type: 'inline' },
-  { id: 'carousel', name: 'Carousel Multi-Slide', type: 'inline' },
-  { id: 'push', name: 'Push-Style Notification', type: 'overlay' },
-  { id: 'double-x', name: 'Double X for Close', type: 'inline' },
-  { id: 'countdown', name: 'Countdown Timer Ad', type: 'inline' },
-  { id: 'marquee', name: 'Marquee Ticker', type: 'overlay' },
-  { id: 'peel-back', name: 'Corner Curl / Peel-Back', type: 'overlay' },
-  { id: '3d-cube', name: 'Floating 3D Rotating Cube', type: 'inline' },
-  { id: 'ai-bot', name: 'Floating AI Commerce Bot', type: 'overlay' },
-  { id: 'scroll-morph', name: 'Scroll-Morphing Banner', type: 'inline' },
-  { id: 'parallax', name: 'Parallax Depth Ad', type: 'inline' },
-  { id: 'contextual', name: 'Contextual Highlight Unit', type: 'inline' },
-  { id: 'ai-chat', name: 'AI Chat Mini Assistant', type: 'inline' },
-  { id: 'split-screen', name: 'Split-Screen Slider', type: 'inline' },
-  { id: 'micro-checkout', name: 'Micro-Checkout Commerce', type: 'inline' },
-  { id: 'live-data', name: 'Live Data Adaptive Ad', type: 'inline' },
-  { id: 'ambient', name: 'Ambient Brand Takeover', type: 'overlay' },
-  { id: 'side-rail', name: 'Expandable Side Rail Dock', type: 'overlay' },
-  { id: 'infinite-ribbon', name: 'Infinite Product Ribbon', type: 'overlay' },
-  { id: 'gesture', name: 'Gesture-Based Unlock', type: 'inline' },
-  { id: 'scratch-card', name: 'Reward Scratch Card', type: 'inline' },
-  { id: 'cinematic', name: 'Scroll-Synced Cinematic Story', type: 'inline' }
-];
-
 const CTA = ({ href = DEMO_CTA_URL, children, className = '', ...props }) => (
   <a href={href} className={className} {...props}>{children}</a>
 );
@@ -449,7 +411,7 @@ export const FloatingVideo = () => {
     <>
       <div ref={ref} className="h-1 w-full bg-transparent" />
       <div className={`w-full transition-all duration-300 ${isFloating ? 'h-[300px] mb-8' : 'h-0 mb-0'}`} />
-      <div className={`transition-all duration-500 z-40 ${isFloating ? 'fixed bottom-6 right-6 w-80 shadow-2xl rounded-xl border-2 border-slate-600' : 'relative my-8 w-full h-[300px] rounded-xl border border-slate-700 shadow-lg'} overflow-hidden bg-black group`}>
+      <div className={`transition-all duration-500 z-40 ${isFloating ? 'fixed bottom-20 sm:bottom-6 left-3 right-3 sm:left-auto sm:right-6 w-auto sm:w-80 max-w-[calc(100vw-1.5rem)] shadow-2xl rounded-xl border-2 border-slate-600' : 'relative my-8 w-full h-[300px] rounded-xl border border-slate-700 shadow-lg'} overflow-hidden bg-black group`}>
         <img src="https://images.unsplash.com/photo-1616469829581-73993eb86b02?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover opacity-90" alt="Video" />
         <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none group-hover:bg-black/40 transition-colors">
           <div className="w-16 h-16 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center border border-white/50">
@@ -896,7 +858,7 @@ export const AmbientTakeover = () => (
 );
 
 export const SideRailDock = () => (
-  <div className="fixed right-0 top-1/3 z-50 flex flex-col items-end gap-2 pr-2 pointer-events-auto">
+  <div className="fixed right-0 top-1/4 sm:top-1/3 z-50 flex flex-col items-end gap-2 pr-1 sm:pr-2 pointer-events-auto max-w-[40vw] sm:max-w-none">
     {['Deals', 'Video', 'Shop'].map((label, i) => (
       <div key={i} className="group relative w-12 hover:w-32 h-12 bg-slate-800 border border-slate-600 rounded-l-xl shadow-2xl transition-all duration-300 ease-out cursor-pointer overflow-hidden flex items-center justify-end px-3">
         <span className="text-white font-bold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 absolute left-4 transition-opacity duration-300 delay-100">{label}</span>

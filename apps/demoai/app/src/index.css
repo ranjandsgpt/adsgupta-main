@@ -30,8 +30,18 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-.touch-manipulation {
-  touch-action: manipulation;
+.demo-app-shell {
+  padding-bottom: calc(3.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 1024px) {
+  .demo-app-shell {
+    padding-bottom: 0;
+  }
+}
+
+.demo-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Newsletter input - match adsgupta.com */

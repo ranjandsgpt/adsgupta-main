@@ -1,99 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Suspense, useState, useRef } from 'react';
 import { ChevronDown, Palette, X, List } from 'lucide-react';
-import {
-  AD_FORMATS,
-  articleContent,
-  Interscroller,
-  StickyFooter,
-  StickyTopLeaderboard,
-  ExpandableBanner,
-  PlayableMini,
-  AgenticAd,
-  SwipeableCards,
-  QuizAd,
-  ProgressBarAd,
-  OutstreamVideo,
-  FloatingVideo,
-  CarouselAd,
-  ShoppableHotspots,
-  FullScreenTakeover,
-  PushNotification,
-  AnchorAd,
-  DoubleXClose,
-  CountdownAd,
-  MarqueeTicker,
-  PeelBackCorner,
-  RotatingCubeAd,
-  AIBotOverlay,
-  ScrollMorphBanner,
-  ParallaxDepthAd,
-  ContextualHighlightUnit,
-  AIChatMiniAssistant,
-  SplitScreenSlider,
-  MicroCheckoutCommerce,
-  LiveDataAdaptiveAd,
-  AmbientTakeover,
-  SideRailDock,
-  InfiniteStickyRibbon,
-  GestureUnlockAd,
-  ScratchCardReward,
-  CinematicStoryAd,
-} from './CreativeTemplateAdFormats';
+import { articleContent } from './CreativeTemplateAdFormats';
+import { CREATIVE_TEMPLATES, getCreativeTemplate } from '../templates';
+import { DemoEventConsole } from '../templates/DemoEventConsole';
 
-function renderAd(selectedFormat, type, scrollAreaRef) {
-  const info = AD_FORMATS.find((f) => f.id === selectedFormat);
-  if (info?.type !== type) return null;
-  switch (selectedFormat) {
-    case 'sticky-footer': return <StickyFooter />;
-    case 'sticky-top': return <StickyTopLeaderboard />;
-    case 'anchor': return <AnchorAd />;
-    case 'marquee': return <MarqueeTicker />;
-    case 'peel-back': return <PeelBackCorner />;
-    case 'ai-bot': return <AIBotOverlay />;
-    case 'ambient': return <AmbientTakeover />;
-    case 'side-rail': return <SideRailDock />;
-    case 'infinite-ribbon': return <InfiniteStickyRibbon />;
-    case 'interscroller': return <Interscroller />;
-    case 'expandable': return <ExpandableBanner />;
-    case 'carousel': return <CarouselAd />;
-    case 'playable': return <PlayableMini />;
-    case 'shoppable': return <ShoppableHotspots />;
-    case 'double-x': return <DoubleXClose />;
-    case 'countdown': return <CountdownAd />;
-    case 'agentic': return <AgenticAd />;
-    case 'swipeable': return <SwipeableCards />;
-    case 'quiz': return <QuizAd />;
-    case 'progress': return <ProgressBarAd />;
-    case 'outstream': return <OutstreamVideo />;
-    case 'floating-video': return <FloatingVideo />;
-    case '3d-cube': return <RotatingCubeAd scrollAreaRef={scrollAreaRef} />;
-    case 'scroll-morph': return <ScrollMorphBanner />;
-    case 'parallax': return <ParallaxDepthAd />;
-    case 'contextual': return <ContextualHighlightUnit />;
-    case 'ai-chat': return <AIChatMiniAssistant />;
-    case 'split-screen': return <SplitScreenSlider />;
-    case 'micro-checkout': return <MicroCheckoutCommerce />;
-    case 'live-data': return <LiveDataAdaptiveAd />;
-    case 'gesture': return <GestureUnlockAd />;
-    case 'scratch-card': return <ScratchCardReward />;
-    case 'cinematic': return <CinematicStoryAd />;
-    default: return null;
-  }
+function renderTemplate(template, placement, scrollAreaRef) {
+  if (!template || template.placement !== placement) return null;
+  const TemplateComponent = template.component;
+  return (
+    <Suspense
+      key={template.id}
+      fallback={(
+        <div className="my-8 flex min-h-48 w-full items-center justify-center rounded-2xl border border-slate-800 bg-slate-950 text-sm text-slate-500">
+          Loading interactive template…
+        </div>
+      )}
+    >
+      <TemplateComponent scrollAreaRef={scrollAreaRef} />
+    </Suspense>
+  );
 }
 
 export function CreativeTemplateLab() {
-  const [selectedFormat, setSelectedFormat] = useState(AD_FORMATS[0].id);
-  const [showTakeover, setShowTakeover] = useState(false);
-  const [showPush, setShowPush] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState(CREATIVE_TEMPLATES[0].id);
   const [formatPickerOpen, setFormatPickerOpen] = useState(false);
   const scrollAreaRef = useRef(null);
 
-  useEffect(() => {
-    setShowTakeover(selectedFormat === 'takeover');
-    setShowPush(selectedFormat === 'push');
-  }, [selectedFormat]);
-
-  const activeFormatInfo = AD_FORMATS.find((f) => f.id === selectedFormat);
+  const activeFormatInfo = getCreativeTemplate(selectedFormat);
 
   const selectFormat = (id) => {
     setSelectedFormat(id);
@@ -102,18 +35,18 @@ export function CreativeTemplateLab() {
 
   const formatList = (
     <div className="space-y-1">
-      {AD_FORMATS.map((format) => (
+      {CREATIVE_TEMPLATES.map((format) => (
         <button
           key={format.id}
           type="button"
           onClick={() => selectFormat(format.id)}
-          className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex justify-between items-center group
+          className={`w-full min-h-11 text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex justify-between items-center group
             ${selectedFormat === format.id
               ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
               : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-transparent'
             }`}
         >
-          <span className="truncate pr-2">{format.name}</span>
+          <span className="truncate pr-2">{format.displayName}</span>
           <ChevronDown size={14} className={`shrink-0 -rotate-90 ${selectedFormat === format.id ? 'opacity-100 text-cyan-400' : 'opacity-0 group-hover:opacity-100'}`} />
         </button>
       ))}
@@ -131,29 +64,47 @@ export function CreativeTemplateLab() {
               Creative <span className="text-cyan-400">Template</span>
             </h1>
             <p className="text-xs text-slate-500">
-              {AD_FORMATS.length} ad formats. Pick a template to see it in context.
+              {CREATIVE_TEMPLATES.length} ad formats. Pick a template to see it in context.
             </p>
+            <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/70 p-3">
+              <p className="text-sm font-semibold text-white">{activeFormatInfo?.displayName}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">{activeFormatInfo?.description}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-medium text-slate-400">
+                <span className="rounded-full bg-slate-800 px-2 py-1">{activeFormatInfo?.family}</span>
+                <span className="rounded-full bg-slate-800 px-2 py-1">{activeFormatInfo?.size}</span>
+                <span className="rounded-full bg-slate-800 px-2 py-1 uppercase">{activeFormatInfo?.placement}</span>
+              </div>
+            </div>
           </div>
           <div className="p-3 flex-grow overflow-y-auto custom-scrollbar min-h-0">
             <div className="text-xs font-bold text-slate-500 mb-2 ml-2 tracking-wider">TEMPLATE LIST</div>
             {formatList}
           </div>
+          <DemoEventConsole className="h-44 shrink-0 border-t" />
         </div>
 
         {/* Main demo area */}
         <div className="flex-grow flex flex-col min-h-0 min-w-0 relative bg-slate-900">
-          <div className="lg:hidden shrink-0 border-b border-slate-800 bg-slate-950 px-3 py-2 flex items-center gap-2">
+          <div className="lg:hidden shrink-0 border-b border-slate-800 bg-slate-950 px-3 py-2">
             <button
               type="button"
               onClick={() => setFormatPickerOpen(true)}
-              className="flex-1 flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-sm text-white touch-manipulation"
+              className="flex min-h-11 w-full items-center justify-between gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-white touch-manipulation"
             >
               <span className="flex items-center gap-2 min-w-0">
                 <List size={16} className="text-cyan-400 shrink-0" />
-                <span className="truncate">{activeFormatInfo?.name || 'Choose format'}</span>
+                <span className="truncate">{activeFormatInfo?.displayName || 'Choose format'}</span>
               </span>
               <ChevronDown size={16} className="text-slate-500 shrink-0" />
             </button>
+            <p className="mt-2 line-clamp-2 text-[11px] leading-relaxed text-slate-500">{activeFormatInfo?.description}</p>
+            <div className="mt-1 flex gap-2 text-[10px] text-slate-600">
+              <span>{activeFormatInfo?.family}</span>
+              <span aria-hidden>•</span>
+              <span>{activeFormatInfo?.size}</span>
+              <span aria-hidden>•</span>
+              <span className="uppercase">{activeFormatInfo?.placement}</span>
+            </div>
           </div>
 
           {formatPickerOpen && (
@@ -169,7 +120,7 @@ export function CreativeTemplateLab() {
                   <button
                     type="button"
                     onClick={() => setFormatPickerOpen(false)}
-                    className="p-2 rounded-lg text-slate-400 hover:text-white touch-manipulation"
+                    className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-400 hover:text-white touch-manipulation"
                     aria-label="Close"
                   >
                     <X size={20} />
@@ -181,9 +132,7 @@ export function CreativeTemplateLab() {
           )}
 
           <div className="absolute inset-0 pointer-events-none z-50">
-            {renderAd(selectedFormat, 'overlay', scrollAreaRef)}
-            {showTakeover && <FullScreenTakeover onClose={() => setShowTakeover(false)} />}
-            {showPush && <PushNotification onClose={() => setShowPush(false)} />}
+            {renderTemplate(activeFormatInfo, 'overlay', scrollAreaRef)}
           </div>
 
           <div className="h-11 sm:h-12 border-b border-slate-800 flex items-center px-3 sm:px-4 gap-2 sm:gap-4 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30 shrink-0">
@@ -196,6 +145,8 @@ export function CreativeTemplateLab() {
               demoai / {activeFormatInfo?.id}
             </span>
           </div>
+
+          <DemoEventConsole className="h-28 shrink-0 border-b lg:hidden" />
 
           <div ref={scrollAreaRef} id="demo-scroll-area" className="flex-grow overflow-y-auto overflow-x-hidden relative custom-scrollbar bg-slate-900 min-h-0">
             <div className="max-w-3xl mx-auto px-3 sm:px-8 py-6 sm:py-16 relative z-10">
@@ -216,7 +167,7 @@ export function CreativeTemplateLab() {
                 <p>{articleContent[1]}</p>
 
                 <div className="my-8 sm:my-12 overflow-x-auto">
-                  {renderAd(selectedFormat, 'inline', scrollAreaRef)}
+                  {renderTemplate(activeFormatInfo, 'inline', scrollAreaRef)}
                 </div>
 
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mt-12 mb-4">The Role of Context</h2>

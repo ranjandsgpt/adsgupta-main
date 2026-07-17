@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Linkedin, Twitter } from 'lucide-react';
 
@@ -19,9 +20,18 @@ export function Footer() {
     {
       title: 'Platform',
       links: [
-        { label: 'AI Sandbox', href: 'https://demoai.adsgupta.com/monetizationlab', external: true },
+        { label: 'Monetization Lab', to: '/monetizationlab' },
+        { label: 'AI Lab', to: '/ailab' },
+        { label: 'Creative Template', to: '/creatives' },
+        { label: 'Games', to: '/games' },
+      ],
+    },
+    {
+      title: 'AdsGupta',
+      links: [
         { label: 'Features', href: 'https://adsgupta.com/#features', external: true },
         { label: 'Pricing', href: 'https://adsgupta.com/#', external: true },
+        { label: 'Main site', href: 'https://adsgupta.com', external: true },
       ],
     },
     {
@@ -52,9 +62,9 @@ export function Footer() {
   return (
     <footer
       data-testid="footer-section"
-      className="relative py-12 sm:py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5 safe-bottom"
+      className="relative py-10 sm:py-16 md:py-24 bg-[#0A0A0A] border-t border-white/5 safe-bottom mb-0 lg:mb-0"
     >
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -62,10 +72,11 @@ export function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h3 className="text-3xl md:text-4xl font-bold text-white font-sans mb-4 tracking-tight">
-              Stay Ahead of<br />the Curve
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white font-sans mb-4 tracking-tight">
+              Stay Ahead of<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>the Curve
             </h3>
-            <p className="text-zinc-400 text-lg mb-8 max-w-md">
+            <p className="text-zinc-400 text-base sm:text-lg mb-6 sm:mb-8 max-w-md">
               Get exclusive insights on AI advertising, delivered to your inbox.
             </p>
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
@@ -104,7 +115,7 @@ export function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
+            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8"
           >
             {footerLinks.map((group, index) => (
               <div key={index}>
@@ -114,14 +125,23 @@ export function Footer() {
                 <ul className="space-y-3">
                   {group.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
-                      >
-                        {link.label}
-                      </a>
+                      {link.to ? (
+                        <Link
+                          to={link.to}
+                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-zinc-500 hover:text-white transition-colors duration-300 text-sm"
+                        >
+                          {link.label}
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -130,8 +150,8 @@ export function Footer() {
           </motion.div>
         </div>
 
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 text-center md:text-left">
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
             <a
               href="https://adsgupta.com"
               target="_blank"
@@ -140,7 +160,7 @@ export function Footer() {
             >
               ADS<span className="text-cyan-400">GUPTA</span>
             </a>
-            <span className="text-zinc-600 text-sm font-mono">
+            <span className="text-zinc-600 text-xs sm:text-sm font-mono text-center sm:text-left">
               DemoAI by AdsGupta © 2026
             </span>
           </div>

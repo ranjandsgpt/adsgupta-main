@@ -249,8 +249,8 @@ function AgentColumn({ name, value, color }) {
 
 function FintechEscrow() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-      <div className="lg:col-span-2 bg-[#111114] border border-white/10 rounded-[2.5rem] p-10">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-10">
+      <div className="lg:col-span-2 bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10">
         <div className="flex justify-between mb-10">
           <h3 className="text-2xl font-black tracking-tight text-white uppercase">Active escrow contracts</h3>
           <Plus className="text-cyan-400 cursor-pointer" size={20} />
@@ -261,7 +261,7 @@ function FintechEscrow() {
           <EscrowItem name="Branded Assets" amount="890.00" status="Disbursed" />
         </div>
       </div>
-      <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-[2.5rem] p-10 text-cyan-400 flex flex-col">
+      <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 text-cyan-400 flex flex-col">
         <CreditCard size={40} className="mb-6" />
         <h3 className="text-xl font-black uppercase mb-2 text-white">Virtual card</h3>
         <p className="text-sm font-bold text-zinc-400 mb-10">Issue instantly for session-based spending.</p>
@@ -305,7 +305,7 @@ function AgentSeatManager() {
     { name: 'Legal Auditor', uptime: '100%', load: 12 },
   ];
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10">
       <div className="flex justify-between items-center mb-10">
         <h3 className="text-2xl font-black text-white uppercase">Agent seat dashboard</h3>
         <div className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-4 py-2 rounded-xl text-xs font-black">4/10 SEATS ACTIVE</div>
@@ -332,7 +332,7 @@ function AgentSeatManager() {
 
 function DataPulseAnalytics() {
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10 flex flex-col lg:flex-row gap-10 items-center">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 flex flex-col lg:flex-row gap-10 items-center">
       <div className="flex-grow">
         <h3 className="text-4xl font-black tracking-tight text-white uppercase mb-4">Repo intelligence</h3>
         <p className="text-zinc-500 mb-8">Autonomous sync with internal documentation & legal templates.</p>
@@ -364,7 +364,7 @@ function StateSnapPro() {
     { id: 2, name: 'Pre-migration', date: '2026-02-20', size: '1.8 GB' },
   ]);
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10">
       <h3 className="text-2xl font-black text-white uppercase mb-6">State-Snap Pro</h3>
       <p className="text-zinc-500 mb-8">Save and restore environment state. Compute-on-demand when you restore.</p>
       <div className="space-y-4">
@@ -388,7 +388,7 @@ function StateSnapPro() {
 
 function AuditEngine() {
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10">
       <h3 className="text-2xl font-black text-white uppercase mb-6">Audit engine</h3>
       <p className="text-zinc-500 mb-8">SSO logs & legally vetted compliance templates. HIPAA, GDPR, SOC2.</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -418,7 +418,7 @@ function AuditEngine() {
 function VisionOS() {
   const [uploaded, setUploaded] = useState(false);
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10">
       <h3 className="text-2xl font-black text-white uppercase mb-2">Vision OS</h3>
       <p className="text-zinc-500 mb-8">Upload a room photo. AI suggests redesigns; order print or canvas.</p>
       <div
@@ -456,7 +456,7 @@ function VisionOS() {
 
 function TheMint() {
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10">
       <h3 className="text-2xl font-black text-white uppercase mb-2">The Mint</h3>
       <p className="text-zinc-500 mb-8">Verified creator badges & in-app currency exchange.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -498,7 +498,7 @@ function ChatbotStudio() {
   };
 
   return (
-    <div className="bg-[#111114] border border-white/10 rounded-[2.5rem] p-10">
+    <div className="bg-[#111114] border border-white/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10">
       <h3 className="text-2xl font-black text-white uppercase mb-6">Chatbot studio</h3>
       <div className="flex gap-2 mb-6">
         {['finance', 'weather', 'shopping'].map((b) => (
