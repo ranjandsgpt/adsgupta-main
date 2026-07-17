@@ -35,3 +35,4 @@ apps/demoai/.emergent/
 # Vercel
 .vercel
 
+.env*
