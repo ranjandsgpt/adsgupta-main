@@ -31,7 +31,9 @@ export function DemoAIHeader({
 
   const mobileTabClass = (path) =>
     `px-4 py-3 rounded-xl text-left text-sm font-semibold block ${
-      location.pathname === path ? 'bg-cyan-500/20 text-cyan-400' : 'text-zinc-400'
+      location.pathname === path || (path !== '/' && location.pathname.startsWith(`${path}/`))
+        ? 'bg-cyan-500/20 text-cyan-400'
+        : 'text-zinc-400'
     }`;
 
   return (

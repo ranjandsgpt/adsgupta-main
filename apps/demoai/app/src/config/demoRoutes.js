@@ -30,11 +30,13 @@ export const DEMO_TAB_ROUTES = [
 ];
 
 export function documentTitleFromPath(pathname) {
+  if (pathname.startsWith('/games')) return 'Games | DemoAI';
   const match = DEMO_TAB_ROUTES.find((tab) => tab.path === pathname);
   return match?.documentTitle ?? 'DemoAI | by AdsGupta';
 }
 
 export function tabIdFromPath(pathname) {
+  if (pathname.startsWith('/games')) return 'games';
   const match = DEMO_TAB_ROUTES.find((tab) => tab.path === pathname);
   return match?.id ?? null;
 }

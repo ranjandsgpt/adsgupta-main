@@ -7,7 +7,7 @@ import { documentTitleFromPath } from './config/demoRoutes';
 import { MonetizationLab } from './pages/MonetizationLab';
 import { AILab } from './pages/AILab';
 import { CreativeTemplateLab } from './pages/CreativeTemplateLab';
-import { GamesLab } from './pages/GamesLab';
+import { GamePlayPage, GamesLanding } from './pages/GamesLab';
 
 function AppShell() {
   const location = useLocation();
@@ -34,7 +34,8 @@ function AppShell() {
           <Route path="/monetizationlab" element={<MonetizationLab />} />
           <Route path="/ailab" element={<AILab toolSearchQuery={toolSearchQuery} />} />
           <Route path="/creatives" element={<CreativeTemplateLab />} />
-          <Route path="/games" element={<GamesLab />} />
+          <Route path="/games" element={<GamesLanding />} />
+          <Route path="/games/play/:gameId" element={<GamePlayPage />} />
           <Route path="*" element={<Navigate to="/monetizationlab" replace />} />
         </Routes>
       </div>
