@@ -7,6 +7,7 @@ export default {
     './components/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
     path.join(__dirname, '../../packages/amazon-audit/src/**/*.{ts,tsx}'),
+    path.join(__dirname, '../../packages/auth/src/**/*.{ts,tsx}'),
   ],
   theme: {
     extend: {},

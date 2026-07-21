@@ -1,34 +1,28 @@
 {
-  "name": "@adsgupta/amazon-audit",
+  "name": "@adsgupta/auth",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./nextauth": "./src/nextauth.ts",
     "./styles.css": "./src/styles.css",
-    "./api/*": "./src/api/*/route.ts",
+    "./api/register/route": "./src/api/register/route.ts",
+    "./api/forgot-password/route": "./src/api/forgot-password/route.ts",
+    "./api/reset-password/route": "./src/api/reset-password/route.ts",
     "./*": "./src/*"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@adsgupta/auth": "*",
-    "@google/genai": "^1.44.0",
+    "@neondatabase/serverless": "^0.10.4",
     "@supabase/supabase-js": "^2.99.1",
-    "@tanstack/react-virtual": "^3.13.19",
-    "docx": "^8.5.0",
-    "framer-motion": "^11.11.17",
-    "fuse.js": "^7.0.0",
-    "jspdf": "^2.5.2",
-    "lucide-react": "^0.460.0",
-    "papaparse": "^5.4.1",
-    "pptxgenjs": "^3.12.0",
-    "react-markdown": "^9.0.1",
-    "recharts": "^2.13.3",
-    "uuid": "^13.0.0",
-    "xlsx": "^0.18.5"
+    "bcryptjs": "^2.4.3",
+    "next-auth": "^4.24.11",
+    "uuid": "^13.0.0"
   },
   "peerDependencies": {
     "next": ">=14",
@@ -36,7 +30,7 @@
     "react-dom": ">=18"
   },
   "devDependencies": {
-    "@types/papaparse": "^5.3.14",
+    "@types/bcryptjs": "^2.4.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "typescript": "^5.6.3"

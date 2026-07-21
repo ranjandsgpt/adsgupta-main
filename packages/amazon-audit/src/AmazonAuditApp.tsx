@@ -1,5 +1,6 @@
 'use client';
 
+import { AuthGate, AuthSessionProvider } from '@adsgupta/auth';
 import AuditPage from './audit/page';
 import MetricsReferenceLoader from './audit/components/MetricsReferenceLoader';
 import { AuditBrandProvider } from './brand/BrandContext';
@@ -13,6 +14,10 @@ export interface AmazonAuditAppProps {
   /** Visual theme for CSS variables */
   theme?: 'light' | 'dark';
   className?: string;
+  /** Require AdsGupta central login before using the tool (default true) */
+  requireAuth?: boolean;
+  /** Allow continuing without an account */
+  allowAnonymous?: boolean;
 }
 
 /**
@@ -24,8 +29,10 @@ export default function AmazonAuditApp({
   config,
   theme = 'dark',
   className,
+  requireAuth = true,
+  allowAnonymous = false,
 }: AmazonAuditAppProps) {
-  return (
+  const tool = (
     <AuditBrandProvider brand={brand} config={config}>
       <div
         className={['amazon-audit-root', className].filter(Boolean).join(' ')}
@@ -36,5 +43,15 @@ export default function AmazonAuditApp({
         <AuditPage />
       </div>
     </AuditBrandProvider>
+  );
+
+  if (!requireAuth) return tool;
+
+  return (
+    <AuthSessionProvider>
+      <AuthGate appName="Amazon Advertising Audit" theme={theme} allowSkip={allowAnonymous}>
+        {tool}
+      </AuthGate>
+    </AuthSessionProvider>
   );
 }

@@ -11,14 +11,17 @@
     "incremental": true,
     "paths": {
       "@adsgupta/amazon-audit": ["../../packages/amazon-audit/src/index.ts"],
-      "@adsgupta/amazon-audit/*": ["../../packages/amazon-audit/src/*"]
+      "@adsgupta/amazon-audit/*": ["../../packages/amazon-audit/src/*"],
+      "@adsgupta/auth": ["../../packages/auth/src/index.ts"],
+      "@adsgupta/auth/*": ["../../packages/auth/src/*"]
     }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../../packages/auth/src/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"
