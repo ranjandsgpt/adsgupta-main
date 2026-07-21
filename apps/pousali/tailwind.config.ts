@@ -7,6 +7,7 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     '../../packages/amazon-audit/src/**/*.{ts,tsx}',
     '../../packages/auth/src/**/*.{ts,tsx}',
+    '../../packages/identity/src/**/*.{ts,tsx}',
   ],
   darkMode: 'class',
   theme: {

@@ -1,6 +1,13 @@
 'use client';
 
 import { AuthGate, AuthSessionProvider } from '@adsgupta/auth';
+import {
+  AccessGate,
+  AuthProvider,
+  IdentityGate,
+  isIdentityConfigured,
+} from '@adsgupta/identity';
+import '@adsgupta/identity/styles.css';
 import AuditPage from './audit/page';
 import MetricsReferenceLoader from './audit/components/MetricsReferenceLoader';
 import { AuditBrandProvider } from './brand/BrandContext';
@@ -14,7 +21,7 @@ export interface AmazonAuditAppProps {
   /** Visual theme for CSS variables */
   theme?: 'light' | 'dark';
   className?: string;
-  /** Require AdsGupta central login before using the tool (default true) */
+  /** Require login before using the tool (default true) */
   requireAuth?: boolean;
   /** Allow continuing without an account */
   allowAnonymous?: boolean;
@@ -22,7 +29,8 @@ export interface AmazonAuditAppProps {
 
 /**
  * Central Amazon Advertising Audit tool.
- * Host from marketplace, pousali, tools, or any other AdsGupta surface.
+ * Prefers @adsgupta/identity (Supabase + billing) when configured;
+ * falls back to legacy @adsgupta/auth (NextAuth) until Supabase env is set.
  */
 export default function AmazonAuditApp({
   brand = 'neutral',
@@ -47,9 +55,27 @@ export default function AmazonAuditApp({
 
   if (!requireAuth) return tool;
 
+  if (isIdentityConfigured()) {
+    return (
+      <AuthProvider>
+        <IdentityGate
+          appName="Amazon Advertising Audit"
+          theme={theme}
+          allowSkip={allowAnonymous}
+        >
+          <AccessGate>{tool}</AccessGate>
+        </IdentityGate>
+      </AuthProvider>
+    );
+  }
+
   return (
     <AuthSessionProvider>
-      <AuthGate appName="Amazon Advertising Audit" theme={theme} allowSkip={allowAnonymous}>
+      <AuthGate
+        appName="Amazon Advertising Audit"
+        theme={theme}
+        allowSkip={allowAnonymous}
+      >
         {tool}
       </AuthGate>
     </AuthSessionProvider>

@@ -1,0 +1,132 @@
+/* Shared identity / billing UI tokens for AdsGupta hosts */
+
+:root {
+  --identity-surface: #ffffff;
+  --identity-surface-muted: #f8fafc;
+  --identity-border: #e2e8f0;
+  --identity-text: #0f172a;
+  --identity-text-muted: #64748b;
+  --identity-accent: #0ea5e9;
+  --identity-success: #059669;
+  --identity-danger: #dc2626;
+}
+
+.dark,
+[data-identity-theme='dark'],
+.identity-theme-dark {
+  --identity-surface: #0f172a;
+  --identity-surface-muted: #1e293b;
+  --identity-border: rgba(255, 255, 255, 0.12);
+  --identity-text: #f8fafc;
+  --identity-text-muted: #94a3b8;
+  --identity-accent: #38bdf8;
+  --identity-success: #34d399;
+  --identity-danger: #f87171;
+}
+
+.identity-root {
+  background: var(--identity-surface);
+  color: var(--identity-text);
+}
+
+.identity-card {
+  background: var(--identity-surface-muted);
+  border: 1px solid var(--identity-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  color: var(--identity-text);
+}
+
+.identity-eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--identity-text-muted);
+  margin: 0 0 0.35rem;
+}
+
+.identity-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.identity-muted {
+  color: var(--identity-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.identity-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+}
+
+.identity-field input {
+  border: 1px solid var(--identity-border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  background: var(--identity-surface);
+  color: var(--identity-text);
+}
+
+.identity-track {
+  border: 1px solid var(--identity-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.identity-track label {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.identity-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  background: var(--identity-accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.identity-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.identity-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.identity-links button {
+  background: none;
+  border: 0;
+  color: var(--identity-accent);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.identity-error {
+  color: var(--identity-danger);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.identity-success {
+  color: var(--identity-success);
+  font-size: 0.875rem;
+  margin: 0;
+}

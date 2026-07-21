@@ -19,7 +19,9 @@
       "@adsgupta/amazon-audit": ["../../packages/amazon-audit/src/index.ts"],
       "@adsgupta/amazon-audit/*": ["../../packages/amazon-audit/src/*"],
       "@adsgupta/auth": ["../../packages/auth/src/index.ts"],
-      "@adsgupta/auth/*": ["../../packages/auth/src/*"]
+      "@adsgupta/auth/*": ["../../packages/auth/src/*"],
+      "@adsgupta/identity": ["../../packages/identity/src/index.ts"],
+      "@adsgupta/identity/*": ["../../packages/identity/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

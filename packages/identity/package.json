@@ -1,0 +1,51 @@
+{
+  "name": "@adsgupta/identity",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./styles.css": "./src/styles.css",
+    "./middleware": "./src/middleware/supabase-middleware.ts",
+    "./api/me/route": "./src/api/me/route.ts",
+    "./api/register/route": "./src/api/register/route.ts",
+    "./api/billing/order/route": "./src/api/billing/order/route.ts",
+    "./api/billing/qr/route": "./src/api/billing/qr/route.ts",
+    "./api/billing/verify/route": "./src/api/billing/verify/route.ts",
+    "./api/billing/webhook/route": "./src/api/billing/webhook/route.ts",
+    "./api/cron/expire/route": "./src/api/cron/expire/route.ts",
+    "./api/admin/freebie/approve/route": "./src/api/admin/freebie/approve/route.ts",
+    "./api/admin/freebie/reject/route": "./src/api/admin/freebie/reject/route.ts",
+    "./api/admin/freebie/pending/route": "./src/api/admin/freebie/pending/route.ts",
+    "./api/admin/users/route": "./src/api/admin/users/route.ts",
+    "./api/admin/invitations/route": "./src/api/admin/invitations/route.ts",
+    "./api/admin/invitations/accept/route": "./src/api/admin/invitations/accept/route.ts",
+    "./api/admin/memberships/route": "./src/api/admin/memberships/route.ts",
+    "./api/admin/payments/route": "./src/api/admin/payments/route.ts",
+    "./api/admin/entitlements/route": "./src/api/admin/entitlements/route.ts",
+    "./api/admin/audit-log/route": "./src/api/admin/audit-log/route.ts",
+    "./api/auth/callback/route": "./src/api/auth/callback/route.ts",
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "node --import tsx --test src/__tests__/*.test.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.99.1"
+  },
+  "peerDependencies": {
+    "next": ">=14",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18.3.12",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

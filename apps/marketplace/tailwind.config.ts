@@ -8,6 +8,7 @@ export default {
     './src/**/*.{ts,tsx}',
     path.join(__dirname, '../../packages/amazon-audit/src/**/*.{ts,tsx}'),
     path.join(__dirname, '../../packages/auth/src/**/*.{ts,tsx}'),
+    path.join(__dirname, '../../packages/identity/src/**/*.{ts,tsx}'),
   ],
   theme: {
     extend: {},
