@@ -20,10 +20,10 @@ export function Footer() {
     {
       title: 'Platform',
       links: [
+        { label: 'Games', to: '/games' },
+        { label: 'Creative Template', to: '/creatives' },
         { label: 'Monetization Lab', to: '/monetizationlab' },
         { label: 'AI Lab', to: '/ailab' },
-        { label: 'Creative Template', to: '/creatives' },
-        { label: 'Games', to: '/games' },
       ],
     },
     {

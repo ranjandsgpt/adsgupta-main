@@ -50,7 +50,7 @@ export function DemoAIHeader({
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
           <Link
-            to="/monetizationlab"
+            to="/games"
             className="flex items-center gap-2 shrink-0 min-w-0"
             onClick={() => window.scrollTo(0, 0)}
           >

@@ -1,5 +1,19 @@
 export const DEMO_TAB_ROUTES = [
   {
+    id: 'games',
+    label: 'Games',
+    shortLabel: 'Games',
+    path: '/games',
+    documentTitle: 'Games | DemoAI',
+  },
+  {
+    id: 'creative-template',
+    label: 'Creative Template',
+    shortLabel: 'Creative',
+    path: '/creatives',
+    documentTitle: 'Creative Template | DemoAI',
+  },
+  {
     id: 'monetization',
     label: 'Monetization Lab',
     shortLabel: 'Monetize',
@@ -12,20 +26,6 @@ export const DEMO_TAB_ROUTES = [
     shortLabel: 'AI Lab',
     path: '/ailab',
     documentTitle: 'AI Lab | DemoAI',
-  },
-  {
-    id: 'creative-template',
-    label: 'Creative Template',
-    shortLabel: 'Creative',
-    path: '/creatives',
-    documentTitle: 'Creative Template | DemoAI',
-  },
-  {
-    id: 'games',
-    label: 'Games',
-    shortLabel: 'Games',
-    path: '/games',
-    documentTitle: 'Games | DemoAI',
   },
 ];
 
@@ -43,5 +43,5 @@ export function tabIdFromPath(pathname) {
 
 export function pathFromTabId(tabId) {
   const match = DEMO_TAB_ROUTES.find((tab) => tab.id === tabId);
-  return match?.path ?? '/monetizationlab';
+  return match?.path ?? '/games';
 }

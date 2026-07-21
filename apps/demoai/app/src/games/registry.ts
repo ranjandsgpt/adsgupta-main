@@ -14,8 +14,9 @@ import { BreakoutGame } from './BreakoutGame';
 import { Game2048 } from './Game2048';
 import { FlappyGame } from './FlappyGame';
 import { MemoryMatchGame } from './MemoryMatchGame';
-import { PlaceholderGame } from './PlaceholderGame';
 import { PongGame } from './PongGame';
+import { ReactionTestGame } from './ReactionTestGame';
+import { SimonSaysGame } from './SimonSaysGame';
 import { SnakeGame } from './SnakeGame';
 import { TicTacToeGame } from './TicTacToeGame';
 import { WhackAMoleGame } from './WhackAMoleGame';
@@ -34,8 +35,8 @@ export const games: GameDefinition[] = [
   { id: '2048', name: '2048', icon: IconGridDots, color: '#7F77DD', component: Game2048 },
   { id: 'tic-tac-toe', name: 'Tic-tac-toe', icon: IconX, color: '#EF9F27', component: TicTacToeGame },
   { id: 'whack-a-mole', name: 'Whack-a-mole', icon: IconHammer, color: '#EF9F27', component: WhackAMoleGame },
-  { id: 'reaction-test', name: 'Reaction test', icon: IconBolt, color: '#E24B4A', component: PlaceholderGame },
-  { id: 'simon-says', name: 'Simon says', icon: IconCards, color: '#534AB7', component: PlaceholderGame },
+  { id: 'reaction-test', name: 'Reaction test', icon: IconBolt, color: '#E24B4A', component: ReactionTestGame },
+  { id: 'simon-says', name: 'Simon says', icon: IconCards, color: '#534AB7', component: SimonSaysGame },
 ];
 
 export function getGame(gameId: string | undefined): GameDefinition | undefined {

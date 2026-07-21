@@ -30,13 +30,13 @@ function AppShell() {
       />
       <div className="flex-1 flex flex-col min-h-0 w-full">
         <Routes>
-          <Route path="/" element={<Navigate to="/monetizationlab" replace />} />
+          <Route path="/" element={<Navigate to="/games" replace />} />
           <Route path="/monetizationlab" element={<MonetizationLab />} />
           <Route path="/ailab" element={<AILab toolSearchQuery={toolSearchQuery} />} />
           <Route path="/creatives" element={<CreativeTemplateLab />} />
           <Route path="/games" element={<GamesLanding />} />
           <Route path="/games/play/:gameId" element={<GamePlayPage />} />
-          <Route path="*" element={<Navigate to="/monetizationlab" replace />} />
+          <Route path="*" element={<Navigate to="/games" replace />} />
         </Routes>
       </div>
       <Footer />
