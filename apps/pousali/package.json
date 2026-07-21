@@ -12,6 +12,7 @@
     "generate-docs": "tsx scripts/updateDocs.ts"
   },
   "dependencies": {
+    "@adsgupta/amazon-audit": "*",
     "@adsgupta/config": "^0.0.0",
     "@adsgupta/ui": "^0.0.0",
     "@google/genai": "^1.44.0",

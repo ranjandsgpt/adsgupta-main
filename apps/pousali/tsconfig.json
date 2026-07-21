@@ -13,8 +13,13 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/app/audit/*": ["../../packages/amazon-audit/src/audit/*"],
+      "@/*": ["./src/*"],
+      "@adsgupta/amazon-audit": ["../../packages/amazon-audit/src/index.ts"],
+      "@adsgupta/amazon-audit/*": ["../../packages/amazon-audit/src/*"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "archives"]
 }

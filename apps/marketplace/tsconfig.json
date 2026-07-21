@@ -8,7 +8,11 @@
     ],
     "allowJs": true,
     "noEmit": true,
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@adsgupta/amazon-audit": ["../../packages/amazon-audit/src/index.ts"],
+      "@adsgupta/amazon-audit/*": ["../../packages/amazon-audit/src/*"]
+    }
   },
   "include": [
     "next-env.d.ts",

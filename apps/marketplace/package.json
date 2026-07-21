@@ -9,14 +9,29 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@adsgupta/audit-tool": "*",
+    "@adsgupta/amazon-audit": "*",
     "@adsgupta/ui": "*",
+    "@google/genai": "^1.44.0",
+    "@supabase/supabase-js": "^2.99.1",
+    "@tanstack/react-virtual": "^3.13.19",
+    "docx": "^8.5.0",
+    "framer-motion": "^11.11.17",
+    "fuse.js": "^7.0.0",
+    "jspdf": "^2.5.2",
+    "lucide-react": "^0.460.0",
     "next": "14.2.29",
+    "papaparse": "^5.4.1",
+    "pptxgenjs": "^3.12.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-markdown": "^9.0.1",
+    "recharts": "^2.13.3",
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/papaparse": "^5.3.14",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
@@ -25,4 +40,3 @@
     "typescript": "^5"
   }
 }
-
