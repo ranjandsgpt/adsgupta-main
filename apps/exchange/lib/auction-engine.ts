@@ -265,36 +265,62 @@ async function insertAuctionLog(args: {
     args.rawSignals != null && Object.keys(args.rawSignals).length
       ? JSON.stringify(args.rawSignals)
       : null;
-  const ins = await sql<{ id: string }>`
-    INSERT INTO auction_log
-    (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip, privacy_suppressed, is_ivt, raw_signals, country, region, device_type, iab_categories, above_fold)
-    VALUES
-    (
-      ${args.openrtbRequestId},
-      ${args.adUnitId},
-      ${args.publisherId},
-      ${args.winnerCampaignId},
-      ${args.winnerCreativeId},
-      ${args.winningBid},
-      ${args.floorPrice},
-      ${args.bidCount},
-      false,
-      ${args.pageUrl},
-      ${args.userAgent ?? null},
-      ${args.demandSource ?? "internal"},
-      ${args.deviceIp ?? null},
-      ${args.privacySuppressed ?? false},
-      ${args.isIvt ?? false},
-      ${rawJson}::jsonb,
-      ${args.country ?? null},
-      ${args.region ?? null},
-      ${args.deviceTypeLabel ?? null},
-      ${args.iabCategories ?? null},
-      ${args.aboveFold ?? null}
-    )
-    RETURNING id
-  `;
-  return ins.rows[0]?.id ?? null;
+  try {
+    const ins = await sql<{ id: string }>`
+      INSERT INTO auction_log
+      (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, user_agent, demand_source, device_ip, privacy_suppressed, is_ivt, raw_signals, country, region, device_type, iab_categories, above_fold)
+      VALUES
+      (
+        ${args.openrtbRequestId},
+        ${args.adUnitId},
+        ${args.publisherId},
+        ${args.winnerCampaignId},
+        ${args.winnerCreativeId},
+        ${args.winningBid},
+        ${args.floorPrice},
+        ${args.bidCount},
+        false,
+        ${args.pageUrl},
+        ${args.userAgent ?? null},
+        ${args.demandSource ?? "internal"},
+        ${args.deviceIp ?? null},
+        ${args.privacySuppressed ?? false},
+        ${args.isIvt ?? false},
+        ${rawJson}::jsonb,
+        ${args.country ?? null},
+        ${args.region ?? null},
+        ${args.deviceTypeLabel ?? null},
+        ${args.iabCategories ?? null},
+        ${args.aboveFold ?? null}
+      )
+      RETURNING id
+    `;
+    return ins.rows[0]?.id ?? null;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (!/column .* does not exist/i.test(msg)) throw e;
+    console.warn("[auction] insertAuctionLog fallback (legacy schema):", msg);
+    const ins = await sql<{ id: string }>`
+      INSERT INTO auction_log
+      (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, country)
+      VALUES
+      (
+        ${args.openrtbRequestId},
+        ${args.adUnitId},
+        ${args.publisherId},
+        ${args.winnerCampaignId},
+        ${args.winnerCreativeId},
+        ${args.winningBid},
+        ${args.floorPrice},
+        ${args.bidCount},
+        false,
+        ${args.pageUrl},
+        ${args.country ?? null}
+      )
+      RETURNING id
+    `;
+    return ins.rows[0]?.id ?? null;
+  }
 }
 
 function signalColumnsForAuctionLog(

@@ -5,6 +5,7 @@ import type { NextRequest } from "next/server";
 
 function isAlwaysPublicBypass(pathname: string): boolean {
   if (pathname === "/api/db-init") return true;
+  if (pathname === "/api/db-init/auction") return true;
   if (pathname === "/api/test/e2e") return true;
   if (pathname === "/api/debug/auction") return true;
   if (pathname === "/api/health") return true;
@@ -27,6 +28,7 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
 
   // Ops / utility endpoints: protected by their own secret/query auth
   if (pathname === "/api/db-init" && m === "GET") return true;
+  if (pathname === "/api/db-init/auction" && m === "GET") return true;
   if (pathname === "/api/test/e2e" && m === "GET") return true;
   if (pathname === "/api/debug/auction" && m === "GET") return true;
   if (pathname === "/api/health" && m === "GET") return true;
