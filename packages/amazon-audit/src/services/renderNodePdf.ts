@@ -5,6 +5,7 @@
 
 import { jsPDF } from 'jspdf';
 import type { PremiumState } from '@adsgupta/amazon-audit/agents/zenithTypes';
+import { getAuditBrandRuntime } from '../brand/runtime';
 
 function drawTable(
   doc: jsPDF,
@@ -67,7 +68,7 @@ export function renderNodePdf(premiumState: PremiumState): Buffer {
   const margin = 14;
 
   doc.setFontSize(18);
-  doc.text('Amazon Advertising CXO Audit', margin, 20);
+  doc.text(getAuditBrandRuntime().productName, margin, 20);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text(`Generated ${premiumState.generatedAt}. Node fallback PDF.`, margin, 28);

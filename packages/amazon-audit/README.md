@@ -35,3 +35,19 @@ Each host must:
 ## Branding
 
 Brand config lives in `src/brand/types.ts`. Exports, feedback links, and titles read from `useAuditBrand()` / `getAuditBrandRuntime()` — no host-specific hardcoding in the tool core.
+
+## Local fixture re-test
+
+Fixtures live in gitignored `packages/amazon-audit/.fixtures/amazon-reports/` (copy from your Amazon Reports folder).
+
+```bash
+# From repo root
+cp "/path/to/Amazon Reports/"*.{csv,xlsx} packages/amazon-audit/.fixtures/amazon-reports/
+npm run test:fixtures --workspace=@adsgupta/amazon-audit
+```
+
+Expected stable KPIs for the Feb 2026 Crystal Bohemia sample set:
+- adSpend ≈ €8604.75, adSales ≈ €11482.35, storeSales ≈ €21055.94, sessions = 17350
+- Classifications: business, campaign, advertised_product, search_term, targeting
+
+UI re-test: start marketplace or pousali, open `/audit`, upload the same five files, confirm KPIs, charts, PDF/PPTX downloads.

@@ -52,14 +52,14 @@ export default function TargetingTypePieCharts() {
 
   if (rootData.spend.length === 0 && rootData.sales.length === 0) {
     return (
-      <div className="h-[240px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[var(--color-text-muted)] text-sm">
+      <div className="h-[240px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
         No targeting type data. Upload SP Targeting / keyword data to enable this.
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">
         {showDrill ? 'Manual — ' + (drillChart === 'spend' ? 'Ad Spend' : 'Ad Sales') : 'Targeting Type'}
       </h3>

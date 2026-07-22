@@ -27,7 +27,7 @@ export default function FunnelOverviewChart() {
 
   if (steps.length === 0) {
     return (
-      <div className="rounded border border-white/10 bg-white/5 p-4 min-h-[180px] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
+      <div className="rounded border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 min-h-[180px] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
         No funnel data. Upload a Campaign Report with Impressions, Clicks, Orders.
       </div>
     );
@@ -35,7 +35,7 @@ export default function FunnelOverviewChart() {
 
   const maxVal = Math.max(...steps.map((s) => s.value), 1);
   return (
-    <div className="rounded border border-white/10 bg-white/5 p-4 min-h-[180px]">
+    <div className="rounded border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 min-h-[180px]">
       <h4 className="text-xs font-semibold text-[var(--color-text)] mb-3">Funnel: Impressions → Click → Order</h4>
       <div className="space-y-2">
         {steps.map((step, i) => {

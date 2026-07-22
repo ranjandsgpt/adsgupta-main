@@ -7,17 +7,18 @@ import { sanitizeNumeric } from '@adsgupta/amazon-audit/utils/sanitizeNumeric';
 
 /** Explicit Amazon column → canonical field mapping. No dynamic/fuzzy detection for metrics. */
 export const AMAZON_COLUMN_MAP = {
-  spend: ['Spend', 'Cost'],
+  spend: ['Spend', 'Total cost', 'Total Cost', 'Cost', 'Total cost (converted)'],
   sales7d: [
     '7 Day Total Sales',
     '7-Day Total Sales',
     '7 Day Advertised Sales',
     'Sales',
+    'Sales (converted)',
     'Attributed Sales',
   ],
   clicks: ['Clicks'],
   impressions: ['Impressions'],
-  orders: ['7 Day Total Orders (#)', 'Total Orders', 'Orders'],
+  orders: ['7 Day Total Orders (#)', 'Total Orders', 'Orders', 'Purchases'],
   totalSales: ['Ordered Product Sales'],
 } as const;
 

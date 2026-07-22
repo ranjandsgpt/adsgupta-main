@@ -12,6 +12,7 @@ import { computeHealthScore } from '../utils/healthScoreEngine';
 import { runReportVerification } from '../utils/reportVerification';
 import { validateMetrics } from '../utils/statisticalValidator';
 import { executeMetricEngineForStore } from '@adsgupta/amazon-audit/services/metricExecutionEngine';
+import { useAuditBrand } from '../../brand/BrandContext';
 
 const DISPLAY_NAMES: Record<string, string> = {
   spend: 'Spend', sales: 'Sales', clicks: 'Clicks', impressions: 'Impressions', orders: 'Orders',
@@ -52,6 +53,7 @@ export default function AuditSummaryBlock({
   exportGenerating = false,
 }: AuditSummaryBlockProps) {
   const { state } = useAuditStore();
+  const brand = useAuditBrand();
   const { store } = state;
   const dualEngine = useDualEngine();
   const { validated } = useValidatedArtifacts();
@@ -305,7 +307,7 @@ export default function AuditSummaryBlock({
       )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h2 className="text-lg sm:text-xl font-bold text-[var(--color-text)]">
-          Amazon Advertising Performance Audit
+          {brand.productName}
         </h2>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -314,7 +316,7 @@ export default function AuditSummaryBlock({
               recordAuditEvent('rerun_analysis', 'summary_block');
               onRerunAnalysis?.();
             }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 font-medium text-sm hover:bg-blue-500/30"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 font-medium text-sm hover:bg-sky-500/25 border border-sky-500/20"
             aria-label="Rerun analysis"
           >
             <RotateCcw size={16} aria-hidden />
@@ -325,7 +327,7 @@ export default function AuditSummaryBlock({
               type="button"
               onClick={onRefreshExports}
               disabled={!hasData || lockExport}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-500/20 text-slate-300 font-medium text-sm hover:bg-slate-500/30 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] text-[var(--color-text-muted)] font-medium text-sm hover:text-[var(--color-text)] border border-[var(--color-border)] disabled:opacity-50"
               aria-label="Refresh exports"
               title="Regenerate premium report"
             >
@@ -337,8 +339,7 @@ export default function AuditSummaryBlock({
             type="button"
             onClick={handlePdfExport}
             disabled={!hasData || lockExport}
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm disabled:opacity-50 ${lockExport ? 'opacity-40 pointer-events-none' : ''} bg-purple-500/20 text-purple-400 hover:bg-purple-500/30`}
-            style={lockExport ? { filter: 'blur(2px)' } : undefined}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm disabled:opacity-50 bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 hover:bg-cyan-500/25 border border-cyan-500/25"
             aria-label="Download PDF"
           >
             <FileDown size={16} aria-hidden />
@@ -348,8 +349,7 @@ export default function AuditSummaryBlock({
             type="button"
             onClick={onDownloadPptx}
             disabled={!hasData || lockExport}
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm disabled:opacity-50 ${lockExport ? 'opacity-40 pointer-events-none' : ''} bg-amber-500/20 text-amber-400 hover:bg-amber-500/30`}
-            style={lockExport ? { filter: 'blur(2px)' } : undefined}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm disabled:opacity-50 bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 border border-amber-500/25"
             aria-label="Download PPTX"
           >
             <Presentation size={16} aria-hidden />

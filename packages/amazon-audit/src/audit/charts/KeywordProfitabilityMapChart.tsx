@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ZAxis } from 'recharts';
 import { useAuditStore } from '../context/AuditStoreContext';
+import ChartEmptyState from './ChartEmptyState';
 import { keywordProfitabilityMap } from '../engines';
 
 const QUADRANT_COLORS: Record<string, string> = {
@@ -25,7 +26,7 @@ export default function KeywordProfitabilityMapChart() {
     fill: QUADRANT_COLORS[p.quadrant] ?? '#64748b',
   })), [points]);
 
-  if (data.length === 0) return null;
+  if (data.length === 0) return <ChartEmptyState />;
 
   const scaleData = data.filter((d) => d.quadrant === 'Scale');
   const optimizeData = data.filter((d) => d.quadrant === 'Optimize');
@@ -33,7 +34,7 @@ export default function KeywordProfitabilityMapChart() {
   const pauseData = data.filter((d) => d.quadrant === 'Pause');
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">Keyword Profitability Map (CPC × ROAS)</h3>
       <p className="text-xs text-[var(--color-text-muted)] mb-2">Quadrants: Scale (high ROAS, low CPC) · Optimize (high ROAS, high CPC) · Monitor · Pause (no sales)</p>
       <ResponsiveContainer width="100%" height={280}>

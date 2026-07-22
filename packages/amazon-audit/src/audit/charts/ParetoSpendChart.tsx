@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart } from 'recharts';
 import { useAuditStore } from '../context/AuditStoreContext';
+import ChartEmptyState from './ChartEmptyState';
 
 /** Section 34: Pareto (80/20) spend distribution – cumulative % of spend. */
 export default function ParetoSpendChart() {
@@ -24,10 +25,12 @@ export default function ParetoSpendChart() {
     });
   }, [state.store.keywordMetrics]);
 
-  if (data.length === 0) return null;
+  if (data.length === 0) {
+    return <ChartEmptyState message="No keyword spend data for Pareto chart." />;
+  }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">Pareto Spend (80/20)</h3>
       <ResponsiveContainer width="100%" height={220}>
         <ComposedChart data={data} margin={{ left: 4, right: 30, top: 4, bottom: 4 }}>
@@ -37,7 +40,7 @@ export default function ParetoSpendChart() {
           <YAxis yAxisId="right" orientation="right" stroke="var(--color-text-muted)" fontSize={10} tickFormatter={(v) => `${v}%`} />
           <Tooltip formatter={(v: number, name: string) => (name === 'cumulativePct' ? `${String(v)}%` : Number(v).toFixed(2))} />
           <Bar yAxisId="left" dataKey="spend" fill="#22d3ee" radius={[2, 2, 0, 0]} name="Spend" />
-          <Line yAxisId="right" type="monotone" dataKey="cumulativePct" stroke="#a78bfa" strokeWidth={2} dot={false} name="Cumulative %" />
+          <Line yAxisId="right" type="monotone" dataKey="cumulativePct" stroke="#14b8a6" strokeWidth={2} dot={false} name="Cumulative %" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

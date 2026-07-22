@@ -140,7 +140,7 @@ export function ChartsLabGrid() {
                 <XAxis dataKey="name" fontSize={9} tick={{ fontSize: 8 }} />
                 <YAxis fontSize={9} />
                 <Tooltip formatter={(v: number) => v.toFixed(2) + '×'} />
-                <Bar dataKey="roas" fill="#a78bfa" />
+                <Bar dataKey="roas" fill="#14b8a6" />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -12,6 +12,8 @@ export type CanonicalColumn =
   | 'orders'
   | 'units'
   | 'searchTerm'
+  /** Targeting expression (close-match, ASIN targets) — NOT customer search terms */
+  | 'targetingExpr'
   | 'campaignName'
   | 'adGroup'
   | 'matchType'
@@ -40,6 +42,8 @@ export interface HeaderMap {
 export function normalizeHeader(raw: string): string {
   return raw
     .toLowerCase()
+    // Normalize en-dash / em-dash / minus so "Sessions – Total" ≡ "Sessions - Total"
+    .replace(/[\u2013\u2014\u2212]/g, '-')
     .replace(/\s+/g, '')
     .replace(/-/g, '')
     .replace(/_/g, '')
@@ -51,6 +55,7 @@ const COLUMN_VARIATIONS: Record<CanonicalColumn, string[]> = {
   spend: [
     'Spend',
     'Total Cost',
+    'Total cost',
     'Cost',
     'Ad Spend',
     'Advertising Cost',
@@ -82,10 +87,12 @@ const COLUMN_VARIATIONS: Record<CanonicalColumn, string[]> = {
   ],
   orders: [
     'Orders',
+    '7 Day Total Orders (#)',
     'Units Ordered',
     'Attributed Units Ordered',
     '14 Day Total Orders',
     'Total Order Items',
+    'Purchases',
   ],
   units: [
     'Units Ordered',
@@ -97,15 +104,19 @@ const COLUMN_VARIATIONS: Record<CanonicalColumn, string[]> = {
     'Units Sold',
     'units_sold',
   ],
+  // Never include "Targeting" here — that is targetingExpr (and breaks Campaign Manager CSV classification).
   searchTerm: [
-    'Search Term',
     'Customer Search Term',
+    'Search Term',
     'Keyword Text',
+  ],
+  targetingExpr: [
     'Targeting',
   ],
   campaignName: [
-    'Campaign',
     'Campaign Name',
+    'Campaign name',
+    'Campaign',
   ],
   adGroup: [
     'Ad Group',
@@ -113,13 +124,14 @@ const COLUMN_VARIATIONS: Record<CanonicalColumn, string[]> = {
   ],
   matchType: [
     'Match Type',
-    'Targeting',
   ],
   asin: [
     'ASIN',
     'Advertised ASIN',
     'Child ASIN',
+    '(Child) ASIN',
     'Parent ASIN',
+    '(Parent) ASIN',
   ],
   sku: [
     'SKU',
@@ -138,18 +150,25 @@ const COLUMN_VARIATIONS: Record<CanonicalColumn, string[]> = {
   orderedProductSales: [
     'Ordered Product Sales',
     'Ordered Product Sales (USD)',
+    'Ordered Product Sales (EUR)',
     'Total Sales',
     'Product Sales',
     'total_sales',
   ],
   date: [
     'Date',
+    'Start Date',
+    'End Date',
+    'Campaign start date',
+    'Campaign end date',
     'Recorded Date',
     'Reported Date',
   ],
   budget: [
     'Budget',
     'Daily Budget',
+    'Campaign budget amount',
+    'Campaign budget amount (converted)',
   ],
   pageViews: [
     'Page Views',
@@ -188,6 +207,9 @@ const COLUMN_VARIATIONS: Record<CanonicalColumn, string[]> = {
   other: [],
 };
 
+/** Prefer real search-term columns over any residual aliases. */
+const SEARCH_TERM_PRIORITY = ['customersearchterm', 'keywordtext', 'searchterm'];
+
 const normalizedVariations = new Map<string, CanonicalColumn>();
 for (const [canonical, variants] of Object.entries(COLUMN_VARIATIONS)) {
   for (const v of variants) {
@@ -200,16 +222,44 @@ for (const [canonical, variants] of Object.entries(COLUMN_VARIATIONS)) {
 
 /**
  * Map raw CSV headers to canonical column names using normalized matching.
- * Returns a map: canonical -> first matching raw header.
+ * Returns a map: canonical -> best matching raw header.
  */
 export function mapHeaders(rawHeaders: string[]): HeaderMap {
-  const map: HeaderMap = {};
+  const candidates: Partial<Record<CanonicalColumn, string[]>> = {};
   for (const raw of rawHeaders) {
     const key = normalizeHeader(raw);
     const canonical = normalizedVariations.get(key);
-    if (canonical && !map[canonical]) {
-      map[canonical] = raw;
+    if (!canonical) continue;
+    if (!candidates[canonical]) candidates[canonical] = [];
+    candidates[canonical]!.push(raw);
+  }
+
+  const map: HeaderMap = {};
+  for (const [canonical, raws] of Object.entries(candidates) as [CanonicalColumn, string[]][]) {
+    if (!raws?.length) continue;
+    let chosen = raws[0];
+    if (canonical === 'searchTerm' && raws.length > 1) {
+      raws.sort((a, b) => {
+        const na = normalizeHeader(a);
+        const nb = normalizeHeader(b);
+        const pa = SEARCH_TERM_PRIORITY.findIndex((p) => na.includes(p));
+        const pb = SEARCH_TERM_PRIORITY.findIndex((p) => nb.includes(p));
+        return (pa === -1 ? 99 : pa) - (pb === -1 ? 99 : pb);
+      });
+      chosen = raws[0];
+    } else if (canonical === 'campaignName' && raws.length > 1) {
+      // Prefer "Campaign Name" over longer headers that only contain "campaign"
+      raws.sort((a, b) => normalizeHeader(a).length - normalizeHeader(b).length);
+      chosen = raws[0];
+    } else if (canonical === 'date' && raws.length > 1) {
+      // Prefer Start Date / Date over End Date for row dating
+      const prefer = raws.find((r) => {
+        const n = normalizeHeader(r);
+        return n === 'date' || n === 'startdate' || n === 'campaignstartdate';
+      });
+      chosen = prefer ?? raws[0];
     }
+    map[canonical] = chosen;
   }
   return map;
 }
@@ -296,19 +346,29 @@ export function classifyAdvertisingReportSubtype(map: HeaderMap): AdvertisingRep
   const hasCampaign = !!map.campaignName;
   const hasSkuOrAsin = !!map.sku || !!map.asin;
   const hasSearchTerm = !!map.searchTerm;
+  const hasMatchType = !!map.matchType;
+  const hasTargetingExpr = !!map.targetingExpr;
 
+  // Customer Search Term / Keyword Text → search term report (before Targeting-based rules)
   if (hasSearchTerm && map.searchTerm) {
     const norm = normalizeHeader(map.searchTerm);
-    if (norm.includes('customersearchterm')) return 'search_term';
+    if (
+      norm.includes('customersearchterm') ||
+      norm.includes('keywordtext') ||
+      norm === 'searchterm'
+    ) {
+      return 'search_term';
+    }
   }
 
   if (hasCampaign && hasSkuOrAsin) return 'advertised_product';
-  if (hasCampaign && hasSearchTerm) return 'targeting';
+  // SP Targeting reports have Match Type; Campaign Manager CSVs have Targeting but usually no Match Type
+  if (hasMatchType) return 'targeting';
   if (hasCampaign) return 'campaign';
 
   // Fallbacks when campaign name is missing
   if (hasSkuOrAsin) return 'advertised_product';
-  if (hasSearchTerm) return 'targeting';
+  if (hasSearchTerm || hasTargetingExpr) return 'targeting';
 
   return 'unknown';
 }

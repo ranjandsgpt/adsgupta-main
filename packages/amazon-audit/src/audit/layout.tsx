@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import MetricsReferenceLoader from './components/MetricsReferenceLoader';
 
 export const metadata: Metadata = {
-  title: 'Amazon Advertising Performance Audit',
+  title: 'Amazon Advertising Audit',
   description:
     'Transform Amazon CSV exports into a One-Sheet audit. TACOS, Bleeders, ASIN-level profitability.',
 };

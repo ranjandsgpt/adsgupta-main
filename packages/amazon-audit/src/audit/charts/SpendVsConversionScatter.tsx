@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis } from 'recharts';
 import { useAuditStore } from '../context/AuditStoreContext';
+import ChartEmptyState from './ChartEmptyState';
 
 /** Section 34: Spend vs ROAS (conversion efficiency) scatter. */
 export default function SpendVsConversionScatter() {
@@ -19,10 +20,10 @@ export default function SpendVsConversionScatter() {
       .slice(0, 100);
   }, [state.store.keywordMetrics]);
 
-  if (data.length === 0) return null;
+  if (data.length === 0) return <ChartEmptyState />;
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">Spend vs ROAS (efficiency)</h3>
       <ResponsiveContainer width="100%" height={220}>
         <ScatterChart margin={{ left: 4, right: 4, top: 4, bottom: 4 }}>

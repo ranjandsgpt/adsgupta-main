@@ -1,3 +1,5 @@
+import { sanitizeNumeric } from '../utils/sanitizeNumeric';
+
 export interface AggregatedMetrics {
   // Primaries
   adSpend: number;
@@ -35,20 +37,20 @@ export interface AggregatedMetrics {
 type Row = Record<string, string>;
 
 function parseNumber(val: unknown): number {
-  if (val == null || val === '' || val === '--' || val === '-') return 0;
-  return parseFloat(String(val).replace(/,/g, '')) || 0;
+  return sanitizeNumeric(val);
 }
 
 function parseCurrency(val: unknown): number {
-  if (val == null || val === '' || val === '--' || val === '-') return 0;
-  // Strip any currency symbol (£, $, €, ¥, etc.), strip commas
-  return parseFloat(String(val).replace(/[^0-9.\-]/g, '')) || 0;
+  return sanitizeNumeric(val);
 }
 
 function parsePercent(val: unknown): number {
   // Returns a decimal: "27.5%" → 0.275
   if (val == null || val === '' || val === '--' || val === '-') return 0;
-  return parseFloat(String(val).replace('%', '').replace(',', '')) / 100 || 0;
+  const n = sanitizeNumeric(String(val).replace('%', ''));
+  // Values already expressed as 0–1 fractions (rare) stay as-is when < 1 without %
+  if (typeof val === 'string' && val.includes('%')) return n / 100;
+  return n > 1 ? n / 100 : n;
 }
 
 function num(v: string | undefined, kind: 'number' | 'currency' | 'percent' = 'number'): number {
@@ -94,10 +96,24 @@ export function aggregateReports(
   const log: string[] = [];
 
   // ── CURRENCY ──────────────────────────────────────────────
-  const currency =
+  const currencyCode = (
     spAdvertisedRows[0]?.['Currency'] ??
+    spTargetingRows[0]?.['Currency'] ??
+    spSearchTermRows[0]?.['Currency'] ??
     businessRows[0]?.['Currency'] ??
-    'GBP';
+    ''
+  ).toUpperCase();
+  let currency = currencyCode || 'GBP';
+  if (!currencyCode) {
+    const sample =
+      spAdvertisedRows[0]?.['Spend'] ??
+      businessRows[0]?.['Ordered Product Sales'] ??
+      '';
+    if (String(sample).includes('€')) currency = 'EUR';
+    else if (String(sample).includes('£')) currency = 'GBP';
+    else if (String(sample).includes('$')) currency = 'USD';
+    else if (String(sample).includes('₹')) currency = 'INR';
+  }
 
   // ── SP ADVERTISED PRODUCT REPORT ─────────────────────────
   // CRITICAL: Sum ALL rows. Zero deduplication.

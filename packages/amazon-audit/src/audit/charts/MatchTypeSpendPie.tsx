@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useAuditStore } from '../context/AuditStoreContext';
 
-const MATCH_COLORS = { exact: '#22d3ee', phrase: '#a78bfa', broad: '#f472b6', auto: '#94a3b8' };
+const MATCH_COLORS = { exact: '#22d3ee', phrase: '#14b8a6', broad: '#f472b6', auto: '#94a3b8' };
 const MATCH_ORDER = ['exact', 'phrase', 'broad', 'auto'];
 
 export default function MatchTypeSpendPie() {
@@ -24,14 +24,14 @@ export default function MatchTypeSpendPie() {
 
   if (data.length === 0) {
     return (
-      <div className="h-[240px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[var(--color-text-muted)] text-sm">
+      <div className="h-[240px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
         No match type spend data
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">Match Type Spend</h3>
       <ResponsiveContainer width="100%" height={220}>
         <PieChart>

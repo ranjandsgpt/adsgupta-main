@@ -281,7 +281,7 @@ function ActionBadge({ action }: { action: SuggestedAction }) {
     Optimize: 'bg-amber-500/20 text-amber-400',
     Monitor: 'bg-sky-500/20 text-sky-400',
     Negative: 'bg-red-500/20 text-red-400',
-    Test: 'bg-purple-500/20 text-purple-400',
+    Test: 'bg-teal-500/20 text-teal-600 dark:text-teal-300',
   };
   return (
     <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${styles[action]}`}>

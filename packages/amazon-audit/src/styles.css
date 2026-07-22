@@ -1,27 +1,139 @@
 /* Shared theme tokens for the Amazon audit tool.
    Host apps should import this (or redefine the same CSS variables). */
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
 :root {
-  --color-surface: #fafafa;
+  --color-surface: #f4f7fb;
   --color-surface-elevated: #ffffff;
-  --color-border: #e2e8f0;
-  --color-accent: #0ea5e9;
+  --color-border: #d8e0ea;
+  --color-accent: #0284c7;
+  --color-accent-soft: rgba(2, 132, 199, 0.12);
   --color-text: #0f172a;
   --color-text-muted: #64748b;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+  --color-success: #059669;
+  --audit-font: 'DM Sans', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --audit-radius: 12px;
 }
 
 .dark,
 [data-audit-theme='dark'] {
   --color-surface: #0a0a0a;
   --color-surface-elevated: #141414;
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border: rgba(255, 255, 255, 0.12);
   --color-accent: #22d3ee;
+  --color-accent-soft: rgba(34, 211, 238, 0.15);
   --color-text: #f8fafc;
   --color-text-muted: #94a3b8;
+  --color-danger: #f87171;
+  --color-warning: #fbbf24;
+  --color-success: #34d399;
 }
 
 .amazon-audit-root {
   background-color: var(--color-surface);
   color: var(--color-text);
   min-height: 100%;
+  font-family: var(--audit-font);
+}
+
+[data-audit-theme='light'] .amazon-audit-root,
+[data-audit-theme='light'] .amazon-audit-root {
+  color-scheme: light;
+}
+
+/* ── Tabs (theme-aware; cyan accent — not purple) ── */
+.amazon-audit-root .audit-tabs-container {
+  position: relative;
+  background: var(--color-surface-elevated);
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  padding: 12px 14px;
+  margin-top: 12px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+[data-audit-theme='dark'] .amazon-audit-root .audit-tabs-container,
+.amazon-audit-root[data-audit-theme='dark'] .audit-tabs-container {
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.amazon-audit-root .tab-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.amazon-audit-root .tab-list::-webkit-scrollbar {
+  display: none;
+}
+.amazon-audit-root .tab-button {
+  flex-shrink: 0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.amazon-audit-root .tab-button:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+.amazon-audit-root .tab-button svg {
+  opacity: 0.75;
+}
+.amazon-audit-root .tab-button.active {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  box-shadow: 0 0 0 1px var(--color-accent-soft);
+}
+.amazon-audit-root .tab-button.active svg {
+  opacity: 1;
+  color: var(--color-accent);
+}
+.amazon-audit-root .tab-content-container {
+  margin-top: 16px;
+}
+
+/* Empty / loading helpers */
+.amazon-audit-root .audit-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 140px;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--audit-radius);
+  background: transparent;
+}
+
+@media (max-width: 640px) {
+  .amazon-audit-root .audit-tabs-container {
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+  .amazon-audit-root .tab-button {
+    padding: 7px 10px;
+    font-size: 0.7rem;
+  }
 }

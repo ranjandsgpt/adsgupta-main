@@ -59,7 +59,7 @@ export default function AuditTabs({ activeTab, onTabChange }: AuditTabsProps) {
                 aria-controls={`panel-${id}`}
                 id={`tab-${id}`}
                 onClick={() => onTabChange(id)}
-                className={`tab-button focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface)] focus-visible:ring-[rgba(140,160,255,0.6)] ${activeTab === id ? 'active' : ''}`}
+                className={`tab-button focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-surface)] focus-visible:ring-[var(--color-accent)] ${activeTab === id ? 'active' : ''}`}
               >
                 <Icon size={14} aria-hidden />
                 {label}

@@ -21,14 +21,14 @@ export default function DailyTrendLine() {
 
   if (data.length === 0) {
     return (
-      <div className="h-[240px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[var(--color-text-muted)] text-sm">
+      <div className="h-[240px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
         No trend data. Add reports with date column for daily breakdown.
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">Spend vs Sales (Trend)</h3>
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
@@ -38,7 +38,7 @@ export default function DailyTrendLine() {
           <Tooltip formatter={(v: number) => v.toFixed(2)} />
           <Legend />
           <Line type="monotone" dataKey="spend" stroke="#22d3ee" name="Spend" strokeWidth={2} dot />
-          <Line type="monotone" dataKey="sales" stroke="#a78bfa" name="Sales" strokeWidth={2} dot />
+          <Line type="monotone" dataKey="sales" stroke="#14b8a6" name="Sales" strokeWidth={2} dot />
         </LineChart>
       </ResponsiveContainer>
     </div>

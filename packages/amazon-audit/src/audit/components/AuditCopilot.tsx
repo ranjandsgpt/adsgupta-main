@@ -352,7 +352,7 @@ export default function AuditCopilot() {
       aria-label="AI Audit Copilot"
     >
       <header className="flex items-center gap-2 p-3 border-b border-[var(--color-border)]">
-        <MessageCircle className="w-5 h-5 text-indigo-400" aria-hidden />
+        <MessageCircle className="w-5 h-5 text-cyan-500" aria-hidden />
         <h3 className="text-sm font-semibold text-[var(--color-text)]">AI Audit Copilot</h3>
       </header>
 
@@ -369,7 +369,7 @@ export default function AuditCopilot() {
                   key={q}
                   type="button"
                   onClick={() => handleSuggestion(q)}
-                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-[var(--color-border)] text-[var(--color-text)] text-xs hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  className="px-3 py-1.5 rounded-lg bg-white/5 border border-[var(--color-border)] text-[var(--color-text)] text-xs hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                 >
                   {q}
                 </button>
@@ -385,7 +385,7 @@ export default function AuditCopilot() {
             <div
               className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
                 msg.role === 'user'
-                  ? 'bg-indigo-500/20 text-[var(--color-text)]'
+                  ? 'bg-cyan-500/20 text-[var(--color-text)]'
                   : 'bg-[var(--color-surface-elevated)] border border-[var(--color-border)] text-[var(--color-text)]'
               }`}
             >
@@ -450,14 +450,14 @@ export default function AuditCopilot() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask a question about your audit…"
-            className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             disabled={loading}
             aria-label="Question"
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="rounded-lg bg-indigo-500/80 hover:bg-indigo-500 text-white p-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white p-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             aria-label="Send"
           >
             <Send className="w-4 h-4" />

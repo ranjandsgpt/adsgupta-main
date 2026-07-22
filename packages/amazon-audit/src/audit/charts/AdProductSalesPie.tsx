@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useAuditStore } from '../context/AuditStoreContext';
 
-const COLORS = ['#22d3ee', '#a78bfa', '#f472b6'];
+const COLORS = ['#22d3ee', '#14b8a6', '#f472b6'];
 
 /** Infer SP / SB / SD from campaign name. Unclassified rows are pro-rated into SP/SB/SD. */
 function inferAdProduct(campaignName: string): 'SP' | 'SB' | 'SD' | 'unclassified' {
@@ -70,14 +70,14 @@ export default function AdProductSalesPie() {
 
   if (data.length === 0) {
     return (
-      <div className="h-[240px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[var(--color-text-muted)] text-sm">
+      <div className="h-[240px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
         No ad product sales data
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">Ad Product Sales (SP / SB / SD)</h3>
       <p className="text-[10px] text-[var(--color-text-muted)] mb-1">
         SP = Sponsored Products · SB = Sponsored Brands (incl. video) · SD = Sponsored Display

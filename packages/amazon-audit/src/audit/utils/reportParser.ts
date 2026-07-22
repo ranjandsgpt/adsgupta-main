@@ -337,10 +337,17 @@ function parseAdvertisingFileFromContent(
         }
 
         const dateRaw = getStr(row, headerMap!.date);
-        const dateNorm = normalizeDate(dateRaw);
+        // EU marketplace exports often use DD/MM/YYYY (e.g. Campaign Manager)
+        const preferEu =
+          /germany|france|italy|spain|netherlands|sweden|poland|belgium|EUR/i.test(
+            String(row['Country'] ?? row['Marketplace'] ?? row['Currency'] ?? '')
+          );
+        const dateNorm = normalizeDate(dateRaw, preferEu);
         const campaign = getStr(row, headerMap!.campaignName);
         const adGroup = getStr(row, headerMap!.adGroup);
-        const keyword = getStr(row, headerMap!.searchTerm);
+        // Prefer customer search terms; fall back to targeting expression for targeting reports
+        const keyword =
+          getStr(row, headerMap!.searchTerm) || getStr(row, headerMap!.targetingExpr);
         const asin = resolveAsin(row, headerMap!.asin, headerMap!.sku, skuToAsinMap);
 
         // IMPORTANT: Never deduplicate SP Advertised Product Report rows.

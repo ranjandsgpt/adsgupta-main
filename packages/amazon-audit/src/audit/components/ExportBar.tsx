@@ -49,7 +49,7 @@ export default function ExportBar({
   return (
     <section
       aria-label="Export report"
-      className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-[var(--color-surface-elevated)] px-4 py-3"
+      className="flex flex-col gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-4 py-3"
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
       <span className="text-sm font-medium text-[var(--color-text)]">
@@ -71,7 +71,7 @@ export default function ExportBar({
             type="button"
             onClick={onRefreshExports}
             disabled={!hasData || lock}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-500/20 text-slate-300 font-medium text-sm hover:bg-slate-500/30 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-surface)] text-[var(--color-text-muted)] font-medium text-sm hover:text-[var(--color-text)] border border-[var(--color-border)] disabled:opacity-50"
             aria-label="Refresh exports"
             title="Regenerate premium report"
           >
@@ -83,8 +83,7 @@ export default function ExportBar({
           type="button"
           onClick={onDownloadPdf}
           disabled={!hasData || lock}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 ${lock ? 'opacity-40 pointer-events-none' : ''} bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500/30`}
-          style={lock ? { filter: 'blur(4px)' } : undefined}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 hover:bg-cyan-500/25 border border-cyan-500/25"
           aria-label="Download PDF"
         >
           <FileDown size={18} aria-hidden />
@@ -94,8 +93,7 @@ export default function ExportBar({
           type="button"
           onClick={onDownloadPptx}
           disabled={!hasData || lock}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 ${lock ? 'opacity-40 pointer-events-none' : ''} bg-amber-500/20 text-amber-400 hover:bg-amber-500/30`}
-          style={lock ? { filter: 'blur(4px)' } : undefined}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 border border-amber-500/25"
           aria-label="Download PPTX"
         >
           <Presentation size={18} aria-hidden />

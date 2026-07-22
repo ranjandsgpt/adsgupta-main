@@ -11,7 +11,8 @@
     "./*": "./src/*"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit"
+    "build": "tsc -p tsconfig.json --noEmit",
+    "test:fixtures": "node ./scripts/run-fixture-audit.mjs 5"
   },
   "dependencies": {
     "@adsgupta/auth": "*",

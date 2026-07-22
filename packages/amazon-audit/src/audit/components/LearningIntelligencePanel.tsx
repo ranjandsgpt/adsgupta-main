@@ -82,9 +82,9 @@ export default function LearningIntelligencePanel() {
             {crossAccountInsights.map((insight, i) => (
               <li
                 key={i}
-                className="text-sm text-[var(--color-text)] flex items-start gap-2 rounded-lg bg-purple-500/10 px-3 py-2"
+                className="text-sm text-[var(--color-text)] flex items-start gap-2 rounded-lg bg-cyan-500/10 px-3 py-2"
               >
-                <span className="shrink-0 text-purple-400 font-mono text-xs">
+                <span className="shrink-0 text-cyan-500 font-mono text-xs">
                   {Math.round(insight.confidence)}%
                 </span>
                 <span>{insight.text}</span>

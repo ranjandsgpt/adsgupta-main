@@ -17,14 +17,14 @@ export default function BudgetPacingGauges() {
 
   if (top5.length === 0) {
     return (
-      <div className="h-[200px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[var(--color-text-muted)] text-sm">
+      <div className="h-[200px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
         No campaign budget data
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-3">Budget Pacing (Top 5 Campaigns)</h3>
       <div className="space-y-4">
         {top5.map((m, i) => {

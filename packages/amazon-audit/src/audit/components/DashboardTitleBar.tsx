@@ -2,6 +2,7 @@
 
 import { FileDown, Presentation, RotateCcw, RefreshCw } from 'lucide-react';
 import { useAuditStore } from '../context/AuditStoreContext';
+import { useAuditBrand } from '../../brand/BrandContext';
 
 /** Dashboard title and actions: Rerun, Refresh exports, Download PDF, Download PPTX. */
 interface DashboardTitleBarProps {
@@ -20,22 +21,23 @@ export default function DashboardTitleBar({
   exportGenerating = false,
 }: DashboardTitleBarProps) {
   const { state } = useAuditStore();
+  const brand = useAuditBrand();
   const hasData = state.store.totalAdSpend > 0 || state.store.totalStoreSales > 0;
   const lock = exportGenerating;
 
   return (
     <section
       aria-label="Audit dashboard title and actions"
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-white/10 bg-[var(--color-surface-elevated)] p-4 sm:p-6"
+      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4 sm:p-6"
     >
       <h2 className="text-xl sm:text-2xl font-bold text-[var(--color-text)]">
-        Amazon Advertising Performance Audit
+        {brand.productName}
       </h2>
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={onRerunAnalysis}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 text-blue-400 font-medium text-sm hover:bg-blue-500/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 font-medium text-sm hover:bg-sky-500/25 border border-sky-500/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
           aria-label="Rerun analysis"
         >
           <RotateCcw size={18} aria-hidden />
@@ -46,7 +48,7 @@ export default function DashboardTitleBar({
             type="button"
             onClick={onRefreshExports}
             disabled={!hasData || lock}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-500/20 text-slate-300 font-medium text-sm hover:bg-slate-500/30 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-surface)] text-[var(--color-text-muted)] font-medium text-sm hover:text-[var(--color-text)] border border-[var(--color-border)] disabled:opacity-50"
             aria-label="Refresh exports"
             title="Regenerate premium report"
           >
@@ -58,8 +60,7 @@ export default function DashboardTitleBar({
           type="button"
           onClick={onDownloadPdf}
           disabled={!hasData || lock}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 ${lock ? 'opacity-40 pointer-events-none' : ''} bg-purple-500/20 text-purple-400 hover:bg-purple-500/30`}
-          style={lock ? { filter: 'blur(4px)' } : undefined}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 hover:bg-cyan-500/25 border border-cyan-500/25"
           aria-label="Download PDF"
         >
           <FileDown size={18} aria-hidden />
@@ -69,8 +70,7 @@ export default function DashboardTitleBar({
           type="button"
           onClick={onDownloadPptx}
           disabled={!hasData || lock}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 ${lock ? 'opacity-40 pointer-events-none' : ''} bg-amber-500/20 text-amber-400 hover:bg-amber-500/30`}
-          style={lock ? { filter: 'blur(4px)' } : undefined}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm disabled:opacity-50 bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 border border-amber-500/25"
           aria-label="Download PPTX"
         >
           <Presentation size={18} aria-hidden />

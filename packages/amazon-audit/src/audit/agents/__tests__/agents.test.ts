@@ -40,11 +40,16 @@ function createMockStore(overrides: Partial<MemoryStore> = {}): MemoryStore {
     },
     totalImpressions: 50000,
     totalClicks: 380,
-    attributedSales7d: 7500,
-    attributedSales14d: 8000,
-    attributedUnitsOrdered: 180,
+    attributedSales7d: 8000,
+    attributedSales14d: 8500,
+    attributedUnitsOrdered: 150,
+    rawSpAdvertisedRows: [],
+    rawSpTargetingRows: [],
+    rawSpSearchTermRows: [],
+    rawBusinessRows: [],
+    ...overrides,
   };
-  return { ...store, ...overrides };
+  return store;
 }
 
 describe('Schema Intelligence Agent', () => {

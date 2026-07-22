@@ -54,7 +54,16 @@ export async function generateSlideContent(
   const topCampaign = [...campaigns].sort((a, b) => b.sales - a.sales)[0];
   const worstCamp = [...campaigns].sort((a, b) => b.acos - a.acos)[0];
   const totalWaste = wasteTerms.reduce((s, t) => s + t.spend, 0);
-  const cur = metrics.currency ?? '£';
+  const cur = (() => {
+    const c = String(metrics.currency ?? '').trim();
+    if (c === '€' || c === '£' || c === '$' || c === '₹') return c;
+    const code = c.toUpperCase();
+    if (code === 'EUR') return '€';
+    if (code === 'GBP') return '£';
+    if (code === 'INR') return '₹';
+    if (code === 'USD') return '$';
+    return '€';
+  })();
 
   const result = await tripleEngine({
     task: 'slide_content',

@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuditStore } from '../context/AuditStoreContext';
+import ChartEmptyState from './ChartEmptyState';
 
 export default function ROASByCampaignBar() {
   const { state } = useAuditStore();
@@ -14,10 +15,12 @@ export default function ROASByCampaignBar() {
       .slice(0, 10);
   }, [state.store.campaignMetrics]);
 
-  if (data.length === 0) return null;
+  if (data.length === 0) {
+    return <ChartEmptyState message="No campaign ROAS data yet." />;
+  }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">ROAS by Campaign (Top 10)</h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data} margin={{ left: 4, right: 10 }}>
@@ -25,7 +28,7 @@ export default function ROASByCampaignBar() {
           <XAxis dataKey="name" stroke="var(--color-text-muted)" fontSize={10} tick={{ fontSize: 9 }} />
           <YAxis stroke="var(--color-text-muted)" fontSize={11} tickFormatter={(v) => v.toFixed(1) + '×'} />
           <Tooltip formatter={(v: number) => v.toFixed(2) + '×'} />
-          <Bar dataKey="roas" fill="#a78bfa" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="roas" fill="#14b8a6" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

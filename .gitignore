@@ -36,3 +36,6 @@ apps/demoai/.emergent/
 .vercel
 
 .env*
+
+# Local Amazon Audit fixtures (PII-heavy)
+packages/amazon-audit/.fixtures/

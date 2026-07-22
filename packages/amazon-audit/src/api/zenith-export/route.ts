@@ -157,11 +157,24 @@ export async function POST(request: NextRequest) {
       setExportStatus('rendering', 'Using simplified slide layout…');
     }
 
+    const brand = getAuditBrandRuntime();
     const pres = new pptxgen();
-    pres.title = 'Amazon Advertising Performance Audit';
-    pres.author = 'Zenith Export Orchestrator';
+    pres.title = brand.productName;
+    pres.author = brand.preparedBy;
 
-    const currency = premiumState.currency ?? '£';
+    const currencyRaw = premiumState.currency ?? 'EUR';
+    const currency =
+      currencyRaw === 'EUR' || currencyRaw === '€'
+        ? '€'
+        : currencyRaw === 'GBP' || currencyRaw === '£'
+          ? '£'
+          : currencyRaw === 'INR' || currencyRaw === '₹'
+            ? '₹'
+            : currencyRaw === 'USD' || currencyRaw === '$'
+              ? '$'
+              : currencyRaw.length === 1
+                ? currencyRaw
+                : '€';
     const metricsMap = new Map<string, string | number>();
     premiumState.verifiedMetrics.forEach((m) => {
       metricsMap.set(m.label, m.value);
@@ -231,7 +244,10 @@ export async function POST(request: NextRequest) {
           metricMap.set(m.label, m.value);
         }
       });
-      const currencyForEngine = premiumState.currency ?? '£';
+      const currencyForEngine =
+        currency === '€' || currency === '£' || currency === '$' || currency === '₹'
+          ? currency
+          : '€';
       const aggLike: AggregatedMetrics = {
         adSpend: metricMap.get('Ad Spend') ?? 0,
         adSales: metricMap.get('Ad Sales') ?? 0,

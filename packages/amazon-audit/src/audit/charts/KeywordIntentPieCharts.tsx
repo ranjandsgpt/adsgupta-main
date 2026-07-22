@@ -40,14 +40,14 @@ export default function KeywordIntentPieCharts() {
 
   if (spendData.length === 0 && salesData.length === 0) {
     return (
-      <div className="h-[240px] rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[var(--color-text-muted)] text-sm">
+      <div className="h-[240px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
         No keyword data. Upload reports to enable keyword intent analysis.
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-4">
       <h3 className="text-sm font-semibold text-[var(--color-text)] mb-2">Keyword Intent</h3>
       {!hasBrandConfig && (
         <p className="text-xs text-amber-500/90 mb-2 rounded bg-amber-500/10 px-2 py-1">
