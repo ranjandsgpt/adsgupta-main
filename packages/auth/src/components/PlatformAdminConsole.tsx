@@ -20,36 +20,86 @@ type PendingFreebie = {
   profiles?: { email?: string; full_name?: string };
 };
 
+type JsonRecord = Record<string, unknown>;
+
+async function fetchJson(url: string): Promise<{
+  ok: boolean;
+  status: number;
+  data: JsonRecord;
+}> {
+  try {
+    const res = await fetch(url, { credentials: 'include' });
+    const text = await res.text();
+    if (!text) {
+      return {
+        ok: false,
+        status: res.status,
+        data: { error: `Empty response (${res.status})` },
+      };
+    }
+    try {
+      const data = JSON.parse(text) as JsonRecord;
+      return { ok: res.ok, status: res.status, data };
+    } catch {
+      return {
+        ok: false,
+        status: res.status,
+        data: { error: `Invalid JSON (${res.status})` },
+      };
+    }
+  } catch (e) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: e instanceof Error ? e.message : 'Network error' },
+    };
+  }
+}
+
 export function PlatformAdminConsole() {
   const [tab, setTab] = useState<Tab>('overview');
   const [exchangeUsers, setExchangeUsers] = useState<ExchangeUser[]>([]);
   const [pendingFreebies, setPendingFreebies] = useState<PendingFreebie[]>([]);
   const [payments, setPayments] = useState<unknown[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setNotice(null);
     try {
       const [ex, fb, pay] = await Promise.all([
-        fetch('/platform/api/platform/exchange-users', { credentials: 'include' }).then((r) =>
-          r.json()
-        ),
-        fetch('/platform/api/admin/freebie/pending', { credentials: 'include' }).then((r) =>
-          r.json()
-        ),
-        fetch('/platform/api/admin/payments', { credentials: 'include' }).then((r) => r.json()),
+        fetchJson('/platform/api/platform/exchange-users'),
+        fetchJson('/platform/api/admin/freebie/pending'),
+        fetchJson('/platform/api/admin/payments'),
       ]);
-      if (ex.users) setExchangeUsers(ex.users);
-      if (fb.memberships) setPendingFreebies(fb.memberships);
-      if (pay.payments) setPayments(pay.payments);
+
+      if (Array.isArray(ex.data.users)) {
+        setExchangeUsers(ex.data.users as ExchangeUser[]);
+      }
+      if (Array.isArray(fb.data.memberships)) {
+        setPendingFreebies(fb.data.memberships as PendingFreebie[]);
+      }
+      if (Array.isArray(pay.data.payments)) {
+        setPayments(pay.data.payments as unknown[]);
+      }
+
+      if (!ex.ok) {
+        setError(String(ex.data.error || `Exchange users failed (${ex.status})`));
+      }
+
+      const soft = [fb.data.notice, pay.data.notice]
+        .filter((n): n is string => typeof n === 'string' && n.length > 0);
+      if (soft.length) setNotice(soft[0]);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load admin data');
     } finally {
       setLoading(false);
     }
   }, []);
+
 
   useEffect(() => {
     void load();
@@ -103,6 +153,9 @@ export function PlatformAdminConsole() {
 
       {error ? (
         <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      ) : null}
+      {notice ? (
+        <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">{notice}</p>
       ) : null}
 
       <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-200 pb-2">
