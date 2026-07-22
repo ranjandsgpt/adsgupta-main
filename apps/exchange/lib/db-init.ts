@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 
 /** Adds columns required for the auction serve path — safe to run anytime. */
 export async function migrateAuctionLogColumns(): Promise<void> {
+  await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS country TEXT`;
   await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS user_agent TEXT`;
   await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS raw_signals JSONB`;
   await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS demand_source TEXT DEFAULT 'internal'`;
@@ -13,6 +14,18 @@ export async function migrateAuctionLogColumns(): Promise<void> {
   await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS iab_categories TEXT[]`;
   await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS above_fold BOOLEAN`;
   await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS processing_ms NUMERIC(8,2)`;
+}
+
+/** Campaign targeting JSON columns used by the auction engine. */
+export async function migrateCampaignTargetingColumns(): Promise<void> {
+  await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS audience_targeting JSONB DEFAULT '{}'::jsonb`;
+  await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS content_targeting JSONB DEFAULT '{}'::jsonb`;
+  await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS temporal_targeting JSONB DEFAULT '{}'::jsonb`;
+  await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS ab_test_active BOOLEAN DEFAULT false`;
+  await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS freq_cap_day INTEGER DEFAULT 0`;
+  await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS freq_cap_session INTEGER DEFAULT 0`;
+  await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS ab_group TEXT DEFAULT 'a'`;
+  await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS ab_weight INTEGER DEFAULT 50`;
 }
 
 /** Drop all CHECK constraints on a table so we can replace inline + named checks safely. */
@@ -141,6 +154,7 @@ export async function createTables(): Promise<number> {
       )
     `;
     await migrateAuctionLogColumns();
+    await migrateCampaignTargetingColumns();
 
     await sql`
       CREATE TABLE IF NOT EXISTS impressions (
@@ -227,6 +241,7 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS html_snippet TEXT`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS vast_url TEXT`;
     await migrateAuctionLogColumns();
+    await migrateCampaignTargetingColumns();
 
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS rejection_reason TEXT`;
     await dropAllCheckConstraints("campaigns");

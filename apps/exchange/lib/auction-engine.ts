@@ -302,7 +302,7 @@ async function insertAuctionLog(args: {
     console.warn("[auction] insertAuctionLog fallback (legacy schema):", msg);
     const ins = await sql<{ id: string }>`
       INSERT INTO auction_log
-      (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url, country)
+      (auction_id, ad_unit_id, publisher_id, winning_campaign_id, winning_creative_id, winning_bid, floor_price, bid_count, cleared, page_url)
       VALUES
       (
         ${args.openrtbRequestId},
@@ -314,8 +314,7 @@ async function insertAuctionLog(args: {
         ${args.floorPrice},
         ${args.bidCount},
         false,
-        ${args.pageUrl},
-        ${args.country ?? null}
+        ${args.pageUrl}
       )
       RETURNING id
     `;

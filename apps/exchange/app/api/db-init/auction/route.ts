@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import { migrateAuctionLogColumns } from "@/lib/db-init";
+import { migrateAuctionLogColumns, migrateCampaignTargetingColumns } from "@/lib/db-init";
 import { rateLimitResponse } from "@/lib/rate-limit-http";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
 
   try {
     await migrateAuctionLogColumns();
-    return NextResponse.json({ ok: true, migrated: "auction_log_columns" });
+    await migrateCampaignTargetingColumns();
+    return NextResponse.json({ ok: true, migrated: "auction_log_and_campaign_columns" });
   } catch (e) {
     console.error("[db-init/auction]", e);
     return NextResponse.json(
