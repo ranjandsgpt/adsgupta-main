@@ -113,6 +113,45 @@
       }
     })();
 
+    function exchangeApiBase() {
+      var host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return 'https://exchange.adsgupta.com';
+      }
+      return window.location.origin;
+    }
+
+    function mdeInitOptions(pubId) {
+      return {
+        networkCode: pubId,
+        auctionUrl: exchangeApiBase() + '/api/openrtb/auction'
+      };
+    }
+
+    function fetchDemoIds() {
+      var prodFallback = function() {
+        return fetch('https://exchange.adsgupta.com/api/demo/ids', { mode: 'cors' })
+          .then(function(r) { return r.json(); })
+          .catch(function() {
+            // Cross-origin demo lookup may fail without CORS on older deploys — use known prod demo IDs.
+            return {
+              ok: true,
+              ready: true,
+              publisherId: '198597c6-b370-4590-8acb-a69539a60880',
+              adUnitId: 'ee6a061b-5116-40db-a589-b35e1cfaef09'
+            };
+          });
+      };
+
+      return fetch('/api/demo/ids')
+        .then(function(r) { return r.json(); })
+        .then(function(j) {
+          if (j && j.ready && j.publisherId && j.adUnitId) return j;
+          return prodFallback();
+        })
+        .catch(prodFallback);
+    }
+
     window.addEventListener('message', function(e) {
       if (e.data && e.data.type === 'mde:impression') {
         addLog('Ad impression fired — unit: ' + e.data.unitId + ', price: $' + e.data.price, 'success');
@@ -144,7 +183,7 @@
 
       try {
         addLog('Initializing slot — pub=' + pubId.slice(0,8) + '… unit=' + unitId.slice(0,8) + '…', 'info');
-        mde.init({ networkCode: pubId });
+        mde.init(mdeInitOptions(pubId));
         mde.defineSlot({ unitId: unitId, div: divId, sizes: ['300x250'], floor: 0.01 });
         mde.enableServices();
         mde.display(divId);
@@ -169,8 +208,7 @@
         return;
       }
 
-      fetch('/api/demo/ids')
-        .then(function(r) { return r.json(); })
+      fetchDemoIds()
         .then(function(j) {
           if (j && j.ready && j.publisherId && j.adUnitId) {
             pubInput.value = j.publisherId;
@@ -190,7 +228,7 @@
 
     loadFromQueryOrDemo();
   </script>
-  <script async src="https://exchange.adsgupta.com/mde.js"
+  <script async src="/mde.js"
     onload="addLog('mde.js script loaded', 'success')"
     onerror="addLog('ERROR: failed to load mde.js', 'error')">
   </script>

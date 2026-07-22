@@ -72,6 +72,14 @@ export default function StatusPage() {
               </tr>
             </tbody>
           </table>
+          <div style={{ marginTop: 20, fontSize: 13 }}>
+            <a href="/test-ad.html?autorun=1" style={{ color: "#0066cc", marginRight: 16 }}>
+              Live ad tag test →
+            </a>
+            <a href="/platform/test" style={{ color: "#0066cc" }}>
+              E2E test console →
+            </a>
+          </div>
         </div>
       )}
     </div>

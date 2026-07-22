@@ -63,7 +63,11 @@ export default function DocsOverviewPage() {
           <Link href="/docs/mde-js-reference" style={{ color: "var(--accent)" }}>
             mde.js Reference
           </Link>
-          .
+          . Try the live{" "}
+          <a href="/test-ad.html?autorun=1" style={{ color: "var(--accent)" }}>
+            tag test page
+          </a>{" "}
+          to verify a bid and impression end-to-end.
         </p>
         <DocCodeBlock
           language="html"

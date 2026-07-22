@@ -4,6 +4,16 @@ import { json } from "@/lib/http";
 
 const DEMO_DOMAIN = "demo-serving.adsgupta.com";
 
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 200, headers: CORS });
+}
+
 /** Public read-only lookup for the persistent demo publisher/ad unit (if seeded). */
 export async function GET() {
   try {
@@ -14,7 +24,7 @@ export async function GET() {
     `;
     const publisherId = pub.rows[0]?.id;
     if (!publisherId) {
-      return json({ ok: false, ready: false, hint: "Run GET /api/demo/setup?secret=... to seed demo inventory" });
+      return json({ ok: false, ready: false, hint: "Run GET /api/demo/setup?secret=... to seed demo inventory" }, { headers: CORS });
     }
 
     const unit = await sql<{ id: string }>`
@@ -25,12 +35,12 @@ export async function GET() {
     `;
     const adUnitId = unit.rows[0]?.id;
     if (!adUnitId) {
-      return json({ ok: false, ready: false, publisherId, hint: "Demo publisher exists but no active ad unit" });
+      return json({ ok: false, ready: false, publisherId, hint: "Demo publisher exists but no active ad unit" }, { headers: CORS });
     }
 
-    return json({ ok: true, ready: true, publisherId, adUnitId, domain: DEMO_DOMAIN });
+    return json({ ok: true, ready: true, publisherId, adUnitId, domain: DEMO_DOMAIN }, { headers: CORS });
   } catch (e) {
     console.error("[demo/ids]", e);
-    return json({ ok: false, error: e instanceof Error ? e.message : String(e) }, 500);
+    return json({ ok: false, error: e instanceof Error ? e.message : String(e) }, { status: 500, headers: CORS });
   }
 }
