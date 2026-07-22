@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3010",
-    "build": "next build",
+    "prepare:apex": "node ./scripts/prepare-apex.js",
+    "build": "node ./scripts/prepare-apex.js && next build",
+    "build:platform-only": "SKIP_MARKETING_BUILD=1 node ./scripts/prepare-apex.js && next build",
     "start": "next start",
     "lint": "next lint"
   },

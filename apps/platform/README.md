@@ -1,18 +1,26 @@
 # AdsGupta Platform (`apps/platform`)
 
-Central login and admin user management for the AdsGupta network.
+Central Sign In, tools hub, and admin user management for the AdsGupta network.
 
-**URL:** `https://adsgupta.com/platform/usermanagement`
+**Production URL:** `https://adsgupta.com/platform`  
+**Sign in:** `https://adsgupta.com/platform/usermanagement`
 
-## Deploy
+## Deploy (adsgupta-main = apex)
 
-1. Create Vercel project `platform-adsgupta` with root directory `apps/platform`
-2. Set env (same as marketplace): `NEXTAUTH_*`, `AUTH_*`, `ADMIN_USER_*`, `AUTH_DATABASE_URL`, optional Supabase/Razorpay for identity billing
-3. Set `NEXT_PUBLIC_AUTH_API_BASE=/platform/api/auth`
-4. On the **adsgupta.com** main frontend project, rewrite `/platform/*` → this deployment (see `apps/main/frontend/vercel.json`)
+This app is the **Vercel project `adsgupta-main`** (domain `adsgupta.com`).
+
+1. Vercel → Project **adsgupta-main** → Settings → General  
+   - **Root Directory:** `apps/platform`
+2. Env (Production + Preview): same auth/DB as before — `NEXTAUTH_*`, `AUTH_*`, `ADMIN_USER_*`, `AUTH_DATABASE_URL` / Supabase, and:
+   - `NEXT_PUBLIC_AUTH_API_BASE=/platform/api/auth`
+   - `NEXTAUTH_URL=https://adsgupta.com`
+   - Do **not** set `NEXT_PUBLIC_PLATFORM_ASSET_PREFIX` on apex (same-origin `/_next`)
+3. Build embeds the CRA marketing site from `apps/main/frontend` into `public/` so `/` stays the landing page and `/platform/*` is Next.js.
+
+Optional legacy project `platform-adsgupta`: set `SKIP_MARKETING_BUILD=1` and `NEXT_PUBLIC_PLATFORM_ASSET_PREFIX=https://platform-adsgupta.vercel.app` if you still rewrite from another host.
 
 ## Behaviour
 
-- **Sign in / Start trial / Start free** across marketplace, blog, exchange → this page with `?returnTo=`
-- **Regular users:** login → redirect back to `returnTo`
-- **Admins** (`ADMIN_USER_*` emails): login → admin console (exchange users, freebies, payments)
+- **Sign In** across products → `/platform/usermanagement` → after auth → `/platform` tools hub
+- Hub lists Exchange / Marketplace / Blog / TalentOS from the user’s roles
+- **Admins:** User Management console at `/platform/usermanagement?view=admin`

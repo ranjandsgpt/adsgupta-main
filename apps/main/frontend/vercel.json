@@ -19,21 +19,19 @@
       "source": "/blog",
       "destination": "https://blog.adsgupta.com",
       "permanent": true
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/platform",
-      "destination": "https://platform-adsgupta.vercel.app/platform"
     },
     {
-      "source": "/platform/",
-      "destination": "https://platform-adsgupta.vercel.app/platform"
+      "source": "/platform",
+      "destination": "https://adsgupta.com/platform",
+      "permanent": false
     },
     {
       "source": "/platform/:path*",
-      "destination": "https://platform-adsgupta.vercel.app/platform/:path*"
-    },
+      "destination": "https://adsgupta.com/platform/:path*",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
