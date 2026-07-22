@@ -5,6 +5,21 @@ import GoogleProvider from 'next-auth/providers/google';
 import { matchEnvAdmin } from './env-admins';
 import { findUserByEmail, upsertOAuthUser, upsertPasswordUser } from './users';
 
+type AuthUserRole = 'admin' | 'publisher' | 'advertiser' | 'demand';
+
+function authUserFromCentral(
+  user: { id: string; email: string; name: string | null; image: string | null },
+  role: AuthUserRole = 'advertiser'
+) {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    image: user.image,
+    role,
+  };
+}
+
 export type CreateAuthOptionsInput = {
   /** Public app origin, e.g. https://marketplace.adsgupta.com */
   appUrl?: string;
@@ -36,12 +51,7 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
         if (user?.passwordHash) {
           const ok = await bcrypt.compare(password, user.passwordHash);
           if (ok) {
-            return {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              image: user.image,
-            };
+            return authUserFromCentral(user, 'advertiser');
           }
         }
 
@@ -56,12 +66,7 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
           name: envAdmin.name,
         });
 
-        return {
-          id: stored.id,
-          email: stored.email,
-          name: stored.name,
-          image: stored.image,
-        };
+        return authUserFromCentral(stored, 'admin');
       },
     }),
   ];
@@ -112,6 +117,9 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
       async jwt({ token, user, account }) {
         if (user?.id) {
           token.id = user.id;
+          if ('role' in user && user.role) {
+            token.role = user.role as AuthUserRole;
+          }
         } else if (account?.provider === 'google' && token.email) {
           const stored = await upsertOAuthUser({
             email: String(token.email),
@@ -125,6 +133,9 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
       async session({ session, token }) {
         if (session.user && token.id) {
           (session.user as { id?: string }).id = String(token.id);
+          if (token.role) {
+            (session.user as { role?: AuthUserRole }).role = token.role as AuthUserRole;
+          }
         }
         return session;
       },
