@@ -17,6 +17,8 @@ function isAlwaysPublicBypass(pathname: string): boolean {
   if (pathname === "/api/signals") return true;
   if (pathname === "/api/platform-users/register") return true;
   if (pathname === "/api/platform-users/invite") return true;
+  if (pathname === "/api/demo/ids") return true;
+  if (pathname === "/api/demo/setup") return true;
   return false;
 }
 
@@ -33,6 +35,8 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (pathname.startsWith("/api/publisher-config/") && (m === "GET" || m === "OPTIONS")) return true;
   if (pathname.startsWith("/api/platform-users/register") && (m === "POST" || m === "OPTIONS")) return true;
   if (pathname.startsWith("/api/platform-users/invite") && (m === "POST" || m === "OPTIONS")) return true;
+  if (pathname === "/api/demo/ids" && m === "GET") return true;
+  if (pathname === "/api/demo/setup" && m === "GET") return true;
 
   if (pathname === "/api/publishers" && m === "POST") return true;
   if (pathname === "/api/inventory" && m === "POST") return true;

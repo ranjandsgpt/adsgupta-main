@@ -1,5 +1,13 @@
 import { sql } from "@/lib/db";
 
+/** Idempotent CHECK constraint — Neon may not commit DROP before ADD across separate calls. */
+async function ensureCheckConstraint(
+  statement: TemplateStringsArray,
+  ...values: never[]
+): Promise<void> {
+  await sql(statement, ...values);
+}
+
 /**
  * Idempotent schema for the exchange. Each statement runs separately (Neon prefers one statement per call).
  * @returns Count of `public` base tables after migrations (for GET /api/db-init `tablesCreated`).
@@ -150,9 +158,12 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE platform_users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`;
 
     await sql`ALTER TABLE ad_units DROP CONSTRAINT IF EXISTS ad_units_status_check`;
-    await sql`
-      ALTER TABLE ad_units ADD CONSTRAINT ad_units_status_check
-      CHECK (status IN ('active', 'paused', 'archived'))
+    await ensureCheckConstraint`
+      DO $$ BEGIN
+        ALTER TABLE ad_units ADD CONSTRAINT ad_units_status_check
+        CHECK (status IN ('active', 'paused', 'archived'));
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
     `;
     await sql`ALTER TABLE ad_units ADD COLUMN IF NOT EXISTS auction_type TEXT DEFAULT 'first_price'`;
 
@@ -182,12 +193,26 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS html_snippet TEXT`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS vast_url TEXT`;
     await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS user_agent TEXT`;
+    /* Auction path columns — early so serving works even if later migrations fail */
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS raw_signals JSONB`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS demand_source TEXT DEFAULT 'internal'`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS device_ip TEXT`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS privacy_suppressed BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS is_ivt BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS region TEXT`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS device_type TEXT`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS iab_categories TEXT[]`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS above_fold BOOLEAN`;
+    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS processing_ms NUMERIC(8,2)`;
 
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS rejection_reason TEXT`;
     await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
-    await sql`
-      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
-      CHECK (status IN ('pending', 'active', 'paused', 'rejected'))
+    await ensureCheckConstraint`
+      DO $$ BEGIN
+        ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+        CHECK (status IN ('pending', 'active', 'paused', 'rejected'));
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
     `;
 
     await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS rule_type TEXT DEFAULT 'unified'`;
@@ -196,9 +221,12 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE creatives ALTER COLUMN size SET DEFAULT '300x250'`;
 
     await sql`ALTER TABLE creatives DROP CONSTRAINT IF EXISTS creatives_status_check`;
-    await sql`
-      ALTER TABLE creatives ADD CONSTRAINT creatives_status_check
-      CHECK (status IN ('active', 'paused', 'archived'))
+    await ensureCheckConstraint`
+      DO $$ BEGIN
+        ALTER TABLE creatives ADD CONSTRAINT creatives_status_check
+        CHECK (status IN ('active', 'paused', 'archived', 'flagged', 'approved'));
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
     `;
 
     await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS auction_log_id UUID REFERENCES auction_log(id) ON DELETE SET NULL`;
@@ -225,15 +253,11 @@ export async function createTables(): Promise<number> {
       )
     `;
 
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS demand_source TEXT DEFAULT 'internal'`;
     await sql`ALTER TABLE auction_log ALTER COLUMN demand_source SET DEFAULT 'internal'`;
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS device_ip TEXT`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS advertiser_domain TEXT`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS iab_cat TEXT[]`;
     await sql`ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS creative_api INTEGER[]`;
 
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS privacy_suppressed BOOLEAN DEFAULT false`;
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS is_ivt BOOLEAN DEFAULT false`;
     await sql`ALTER TABLE auction_log ALTER COLUMN privacy_suppressed SET DEFAULT false`;
     await sql`ALTER TABLE auction_log ALTER COLUMN is_ivt SET DEFAULT false`;
 
@@ -242,12 +266,6 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scan_warnings TEXT[]`;
     await sql`ALTER TABLE creatives ADD COLUMN IF NOT EXISTS scanned_at TIMESTAMPTZ`;
     await sql`ALTER TABLE creatives ALTER COLUMN scan_passed SET DEFAULT true`;
-
-    await sql`ALTER TABLE creatives DROP CONSTRAINT IF EXISTS creatives_status_check`;
-    await sql`
-      ALTER TABLE creatives ADD CONSTRAINT creatives_status_check
-      CHECK (status IN ('active', 'paused', 'archived', 'flagged', 'approved'))
-    `;
 
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_checked_at TIMESTAMPTZ`;
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS ads_txt_status TEXT`;
@@ -279,9 +297,12 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE creatives ALTER COLUMN ab_weight SET DEFAULT 50`;
 
     await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
-    await sql`
-      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
-      CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft'))
+    await ensureCheckConstraint`
+      DO $$ BEGIN
+        ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+        CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft'));
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
     `;
     await sql`ALTER TABLE campaigns ALTER COLUMN status SET DEFAULT 'pending'`;
     await sql`ALTER TABLE creatives ALTER COLUMN status SET DEFAULT 'active'`;
@@ -334,8 +355,6 @@ export async function createTables(): Promise<number> {
     `;
 
     /* Signal layer — idempotent extensions (SYSTEM 1) */
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS raw_signals JSONB`;
-
     await sql`
       CREATE TABLE IF NOT EXISTS signal_events (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -482,12 +501,6 @@ export async function createTables(): Promise<number> {
     /* ── Backend wiring pass: columns + tables for stats, signals, rollups ───── */
     await sql`ALTER TABLE signal_events DROP CONSTRAINT IF EXISTS signal_events_auction_id_fkey`;
 
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS region TEXT`;
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS device_type TEXT`;
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS iab_categories TEXT[]`;
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS above_fold BOOLEAN`;
-    await sql`ALTER TABLE auction_log ADD COLUMN IF NOT EXISTS processing_ms NUMERIC(8,2)`;
-
     await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS user_id TEXT`;
     await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS session_id TEXT`;
     await sql`ALTER TABLE impressions ADD COLUMN IF NOT EXISTS page_url TEXT`;
@@ -518,9 +531,12 @@ export async function createTables(): Promise<number> {
     await sql`ALTER TABLE publishers ADD COLUMN IF NOT EXISTS health_score INTEGER DEFAULT 0`;
 
     await sql`ALTER TABLE campaigns DROP CONSTRAINT IF EXISTS campaigns_status_check`;
-    await sql`
-      ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
-      CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft', 'budget_exhausted'))
+    await ensureCheckConstraint`
+      DO $$ BEGIN
+        ALTER TABLE campaigns ADD CONSTRAINT campaigns_status_check
+        CHECK (status IN ('pending', 'active', 'paused', 'rejected', 'draft', 'budget_exhausted'));
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
     `;
 
     await sql`ALTER TABLE pricing_rules ADD COLUMN IF NOT EXISTS applies_to_geos TEXT[] DEFAULT '{}'`;

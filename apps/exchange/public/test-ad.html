@@ -127,6 +127,10 @@
 
     runBtn.disabled = true;
     runBtn.addEventListener('click', function() {
+      runAdTest();
+    });
+
+    function runAdTest() {
       const pubId = (pubInput.value || '').trim();
       const unitId = (unitInput.value || '').trim();
       if (!pubId || !unitId) {
@@ -141,14 +145,50 @@
       try {
         addLog('Initializing slot — pub=' + pubId.slice(0,8) + '… unit=' + unitId.slice(0,8) + '…', 'info');
         mde.init({ networkCode: pubId });
-        mde.defineSlot({ unitId: unitId, div: divId, sizes: ['300x250'], floor: 0.10 });
+        mde.defineSlot({ unitId: unitId, div: divId, sizes: ['300x250'], floor: 0.01 });
         mde.enableServices();
         mde.display(divId);
         addLog('mde.display() called', 'info');
       } catch (e) {
         addLog('ERROR: mde.js threw: ' + (e && e.message ? e.message : String(e)), 'error');
       }
-    });
+    }
+
+    function loadFromQueryOrDemo() {
+      const params = new URLSearchParams(window.location.search);
+      const qp = params.get('publisherId');
+      const qu = params.get('unitId');
+      if (qp) pubInput.value = qp;
+      if (qu) unitInput.value = qu;
+
+      if (qp && qu) {
+        addLog('Loaded IDs from URL', 'info');
+        if (params.get('autorun') === '1') {
+          mde.cmd.push(function() { runAdTest(); });
+        }
+        return;
+      }
+
+      fetch('/api/demo/ids')
+        .then(function(r) { return r.json(); })
+        .then(function(j) {
+          if (j && j.ready && j.publisherId && j.adUnitId) {
+            pubInput.value = j.publisherId;
+            unitInput.value = j.adUnitId;
+            addLog('Loaded demo publisher/ad unit', 'success');
+            if (params.get('autorun') === '1') {
+              mde.cmd.push(function() { runAdTest(); });
+            }
+          } else {
+            addLog('No demo inventory yet — seed with GET /api/demo/setup?secret=... or enter IDs manually', 'info');
+          }
+        })
+        .catch(function() {
+          addLog('Could not load demo IDs', 'info');
+        });
+    }
+
+    loadFromQueryOrDemo();
   </script>
   <script async src="https://exchange.adsgupta.com/mde.js"
     onload="addLog('mde.js script loaded', 'success')"

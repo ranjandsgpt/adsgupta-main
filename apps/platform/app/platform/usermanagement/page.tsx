@@ -1,13 +1,12 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import {
   AuthPanel,
   AuthSessionProvider,
   PlatformAdminConsole,
-  isPlatformAdminEmail,
   sanitizeReturnTo,
 } from '@adsgupta/auth';
 import '@adsgupta/auth/styles.css';
@@ -15,7 +14,7 @@ import '@adsgupta/auth/styles.css';
 function UserManagementInner() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   const returnTo = sanitizeReturnTo(
     searchParams.get('returnTo'),
@@ -23,19 +22,38 @@ function UserManagementInner() {
   );
   const modeParam = searchParams.get('mode');
   const initialMode =
-    modeParam === 'register' || modeParam === 'forgot' ? modeParam : 'signin';
-
-  const isAdmin =
-    status === 'authenticated' &&
-    isPlatformAdminEmail(session?.user?.email ?? null);
+    modeParam === 'register' || modeParam === 'forgot'
+      ? modeParam
+      : modeParam === 'free' || modeParam === 'trial'
+        ? 'register'
+        : 'signin';
 
   useEffect(() => {
-    if (status !== 'authenticated' || isAdmin) return;
-    // Non-admin: bounce back to where they came from
+    if (status !== 'authenticated') {
+      setIsAdmin(null);
+      return;
+    }
+    let cancelled = false;
+    fetch('/platform/api/session', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((data: { isAdmin?: boolean }) => {
+        if (cancelled) return;
+        setIsAdmin(Boolean(data.isAdmin));
+      })
+      .catch(() => {
+        if (!cancelled) setIsAdmin(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [status, session?.user?.email]);
+
+  useEffect(() => {
+    if (status !== 'authenticated' || isAdmin !== false) return;
     window.location.replace(returnTo);
   }, [status, isAdmin, returnTo]);
 
-  if (status === 'loading') {
+  if (status === 'loading' || (status === 'authenticated' && isAdmin === null)) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-gray-500">
         Loading…
@@ -48,13 +66,11 @@ function UserManagementInner() {
       <main className="min-h-screen bg-gray-50">
         <header className="border-b border-gray-200 bg-white px-6 py-4">
           <p className="text-sm font-semibold text-gray-900">AdsGupta Platform</p>
-          <p className="text-xs text-gray-500">One account across marketplace, exchange, and blog</p>
+          <p className="text-xs text-gray-500">
+            One account across marketplace, exchange, and blog
+          </p>
         </header>
-        <AuthPanel
-          appName="AdsGupta"
-          theme="light"
-          initialMode={initialMode}
-        />
+        <AuthPanel appName="AdsGupta" theme="light" initialMode={initialMode} />
       </main>
     );
   }
@@ -76,16 +92,14 @@ function UserManagementInner() {
             <p className="text-xs text-gray-500">Signed in as {session.user.email}</p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => router.push(returnTo)}
-              className="text-sm text-sky-600 hover:underline"
-            >
+            <a href={returnTo} className="text-sm text-sky-600 hover:underline">
               Back to app
-            </button>
+            </a>
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: '/platform/usermanagement' })}
+              onClick={() =>
+                signOut({ callbackUrl: '/platform/usermanagement' })
+              }
               className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm"
             >
               Sign out
