@@ -412,7 +412,7 @@ export async function createTables(): Promise<number> {
         is_datacenter BOOLEAN,
         consent_given BOOLEAN,
         raw_signals JSONB,
-        auction_id TEXT REFERENCES auction_log(auction_id) ON DELETE SET NULL,
+        auction_id TEXT,
         created_at TIMESTAMPTZ DEFAULT now()
       )
     `;

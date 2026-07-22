@@ -511,7 +511,7 @@ function isFreqCapBlocked(
 
 async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
   const pool = getPool();
-  const joinSql = `
+  const joinSqlExtended = `
     SELECT
       c.id AS campaign_id,
       c.bid_price::text AS bid_price,
@@ -551,11 +551,60 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
       AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
     ORDER BY c.bid_price DESC
   `;
-  console.log("[debug-sql] query:", joinSql.trim());
-  const { rows } = await pool.query<JoinRow>(joinSql);
-  const list = rows as JoinRow[];
-  console.log("[auction] candidates:", list.length);
-  return list;
+  const joinSqlCore = `
+    SELECT
+      c.id AS campaign_id,
+      c.bid_price::text AS bid_price,
+      c.daily_budget::text AS daily_budget,
+      c.target_sizes,
+      c.target_environments,
+      c.target_domains,
+      c.target_geos,
+      c.target_devices,
+      c.advertiser_domain,
+      COALESCE(c.advertiser_name, c.advertiser) AS advertiser_name,
+      c.iab_cat,
+      c.creative_api,
+      false AS ab_test_active,
+      0 AS freq_cap_day,
+      0 AS freq_cap_session,
+      NULL::jsonb AS audience_targeting,
+      NULL::jsonb AS content_targeting,
+      NULL::jsonb AS temporal_targeting,
+      'a' AS ab_group,
+      '50' AS ab_weight,
+      cr.id AS creative_id,
+      cr.image_url,
+      cr.click_url,
+      cr.size AS creative_size,
+      cr.scan_passed
+    FROM campaigns c
+    INNER JOIN creatives cr ON cr.campaign_id = c.id
+      AND cr.status = 'active'
+      AND (cr.scan_passed IS NULL OR cr.scan_passed = true)
+      AND cr.image_url IS NOT NULL
+      AND cr.image_url <> ''
+      AND cr.click_url IS NOT NULL
+      AND cr.click_url <> ''
+    WHERE c.status = 'active'
+      AND (c.start_date IS NULL OR c.start_date <= CURRENT_DATE)
+      AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
+    ORDER BY c.bid_price DESC
+  `;
+  try {
+    console.log("[debug-sql] query:", joinSqlExtended.trim());
+    const { rows } = await pool.query<JoinRow>(joinSqlExtended);
+    console.log("[auction] candidates:", rows.length);
+    return rows as JoinRow[];
+  } catch (extendedErr) {
+    console.warn(
+      "[auction] extended campaign join failed, using core join:",
+      extendedErr instanceof Error ? extendedErr.message : extendedErr
+    );
+    const { rows } = await pool.query<JoinRow>(joinSqlCore);
+    console.log("[auction] candidates (core):", rows.length);
+    return rows as JoinRow[];
+  }
 }
 
 /**
