@@ -15,16 +15,39 @@ async function readExchangeToken(request: NextRequest) {
     cookieName: sessionCookieName(),
   });
   if (!token) return null;
-  // Hub JWT may carry exchangeRole / appRoles instead of Exchange-local role
-  if (!token.role && token.exchangeRole) {
-    token.role = token.exchangeRole;
+
+  const appRoles = Array.isArray(token.appRoles)
+    ? (token.appRoles as Array<{ appSlug?: string; role?: string; status?: string }>)
+    : [];
+
+  // Prefer explicit exchange entitlement from central roles
+  const exchange = appRoles.find(
+    (r) => r.appSlug === "exchange" && r.status === "active" && r.role
+  );
+  if (exchange?.role) {
+    token.role = exchange.role as ExchangeRole;
+    return token;
   }
-  if (!token.role && Array.isArray(token.appRoles)) {
-    const ex = (token.appRoles as Array<{ appSlug?: string; role?: string; status?: string }>).find(
-      (r) => r.appSlug === "exchange" && r.status === "active"
-    );
-    if (ex?.role) token.role = ex.role;
+
+  if (token.exchangeRole) {
+    token.role = token.exchangeRole as ExchangeRole;
+    return token;
   }
+
+  // Platform admins may operate the exchange console
+  const platformAdmin = appRoles.find(
+    (r) => r.appSlug === "platform" && r.role === "admin" && r.status === "active"
+  );
+  if (platformAdmin || token.role === "admin") {
+    token.role = "admin";
+    return token;
+  }
+
+  // Ignore hub-wide "advertiser" stamp — it is not an exchange entitlement
+  if (token.role === "advertiser" || token.role === "demand" || token.role === "publisher") {
+    delete token.role;
+  }
+
   return token;
 }
 
@@ -162,7 +185,8 @@ function roleHome(role: ExchangeRole | undefined, token: Record<string, unknown>
     const email = (token.campaignEmail as string | null | undefined) ?? (token.email as string | null | undefined);
     return email ? `/demand/dashboard?email=${encodeURIComponent(email)}` : "/demand/dashboard";
   }
-  return "/login";
+  // No exchange role — send to central hub instead of login loop
+  return "https://adsgupta.com/platform";
 }
 
 function isProtectedRoute(pathname: string): boolean {
@@ -203,9 +227,8 @@ export async function middleware(request: NextRequest) {
   const token = await readExchangeToken(request);
   const role = token?.role as ExchangeRole | undefined;
   if (!token || !role) {
-    const login = new URL("/login", request.url);
-    login.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(login);
+    // Central Sign In (not a local login form)
+    return NextResponse.redirect(new URL("https://adsgupta.com/platform/usermanagement"));
   }
 
   // Backward compatibility: redirect legacy /admin/* to /platform/*
@@ -215,7 +238,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/platform") && role !== "admin") {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("https://adsgupta.com/platform", request.url));
   }
   if (pathname.startsWith("/publisher") && role === "advertiser") {
     return NextResponse.redirect(new URL(roleHome(role, token as Record<string, unknown>), request.url));
@@ -224,7 +247,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(roleHome(role, token as Record<string, unknown>), request.url));
   }
   if (pathname.startsWith("/admin") && role !== "admin") {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("https://adsgupta.com/platform", request.url));
   }
 
   return NextResponse.next();

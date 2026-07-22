@@ -60,7 +60,8 @@ export async function GET(request: NextRequest): Promise<Response> {
   const advertiserEmail = `e2e-buyer@${publisherDomain.replace(/[^a-z0-9]/gi, "")}`;
 
   const openrtbRequestId = `e2e-auction-${Math.random().toString(36).slice(2)}`;
-  const testBid = 5.0;
+  // Must clear above persistent demo campaigns (often $5) so this run owns the auction.
+  const testBid = 50.0;
 
   let publisherId: string | null = null;
   let adUnitId: string | null = null;
@@ -371,11 +372,12 @@ export async function GET(request: NextRequest): Promise<Response> {
     "Check auction log cleared + winner campaign",
     async () => {
       if (!campaignId) throw new Error("Missing campaignId");
+      if (!auctionLogId) throw new Error("Missing auctionLogId");
+      // Prefer auction_log.id (bidid) — auction_id text can collide under concurrent traffic.
       const r = await sql<{ cleared: boolean; winning_campaign_id: string | null }>`
         SELECT cleared, winning_campaign_id::text AS winning_campaign_id
         FROM auction_log
-        WHERE auction_id = ${openrtbRequestId}
-        ORDER BY created_at DESC
+        WHERE id = ${auctionLogId}
         LIMIT 1
       `;
       const row = r.rows[0];
