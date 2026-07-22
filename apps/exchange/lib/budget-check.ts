@@ -15,7 +15,7 @@ export async function getCampaignSpendToday(campaignId: string): Promise<number>
     return Number(result.rows[0]?.spend ?? 0);
   } catch (e) {
     console.error("[budget-check] getCampaignSpendToday", e);
-    throw e;
+    return 0;
   }
 }
 

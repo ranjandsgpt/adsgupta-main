@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { isCampaignOverBudget } from "@/lib/budget-check";
 import { requestAllDspBids, type DspBid } from "@/lib/dsp-bidder";
-import { sql, getPool } from "@/lib/db";
+import { sql } from "@/lib/db";
 import { getEffectiveFloor } from "@/lib/floor-engine";
 import {
   parseCoppa,
@@ -510,8 +510,7 @@ function isFreqCapBlocked(
 }
 
 async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
-  const pool = getPool();
-  const joinSqlExtended = `
+  const joinSqlExtended = sql<JoinRow>`
     SELECT
       c.id AS campaign_id,
       c.bid_price::text AS bid_price,
@@ -551,59 +550,57 @@ async function loadActiveCampaignCreativesJoin(): Promise<JoinRow[]> {
       AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
     ORDER BY c.bid_price DESC
   `;
-  const joinSqlCore = `
-    SELECT
-      c.id AS campaign_id,
-      c.bid_price::text AS bid_price,
-      c.daily_budget::text AS daily_budget,
-      c.target_sizes,
-      c.target_environments,
-      c.target_domains,
-      c.target_geos,
-      c.target_devices,
-      c.advertiser_domain,
-      COALESCE(c.advertiser_name, c.advertiser) AS advertiser_name,
-      c.iab_cat,
-      c.creative_api,
-      false AS ab_test_active,
-      0 AS freq_cap_day,
-      0 AS freq_cap_session,
-      NULL::jsonb AS audience_targeting,
-      NULL::jsonb AS content_targeting,
-      NULL::jsonb AS temporal_targeting,
-      'a' AS ab_group,
-      '50' AS ab_weight,
-      cr.id AS creative_id,
-      cr.image_url,
-      cr.click_url,
-      cr.size AS creative_size,
-      cr.scan_passed
-    FROM campaigns c
-    INNER JOIN creatives cr ON cr.campaign_id = c.id
-      AND cr.status = 'active'
-      AND (cr.scan_passed IS NULL OR cr.scan_passed = true)
-      AND cr.image_url IS NOT NULL
-      AND cr.image_url <> ''
-      AND cr.click_url IS NOT NULL
-      AND cr.click_url <> ''
-    WHERE c.status = 'active'
-      AND (c.start_date IS NULL OR c.start_date <= CURRENT_DATE)
-      AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
-    ORDER BY c.bid_price DESC
-  `;
   try {
-    console.log("[debug-sql] query:", joinSqlExtended.trim());
-    const { rows } = await pool.query<JoinRow>(joinSqlExtended);
+    const rows = (await joinSqlExtended).rows;
     console.log("[auction] candidates:", rows.length);
-    return rows as JoinRow[];
+    return rows;
   } catch (extendedErr) {
     console.warn(
       "[auction] extended campaign join failed, using core join:",
       extendedErr instanceof Error ? extendedErr.message : extendedErr
     );
-    const { rows } = await pool.query<JoinRow>(joinSqlCore);
-    console.log("[auction] candidates (core):", rows.length);
-    return rows as JoinRow[];
+    const core = await sql<JoinRow>`
+      SELECT
+        c.id AS campaign_id,
+        c.bid_price::text AS bid_price,
+        c.daily_budget::text AS daily_budget,
+        c.target_sizes,
+        c.target_environments,
+        c.target_domains,
+        c.target_geos,
+        c.target_devices,
+        c.advertiser_domain,
+        COALESCE(c.advertiser_name, c.advertiser) AS advertiser_name,
+        c.iab_cat,
+        c.creative_api,
+        false AS ab_test_active,
+        0 AS freq_cap_day,
+        0 AS freq_cap_session,
+        NULL::jsonb AS audience_targeting,
+        NULL::jsonb AS content_targeting,
+        NULL::jsonb AS temporal_targeting,
+        'a' AS ab_group,
+        '50' AS ab_weight,
+        cr.id AS creative_id,
+        cr.image_url,
+        cr.click_url,
+        cr.size AS creative_size,
+        cr.scan_passed
+      FROM campaigns c
+      INNER JOIN creatives cr ON cr.campaign_id = c.id
+        AND cr.status = 'active'
+        AND (cr.scan_passed IS NULL OR cr.scan_passed = true)
+        AND cr.image_url IS NOT NULL
+        AND cr.image_url <> ''
+        AND cr.click_url IS NOT NULL
+        AND cr.click_url <> ''
+      WHERE c.status = 'active'
+        AND (c.start_date IS NULL OR c.start_date <= CURRENT_DATE)
+        AND (c.end_date IS NULL OR c.end_date >= CURRENT_DATE)
+      ORDER BY c.bid_price DESC
+    `;
+    console.log("[auction] candidates (core):", core.rows.length);
+    return core.rows;
   }
 }
 
@@ -879,10 +876,14 @@ export async function runAuction(
         c0.daily_budget !== undefined &&
         Number(c0.daily_budget) > 0;
       if (hasBudgetLimit) {
-        const over = await isCampaignOverBudget(campaignId, Number(c0.daily_budget));
-        if (over) {
-          console.log("[auction] campaign over daily budget, skipping:", campaignId);
-          continue;
+        try {
+          const over = await isCampaignOverBudget(campaignId, Number(c0.daily_budget));
+          if (over) {
+            console.log("[auction] campaign over daily budget, skipping:", campaignId);
+            continue;
+          }
+        } catch (budgetErr) {
+          console.warn("[auction] budget check failed, allowing bid:", campaignId, budgetErr);
         }
       }
       for (const r of rows) {
@@ -1112,11 +1113,12 @@ export async function runAuction(
       }
     };
   } catch (error) {
-    console.error("[auction] FATAL:", error instanceof Error ? error.message : error);
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error("[auction] FATAL:", errMsg);
     try {
       await sql`
         INSERT INTO auction_log (auction_id, ad_unit_id, bid_count, cleared, created_at)
-        VALUES (${randomUUID()}, ${adUnitId}, 0, false, now())
+        VALUES (${openrtbRequestId}, ${adUnitId}, 0, false, now())
       `;
     } catch {
       /* best-effort */

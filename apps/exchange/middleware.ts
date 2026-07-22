@@ -8,6 +8,7 @@ function isAlwaysPublicBypass(pathname: string): boolean {
   if (pathname === "/api/db-init/auction") return true;
   if (pathname === "/api/test/e2e") return true;
   if (pathname === "/api/debug/auction") return true;
+  if (pathname === "/api/debug/run-auction") return true;
   if (pathname === "/api/health") return true;
   if (pathname === "/api/ping") return true;
   if (pathname.startsWith("/api/cron/")) return true;
@@ -31,6 +32,7 @@ function isPublicApi(request: NextRequest, pathname: string): boolean {
   if (pathname === "/api/db-init/auction" && m === "GET") return true;
   if (pathname === "/api/test/e2e" && m === "GET") return true;
   if (pathname === "/api/debug/auction" && m === "GET") return true;
+  if (pathname === "/api/debug/run-auction" && m === "GET") return true;
   if (pathname === "/api/health" && m === "GET") return true;
   if (pathname === "/api/ping" && m === "GET") return true;
   if (pathname.startsWith("/api/cron/") && m === "GET") return true;
