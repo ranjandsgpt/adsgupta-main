@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { buildPlatformAuthUrl } from '@adsgupta/auth';
 import { Footer } from '@adsgupta/ui';
 
 function classNames(...xs: Array<string | false | null | undefined>) {
@@ -48,13 +49,24 @@ function Nav() {
         </nav>
         <div className="flex items-center gap-3">
           <a
-            href="/signin"
+            href={buildPlatformAuthUrl({
+              returnTo:
+                typeof window !== 'undefined'
+                  ? `${window.location.origin}/audit`
+                  : 'https://marketplace.adsgupta.com/audit',
+            })}
             className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 md:inline-flex"
           >
             Sign in
           </a>
           <a
-            href="/audit"
+            href={buildPlatformAuthUrl({
+              returnTo:
+                typeof window !== 'undefined'
+                  ? `${window.location.origin}/audit`
+                  : 'https://marketplace.adsgupta.com/audit',
+              mode: 'free',
+            })}
             className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             Start free →

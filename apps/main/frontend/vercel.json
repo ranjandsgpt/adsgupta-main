@@ -22,6 +22,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/platform/:path*",
+      "destination": "https://platform-adsgupta.vercel.app/platform/:path*"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

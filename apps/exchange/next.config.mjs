@@ -1,5 +1,18 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["@adsgupta/auth"],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@adsgupta/auth": path.resolve(__dirname, "../../packages/auth/src"),
+    };
+    return config;
+  },
   async headers() {
     return [
       {

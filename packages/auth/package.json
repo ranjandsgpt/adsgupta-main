@@ -11,6 +11,7 @@
     "./styles.css": "./src/styles.css",
     "./api/register/route": "./src/api/register/route.ts",
     "./api/forgot-password/route": "./src/api/forgot-password/route.ts",
+    "./api/platform/exchange-users/route": "./src/api/platform/exchange-users/route.ts",
     "./api/reset-password/route": "./src/api/reset-password/route.ts",
     "./*": "./src/*"
   },

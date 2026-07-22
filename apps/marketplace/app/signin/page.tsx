@@ -1,14 +1,14 @@
 import { redirect } from 'next/navigation';
 import { buildPlatformAuthUrl, sanitizeReturnTo } from '@adsgupta/auth';
 
-export default function ExchangeLoginRedirect({
+export default function MarketplaceSignIn({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string };
+  searchParams?: { returnTo?: string };
 }) {
   const returnTo = sanitizeReturnTo(
-    searchParams.callbackUrl || 'https://exchange.adsgupta.com',
-    'https://exchange.adsgupta.com'
+    searchParams?.returnTo || 'https://marketplace.adsgupta.com/audit',
+    'https://marketplace.adsgupta.com'
   );
   redirect(buildPlatformAuthUrl({ returnTo }));
 }

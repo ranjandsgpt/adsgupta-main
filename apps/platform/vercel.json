@@ -1,0 +1,5 @@
+{
+  "installCommand": "npm install --prefix ../..",
+  "buildCommand": "npm run build",
+  "rewrites": [{ "source": "/platform/:path*", "destination": "/platform/:path*" }]
+}

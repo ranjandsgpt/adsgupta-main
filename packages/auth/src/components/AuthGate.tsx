@@ -9,6 +9,10 @@ function classNames(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(' ');
 }
 
+function getAuthApiBase(): string {
+  return process.env.NEXT_PUBLIC_AUTH_API_BASE || '/api/auth';
+}
+
 export function AuthGate({
   children,
   appName = 'AdsGupta',
@@ -142,7 +146,7 @@ export function AuthPanel({
           setError('Passwords do not match');
           return;
         }
-        const res = await fetch('/api/auth/register', {
+        const res = await fetch(`${getAuthApiBase()}/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, name }),
@@ -163,7 +167,7 @@ export function AuthPanel({
       }
 
       if (mode === 'forgot') {
-        const res = await fetch('/api/auth/forgot-password', {
+        const res = await fetch(`${getAuthApiBase()}/forgot-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -188,7 +192,7 @@ export function AuthPanel({
           setError('Passwords do not match');
           return;
         }
-        const res = await fetch('/api/auth/reset-password', {
+        const res = await fetch(`${getAuthApiBase()}/reset-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, password }),

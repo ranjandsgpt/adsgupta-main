@@ -9,6 +9,7 @@
     "extract:ranjan": "node scripts/extract-ranjan-posts.cjs"
   },
   "dependencies": {
+    "@adsgupta/auth": "*",
     "@adsgupta/config": "^0.0.0",
     "@adsgupta/ui": "^0.0.0",
     "@neondatabase/serverless": "^0.9.5",

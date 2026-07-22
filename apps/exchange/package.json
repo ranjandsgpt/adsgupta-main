@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@adsgupta/auth": "*",
     "@auth/prisma-adapter": "^2.7.4",
     "@neondatabase/serverless": "^0.10.4",
     "@prisma/client": "^6.5.0",

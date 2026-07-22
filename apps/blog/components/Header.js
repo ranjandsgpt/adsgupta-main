@@ -40,10 +40,18 @@ function UserSessionActions() {
   }
 
   if (!session?.user) {
+    const loginHref =
+      typeof window !== 'undefined'
+        ? (() => {
+            const u = new URL('https://adsgupta.com/platform/usermanagement');
+            u.searchParams.set('returnTo', window.location.href);
+            return u.toString();
+          })()
+        : 'https://adsgupta.com/platform/usermanagement';
     return (
-      <Link href="/admin/login" className="blog-header__login">
+      <a href={loginHref} className="blog-header__login">
         Login
-      </Link>
+      </a>
     );
   }
 

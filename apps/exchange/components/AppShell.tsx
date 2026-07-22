@@ -191,7 +191,7 @@ function exchangeSidebar(isAdmin: boolean): NavSection[] {
     sections.push({
       label: "ADMIN",
       items: [
-        { href: "/platform/admin/users", label: "User Management" },
+        { href: "https://adsgupta.com/platform/usermanagement", label: "User Management" },
         { href: "/platform/admin/roles", label: "Roles & Permissions" },
         { href: "/platform/admin/activity", label: "Activity Log" },
         { href: "/platform/admin/api-keys", label: "API Keys" },
