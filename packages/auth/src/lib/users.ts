@@ -2,6 +2,11 @@ import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import type { CentralUser } from '../types/user';
+import {
+  ensureRolesSchema,
+  migratePlatformUsersToRoles,
+  seedEnvAdminsToRoles,
+} from './roles';
 
 type Sql = NeonQueryFunction<false, false>;
 
@@ -26,6 +31,7 @@ function getSupabaseAdmin(): SupabaseClient | null {
 
 let schemaReady = false;
 let platformMergeReady = false;
+let rolesBootstrapReady = false;
 
 async function ensureSchema(sql: Sql) {
   if (schemaReady) return;
@@ -81,6 +87,17 @@ async function mergePlatformUsersIntoCentral(sql: Sql) {
 async function prepareSql(sql: Sql) {
   await ensureSchema(sql);
   await mergePlatformUsersIntoCentral(sql);
+  if (!rolesBootstrapReady) {
+    try {
+      await ensureRolesSchema(sql);
+      await migratePlatformUsersToRoles(sql);
+      await seedEnvAdminsToRoles(sql);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn('[adsgupta/auth] roles bootstrap skipped:', message);
+    }
+    rolesBootstrapReady = true;
+  }
 }
 
 function mapRow(row: Record<string, unknown>): CentralUser {

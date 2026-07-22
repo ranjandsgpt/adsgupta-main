@@ -12,11 +12,15 @@
     "./api/register/route": "./src/api/register/route.ts",
     "./api/forgot-password/route": "./src/api/forgot-password/route.ts",
     "./api/platform/exchange-users/route": "./src/api/platform/exchange-users/route.ts",
+    "./api/platform/central-users/route": "./src/api/platform/central-users/route.ts",
+    "./api/platform/blog-subscribers/route": "./src/api/platform/blog-subscribers/route.ts",
+    "./lib/session-cookie": "./src/lib/session-cookie.ts",
     "./api/reset-password/route": "./src/api/reset-password/route.ts",
     "./*": "./src/*"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit"
+    "build": "tsc -p tsconfig.json --noEmit",
+    "migrate:roles": "node scripts/migrate-central-roles.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

@@ -4,6 +4,12 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { matchEnvAdmin } from './env-admins';
 import { findUserByEmail, upsertOAuthUser, upsertPasswordUser } from './users';
+import { getRolesForEmail, getAppRoleForEmail, seedEnvAdminsToRoles } from './roles';
+import {
+  getAuthCookieDomain,
+  getSessionTokenCookieName,
+  useSecureAuthCookies,
+} from './session-cookie';
 
 type AuthUserRole = 'admin' | 'publisher' | 'advertiser' | 'demand';
 
@@ -46,12 +52,22 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
         const password = credentials?.password;
         if (!email || !password) return null;
 
+        // Ensure role tables / env admin seeds exist before first login
+        try {
+          await seedEnvAdminsToRoles();
+        } catch {
+          // non-fatal
+        }
+
         // 1) central_users / Exchange platform_users (bcrypt)
         const user = await findUserByEmail(email);
         if (user?.passwordHash) {
           const ok = await bcrypt.compare(password, user.passwordHash);
           if (ok) {
-            return authUserFromCentral(user, 'advertiser');
+            const platformRole = await getAppRoleForEmail(email, 'platform');
+            const role: AuthUserRole =
+              platformRole?.role === 'admin' ? 'admin' : 'advertiser';
+            return authUserFromCentral(user, role);
           }
         }
 
@@ -65,6 +81,11 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
           passwordHash,
           name: envAdmin.name,
         });
+        try {
+          await seedEnvAdminsToRoles();
+        } catch {
+          // non-fatal
+        }
 
         return authUserFromCentral(stored, 'admin');
       },
@@ -82,18 +103,9 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
     );
   }
 
-  const cookieDomain =
-    input.cookieDomain ||
-    process.env.AUTH_COOKIE_DOMAIN ||
-    (process.env.NODE_ENV === 'production' ? '.adsgupta.com' : undefined);
-
-  const useSecureCookies = Boolean(
-    (input.appUrl || process.env.NEXTAUTH_URL || '').startsWith('https://') ||
-      process.env.NODE_ENV === 'production'
-  );
-
-  const cookiePrefix = useSecureCookies ? '__Secure-' : '';
-  const sessionToken = `${cookiePrefix}adsgupta.session-token`;
+  const cookieDomain = getAuthCookieDomain(input.cookieDomain);
+  const useSecureCookies = useSecureAuthCookies(input.appUrl);
+  const sessionToken = getSessionTokenCookieName(input.appUrl);
 
   return {
     secret,
@@ -128,6 +140,38 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
           });
           token.id = stored.id;
         }
+
+        // Attach app roles + blog subdomain for downstream hosts (blog/exchange)
+        if (token.email) {
+          try {
+            const roles = await getRolesForEmail(String(token.email));
+            token.appRoles = roles.map((r) => ({
+              appSlug: r.appSlug,
+              role: r.role,
+              status: r.status,
+              meta: r.meta,
+            }));
+            const blog = roles.find((r) => r.appSlug === 'blog' && r.status === 'active');
+            if (blog?.meta && typeof blog.meta.subdomain === 'string') {
+              token.subdomain = blog.meta.subdomain;
+            }
+            const exchange = roles.find(
+              (r) => r.appSlug === 'exchange' && r.status === 'active'
+            );
+            if (exchange) {
+              token.exchangeRole = exchange.role;
+              if (Array.isArray(exchange.meta.publisher_ids)) {
+                token.publisherIds = exchange.meta.publisher_ids.map(String);
+                token.publisherId = String(exchange.meta.publisher_ids[0] || '') || null;
+              }
+              if (typeof exchange.meta.campaign_email === 'string') {
+                token.campaignEmail = exchange.meta.campaign_email;
+              }
+            }
+          } catch {
+            // roles optional during bootstrap
+          }
+        }
         return token;
       },
       async session({ session, token }) {
@@ -135,6 +179,17 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
           (session.user as { id?: string }).id = String(token.id);
           if (token.role) {
             (session.user as { role?: AuthUserRole }).role = token.role as AuthUserRole;
+          }
+          if (token.subdomain) {
+            (session.user as { subdomain?: string }).subdomain = String(token.subdomain);
+          }
+          if (token.appRoles) {
+            (session.user as { appRoles?: unknown }).appRoles = token.appRoles;
+          }
+          if (token.exchangeRole) {
+            (session.user as { exchangeRole?: string }).exchangeRole = String(
+              token.exchangeRole
+            );
           }
         }
         return session;
@@ -153,6 +208,16 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
             },
           },
         }
-      : undefined,
+      : {
+          sessionToken: {
+            name: sessionToken,
+            options: {
+              httpOnly: true,
+              sameSite: 'lax',
+              path: '/',
+              secure: useSecureCookies,
+            },
+          },
+        },
   };
 }

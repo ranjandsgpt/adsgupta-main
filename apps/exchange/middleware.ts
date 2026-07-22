@@ -2,6 +2,31 @@ import type { ExchangeRole } from "@/lib/roles";
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getSessionTokenCookieName } from "@adsgupta/auth/lib/session-cookie";
+
+function sessionCookieName() {
+  return getSessionTokenCookieName(process.env.NEXTAUTH_URL);
+}
+
+async function readExchangeToken(request: NextRequest) {
+  const token = await getToken({
+    req: request as never,
+    secret: process.env.NEXTAUTH_SECRET,
+    cookieName: sessionCookieName(),
+  });
+  if (!token) return null;
+  // Hub JWT may carry exchangeRole / appRoles instead of Exchange-local role
+  if (!token.role && token.exchangeRole) {
+    token.role = token.exchangeRole;
+  }
+  if (!token.role && Array.isArray(token.appRoles)) {
+    const ex = (token.appRoles as Array<{ appSlug?: string; role?: string; status?: string }>).find(
+      (r) => r.appSlug === "exchange" && r.status === "active"
+    );
+    if (ex?.role) token.role = ex.role;
+  }
+  return token;
+}
 
 function isAlwaysPublicBypass(pathname: string): boolean {
   if (pathname === "/api/db-init") return true;
@@ -164,7 +189,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isPublicRoute(request, pathname) || pathname.startsWith("/api/auth")) {
-    const token = await getToken({ req: request as never, secret: process.env.NEXTAUTH_SECRET });
+    const token = await readExchangeToken(request);
     if (!token) return NextResponse.next();
     const role = token.role as ExchangeRole | undefined;
     if ((pathname === "/" || pathname === "/login") && role) {
@@ -175,7 +200,7 @@ export async function middleware(request: NextRequest) {
 
   if (!isProtectedRoute(pathname)) return NextResponse.next();
 
-  const token = await getToken({ req: request as never, secret: process.env.NEXTAUTH_SECRET });
+  const token = await readExchangeToken(request);
   const role = token?.role as ExchangeRole | undefined;
   if (!token || !role) {
     const login = new URL("/login", request.url);

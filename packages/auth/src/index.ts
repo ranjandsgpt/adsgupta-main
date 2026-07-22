@@ -11,5 +11,18 @@ export {
   isPlatformAdminEmail,
   sanitizeReturnTo,
 } from './lib/platform-auth-url';
+export {
+  getSessionTokenCookieName,
+  getAuthCookieDomain,
+  useSecureAuthCookies,
+} from './lib/session-cookie';
+export {
+  isPlatformAdmin,
+  getAppRoleForEmail,
+  getRolesForEmail,
+  upsertBlogSubscriber,
+  ensureRolesSchema,
+} from './lib/roles';
 export type { CreateAuthOptionsInput } from './lib/auth-options';
 export type { AuthAppId, CentralUser } from './types/user';
+export type { UserAppRole, AppSlug } from './lib/roles';

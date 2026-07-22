@@ -17,6 +17,13 @@ export async function POST(request) {
 
   try {
     await cms.insertSubscriber(email, body.source || "footer");
+    // Dual-write to central Neon blog_subscribers when AUTH_DATABASE_URL is set
+    try {
+      const { upsertBlogSubscriber } = await import("@adsgupta/auth");
+      await upsertBlogSubscriber(email, body.source || "footer");
+    } catch {
+      // central store optional
+    }
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: e.message || "Subscribe failed" }, { status: 500 });
