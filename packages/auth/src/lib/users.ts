@@ -199,6 +199,30 @@ export async function findUserByEmail(email: string): Promise<CentralUser | null
   return mapRow(data as Record<string, unknown>);
 }
 
+/**
+ * Insert or update a password user (used when importing blog/env admins into central_users).
+ */
+export async function upsertPasswordUser(input: {
+  email: string;
+  passwordHash: string;
+  name?: string | null;
+}): Promise<CentralUser> {
+  const email = input.email.trim().toLowerCase();
+  const name = input.name?.trim() || null;
+  const existing = await findUserByEmail(email);
+  if (existing?.passwordHash) {
+    // Keep existing hash unless caller is explicitly re-syncing via updateUserPassword
+    if (existing.passwordHash === input.passwordHash) return existing;
+    await updateUserPassword(email, input.passwordHash);
+    return (await findUserByEmail(email)) || { ...existing, passwordHash: input.passwordHash };
+  }
+  if (existing && !existing.passwordHash) {
+    await updateUserPassword(email, input.passwordHash);
+    return (await findUserByEmail(email)) || { ...existing, passwordHash: input.passwordHash };
+  }
+  return createUser(input);
+}
+
 export async function createUser(input: {
   email: string;
   passwordHash: string;
@@ -215,7 +239,13 @@ export async function createUser(input: {
     await sql`
       INSERT INTO central_users (id, email, name, password_hash, created_at, updated_at)
       VALUES (${id}, ${email}, ${name}, ${input.passwordHash}, ${now.toISOString()}, ${now.toISOString()})
+      ON CONFLICT (email) DO UPDATE SET
+        password_hash = EXCLUDED.password_hash,
+        name = COALESCE(EXCLUDED.name, central_users.name),
+        updated_at = EXCLUDED.updated_at
     `;
+    const row = await findUserByEmailCentralOnly(sql, email);
+    if (row) return row;
     return {
       id,
       email,

@@ -2,7 +2,8 @@ import bcrypt from 'bcryptjs';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import { findUserByEmail, upsertOAuthUser } from './users';
+import { matchEnvAdmin } from './env-admins';
+import { findUserByEmail, upsertOAuthUser, upsertPasswordUser } from './users';
 
 export type CreateAuthOptionsInput = {
   /** Public app origin, e.g. https://marketplace.adsgupta.com */
@@ -30,21 +31,40 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
         const password = credentials?.password;
         if (!email || !password) return null;
 
+        // 1) central_users / Exchange platform_users (bcrypt)
         const user = await findUserByEmail(email);
-        if (!user?.passwordHash) return null;
-        const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return null;
+        if (user?.passwordHash) {
+          const ok = await bcrypt.compare(password, user.passwordHash);
+          if (ok) {
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              image: user.image,
+            };
+          }
+        }
+
+        // 2) Blog-style env admins (ADMIN_USER_* plaintext) — same creds as blog.adsgupta.com
+        const envAdmin = matchEnvAdmin(email, password);
+        if (!envAdmin) return null;
+
+        const passwordHash = await bcrypt.hash(password, 12);
+        const stored = await upsertPasswordUser({
+          email: envAdmin.email,
+          passwordHash,
+          name: envAdmin.name,
+        });
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
+          id: stored.id,
+          email: stored.email,
+          name: stored.name,
+          image: stored.image,
         };
       },
     }),
   ];
-
   const googleId = process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID;
   const googleSecret = process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET;
   if (googleId && googleSecret) {

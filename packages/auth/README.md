@@ -50,6 +50,7 @@ import { AuthGate, AuthSessionProvider } from '@adsgupta/auth';
 | `AUTH_COOKIE_DOMAIN` | optional | Default `.adsgupta.com` in production |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | for Google | Google OAuth web client |
 | `AUTH_DATABASE_URL` or `POSTGRES_URL` | for password auth | Neon/Postgres user store (`central_users`). If the same DB has Exchange `platform_users`, those accounts are merged automatically so existing Exchange passwords work. |
+| `ADMIN_USER_1_EMAIL` / `ADMIN_USER_1_PASSWORD` (and `_2`…) | optional | Same plaintext admin creds as **blog.adsgupta.com**. On successful login they are hashed into `central_users`. |
 | `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` | alt DB | Supabase `central_users` table |
 | `RESEND_API_KEY` | for reset emails | Password reset delivery |
 | `AUTH_FROM_EMAIL` | optional | From address for Resend |
