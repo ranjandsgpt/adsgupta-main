@@ -49,27 +49,10 @@ function Nav() {
         </nav>
         <div className="flex items-center gap-3">
           <a
-            href={buildPlatformAuthUrl({
-              returnTo:
-                typeof window !== 'undefined'
-                  ? `${window.location.origin}/audit`
-                  : 'https://marketplace.adsgupta.com/audit',
-            })}
-            className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 md:inline-flex"
+            href={buildPlatformAuthUrl()}
+            className="inline-flex items-center justify-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50"
           >
-            Sign in
-          </a>
-          <a
-            href={buildPlatformAuthUrl({
-              returnTo:
-                typeof window !== 'undefined'
-                  ? `${window.location.origin}/audit`
-                  : 'https://marketplace.adsgupta.com/audit',
-              mode: 'free',
-            })}
-            className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            Start free →
+            Sign In
           </a>
         </div>
       </div>
@@ -97,16 +80,10 @@ function Hero() {
           </p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <a
-              href="/audit"
+              href="https://adsgupta.com/platform/usermanagement"
               className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              Run Free Audit →
-            </a>
-            <a
-              href="/book-demo"
-              className="inline-flex items-center justify-center rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/5"
-            >
-              Book Demo
+              Sign In
             </a>
           </div>
         </div>
@@ -321,13 +298,13 @@ function PricingCard({
         ))}
       </ul>
       <a
-        href="/audit"
+        href="https://adsgupta.com/platform/usermanagement"
         className={classNames(
           'mt-8 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold',
           highlight ? 'bg-blue-600 hover:bg-blue-700' : 'bg-white/10 hover:bg-white/15'
         )}
       >
-        Start free
+        Sign In
       </a>
     </div>
   );

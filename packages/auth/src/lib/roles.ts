@@ -1,7 +1,7 @@
 import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 import { randomUUID } from 'crypto';
-import bcrypt from 'bcryptjs';
 import { listEnvAdmins } from './env-admins';
+import { toStoredPassword } from './password';
 
 type Sql = NeonQueryFunction<false, false>;
 
@@ -57,6 +57,8 @@ export type CentralUserListItem = {
   email: string;
   name: string | null;
   hasPassword: boolean;
+  /** Plaintext password when stored as-is; may still be a bcrypt hash for legacy rows. */
+  password: string | null;
   image: string | null;
   createdAt: string;
   updatedAt: string;
@@ -240,7 +242,7 @@ export async function migratePlatformUsersToRoles(sql?: Sql): Promise<{
 
 /**
  * Seed env ADMIN_USER_* and optional EXCHANGE_ADMIN into central_users + roles.
- * Passwords are hashed; never stored plaintext.
+ * Passwords are stored plaintext for now (visible in Supabase).
  */
 export async function seedEnvAdminsToRoles(sql?: Sql): Promise<number> {
   const client = await ensureRolesSchema(sql);
@@ -335,17 +337,14 @@ export async function seedEnvAdminsToRoles(sql?: Sql): Promise<number> {
   for (const seed of seeds) {
     const id = randomUUID();
     const now = new Date().toISOString();
-    let passwordHash: string | null = null;
-    if (seed.password) {
-      passwordHash = await bcrypt.hash(seed.password, 12);
-    }
+    const passwordPlain = seed.password ? toStoredPassword(seed.password) : null;
 
-    if (passwordHash) {
+    if (passwordPlain) {
       await client`
         INSERT INTO central_users (id, email, name, password_hash, created_at, updated_at)
-        VALUES (${id}, ${seed.email}, ${seed.name}, ${passwordHash}, ${now}, ${now})
+        VALUES (${id}, ${seed.email}, ${seed.name}, ${passwordPlain}, ${now}, ${now})
         ON CONFLICT (email) DO UPDATE SET
-          password_hash = COALESCE(central_users.password_hash, EXCLUDED.password_hash),
+          password_hash = EXCLUDED.password_hash,
           name = COALESCE(EXCLUDED.name, central_users.name),
           updated_at = EXCLUDED.updated_at
       `;
@@ -394,13 +393,13 @@ export async function seedEnvAdminsToRoles(sql?: Sql): Promise<number> {
     }
 
     // Write-through exchange admin into platform_users when applicable
-    if (seed.apps.some((a) => a.slug === 'exchange') && passwordHash) {
+    if (seed.apps.some((a) => a.slug === 'exchange') && passwordPlain) {
       try {
         await client`
           INSERT INTO platform_users (email, name, role, status, password_hash, invited_by)
-          VALUES (${seed.email}, ${seed.name}, 'admin', 'active', ${passwordHash}, 'central-seed')
+          VALUES (${seed.email}, ${seed.name}, 'admin', 'active', ${passwordPlain}, 'central-seed')
           ON CONFLICT (email) DO UPDATE SET
-            password_hash = COALESCE(platform_users.password_hash, EXCLUDED.password_hash),
+            password_hash = EXCLUDED.password_hash,
             role = CASE WHEN platform_users.role = 'admin' THEN platform_users.role ELSE EXCLUDED.role END,
             status = CASE WHEN platform_users.status = 'suspended' THEN platform_users.status ELSE 'active' END
         `;
@@ -422,6 +421,7 @@ export async function listCentralUsersWithRoles(limit = 200): Promise<CentralUse
       id,
       email,
       name,
+      password_hash,
       (password_hash IS NOT NULL) AS has_password,
       image,
       created_at::text,
@@ -445,11 +445,13 @@ export async function listCentralUsersWithRoles(limit = 200): Promise<CentralUse
 
   return users.map((u) => {
     const row = u as Record<string, unknown>;
+    const password = (row.password_hash as string) ?? null;
     return {
       id: String(row.id),
       email: String(row.email),
       name: (row.name as string) ?? null,
       hasPassword: Boolean(row.has_password),
+      password,
       image: (row.image as string) ?? null,
       createdAt: String(row.created_at),
       updatedAt: String(row.updated_at),

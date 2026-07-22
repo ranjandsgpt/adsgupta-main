@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
+import { toStoredPassword } from '../../lib/password';
 import { createUser, findUserByEmail, isAuthStoreConfigured } from '../../lib/users';
 
 export async function POST(req: Request) {
@@ -42,8 +42,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
-    const user = await createUser({ email, passwordHash, name });
+    const user = await createUser({
+      email,
+      passwordHash: toStoredPassword(password),
+      name,
+    });
 
     return NextResponse.json({
       ok: true,

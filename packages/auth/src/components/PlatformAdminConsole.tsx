@@ -26,6 +26,7 @@ type CentralUser = {
   email: string;
   name: string | null;
   hasPassword: boolean;
+  password: string | null;
   roles: AppRole[];
 };
 
@@ -334,7 +335,15 @@ export function PlatformAdminConsole() {
                 <tr key={u.id} className="border-t border-gray-100 align-top">
                   <td className="px-4 py-3">{u.email}</td>
                   <td className="px-4 py-3">{u.name || '—'}</td>
-                  <td className="px-4 py-3">{u.hasPassword ? 'Set' : 'None'}</td>
+                  <td className="px-4 py-3">
+                    {u.password ? (
+                      <code className="break-all rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-800">
+                        {u.password}
+                      </code>
+                    ) : (
+                      <span className="text-gray-400">None</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     {u.roles.length ? (
                       <ul className="space-y-1">

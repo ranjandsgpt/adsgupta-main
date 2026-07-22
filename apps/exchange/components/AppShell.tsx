@@ -191,7 +191,7 @@ function exchangeSidebar(isAdmin: boolean): NavSection[] {
     sections.push({
       label: "ADMIN",
       items: [
-        { href: "https://adsgupta.com/platform/usermanagement", label: "User Management" },
+        { href: "https://adsgupta.com/platform/usermanagement?view=admin", label: "User Management" },
         { href: "/platform/admin/roles", label: "Roles & Permissions" },
         { href: "/platform/admin/activity", label: "Activity Log" },
         { href: "/platform/admin/api-keys", label: "API Keys" },
@@ -241,7 +241,7 @@ function detectSidebarMode(pathname: string): "home" | "publisher" | "demand" | 
 
 function LogoWordmark() {
   return (
-    <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <Link href="/platform" style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <div
         style={{
           width: 26,
@@ -258,8 +258,11 @@ function LogoWordmark() {
       >
         AD
       </div>
-      <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text)" }}>
+      <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", lineHeight: 1.2 }}>
         Ads<span style={{ color: "var(--accent)", fontWeight: 600 }}>Gupta</span>
+        <span style={{ display: "block", fontSize: 10, fontWeight: 500, color: "var(--text-muted)" }}>
+          The Programmatic Advertising Platform
+        </span>
       </span>
     </Link>
   );
@@ -278,7 +281,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const pillClass = (active: boolean) => `portal-pill${active ? " portal-pill-active" : ""}`;
 
-  const platformActive = pathname === "/" || pathname.startsWith("/docs");
   const publisherActive = pathname.startsWith("/publisher");
   const demandActive = pathname.startsWith("/demand");
   const exchangeActive = pathname.startsWith("/platform");
@@ -385,26 +387,26 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div style={{ display: "flex", alignItems: "center", gap: 20, minWidth: 0 }}>
           <LogoWordmark />
           <nav style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap", justifyContent: "center" }}>
-            {!role && (
-              <Link href="/" className={pillClass(platformActive)}>
-                Platform
-              </Link>
-            )}
-            {(!role || role === "publisher" || role === "admin") && (
+            {role === "publisher" || role === "admin" ? (
               <Link href="/publisher" className={pillClass(publisherActive)}>
                 Publisher Console
               </Link>
-            )}
-            {(!role || role === "advertiser" || role === "admin") && (
+            ) : null}
+            {role === "advertiser" || role === "demand" || role === "admin" ? (
               <Link href="/demand" className={pillClass(demandActive)}>
                 Demand Manager
               </Link>
-            )}
-            {role === "admin" && (
+            ) : null}
+            {role === "admin" ? (
               <Link href="/platform" className={pillClass(exchangeActive && !adminConsoleActive)}>
                 Platform
               </Link>
-            )}
+            ) : null}
+            {!role ? (
+              <a href="https://adsgupta.com/platform/usermanagement" className={pillClass(false)}>
+                Sign In
+              </a>
+            ) : null}
           </nav>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

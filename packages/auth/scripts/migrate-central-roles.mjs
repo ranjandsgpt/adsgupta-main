@@ -10,7 +10,6 @@ import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { neon } from '@neondatabase/serverless';
-import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -215,16 +214,26 @@ async function main() {
 
   let seeded = 0;
   for (const seed of seeds) {
-    const hash = await bcrypt.hash(seed.password, 12);
+    const passwordPlain = seed.password || null;
     const now = new Date().toISOString();
-    await sql`
-      INSERT INTO central_users (id, email, name, password_hash, created_at, updated_at)
-      VALUES (${randomUUID()}, ${seed.email}, ${seed.name}, ${hash}, ${now}, ${now})
-      ON CONFLICT (email) DO UPDATE SET
-        password_hash = COALESCE(central_users.password_hash, EXCLUDED.password_hash),
-        name = COALESCE(EXCLUDED.name, central_users.name),
-        updated_at = EXCLUDED.updated_at
-    `;
+    if (passwordPlain) {
+      await sql`
+        INSERT INTO central_users (id, email, name, password_hash, created_at, updated_at)
+        VALUES (${randomUUID()}, ${seed.email}, ${seed.name}, ${passwordPlain}, ${now}, ${now})
+        ON CONFLICT (email) DO UPDATE SET
+          password_hash = EXCLUDED.password_hash,
+          name = COALESCE(EXCLUDED.name, central_users.name),
+          updated_at = EXCLUDED.updated_at
+      `;
+    } else {
+      await sql`
+        INSERT INTO central_users (id, email, name, password_hash, created_at, updated_at)
+        VALUES (${randomUUID()}, ${seed.email}, ${seed.name}, NULL, ${now}, ${now})
+        ON CONFLICT (email) DO UPDATE SET
+          name = COALESCE(EXCLUDED.name, central_users.name),
+          updated_at = EXCLUDED.updated_at
+      `;
+    }
     const rows = await sql`SELECT id FROM central_users WHERE email = ${seed.email} LIMIT 1`;
     const userId = rows[0].id;
     for (const app of seed.apps) {

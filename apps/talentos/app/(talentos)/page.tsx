@@ -107,13 +107,6 @@ export default function HomePage() {
             <Link href="/login" className="text-zinc-400 hover:text-white transition-colors text-sm px-4 py-2">
               Sign In
             </Link>
-            <Link
-              href="/login"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all"
-              data-testid="get-started-btn"
-            >
-              Get Started Free
-            </Link>
           </div>
         </div>
       </nav>
@@ -134,11 +127,8 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/login" className="px-7 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold inline-flex items-center gap-2">
-                  Start Free Analysis <ArrowRight size={17} />
+                  Sign In <ArrowRight size={17} />
                 </Link>
-                <a href="#" className="px-7 py-3 rounded-xl border border-white/15 text-zinc-200 inline-flex items-center gap-2">
-                  <PlayCircle size={17} /> Watch Demo
-                </a>
               </div>
               <div className="grid grid-cols-3 gap-4 mt-10">
                 {stats.map((s) => (
@@ -248,7 +238,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="text-center mt-8">
-            <Link href="/pricing" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold">Start Free <ArrowRight size={16} /></Link>
+            <Link href="/login" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold">Sign In <ArrowRight size={16} /></Link>
           </div>
         </div>
       </section>
@@ -277,7 +267,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-4">Ready to ace your next interview?</h2>
           <Link href="/login" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-semibold">
-            Get Started Free <ArrowRight size={18} />
+            Sign In <ArrowRight size={18} />
           </Link>
         </div>
       </section>

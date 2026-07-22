@@ -1,14 +1,7 @@
 import { redirect } from 'next/navigation';
-import { buildPlatformAuthUrl, sanitizeReturnTo } from '@adsgupta/auth';
+import { buildPlatformAuthUrl } from '@adsgupta/auth';
 
-export default function MarketplaceLoginRedirect({
-  searchParams,
-}: {
-  searchParams?: { returnTo?: string };
-}) {
-  const returnTo = sanitizeReturnTo(
-    searchParams?.returnTo || 'https://marketplace.adsgupta.com/audit',
-    'https://marketplace.adsgupta.com'
-  );
-  redirect(buildPlatformAuthUrl({ returnTo }));
+/** Marketplace login → central sign-in → tools hub */
+export default function MarketplaceLoginRedirect() {
+  redirect(buildPlatformAuthUrl());
 }

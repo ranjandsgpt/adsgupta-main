@@ -6,8 +6,10 @@ export { createAuthOptions } from './lib/auth-options';
 export { isAuthStoreConfigured } from './lib/users';
 export {
   PLATFORM_AUTH_PATH,
+  PLATFORM_HUB_PATH,
   buildPlatformAuthUrl,
   getPlatformAuthOrigin,
+  getPlatformHubUrl,
   isPlatformAdminEmail,
   sanitizeReturnTo,
 } from './lib/platform-auth-url';

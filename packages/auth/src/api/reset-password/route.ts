@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
+import { toStoredPassword } from '../../lib/password';
 import { verifyPasswordResetToken } from '../../lib/reset-token';
 import { updateUserPassword } from '../../lib/users';
 
@@ -24,8 +24,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
-    const ok = await updateUserPassword(parsed.email, passwordHash);
+    const ok = await updateUserPassword(parsed.email, toStoredPassword(password));
     if (!ok) {
       return NextResponse.json({ error: 'Unable to update password' }, { status: 400 });
     }

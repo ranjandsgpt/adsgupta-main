@@ -4,7 +4,7 @@ export default function PricingPage() {
       <div className="mx-auto max-w-7xl px-6 py-20">
         <div className="text-center">
           <h1 className="text-4xl font-bold">Pricing</h1>
-          <p className="mt-4 text-lg text-gray-400">No contracts. Cancel anytime. 14-day free trial on all plans.</p>
+          <p className="mt-4 text-lg text-gray-400">Sign in to access Marketplace tools.</p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -19,10 +19,10 @@ export default function PricingPage() {
               <li>✓ Email support</li>
             </ul>
             <a
-              href="/audit"
+              href="https://adsgupta.com/platform/usermanagement"
               className="mt-8 inline-flex w-full items-center justify-center rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-white/15"
             >
-              Start free
+              Sign In
             </a>
           </div>
 
@@ -42,10 +42,10 @@ export default function PricingPage() {
               <li>✓ Priority support</li>
             </ul>
             <a
-              href="/audit"
+              href="https://adsgupta.com/platform/usermanagement"
               className="mt-8 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              Start free
+              Sign In
             </a>
           </div>
 
@@ -62,10 +62,10 @@ export default function PricingPage() {
               <li>✓ Custom integrations</li>
             </ul>
             <a
-              href="/audit"
+              href="https://adsgupta.com/platform/usermanagement"
               className="mt-8 inline-flex w-full items-center justify-center rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-white/15"
             >
-              Start free
+              Sign In
             </a>
           </div>
         </div>
@@ -77,4 +77,3 @@ export default function PricingPage() {
     </main>
   );
 }
-

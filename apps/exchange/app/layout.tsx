@@ -5,14 +5,17 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://exchange.adsgupta.com"),
-  title: { default: "MDE Exchange — Real-Time Ad Exchange", template: "%s | MDE Exchange" },
+  title: {
+    default: "AdsGupta — The Programmatic Advertising Platform",
+    template: "%s | AdsGupta Exchange"
+  },
   description:
-    "Real OpenRTB 2.6 ad exchange. Publisher monetization and advertiser self-serve. Sub-100ms auction clearing. Built by the InMobi programmatic team.",
-  keywords: ["ad exchange", "OpenRTB", "programmatic advertising", "publisher monetization", "demand side platform", "SSP"],
+    "AdsGupta — The Programmatic Advertising Platform. Real OpenRTB 2.6 ad exchange. Publisher monetization and advertiser self-serve.",
+  keywords: ["ad exchange", "OpenRTB", "programmatic advertising", "AdsGupta", "publisher monetization"],
   authors: [{ name: "Ranjan Dasgupta", url: "https://ranjan.adsgupta.com" }],
   openGraph: {
     type: "website",
-    siteName: "MDE Exchange",
+    siteName: "AdsGupta — The Programmatic Advertising Platform",
     locale: "en_US"
   },
   twitter: { card: "summary_large_image", creator: "@ranjandsgpt" },

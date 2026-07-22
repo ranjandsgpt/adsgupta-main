@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 const TICKER =
   "Programmatic · Amazon · TikTok Shop · Meta Ads · CTV · GAM · Prebid · Retail Media · Attribution · DCO";
@@ -20,16 +20,6 @@ const NAV_TABS = [
 
 function UserSessionActions() {
   const { data: session, status } = useSession();
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-
-  useEffect(() => {
-    function onDoc(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
-    }
-    if (open) document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, [open]);
 
   if (status === "loading") {
     return (
@@ -40,57 +30,21 @@ function UserSessionActions() {
   }
 
   if (!session?.user) {
-    const loginHref =
-      typeof window !== 'undefined'
-        ? (() => {
-            const u = new URL('https://adsgupta.com/platform/usermanagement');
-            u.searchParams.set('returnTo', window.location.href);
-            return u.toString();
-          })()
-        : 'https://adsgupta.com/platform/usermanagement';
     return (
-      <a href={loginHref} className="blog-header__login">
-        Login
+      <a href="https://adsgupta.com/platform/usermanagement" className="blog-header__login">
+        Sign In
       </a>
     );
   }
 
-  const name = session.user.name || session.user.email || "User";
-  const initial = String(name).trim().charAt(0).toUpperCase() || "?";
-
   return (
-    <div className="blog-header__user" ref={wrapRef}>
-      <button
-        type="button"
-        className="blog-header__user-trigger"
-        aria-expanded={open}
-        aria-haspopup="menu"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className="blog-header__user-avatar" aria-hidden>
-          {initial}
-        </span>
-        <span className="blog-header__user-name">{name}</span>
-      </button>
-      {open ? (
-        <div className="blog-header__user-menu" role="menu">
-          <Link href="/admin/settings" className="blog-header__user-link" role="menuitem" onClick={() => setOpen(false)}>
-            Profile
-          </Link>
-          <button
-            type="button"
-            className="blog-header__user-link blog-header__user-link--btn"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              signOut({ callbackUrl: "/" });
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      ) : null}
-    </div>
+    <button
+      type="button"
+      className="blog-header__login"
+      onClick={() => signOut({ callbackUrl: "/" })}
+    >
+      Logout
+    </button>
   );
 }
 

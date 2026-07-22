@@ -228,7 +228,7 @@ export async function upsertPasswordUser(input: {
   const name = input.name?.trim() || null;
   const existing = await findUserByEmail(email);
   if (existing?.passwordHash) {
-    // Keep existing hash unless caller is explicitly re-syncing via updateUserPassword
+    // Always sync when caller provides a new value (e.g. plaintext rewrite)
     if (existing.passwordHash === input.passwordHash) return existing;
     await updateUserPassword(email, input.passwordHash);
     return (await findUserByEmail(email)) || { ...existing, passwordHash: input.passwordHash };

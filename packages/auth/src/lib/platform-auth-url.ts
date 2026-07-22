@@ -1,6 +1,9 @@
 /** Central AdsGupta login + user management (all network sign-in flows). */
 export const PLATFORM_AUTH_PATH = '/platform/usermanagement';
 
+/** Post-login tools hub — always land here after sign-in. */
+export const PLATFORM_HUB_PATH = '/platform';
+
 export function getPlatformAuthOrigin(): string {
   if (typeof window !== 'undefined') {
     const fromEnv = process.env.NEXT_PUBLIC_PLATFORM_AUTH_URL;
@@ -16,15 +19,19 @@ export function getPlatformAuthOrigin(): string {
   return env.replace(/\/platform\/usermanagement\/?$/, '').replace(/\/$/, '');
 }
 
+/** Absolute URL for the post-login tools hub (https://adsgupta.com/platform). */
+export function getPlatformHubUrl(): string {
+  return `${getPlatformAuthOrigin()}${PLATFORM_HUB_PATH}`;
+}
+
 export function buildPlatformAuthUrl(options?: {
   returnTo?: string;
   mode?: 'signin' | 'register' | 'trial' | 'free';
 }): string {
   const base = `${getPlatformAuthOrigin()}${PLATFORM_AUTH_PATH}`;
   const url = new URL(base);
-  if (options?.returnTo) {
-    url.searchParams.set('returnTo', options.returnTo);
-  }
+  // Default post-login destination is the tools hub (not a product subdomain)
+  url.searchParams.set('returnTo', options?.returnTo || getPlatformHubUrl());
   if (options?.mode && options.mode !== 'signin') {
     url.searchParams.set('mode', options.mode);
   }

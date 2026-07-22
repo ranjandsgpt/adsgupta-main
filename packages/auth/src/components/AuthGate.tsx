@@ -72,12 +72,15 @@ export function AuthPanel({
   allowSkip,
   onSkip,
   initialMode,
+  successRedirectUrl,
 }: {
   appName?: string;
   theme?: 'light' | 'dark';
   allowSkip?: boolean;
   onSkip?: () => void;
   initialMode?: Mode;
+  /** Where to send the browser after a successful sign-in / register. */
+  successRedirectUrl?: string;
 }) {
   const searchMode = useMemo(() => {
     if (typeof window === 'undefined') return null;
@@ -121,6 +124,14 @@ export function AuthPanel({
   );
   const label = 'block text-sm font-medium opacity-80';
 
+  function goAfterAuth() {
+    if (successRedirectUrl) {
+      window.location.replace(successRedirectUrl);
+      return;
+    }
+    window.location.reload();
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -137,7 +148,7 @@ export function AuthPanel({
           setError('Invalid email or password');
           return;
         }
-        window.location.reload();
+        goAfterAuth();
         return;
       }
 
@@ -162,7 +173,7 @@ export function AuthPanel({
           setMode('signin');
           return;
         }
-        window.location.reload();
+        goAfterAuth();
         return;
       }
 
@@ -229,7 +240,13 @@ export function AuthPanel({
           <button
             type="button"
             disabled={busy}
-            onClick={() => signIn('google', { callbackUrl: typeof window !== 'undefined' ? window.location.href : '/' })}
+            onClick={() =>
+              signIn('google', {
+                callbackUrl:
+                  successRedirectUrl ||
+                  (typeof window !== 'undefined' ? window.location.href : '/'),
+              })
+            }
             className={classNames(
               'mt-5 flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium',
               dark

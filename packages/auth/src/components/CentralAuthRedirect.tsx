@@ -24,11 +24,7 @@ export function CentralAuthGate({
   useEffect(() => {
     if (status === 'loading' || session?.user || skipped || allowSkip) return;
     setRedirecting(true);
-    const returnTo =
-      typeof window !== 'undefined'
-        ? window.location.href
-        : 'https://marketplace.adsgupta.com/audit';
-    window.location.replace(buildPlatformAuthUrl({ returnTo, mode }));
+    window.location.replace(buildPlatformAuthUrl({ mode }));
   }, [status, session, skipped, mode, allowSkip]);
 
   if (status === 'loading' || redirecting) {
@@ -41,15 +37,11 @@ export function CentralAuthGate({
 
   if (!session?.user && !skipped) {
     if (allowSkip) {
-      const returnTo =
-        typeof window !== 'undefined'
-          ? window.location.href
-          : 'https://marketplace.adsgupta.com/audit';
       return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4 text-center">
           <p className="text-sm opacity-70">Sign in to use this tool</p>
           <a
-            href={buildPlatformAuthUrl({ returnTo })}
+            href={buildPlatformAuthUrl()}
             className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white"
           >
             Sign in with AdsGupta
@@ -94,11 +86,7 @@ export function CentralAuthGate({
 /** @deprecated Use CentralAuthGate */
 export function CentralAuthRedirect(props: { mode?: 'signin' | 'register' | 'free' | 'trial' }) {
   useEffect(() => {
-    const returnTo =
-      typeof window !== 'undefined'
-        ? window.location.href
-        : 'https://marketplace.adsgupta.com/audit';
-    window.location.replace(buildPlatformAuthUrl({ returnTo, mode: props.mode }));
+    window.location.replace(buildPlatformAuthUrl({ mode: props.mode }));
   }, [props.mode]);
   return (
     <div className="flex min-h-[50vh] items-center justify-center text-sm text-gray-500">

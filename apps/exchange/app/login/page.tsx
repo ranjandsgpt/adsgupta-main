@@ -1,14 +1,7 @@
 import { redirect } from 'next/navigation';
-import { buildPlatformAuthUrl, sanitizeReturnTo } from '@adsgupta/auth';
+import { buildPlatformAuthUrl } from '@adsgupta/auth';
 
-export default function ExchangeLoginRedirect({
-  searchParams,
-}: {
-  searchParams: { callbackUrl?: string };
-}) {
-  const returnTo = sanitizeReturnTo(
-    searchParams.callbackUrl || 'https://exchange.adsgupta.com',
-    'https://exchange.adsgupta.com'
-  );
-  redirect(buildPlatformAuthUrl({ returnTo }));
+/** Exchange login → central sign-in → tools hub at adsgupta.com/platform */
+export default function ExchangeLoginRedirect() {
+  redirect(buildPlatformAuthUrl());
 }

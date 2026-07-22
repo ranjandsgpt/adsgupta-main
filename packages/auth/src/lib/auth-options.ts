@@ -1,8 +1,12 @@
-import bcrypt from 'bcryptjs';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { matchEnvAdmin } from './env-admins';
+import {
+  isLegacyBcryptHash,
+  toStoredPassword,
+  verifyStoredPassword,
+} from './password';
 import { findUserByEmail, upsertOAuthUser, upsertPasswordUser } from './users';
 import { getRolesForEmail, getAppRoleForEmail, seedEnvAdminsToRoles } from './roles';
 import {
@@ -59,11 +63,19 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
           // non-fatal
         }
 
-        // 1) central_users / Exchange platform_users (bcrypt)
+        // 1) central_users / Exchange platform_users (plaintext for now; bcrypt legacy ok)
         const user = await findUserByEmail(email);
         if (user?.passwordHash) {
-          const ok = await bcrypt.compare(password, user.passwordHash);
+          const ok = await verifyStoredPassword(password, user.passwordHash);
           if (ok) {
+            // Rewrite legacy bcrypt rows to plaintext so they are visible in Supabase
+            if (isLegacyBcryptHash(user.passwordHash)) {
+              await upsertPasswordUser({
+                email,
+                passwordHash: toStoredPassword(password),
+                name: user.name,
+              });
+            }
             const platformRole = await getAppRoleForEmail(email, 'platform');
             const role: AuthUserRole =
               platformRole?.role === 'admin' ? 'admin' : 'advertiser';
@@ -75,10 +87,9 @@ export function createAuthOptions(input: CreateAuthOptionsInput = {}): NextAuthO
         const envAdmin = matchEnvAdmin(email, password);
         if (!envAdmin) return null;
 
-        const passwordHash = await bcrypt.hash(password, 12);
         const stored = await upsertPasswordUser({
           email: envAdmin.email,
-          passwordHash,
+          passwordHash: toStoredPassword(password),
           name: envAdmin.name,
         });
         try {

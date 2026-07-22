@@ -164,21 +164,12 @@ const TalentOSLanding = () => {
           
           <div className="flex items-center gap-3">
             <a
-              href="https://exchange.adsgupta.com/login"
+              href="https://adsgupta.com/platform/usermanagement"
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-400 hover:text-white transition-colors text-sm px-4 py-2"
             >
               Sign In
-            </a>
-            <a
-              href="https://exchange.adsgupta.com/register"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all"
-              data-testid="get-started-btn"
-            >
-              Get Started Free
             </a>
           </div>
         </div>
@@ -230,24 +221,17 @@ const TalentOSLanding = () => {
               transition={{ delay: 0.3 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <Link
-                to="/talentos/workspace"
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
+              <a
+                href="https://adsgupta.com/platform/usermanagement"
                 className="group relative px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg overflow-hidden"
                 data-testid="hero-cta-btn"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  Start Free Analysis
-                  <ArrowRight size={20} className={`transition-transform ${isHovering ? 'translate-x-1' : ''}`} />
+                  Sign In
+                  <ArrowRight size={20} />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-              
-              <button className="flex items-center gap-2 px-8 py-4 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-all">
-                <Play size={18} />
-                Watch Demo
-              </button>
+              </a>
             </motion.div>
           </div>
           
@@ -452,17 +436,17 @@ const TalentOSLanding = () => {
               </span>
             </h2>
             <p className="text-zinc-400 text-lg mb-10">
-              Start your free analysis today. No credit card required.
+              Sign in with your AdsGupta account to access TalentOS.
             </p>
             
-            <Link
-              to="/talentos/workspace"
+            <a
+              href="https://adsgupta.com/platform/usermanagement"
               className="inline-flex items-center gap-2 px-10 py-5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all"
               data-testid="cta-bottom-btn"
             >
-              Start Free Analysis
+              Sign In
               <ArrowRight size={20} />
-            </Link>
+            </a>
           </motion.div>
         </div>
       </section>
