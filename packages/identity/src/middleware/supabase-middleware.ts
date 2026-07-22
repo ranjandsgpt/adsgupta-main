@@ -1,8 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 /**
  * Next.js middleware helper — refresh Supabase session cookies.
+ * Accepts a loose request type so hosts don't hit duplicate `next` type conflicts.
  *
  * ```ts
  * // middleware.ts
@@ -10,10 +11,10 @@ import { NextResponse, type NextRequest } from 'next/server';
  * export async function middleware(request: NextRequest) {
  *   return updateSession(request);
  * }
- * export const config = { matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'] };
  * ```
  */
-export async function updateSession(request: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function updateSession(request: any): Promise<NextResponse> {
   let response = NextResponse.next({
     request: { headers: request.headers },
   });
@@ -33,7 +34,13 @@ export async function updateSession(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+      setAll(
+        cookiesToSet: {
+          name: string;
+          value: string;
+          options?: Record<string, unknown>;
+        }[]
+      ) {
         for (const { name, value } of cookiesToSet) {
           request.cookies.set(name, value);
         }
