@@ -1,4 +1,10 @@
 -- Central AdsGupta roles + blog newsletter (Neon exchange-db)
+--
+-- Product tools (user_app_roles.app_slug): exchange | marketplace | blog | talentos
+-- Hub only: platform (not a customer tool)
+-- Legacy aliases remapped at runtime: pousali | audit-tool | amazon-audit → marketplace
+-- Pousali is a brand/site that may host marketplace audit UI; never a separate tool.
+--
 CREATE TABLE IF NOT EXISTS central_users (
   id TEXT PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,

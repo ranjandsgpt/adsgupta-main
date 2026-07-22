@@ -87,13 +87,16 @@ export async function PATCH(req: Request) {
     }
 
     if (body.appSlug && body.role) {
+      // Product tools + hub. Legacy pousali/audit-tool remap to marketplace in upsert.
       const allowedApps = [
         'exchange',
-        'blog',
         'marketplace',
+        'blog',
+        'talentos',
         'platform',
-        'pousali',
         'audit-tool',
+        'pousali',
+        'amazon-audit',
       ];
       if (!allowedApps.includes(body.appSlug)) {
         return NextResponse.json({ error: 'Invalid appSlug' }, { status: 400 });

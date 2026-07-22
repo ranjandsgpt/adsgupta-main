@@ -9,4 +9,13 @@ export interface CentralUser {
   updatedAt: Date;
 }
 
-export type AuthAppId = 'amazon-audit' | 'marketplace' | 'exchange' | 'pousali' | 'adsgupta';
+/** Host / brand surface id (not a central product tool slug). Pousali is a brand host for marketplace audit. */
+export type AuthAppId =
+  | 'marketplace'
+  | 'exchange'
+  | 'blog'
+  | 'talentos'
+  | 'platform'
+  | 'pousali'
+  | 'adsgupta'
+  | 'amazon-audit';

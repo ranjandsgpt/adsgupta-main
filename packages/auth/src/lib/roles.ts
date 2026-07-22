@@ -5,7 +5,41 @@ import { listEnvAdmins } from './env-admins';
 
 type Sql = NeonQueryFunction<false, false>;
 
-export type AppSlug = 'exchange' | 'blog' | 'marketplace' | 'audit-tool' | 'platform' | 'pousali';
+/**
+ * Product tools (customer-facing): exchange, marketplace, blog, talentos.
+ * `platform` is the hub admin surface only — not a customer tool.
+ * `audit-tool` is a legacy alias for marketplace (Amazon audit); prefer `marketplace`.
+ * Pousali is a brand/site host for marketplace audit UI — never a separate app_slug.
+ */
+export type AppSlug =
+  | 'exchange'
+  | 'blog'
+  | 'marketplace'
+  | 'talentos'
+  | 'platform'
+  | 'audit-tool';
+
+/** Canonical customer tools + hub. */
+export const PRODUCT_APP_SLUGS = [
+  'exchange',
+  'marketplace',
+  'blog',
+  'talentos',
+] as const;
+
+export const ALL_ASSIGNABLE_APP_SLUGS = [
+  'platform',
+  ...PRODUCT_APP_SLUGS,
+] as const;
+
+/** Map legacy / host slugs onto product tools. */
+export function normalizeAppSlug(slug: string): string {
+  const s = slug.trim().toLowerCase();
+  if (s === 'pousali' || s === 'amazon-audit' || s === 'audit-tool') {
+    return 'marketplace';
+  }
+  return s;
+}
 
 export type UserAppRole = {
   id: string;
@@ -84,8 +118,32 @@ export async function ensureRolesSchema(sql?: Sql): Promise<Sql | null> {
   `;
   await client`CREATE INDEX IF NOT EXISTS blog_subscribers_status_idx ON blog_subscribers (status)`;
 
+  // Consolidate legacy pousali / audit-tool rows into marketplace (pousali is a brand host, not a tool).
+  await consolidateLegacyAppSlugs(client);
+
   rolesSchemaReady = true;
   return client;
+}
+
+async function consolidateLegacyAppSlugs(client: Sql): Promise<void> {
+  for (const legacy of ['pousali', 'audit-tool', 'amazon-audit'] as const) {
+    try {
+      await client`
+        UPDATE user_app_roles AS legacy
+        SET app_slug = 'marketplace', updated_at = NOW()
+        WHERE legacy.app_slug = ${legacy}
+          AND NOT EXISTS (
+            SELECT 1 FROM user_app_roles m
+            WHERE m.user_id = legacy.user_id AND m.app_slug = 'marketplace'
+          )
+      `;
+      await client`
+        DELETE FROM user_app_roles WHERE app_slug = ${legacy}
+      `;
+    } catch {
+      // table may be empty / race on first boot
+    }
+  }
 }
 
 function mapRole(row: Record<string, unknown>): UserAppRole {
@@ -211,6 +269,7 @@ export async function seedEnvAdminsToRoles(sql?: Sql): Promise<number> {
       apps: [
         { slug: 'platform', role: 'admin' },
         { slug: 'blog', role: 'admin' },
+        { slug: 'marketplace', role: 'admin' },
       ],
     });
   }
@@ -229,6 +288,9 @@ export async function seedEnvAdminsToRoles(sql?: Sql): Promise<number> {
       existing.subdomain = subdomain || existing.subdomain;
       if (password) existing.password = password;
       existing.name = name || existing.name;
+      if (!existing.apps.some((a) => a.slug === 'marketplace')) {
+        existing.apps.push({ slug: 'marketplace', role: 'admin' });
+      }
     } else {
       seeds.push({
         email,
@@ -238,6 +300,7 @@ export async function seedEnvAdminsToRoles(sql?: Sql): Promise<number> {
         apps: [
           { slug: 'platform', role: 'admin' },
           { slug: 'blog', role: 'admin' },
+          { slug: 'marketplace', role: 'admin' },
         ],
       });
     }
@@ -424,7 +487,11 @@ export async function getAppRoleForEmail(
   appSlug: AppSlug | string
 ): Promise<UserAppRole | null> {
   const roles = await getRolesForEmail(email);
-  return roles.find((r) => r.appSlug === appSlug && r.status === 'active') || null;
+  const canonical = normalizeAppSlug(appSlug);
+  return (
+    roles.find((r) => normalizeAppSlug(r.appSlug) === canonical && r.status === 'active') ||
+    null
+  );
 }
 
 export async function upsertUserAppRole(input: {
@@ -447,12 +514,13 @@ export async function upsertUserAppRole(input: {
   }
   if (!userId) return null;
 
+  const appSlug = normalizeAppSlug(input.appSlug);
   const status = input.status || 'active';
   const metaJson = JSON.stringify(input.meta || {});
   const now = new Date().toISOString();
   const rows = await client`
     INSERT INTO user_app_roles (id, user_id, app_slug, role, status, meta, created_at, updated_at)
-    VALUES (${randomUUID()}, ${userId}, ${input.appSlug}, ${input.role}, ${status}, ${metaJson}::jsonb, ${now}, ${now})
+    VALUES (${randomUUID()}, ${userId}, ${appSlug}, ${input.role}, ${status}, ${metaJson}::jsonb, ${now}, ${now})
     ON CONFLICT (user_id, app_slug) DO UPDATE SET
       role = EXCLUDED.role,
       status = EXCLUDED.status,
@@ -467,7 +535,7 @@ export async function upsertUserAppRole(input: {
   const role = mapRole(rows[0] as Record<string, unknown>);
 
   // Write-through to platform_users for exchange
-  if (input.appSlug === 'exchange') {
+  if (appSlug === 'exchange') {
     await syncExchangePlatformUser(userId, role, client);
   }
 

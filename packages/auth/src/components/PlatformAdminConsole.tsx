@@ -47,13 +47,21 @@ type PendingFreebie = {
 
 type JsonRecord = Record<string, unknown>;
 
-const APP_SLUGS = ['platform', 'exchange', 'blog', 'marketplace', 'pousali'] as const;
+/** Product tools: exchange, marketplace, blog, talentos. `platform` = hub admins only. */
+const APP_SLUGS = [
+  'platform',
+  'exchange',
+  'marketplace',
+  'blog',
+  'talentos',
+] as const;
 const ROLE_OPTIONS: Record<string, string[]> = {
   platform: ['admin', 'viewer'],
   exchange: ['admin', 'publisher', 'advertiser', 'demand'],
-  blog: ['admin', 'author'],
   marketplace: ['admin', 'user'],
-  pousali: ['admin', 'user'],
+  blog: ['admin', 'author'],
+  // Role slot ready; TalentOS still uses its own JWT login until Phase 2 SSO.
+  talentos: ['admin', 'user'],
 };
 
 async function fetchJson(url: string): Promise<{
@@ -264,7 +272,8 @@ export function PlatformAdminConsole() {
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">AdsGupta User Management</h1>
           <p className="mt-1 text-sm text-gray-600">
-            Central users, app roles, blog subscribers, freebies, and payments.
+            Tools: exchange, marketplace (incl. Amazon audit), blog, talentos. Platform is hub-admin
+            only. Pousali is a brand host, not a separate tool. TalentOS SSO is Phase 2.
           </p>
         </div>
         <button

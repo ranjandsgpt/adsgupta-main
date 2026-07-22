@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 /**
  * Run Neon central roles migration against AUTH_DATABASE_URL / POSTGRES_URL.
+ *
+ * Product tools: exchange | marketplace | blog | talentos
+ * Hub: platform
+ * Legacy pousali / audit-tool / amazon-audit → marketplace
  */
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
@@ -50,6 +54,22 @@ if (!url) {
 
 const sql = neon(url);
 
+async function consolidateLegacySlugs() {
+  for (const legacy of ['pousali', 'audit-tool', 'amazon-audit']) {
+    await sql`
+      UPDATE user_app_roles AS legacy
+      SET app_slug = 'marketplace', updated_at = NOW()
+      WHERE legacy.app_slug = ${legacy}
+        AND NOT EXISTS (
+          SELECT 1 FROM user_app_roles m
+          WHERE m.user_id = legacy.user_id AND m.app_slug = 'marketplace'
+        )
+    `;
+    await sql`DELETE FROM user_app_roles WHERE app_slug = ${legacy}`;
+  }
+  console.log('Consolidated legacy pousali/audit-tool/amazon-audit → marketplace');
+}
+
 async function main() {
   console.log('Applying DDL…');
   await sql`
@@ -91,6 +111,8 @@ async function main() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS blog_subscribers_status_idx ON blog_subscribers (status)`;
   console.log('DDL ok');
+
+  await consolidateLegacySlugs();
 
   let migratedUsers = 0;
   let migratedRoles = 0;
@@ -165,6 +187,7 @@ async function main() {
         apps: [
           { slug: 'platform', role: 'admin' },
           { slug: 'blog', role: 'admin' },
+          { slug: 'marketplace', role: 'admin' },
         ],
       });
     }

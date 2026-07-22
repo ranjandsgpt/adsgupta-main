@@ -1,14 +1,16 @@
 # @adsgupta/amazon-audit
 
-Central **Amazon Advertising Audit** tool shared across AdsGupta surfaces.
+Central **Amazon Advertising Audit** — part of the **marketplace** product tool, shared across AdsGupta brand hosts.
 
 ## Hosts
 
-| Host | Brand id | URL |
-|------|----------|-----|
-| Marketplace | `marketplace` | https://marketplace.adsgupta.com/audit |
-| Pousali | `pousali` | https://pousali.adsgupta.com/audit |
-| AdsGupta (future) | `adsgupta` | https://adsgupta.com/audit |
+| Host | Brand id | URL | Central role `app_slug` |
+|------|----------|-----|-------------------------|
+| Marketplace | `marketplace` | https://marketplace.adsgupta.com/audit | `marketplace` |
+| Pousali (brand site) | `pousali` | https://pousali.adsgupta.com/audit | `marketplace` (not a separate tool) |
+| AdsGupta (future) | `adsgupta` | https://adsgupta.com/audit | `marketplace` |
+
+Pousali is a brand/site host for this UI — roles and entitlements use `marketplace`, never `pousali` as a product slug.
 
 ## Usage
 

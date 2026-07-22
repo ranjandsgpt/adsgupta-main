@@ -1,6 +1,8 @@
 # @adsgupta/auth
 
-Central AdsGupta identity for marketplace, amazon-audit, exchange (future), and other tools.
+Central AdsGupta identity for the four product tools — **exchange**, **marketplace** (includes Amazon audit), **blog**, **talentos** — plus the **platform** hub for admins.
+
+Pousali (`pousali.adsgupta.com`) is a brand/site that may host marketplace audit UI; it is not a separate product tool or `app_slug`.
 
 ## Features
 
@@ -75,5 +77,17 @@ create table if not exists central_users (
 Create a Web application OAuth client in Google Cloud Console. Authorized redirect URIs:
 
 - `https://marketplace.adsgupta.com/api/auth/callback/google`
-- `https://pousali.adsgupta.com/api/auth/callback/google`
+- `https://pousali.adsgupta.com/api/auth/callback/google` (brand host for marketplace audit; roles use `marketplace`)
 - `http://localhost:3006/api/auth/callback/google` (dev)
+
+### Central `user_app_roles` app slugs
+
+| Slug | Kind | Notes |
+|------|------|--------|
+| `exchange` | tool | AdsGupta Exchange |
+| `marketplace` | tool | Marketplace + Amazon audit (any host, including Pousali) |
+| `blog` | tool | Blog CMS |
+| `talentos` | tool | Role slot ready; TalentOS still uses its own JWT until Phase 2 SSO |
+| `platform` | hub | Platform admins only — not a customer tool |
+
+Legacy writes of `pousali` / `audit-tool` / `amazon-audit` are normalized to `marketplace`.

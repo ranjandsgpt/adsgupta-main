@@ -22,6 +22,9 @@ export {
   getRolesForEmail,
   upsertBlogSubscriber,
   ensureRolesSchema,
+  PRODUCT_APP_SLUGS,
+  ALL_ASSIGNABLE_APP_SLUGS,
+  normalizeAppSlug,
 } from './lib/roles';
 export type { CreateAuthOptionsInput } from './lib/auth-options';
 export type { AuthAppId, CentralUser } from './types/user';

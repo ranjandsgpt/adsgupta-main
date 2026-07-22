@@ -3,8 +3,8 @@
 import { AmazonAuditApp } from '@adsgupta/amazon-audit';
 
 /**
- * Pousali host for the central Amazon audit tool.
- * Branding / portfolio chrome come from the root layout; the tool itself is shared.
+ * Pousali brand host for the marketplace Amazon audit tool.
+ * Roles use app_slug `marketplace` (not pousali). Branding comes from the root layout.
  */
 export default function AuditPage() {
   return <AmazonAuditApp brand="pousali" theme="dark" />;

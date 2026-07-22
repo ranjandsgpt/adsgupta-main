@@ -41,7 +41,9 @@ Exchange and blog hosts adopt this in a later phase — do not wire them yet.
 4. Auth → JWT → enable **asymmetric signing keys**
 5. Point Razorpay webhook to `https://<host>/api/billing/webhook`
 
-## Host mounting (marketplace / pousali)
+## Host mounting (marketplace tool; Pousali brand host)
+
+Mount identity APIs on the **marketplace** product host. Pousali may also host the same audit UI as a brand site — it is not a separate product; prefer `APP_SLUG=marketplace` (legacy DB seed may still say `audit-tool`).
 
 ```ts
 // app/api/me/route.ts
